@@ -170,7 +170,7 @@
 
 <body>
     <!-- ============================================
-    HEADER
+    HEADER - Categories link REMOVED
     ============================================ -->
     <header class="header">
         <div class="header-left">
@@ -178,7 +178,9 @@
         </div>
         <div class="header-right">
             <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <a href="category.html" class="btn btn-nav">📂 Categories</a>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <!-- Admin link - hidden by default, shown only to admins -->
+            <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -220,8 +222,8 @@
                 <label class="form-label" for="storyCategory">📂 Category <span class="required-star">*</span></label>
                 <select id="storyCategory" onchange="checkCategoryRestriction()">
                     <option value="">Select a category...</option>
-                    <option value="men">🧔 Men's Harbor</option>
-                    <option value="women">👩 Women's Harbor</option>
+                    <option value="men" id="catMen">🧔 Men's Harbor</option>
+                    <option value="women" id="catWomen">👩 Women's Harbor</option>
                     <option value="struggles">🌊 The Storm</option>
                     <option value="fun">☀️ Sunny Skies</option>
                     <option value="learning">🧭 The Compass</option>
@@ -258,7 +260,7 @@
     </div>
 
     <!-- ============================================
-    FOOTER
+    FOOTER - Category link removed
     ============================================ -->
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
@@ -267,7 +269,6 @@
             <a href="submit.html">📝 Share Story</a>
             <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="category.html">📂 Categories</a>
             <a href="activity.html">📊 Activity</a>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
@@ -376,6 +377,22 @@
             option.value = c.name;
             datalist.appendChild(option);
         });
+    }
+
+    // ============================================
+    // UPDATE CATEGORY OPTIONS BASED ON GENDER
+    // ============================================
+    function updateCategoryOptions() {
+        var catMen = document.getElementById('catMen');
+        var catWomen = document.getElementById('catWomen');
+        var gender = currentUserData ? currentUserData.gender : null;
+        
+        if (catMen) {
+            catMen.style.display = (gender === '🧔 Man') ? 'block' : 'none';
+        }
+        if (catWomen) {
+            catWomen.style.display = (gender === '👩 Woman') ? 'block' : 'none';
+        }
     }
 
     // ============================================
@@ -598,6 +615,8 @@
                         currentUserData = doc.data();
                         userName.textContent = currentUserData.name || 'Friend';
                         userGenderBadge.textContent = currentUserData.gender || '';
+                        // Update category options based on gender
+                        updateCategoryOptions();
                         checkCategoryRestriction();
                     }
                 })
