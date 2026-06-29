@@ -1,1 +1,166 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story — The Harbor</title>
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        style-src 'self' 'unsafe-inline';
+        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
+    ">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
+    </script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .comment-section {
+            margin-top: 30px;
+        }
+        .comment-section textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            background: #f5f0eb;
+        }
+        .comment-section textarea:focus {
+            outline: none;
+            border-color: #1a4a4a;
+        }
+        .comment {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Crisis Banner -->
+        <div class="crisis-banner">
+            ⚠️ <strong>Peer support only.</strong> Not a crisis line.
+            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>.
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <a href="index.html" class="logo" style="text-decoration:none;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="logo-icon">⚓</span>
+                    <div>
+                        <span class="logo-text">The <span>Harbor</span></span>
+                        <span class="logo-sub">Read & support</span>
+                    </div>
+                </div>
+            </a>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+        </header>
+
+        <!-- User Info -->
+        <div class="user-info" id="userInfo">
+            👤 Welcome, <span class="user-name" id="userName">—</span>
+            <span id="userGenderDisplay"></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Story Content -->
+        <div id="storyContent">
+            <div class="loading">⏳ Loading story...</div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comment-section card">
+            <h3 style="margin-bottom:12px;">💬 Comments</h3>
+
+            <div id="commentsContainer">
+                <div class="loading">⏳ Loading comments...</div>
+            </div>
+
+            <div style="margin-top:20px;padding-top:20px;border-top:2px solid #d4c8b8;">
+                <label for="commentText"><strong>Share your thoughts</strong></label>
+                <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
+                <div style="font-size:0.75rem;color:#7a9e7e;text-align:right;margin-top:2px;"><span id="commentCount">0</span>/1000</div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="commentAnonymous" />
+                    <label for="commentAnonymous">🕊️ Post anonymously</label>
+                </div>
+
+                <div id="commentError" class="error-msg"></div>
+
+                <button class="btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:10px;">💬 Post Comment</button>
+            </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px;">
+            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            ⚓ The Harbor &mdash; built with 💚 for the community
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+            <div id="passwordChecks"></div>
+            <div id="signupFields" style="display:none;">
+                <label for="authName">What should we call you?</label>
+                <input type="text" id="authName" placeholder="Your name or nickname" />
+                <label for="authGender">Your Gender</label>
+                <select id="authGender">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <label for="authFavorites">What are your favorite things?</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
+            </div>
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
+                Don't have an account? <strong>Sign Up</strong>
+            </div>
+            <div class="error-msg" id="authError"></div>
+        </div>
+    </div>
+
+    <script>
+        // Comment character counter
+        document.getElementById('commentText').addEventListener('input', function() {
+            document.getElementById('commentCount').textContent = this.value.length;
+        });
+    </script>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
