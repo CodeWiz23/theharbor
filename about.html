@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About — The Harbor</title>
 
+    <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
@@ -13,6 +13,7 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -20,6 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
@@ -28,8 +30,12 @@
         }
         .about-section h2 {
             color: #1a4a4a;
-            margin-top: 24px;
-            margin-bottom: 8px;
+            margin-top: 28px;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+        .about-section h2:first-of-type {
+            margin-top: 0;
         }
         .about-section p {
             color: #2d3a3a;
@@ -40,12 +46,19 @@
             padding: 0;
         }
         .about-section ul li {
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #e8ddd0;
             color: #2d3a3a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .about-section ul li:last-child {
             border-bottom: none;
+        }
+        .about-section ul li .icon {
+            font-size: 1.2rem;
+            min-width: 30px;
         }
         .resources-grid {
             display: grid;
@@ -55,24 +68,85 @@
         }
         .resource-card {
             background: #f5f0eb;
-            padding: 16px 20px;
+            padding: 20px;
             border-radius: 12px;
             border: 1px solid #d4c8b8;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(26, 74, 74, 0.1);
         }
         .resource-card a {
             color: #1a4a4a;
             font-weight: 600;
             text-decoration: none;
+            display: block;
+            margin-top: 6px;
         }
         .resource-card a:hover {
             color: #c47a5a;
             text-decoration: underline;
         }
         .resource-card .emoji {
-            font-size: 2rem;
+            font-size: 2.4rem;
             display: block;
             margin-bottom: 6px;
+        }
+        .resource-card .desc {
+            font-size: 0.8rem;
+            color: #7a9e7e;
+            margin-top: 4px;
+        }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .value-item {
+            background: #f5f0eb;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #d4c8b8;
+        }
+        .value-item .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .value-item .label {
+            font-weight: 600;
+            color: #1a4a4a;
+            font-size: 0.9rem;
+        }
+        .mission-quote {
+            background: #e8f0e6;
+            padding: 24px 30px;
+            border-radius: 16px;
+            border-left: 6px solid #1a4a4a;
+            margin: 16px 0 24px 0;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #2d3a3a;
+        }
+        .mission-quote strong {
+            color: #1a4a4a;
+            font-style: normal;
+        }
+        @media (max-width: 600px) {
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+            .values-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .mission-quote {
+                padding: 16px 18px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -82,7 +156,8 @@
         <!-- Crisis Banner -->
         <div class="crisis-banner">
             ⚠️ <strong>Peer support only.</strong> Not a crisis line.
-            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>.
+            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
+            or your local emergency number.
         </div>
 
         <!-- Header -->
@@ -111,71 +186,213 @@
 
         <!-- About Content -->
         <div class="about-section">
-            <div style="text-align:center;padding:20px 0;">
+            <div style="text-align:center;padding:20px 0 10px 0;">
                 <span style="font-size:4rem;">⚓</span>
-                <h1 style="font-weight:300;color:#1a4a4a;">About The Harbor</h1>
+                <h1 style="font-weight:300;color:#1a4a4a;font-size:2.4rem;margin-top:4px;">About The Harbor</h1>
                 <p style="color:#7a9e7e;font-size:1.1rem;">A safe space for every story.</p>
             </div>
 
+            <!-- Mission -->
             <div class="card">
                 <h2>🌿 Our Mission</h2>
-                <p>The Harbor is a compassionate online community where people can share their struggles, find support, and discover hope. We believe that every story matters and that no one should have to face their challenges alone.</p>
+                <div class="mission-quote">
+                    "The Harbor is a compassionate online community where people can share their struggles, 
+                    find support, and discover hope. We believe that <strong>every story matters</strong> and that 
+                    no one should have to face their challenges alone."
+                </div>
+                <p style="margin-top:8px;">
+                    Whether you're navigating a difficult time, celebrating a victory, or just looking for a 
+                    place to belong — you are welcome here.
+                </p>
+            </div>
 
+            <!-- What We Offer -->
+            <div class="card" style="margin-top:20px;">
                 <h2>⚓ What We Offer</h2>
                 <ul>
-                    <li><strong>🧔 Men's Harbor</strong> — A dedicated space for men to share and support each other</li>
-                    <li><strong>👩 Women's Harbor</strong> — A dedicated space for women to share and support each other</li>
-                    <li><strong>🌊 The Storm</strong> — For sharing struggles, depression, and difficult times</li>
-                    <li><strong>☀️ Sunny Skies</strong> — For sharing joy, fun moments, and positivity</li>
-                    <li><strong>🧭 The Compass</strong> — For learning, growth, and practical advice</li>
+                    <li>
+                        <span class="icon">🧔</span>
+                        <div>
+                            <strong>Men's Harbor</strong>
+                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">A dedicated space for men to share and support each other</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">👩</span>
+                        <div>
+                            <strong>Women's Harbor</strong>
+                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">A dedicated space for women to share and support each other</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">🌊</span>
+                        <div>
+                            <strong>The Storm</strong>
+                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">For sharing struggles, depression, and difficult times</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">☀️</span>
+                        <div>
+                            <strong>Sunny Skies</strong>
+                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">For sharing joy, fun moments, and positivity</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">🧭</span>
+                        <div>
+                            <strong>The Compass</strong>
+                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">For learning, growth, and practical advice</span>
+                        </div>
+                    </li>
                 </ul>
+            </div>
 
+            <!-- Our Values -->
+            <div class="card" style="margin-top:20px;">
+                <h2>💚 Our Values</h2>
+                <div class="values-grid">
+                    <div class="value-item">
+                        <span class="emoji">🤝</span>
+                        <span class="label">Compassion</span>
+                    </div>
+                    <div class="value-item">
+                        <span class="emoji">🕊️</span>
+                        <span class="label">Anonymity</span>
+                    </div>
+                    <div class="value-item">
+                        <span class="emoji">🔒</span>
+                        <span class="label">Privacy</span>
+                    </div>
+                    <div class="value-item">
+                        <span class="emoji">🌈</span>
+                        <span class="label">Inclusivity</span>
+                    </div>
+                    <div class="value-item">
+                        <span class="emoji">💪</span>
+                        <span class="label">Resilience</span>
+                    </div>
+                    <div class="value-item">
+                        <span class="emoji">❤️</span>
+                        <span class="label">Hope</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Guidelines -->
+            <div class="card" style="margin-top:20px;">
                 <h2>🛡️ Community Guidelines</h2>
                 <ul>
-                    <li>🤝 Be kind and respectful to everyone</li>
-                    <li>🕊️ Anonymous posting is available — use it if you need to</li>
-                    <li>🚫 No hate speech, bullying, or harassment</li>
-                    <li>📵 No sharing personal information (addresses, phone numbers)</li>
-                    <li>💚 This is a supportive space — not a crisis line</li>
+                    <li>
+                        <span class="icon">🤝</span>
+                        <div><strong>Be kind and respectful</strong> — Treat others as you would like to be treated</div>
+                    </li>
+                    <li>
+                        <span class="icon">🕊️</span>
+                        <div><strong>Anonymous posting</strong> — Use it if you need to, but be genuine</div>
+                    </li>
+                    <li>
+                        <span class="icon">🚫</span>
+                        <div><strong>No hate speech</strong> — No bullying, harassment, or discrimination</div>
+                    </li>
+                    <li>
+                        <span class="icon">📵</span>
+                        <div><strong>No personal info</strong> — Don't share addresses, phone numbers, or real names</div>
+                    </li>
+                    <li>
+                        <span class="icon">💚</span>
+                        <div><strong>Supportive space</strong> — This is a community, not a crisis line</div>
+                    </li>
+                    <li>
+                        <span class="icon">🚨</span>
+                        <div><strong>Report issues</strong> — If you see something wrong, report it</div>
+                    </li>
                 </ul>
+            </div>
 
+            <!-- Crisis Resources -->
+            <div class="card" style="margin-top:20px;">
                 <h2>🆘 Crisis Resources</h2>
-                <p style="margin-bottom:12px;">If you're in crisis, please reach out to a professional:</p>
+                <p style="margin-bottom:16px;color:#7a9e7e;">
+                    If you're in crisis, please reach out to a professional. You are not alone.
+                </p>
                 <div class="resources-grid">
                     <div class="resource-card">
                         <span class="emoji">📞</span>
                         <a href="https://988lifeline.org/" target="_blank">988 Suicide & Crisis Lifeline</a>
-                        <p style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">Call or text 988</p>
+                        <div class="desc">Call or text 988</div>
                     </div>
                     <div class="resource-card">
                         <span class="emoji">💬</span>
                         <a href="https://www.crisistextline.org/" target="_blank">Crisis Text Line</a>
-                        <p style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">Text HOME to 741741</p>
+                        <div class="desc">Text HOME to 741741</div>
                     </div>
                     <div class="resource-card">
                         <span class="emoji">🌍</span>
                         <a href="https://findahelpline.com/" target="_blank">Find a Helpline</a>
-                        <p style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">International resources</p>
+                        <div class="desc">International resources</div>
+                    </div>
+                    <div class="resource-card">
+                        <span class="emoji">🧠</span>
+                        <a href="https://www.nami.org/" target="_blank">NAMI</a>
+                        <div class="desc">National Alliance on Mental Illness</div>
                     </div>
                 </div>
+            </div>
 
+            <!-- Privacy & Security -->
+            <div class="card" style="margin-top:20px;">
                 <h2>🔒 Privacy & Security</h2>
                 <ul>
-                    <li>✅ Your data is encrypted and protected</li>
-                    <li>✅ Anonymous posting is available</li>
-                    <li>✅ No ads, no tracking, no data selling</li>
-                    <li>✅ You control what you share</li>
+                    <li>
+                        <span class="icon">✅</span>
+                        <div><strong>Your data is encrypted</strong> — Protected with industry-standard security</div>
+                    </li>
+                    <li>
+                        <span class="icon">🕊️</span>
+                        <div><strong>Anonymous posting</strong> — Share your story without revealing your identity</div>
+                    </li>
+                    <li>
+                        <span class="icon">🚫</span>
+                        <div><strong>No ads, no tracking</strong> — We don't sell or share your data</div>
+                    </li>
+                    <li>
+                        <span class="icon">🔐</span>
+                        <div><strong>You control your data</strong> — Edit or delete your stories and comments anytime</div>
+                    </li>
+                    <li>
+                        <span class="icon">🛡️</span>
+                        <div><strong>Secure authentication</strong> — Your password is hashed and protected</div>
+                    </li>
                 </ul>
             </div>
 
-            <div style="text-align:center;margin-top:24px;">
+            <!-- Tech Stack (Resume Section) -->
+            <div class="card" style="margin-top:20px;background:#e8f0e6;border-color:#7a9e7e;">
+                <h2>💻 Built With</h2>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">🔥 Firebase</span>
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">⚡ Firestore</span>
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">🔐 Firebase Auth</span>
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">📄 HTML5</span>
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">🎨 CSS3</span>
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">📦 JavaScript</span>
+                    <span style="background:#1a4a4a;color:#f5f0eb;padding:4px 14px;border-radius:20px;font-size:0.8rem;">🐙 GitHub Pages</span>
+                </div>
+                <p style="font-size:0.85rem;color:#7a9e7e;margin-top:10px;">
+                    🔒 <strong>100% free</strong> &bull; 🔐 <strong>Attack-proof</strong> &bull; 🕊️ <strong>Privacy-first</strong>
+                </p>
+            </div>
+
+            <!-- Back to Home -->
+            <div style="text-align:center;margin-top:30px;">
                 <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;">⚓ Return to The Harbor</a>
             </div>
         </div>
 
         <!-- Footer -->
         <footer class="footer">
-            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; 🕊️ Anonymous option
+            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; 🕊️ Anonymous option &bull; 📱 Responsive
         </footer>
     </div>
 
@@ -184,15 +401,19 @@
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
+
             <label for="authEmail">Email</label>
             <input type="email" id="authEmail" placeholder="you@example.com" />
+
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
             <div id="passwordStrength"></div>
             <div id="passwordChecks"></div>
+
             <div id="signupFields" style="display:none;">
                 <label for="authName">What should we call you?</label>
                 <input type="text" id="authName" placeholder="Your name or nickname" />
+
                 <label for="authGender">Your Gender</label>
                 <select id="authGender">
                     <option value="🧔 Man">🧔 Man</option>
@@ -200,17 +421,22 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
+
                 <label for="authFavorites">What are your favorite things?</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
             </div>
+
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
                 Don't have an account? <strong>Sign Up</strong>
             </div>
+
             <div class="error-msg" id="authError"></div>
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script src="js/app.js"></script>
 </body>
 </html>
