@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
     <!-- ============================================
-    META TAGS FOR SEO & SOCIAL SHARING (Fix #9)
+    META TAGS FOR SEO & SOCIAL SHARING
     ============================================ -->
     <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together. Free mental health support community." />
     <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
@@ -30,13 +30,21 @@
     <meta name="twitter:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
     <meta name="twitter:image" content="https://codewiz23.github.io/theharbor/images/og-image.png" />
 
+    <!-- ⭐ GOOGLE ANALYTICS - ADDED ⭐ -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-81R2FX47H0');
+      console.log('✅ Google Analytics initialized on index.html');
+    </script>
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
-    <script src="js/analytics.js">
     </script>
 
     <link rel="stylesheet" href="css/style.css" />
@@ -213,7 +221,7 @@
     </div>
 
     <!-- ============================================
-    AUTH MODAL - WITH TERMS CHECKBOX (Fix #6)
+    AUTH MODAL - WITH TERMS CHECKBOX
     ============================================ -->
     <div class="modal" id="authModal">
         <div class="modal-content">
@@ -255,7 +263,7 @@
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
 
-                <!-- ⭐ FIX #6: TERMS & PRIVACY CHECKBOX -->
+                <!-- TERMS & PRIVACY CHECKBOX -->
                 <div class="checkbox-group" style="margin-top:14px;">
                     <input type="checkbox" id="termsCheckbox" />
                     <label for="termsCheckbox" style="font-weight:600;cursor:pointer;color:#2d3a3a;">
