@@ -25,8 +25,6 @@ let currentUser = null;
 let currentUserData = null;
 let currentCategory = 'all';
 let userReactions = {};
-let allStoriesCache = [];
-let userStoryHistory = [];
 
 // ============================================
 // COUNTRY DATA
@@ -85,30 +83,55 @@ function checkPasswordStrength(password) {
 }
 
 // ============================================
-// SWITCH CATEGORY - FIXED (ADD THIS FUNCTION)
+// GENDER RESTRICTION CHECKS
 // ============================================
-function switchCategory(category) {
-    console.log('🔄 Switching to category:', category);
+function getUserGender() {
+    if (!currentUserData) return null;
+    return currentUserData.gender;
+}
+
+function canSeeCategory(category) {
+    const gender = getUserGender();
     
-    // Update current category
-    currentCategory = category;
+    // Admin can see everything
+    if (currentUserData?.isAdmin === true) return true;
     
-    // Update active tab in UI
-    document.querySelectorAll('.tab').forEach((tab) => {
-        if (tab.dataset.category === category) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
+    // Everyone can see these
+    if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') {
+        return true;
+    }
     
-    // Update URL without reloading
-    const url = new URL(window.location);
-    url.searchParams.set('cat', category);
-    window.history.pushState({ category: category }, '', url);
+    // Men's Harbor - only men
+    if (category === 'men') {
+        return gender === '🧔 Man';
+    }
     
-    // Load stories for this category
-    loadStories();
+    // Women's Harbor - only women
+    if (category === 'women') {
+        return gender === '👩 Woman';
+    }
+    
+    return false;
+}
+
+function canPostInCategory(category) {
+    const gender = getUserGender();
+    
+    if (currentUserData?.isAdmin === true) return true;
+    
+    if (category === 'struggles' || category === 'fun' || category === 'learning') {
+        return true;
+    }
+    
+    if (category === 'men') {
+        return gender === '🧔 Man';
+    }
+    
+    if (category === 'women') {
+        return gender === '👩 Woman';
+    }
+    
+    return false;
 }
 
 // ============================================
@@ -125,6 +148,35 @@ async function checkUsernameAvailability(username) {
         console.error('Error checking username:', error);
         return false;
     }
+}
+
+// ============================================
+// SWITCH CATEGORY - FIXED WITH GENDER CHECK
+// ============================================
+function switchCategory(category) {
+    console.log('🔄 Switching to category:', category);
+    
+    // Check permission
+    if (!canSeeCategory(category)) {
+        alert('⚠️ You don\'t have permission to view this category.');
+        return;
+    }
+    
+    currentCategory = category;
+    
+    document.querySelectorAll('.tab').forEach((tab) => {
+        if (tab.dataset.category === category) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+    
+    const url = new URL(window.location);
+    url.searchParams.set('cat', category);
+    window.history.pushState({ category: category }, '', url);
+    
+    loadStories();
 }
 
 // ============================================
@@ -232,6 +284,7 @@ function handleAuth() {
     const emailInput = document.getElementById('authEmail');
     const passwordInput = document.getElementById('authPassword');
     const error = document.getElementById('authError');
+    const success = document.getElementById('authSuccess');
     const submitBtn = document.getElementById('authSubmitBtn');
 
     if (!emailInput || !passwordInput || !error || !submitBtn) return;
@@ -240,6 +293,7 @@ function handleAuth() {
     const password = passwordInput.value;
 
     error.textContent = '';
+    if (success) success.textContent = '';
 
     if (!email || !email.includes('@') || !email.includes('.')) {
         error.textContent = 'Please enter a valid email address.';
@@ -348,6 +402,7 @@ function handleAuth() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Create Account';
                 auth.signOut();
+                // ✅ SHOW VERIFICATION MESSAGE WITH SPAM FOLDER REMINDER
                 alert(
                     '✅ Verification email sent to ' + email + '!\n\n' +
                     '📧 Please check your inbox and click the verification link.\n\n' +
@@ -439,109 +494,18 @@ function loadAllUserReactions() {
 }
 
 // ============================================
-// CREATE FLOATING EMOJI WITH FIREWORKS
+// REACTION ANIMATION - FIXED
 // ============================================
-function createFloatingEmoji(emoji, x, y) {
-    const el = document.createElement('div');
-    el.textContent = emoji;
-    el.style.cssText = `
-        position: fixed;
-        font-size: ${2 + Math.random() * 2}rem;
-        pointer-events: none;
-        z-index: 9999;
-        left: ${x + (Math.random() - 0.5) * 200}px;
-        top: ${y + (Math.random() - 0.5) * 100}px;
-        animation: floatUp 1.5s ease-out forwards;
-        opacity: 1;
-    `;
-    
-    if (!document.getElementById('floatUpStyle')) {
+(function addAnimationStyles() {
+    if (!document.getElementById('animationStyles')) {
         const style = document.createElement('style');
-        style.id = 'floatUpStyle';
+        style.id = 'animationStyles';
         style.textContent = `
             @keyframes floatUp {
                 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
                 50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); }
                 100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
             }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1600);
-    
-    // 🎆 FIREWORKS EFFECT - shoot fireworks when reaction is added
-    createReactionFireworks(x, y);
-}
-
-// ============================================
-// REACTION FIREWORKS EFFECT
-// ============================================
-function createReactionFireworks(cx, cy) {
-    const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24', '#27ae60', '#f39c12'];
-    
-    // Create 3 bursts of fireworks
-    for (let burst = 0; burst < 3; burst++) {
-        setTimeout(() => {
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            const count = 15 + Math.floor(Math.random() * 25);
-            
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 50 + Math.random() * 150;
-                const size = 4 + Math.random() * 8;
-                
-                particle.style.cssText = `
-                    position: fixed;
-                    width: ${size}px;
-                    height: ${size}px;
-                    background: ${color};
-                    border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-                    pointer-events: none;
-                    z-index: 9998;
-                    left: ${cx + (Math.random() - 0.5) * 40}px;
-                    top: ${cy + (Math.random() - 0.5) * 40}px;
-                    box-shadow: 0 0 10px ${color}80;
-                    animation: fireworkBurst ${0.8 + Math.random() * 0.6}s ease-out forwards;
-                    --tx: ${Math.cos(angle) * distance}px;
-                    --ty: ${Math.sin(angle) * distance}px;
-                `;
-                
-                document.body.appendChild(particle);
-                setTimeout(() => particle.remove(), 1500);
-            }
-            
-            // Add sparkles
-            for (let i = 0; i < 5; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.style.cssText = `
-                    position: fixed;
-                    width: ${2 + Math.random() * 4}px;
-                    height: ${2 + Math.random() * 4}px;
-                    background: white;
-                    border-radius: 50%;
-                    pointer-events: none;
-                    z-index: 9997;
-                    left: ${cx + (Math.random() - 0.5) * 100}px;
-                    top: ${cy + (Math.random() - 0.5) * 100}px;
-                    animation: sparkleBurst ${1 + Math.random() * 0.5}s ease-out forwards;
-                    box-shadow: 0 0 6px rgba(255,255,255,0.8);
-                `;
-                document.body.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 1600);
-            }
-        }, burst * 150);
-    }
-}
-
-// Add CSS animations for fireworks
-(function addFireworkStyles() {
-    if (!document.getElementById('fireworkStyles')) {
-        const style = document.createElement('style');
-        style.id = 'fireworkStyles';
-        style.textContent = `
             @keyframes fireworkBurst {
                 0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
                 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
@@ -550,13 +514,94 @@ function createReactionFireworks(cx, cy) {
                 0% { transform: scale(0) rotate(0deg); opacity: 1; }
                 100% { transform: scale(1.5) rotate(720deg); opacity: 0; }
             }
+            .floating-emoji {
+                position: fixed;
+                font-size: 3rem;
+                pointer-events: none;
+                z-index: 9999;
+                animation: floatUp 1.5s ease-out forwards;
+            }
+            .firework-particle {
+                position: fixed;
+                pointer-events: none;
+                z-index: 9998;
+                animation: fireworkBurst 0.8s ease-out forwards;
+            }
+            .sparkle-particle {
+                position: fixed;
+                pointer-events: none;
+                z-index: 9997;
+                animation: sparkleBurst 1s ease-out forwards;
+            }
         `;
         document.head.appendChild(style);
     }
 })();
 
+function createFloatingEmoji(emoji, x, y) {
+    const el = document.createElement('div');
+    el.className = 'floating-emoji';
+    el.textContent = emoji;
+    el.style.left = (x + (Math.random() - 0.5) * 200) + 'px';
+    el.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
+    el.style.fontSize = (2 + Math.random() * 2) + 'rem';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1600);
+    
+    createReactionFireworks(x, y);
+}
+
+function createReactionFireworks(cx, cy) {
+    const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24', '#27ae60', '#f39c12'];
+    
+    for (let burst = 0; burst < 3; burst++) {
+        setTimeout(() => {
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const count = 15 + Math.floor(Math.random() * 25);
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 150;
+                const size = 4 + Math.random() * 8;
+                
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.background = color;
+                particle.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                particle.style.boxShadow = `0 0 10px ${color}80`;
+                particle.style.left = (cx + (Math.random() - 0.5) * 40) + 'px';
+                particle.style.top = (cy + (Math.random() - 0.5) * 40) + 'px';
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                particle.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle-particle';
+                sparkle.style.width = (2 + Math.random() * 4) + 'px';
+                sparkle.style.height = (2 + Math.random() * 4) + 'px';
+                sparkle.style.background = 'white';
+                sparkle.style.borderRadius = '50%';
+                sparkle.style.boxShadow = '0 0 6px rgba(255,255,255,0.8)';
+                sparkle.style.left = (cx + (Math.random() - 0.5) * 100) + 'px';
+                sparkle.style.top = (cy + (Math.random() - 0.5) * 100) + 'px';
+                sparkle.style.animationDuration = (1 + Math.random() * 0.5) + 's';
+                
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1600);
+            }
+        }, burst * 150);
+    }
+}
+
 // ============================================
-// ADD REACTION - WITH FIREWORKS
+// ADD REACTION - WITH ANIMATION
 // ============================================
 function addReaction(storyId, emoji) {
     if (!currentUser) {
@@ -569,7 +614,6 @@ function addReaction(storyId, emoji) {
         return;
     }
 
-    // Initialize userReactions[storyId] if it doesn't exist
     if (!userReactions[storyId]) {
         userReactions[storyId] = [];
     }
@@ -580,11 +624,11 @@ function addReaction(storyId, emoji) {
 
     const hasReacted = userReactions[storyId].includes(emoji);
 
-    const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
+    const rect = document.getElementById('storiesContainer')?.getBoundingClientRect() || 
+                 document.getElementById('storyCard')?.getBoundingClientRect();
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     
-    // Floating emoji + fireworks
     createFloatingEmoji(emoji, x, y);
 
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
@@ -660,7 +704,7 @@ function addReaction(storyId, emoji) {
 }
 
 // ============================================
-// TOGGLE REACTION (for story.html) - WITH FIREWORKS
+// TOGGLE REACTION (for story.html)
 // ============================================
 function toggleReaction(storyId, emoji) {
     if (!currentUser) {
@@ -687,7 +731,6 @@ function toggleReaction(storyId, emoji) {
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     
-    // Floating emoji + fireworks
     createFloatingEmoji(emoji, x, y);
 
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
@@ -759,7 +802,7 @@ function toggleReaction(storyId, emoji) {
 }
 
 // ============================================
-// LOAD STORIES
+// LOAD STORIES - FIXED WITH GENDER CHECK
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
@@ -792,23 +835,14 @@ function loadStories() {
         return;
     }
 
-    const gender = currentUserData ? currentUserData.gender : null;
-    if (currentCategory === 'men' && gender !== '🧔 Man') {
+    // Check gender permission
+    if (!canSeeCategory(currentCategory)) {
         container.innerHTML = `
             <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
                 <div class="big-emoji">🔒</div>
                 <h3>Access Restricted</h3>
-                <p>Men's Harbor is only available for men.</p>
-            </div>
-        `;
-        return;
-    }
-    if (currentCategory === 'women' && gender !== '👩 Woman') {
-        container.innerHTML = `
-            <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
-                <div class="big-emoji">🔒</div>
-                <h3>Access Restricted</h3>
-                <p>Women's Harbor is only available for women.</p>
+                <p>You don't have permission to view this section.</p>
+                <a href="?cat=all" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">← Go to All Stories</a>
             </div>
         `;
         return;
@@ -831,7 +865,10 @@ function loadStories() {
                         <div class="big-emoji">🌊</div>
                         <h3>No stories in this category yet</h3>
                         <p>Be the first to share your story!</p>
-                        <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
+                        ${canPostInCategory(currentCategory) ? 
+                            `<a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>` 
+                            : ''
+                        }
                     </div>
                 `;
                 return;
@@ -857,6 +894,8 @@ function loadStories() {
                 html += renderStoryCard(story);
             });
             container.innerHTML = html;
+            
+            console.log(`✅ Loaded ${stories.length} stories for category: ${currentCategory}`);
         })
         .catch((err) => {
             console.error('Error loading stories:', err);
@@ -964,15 +1003,25 @@ auth.onAuthStateChanged((user) => {
                     updateEmergencyBanner();
 
                     loadAllUserReactions().then(() => {
+                        // Update category tabs based on gender
+                        updateCategoryTabs();
+                        
                         if (document.getElementById('storiesContainer')) {
-                            // Check URL for category param
                             const urlParams = new URLSearchParams(window.location.search);
                             const cat = urlParams.get('cat') || 'all';
                             currentCategory = cat;
                             
-                            // Update active tab
+                            // Check if user can see this category
+                            if (!canSeeCategory(cat)) {
+                                currentCategory = 'all';
+                                // Update URL
+                                const url = new URL(window.location);
+                                url.searchParams.set('cat', 'all');
+                                window.history.pushState({}, '', url);
+                            }
+                            
                             document.querySelectorAll('.tab').forEach((tab) => {
-                                tab.classList.toggle('active', tab.dataset.category === cat);
+                                tab.classList.toggle('active', tab.dataset.category === currentCategory);
                             });
                             
                             loadStories();
@@ -1018,6 +1067,31 @@ auth.onAuthStateChanged((user) => {
 });
 
 // ============================================
+// UPDATE CATEGORY TABS BASED ON GENDER
+// ============================================
+function updateCategoryTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    const gender = getUserGender();
+    
+    tabs.forEach(tab => {
+        const category = tab.dataset.category;
+        if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') {
+            tab.style.display = 'inline-block';
+        } else if (category === 'men' && gender === '🧔 Man') {
+            tab.style.display = 'inline-block';
+        } else if (category === 'women' && gender === '👩 Woman') {
+            tab.style.display = 'inline-block';
+        } else if (category === 'men' && gender !== '🧔 Man') {
+            tab.style.display = 'none';
+        } else if (category === 'women' && gender !== '👩 Woman') {
+            tab.style.display = 'none';
+        } else {
+            tab.style.display = 'inline-block';
+        }
+    });
+}
+
+// ============================================
 // UPDATE EMERGENCY BANNER
 // ============================================
 function updateEmergencyBanner() {
@@ -1033,30 +1107,6 @@ function updateEmergencyBanner() {
         ${country ? `(${country})` : ''}
     `;
     banner.style.display = 'block';
-}
-
-// ============================================
-// GENDER RESTRICTION CHECKS
-// ============================================
-function getUserGender() {
-    if (!currentUserData) return null;
-    return currentUserData.gender;
-}
-
-function canSeeCategory(category) {
-    const gender = getUserGender();
-    if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') return true;
-    if (category === 'men' && gender === '🧔 Man') return true;
-    if (category === 'women' && gender === '👩 Woman') return true;
-    return false;
-}
-
-function canPostInCategory(category) {
-    const gender = getUserGender();
-    if (category === 'struggles' || category === 'fun' || category === 'learning') return true;
-    if (category === 'men' && gender === '🧔 Man') return true;
-    if (category === 'women' && gender === '👩 Woman') return true;
-    return false;
 }
 
 // ============================================
