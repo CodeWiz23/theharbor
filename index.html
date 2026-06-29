@@ -116,6 +116,8 @@
             <!-- Navigation Links -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
             <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <!-- Admin link - hidden by default, shown only to admins -->
+            <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
 
             <!-- Auth Buttons (visible when logged out) -->
             <div id="authButtons">
@@ -244,7 +246,7 @@
     </div>
 
     <!-- ============================================
-    FOOTER
+    FOOTER - Admin link removed from footer
     ============================================ -->
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
@@ -254,9 +256,7 @@
             <a href="submit.html">📝 Share Story</a>
             <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="admin.html">👑 Admin</a>
-            <a href="#" onclick="return false;">Privacy</a>
-            <a href="#" onclick="return false;">Guidelines</a>
+            <!-- Admin link REMOVED from footer - now only in header -->
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
             &copy; 2026 The Harbor — Built with 💚 for the community
