@@ -1,4 +1,3 @@
-
 // ============================================
 // 🔥 FIREBASE CONFIG
 // ============================================
@@ -28,7 +27,6 @@ let currentCategory = 'all';
 // ============================================
 function sanitizeInput(text) {
     if (!text) return '';
-    // Remove HTML tags
     const div = document.createElement('div');
     div.textContent = text;
     return div.textContent;
@@ -63,7 +61,6 @@ function checkPasswordStrength(password) {
         noCommon: false
     };
 
-    // Check length (at least 8 characters)
     if (password.length >= 8) {
         checks.length = true;
         score += 20;
@@ -71,38 +68,32 @@ function checkPasswordStrength(password) {
         score += 10;
     }
 
-    // Check uppercase
     if (/[A-Z]/.test(password)) {
         checks.uppercase = true;
         score += 20;
     }
 
-    // Check lowercase
     if (/[a-z]/.test(password)) {
         checks.lowercase = true;
         score += 20;
     }
 
-    // Check numbers
     if (/[0-9]/.test(password)) {
         checks.number = true;
         score += 20;
     }
 
-    // Check special characters
     if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
         checks.special = true;
         score += 20;
     }
 
-    // Check for common passwords
     const commonPasswords = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
     if (!commonPasswords.some(pwd => password.toLowerCase().includes(pwd))) {
         checks.noCommon = true;
         score += 10;
     }
 
-    // Determine strength
     let strength = 'weak';
     let color = '#c0392b';
     if (score >= 90) {
@@ -158,62 +149,77 @@ function getPasswordRequirementsHTML(password) {
 
 function openModal(mode) {
     const modal = document.getElementById('authModal');
+    if (!modal) return;
+    
     const title = document.getElementById('modalTitle');
     const submitBtn = document.getElementById('authSubmitBtn');
     const signupFields = document.getElementById('signupFields');
     const switchLink = document.getElementById('authSwitch');
     const error = document.getElementById('authError');
 
-    error.textContent = '';
-    document.getElementById('authEmail').value = '';
-    document.getElementById('authPassword').value = '';
-    document.getElementById('authName').value = '';
-    document.getElementById('authFavorites').value = '';
-    document.getElementById('passwordStrength').innerHTML = '';
-    document.getElementById('passwordChecks').innerHTML = '';
+    if (error) error.textContent = '';
+    
+    const emailInput = document.getElementById('authEmail');
+    const passwordInput = document.getElementById('authPassword');
+    const nameInput = document.getElementById('authName');
+    const favoritesInput = document.getElementById('authFavorites');
+    
+    if (emailInput) emailInput.value = '';
+    if (passwordInput) passwordInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (favoritesInput) favoritesInput.value = '';
 
     if (mode === 'login') {
-        title.textContent = '🔐 Welcome Back';
-        submitBtn.textContent = '🚀 Log In';
-        signupFields.style.display = 'none';
-        switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
-        switchLink.dataset.mode = 'signup';
+        if (title) title.textContent = '🔐 Welcome Back';
+        if (submitBtn) submitBtn.textContent = '🚀 Log In';
+        if (signupFields) signupFields.style.display = 'none';
+        if (switchLink) {
+            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.dataset.mode = 'signup';
+        }
     } else {
-        title.textContent = '📝 Join The Harbor';
-        submitBtn.textContent = '🚀 Create Account';
-        signupFields.style.display = 'block';
-        switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
-        switchLink.dataset.mode = 'login';
+        if (title) title.textContent = '📝 Join The Harbor';
+        if (submitBtn) submitBtn.textContent = '🚀 Create Account';
+        if (signupFields) signupFields.style.display = 'block';
+        if (switchLink) {
+            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.dataset.mode = 'login';
+        }
     }
 
     modal.style.display = 'flex';
 }
 
 function closeModal() {
-    document.getElementById('authModal').style.display = 'none';
+    const modal = document.getElementById('authModal');
+    if (modal) modal.style.display = 'none';
 }
 
 function toggleAuthMode() {
     const switchLink = document.getElementById('authSwitch');
+    if (!switchLink) return;
     const mode = switchLink.dataset.mode;
     closeModal();
     setTimeout(() => openModal(mode), 200);
 }
 
 function checkPasswordOnType() {
-    const password = document.getElementById('authPassword').value;
+    const password = document.getElementById('authPassword');
     const strengthDiv = document.getElementById('passwordStrength');
     const checksDiv = document.getElementById('passwordChecks');
+    
+    if (!password || !strengthDiv || !checksDiv) return;
 
-    if (password.length === 0) {
+    const pwd = password.value;
+
+    if (pwd.length === 0) {
         strengthDiv.innerHTML = '';
         checksDiv.innerHTML = '';
         return;
     }
 
-    const result = checkPasswordStrength(password);
+    const result = checkPasswordStrength(pwd);
     
-    // Show strength bar
     strengthDiv.innerHTML = `
         <div style="margin-top:8px;">
             <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
@@ -227,33 +233,34 @@ function checkPasswordOnType() {
         </div>
     `;
 
-    // Show requirements checklist
-    checksDiv.innerHTML = getPasswordRequirementsHTML(password);
+    checksDiv.innerHTML = getPasswordRequirementsHTML(pwd);
 }
 
 function handleAuth() {
-    const email = document.getElementById('authEmail').value.trim();
-    const password = document.getElementById('authPassword').value;
+    const emailInput = document.getElementById('authEmail');
+    const passwordInput = document.getElementById('authPassword');
     const error = document.getElementById('authError');
     const submitBtn = document.getElementById('authSubmitBtn');
 
+    if (!emailInput || !passwordInput || !error || !submitBtn) return;
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
     error.textContent = '';
 
-    // Validate email
     if (!email || !email.includes('@') || !email.includes('.')) {
         error.textContent = 'Please enter a valid email address.';
         return;
     }
 
-    // Validate password
     if (!password || password.length < 6) {
         error.textContent = 'Password must be at least 6 characters.';
         return;
     }
 
-    const isLogin = document.getElementById('authSubmitBtn').textContent.includes('Log In');
+    const isLogin = submitBtn.textContent.includes('Log In');
 
-    // For signup, check password strength
     if (!isLogin) {
         const strength = checkPasswordStrength(password);
         if (strength.score < 30) {
@@ -265,12 +272,10 @@ function handleAuth() {
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Please wait...';
 
-    // Sanitize inputs
     const cleanEmail = sanitizeInput(email);
     const cleanPassword = sanitizeInput(password);
 
     if (isLogin) {
-        // LOGIN
         auth.signInWithEmailAndPassword(cleanEmail, cleanPassword)
             .then(() => {
                 closeModal();
@@ -283,10 +288,13 @@ function handleAuth() {
                 submitBtn.textContent = '🚀 Log In';
             });
     } else {
-        // SIGNUP
-        const name = sanitizeInput(document.getElementById('authName').value.trim());
-        const gender = document.getElementById('authGender').value;
-        const favorites = sanitizeInput(document.getElementById('authFavorites').value.trim());
+        const nameInput = document.getElementById('authName');
+        const genderSelect = document.getElementById('authGender');
+        const favoritesInput = document.getElementById('authFavorites');
+
+        const name = nameInput ? sanitizeInput(nameInput.value.trim()) : '';
+        const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+        const favorites = favoritesInput ? sanitizeInput(favoritesInput.value.trim()) : '';
 
         if (!name || name.length < 2) {
             error.textContent = 'Please enter your name (minimum 2 characters).';
@@ -305,7 +313,6 @@ function handleAuth() {
         auth.createUserWithEmailAndPassword(cleanEmail, cleanPassword)
             .then((userCredential) => {
                 const user = userCredential.user;
-                // Save user profile to Firestore (sanitized)
                 return db.collection('users').doc(user.uid).set({
                     name: name,
                     email: cleanEmail,
@@ -319,7 +326,6 @@ function handleAuth() {
                 closeModal();
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Create Account';
-                // Show welcome message
                 alert('✅ Welcome to The Harbor! Your account has been created.');
             })
             .catch((err) => {
@@ -333,7 +339,6 @@ function handleAuth() {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         auth.signOut();
-        // Redirect to home if on another page
         if (!window.location.pathname.includes('index.html') && window.location.pathname !== '/') {
             window.location.href = 'index.html';
         }
@@ -355,14 +360,12 @@ auth.onAuthStateChanged((user) => {
         if (authButtons) authButtons.style.display = 'none';
         if (userInfo) userInfo.style.display = 'flex';
 
-        // Fetch user data
         db.collection('users').doc(user.uid).get()
             .then((doc) => {
                 if (doc.exists) {
                     currentUserData = doc.data();
                     if (userName) userName.textContent = currentUserData.name || 'Friend';
                     if (userGenderDisplay) userGenderDisplay.textContent = currentUserData.gender || '';
-                    // Update online status
                     db.collection('users').doc(user.uid).update({
                         lastActive: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -372,16 +375,20 @@ auth.onAuthStateChanged((user) => {
                 console.error('Error fetching user data:', err);
             });
 
-        // Load stories if on homepage
         if (document.getElementById('storiesContainer')) {
             loadStories();
+        }
+        
+        // Update profile page if on profile
+        if (window.location.pathname.includes('profile.html')) {
+            loadProfile();
         }
     } else {
         currentUser = null;
         currentUserData = null;
         if (authButtons) authButtons.style.display = 'flex';
         if (userInfo) userInfo.style.display = 'none';
-        // Show login prompt in stories
+        
         const container = document.getElementById('storiesContainer');
         if (container) {
             container.innerHTML = `
@@ -542,13 +549,18 @@ function switchCategory(category) {
 // ============================================
 
 function searchStories() {
-    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    const query = searchInput.value.toLowerCase().trim();
     if (!query) {
         loadStories();
         return;
     }
 
     const container = document.getElementById('storiesContainer');
+    if (!container) return;
+    
     container.innerHTML = '<div class="loading">⏳ Searching...</div>';
 
     db.collection('stories')
@@ -610,15 +622,21 @@ function submitStory() {
         return;
     }
 
-    const title = sanitizeInput(document.getElementById('storyTitle').value.trim());
-    const text = sanitizeInput(document.getElementById('storyText').value.trim());
-    const category = document.getElementById('storyCategory').value;
-    const isAnonymous = document.getElementById('storyAnonymous').checked;
-
+    const titleInput = document.getElementById('storyTitle');
+    const textInput = document.getElementById('storyText');
+    const categorySelect = document.getElementById('storyCategory');
+    const anonymousCheck = document.getElementById('storyAnonymous');
     const error = document.getElementById('submitError');
+
+    if (!titleInput || !textInput || !categorySelect || !error) return;
+
+    const title = sanitizeInput(titleInput.value.trim());
+    const text = sanitizeInput(textInput.value.trim());
+    const category = categorySelect.value;
+    const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
+
     error.textContent = '';
 
-    // Validate
     if (!title || title.length < 3) {
         error.textContent = 'Title must be at least 3 characters.';
         return;
@@ -646,13 +664,15 @@ function submitStory() {
         return;
     }
     if (category === 'women' && currentUserData.gender !== '👩 Woman') {
-        error.textContent = '⚠️ This section is for women only.';
+        error.textContent = '⚠️ This section is women only.';
         return;
     }
 
     const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ Posting...';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Posting...';
+    }
 
     db.collection('stories').add({
         title: title,
@@ -666,15 +686,19 @@ function submitStory() {
         commentCount: 0
     })
     .then(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '✅ Posted!';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✅ Posted!';
+        }
         alert('✅ Your story has been shared!');
         window.location.href = 'index.html';
     })
     .catch((err) => {
         error.textContent = err.message;
-        submitBtn.disabled = false;
-        submitBtn.textContent = '📤 Post Story';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '📤 Post Story';
+        }
     });
 }
 
@@ -685,28 +709,31 @@ function submitStory() {
 function loadStory() {
     const urlParams = new URLSearchParams(window.location.search);
     const storyId = urlParams.get('id');
+    const content = document.getElementById('storyContent');
+    
+    if (!content) return;
     
     if (!storyId) {
-        document.getElementById('storyContent').innerHTML = '<div class="empty-state"><h3>No story selected</h3><a href="index.html">Go back home</a></div>';
+        content.innerHTML = '<div class="empty-state"><h3>No story selected</h3><a href="index.html">Go back home</a></div>';
         return;
     }
 
-    document.getElementById('storyContent').innerHTML = '<div class="loading">⏳ Loading story...</div>';
+    content.innerHTML = '<div class="loading">⏳ Loading story...</div>';
 
     db.collection('stories').doc(storyId).get()
         .then((doc) => {
             if (!doc.exists) {
-                document.getElementById('storyContent').innerHTML = '<div class="empty-state"><h3>Story not found</h3><a href="index.html">Go back home</a></div>';
+                content.innerHTML = '<div class="empty-state"><h3>Story not found</h3><a href="index.html">Go back home</a></div>';
                 return;
             }
 
             const story = doc.data();
             story.id = doc.id;
-            document.getElementById('storyContent').innerHTML = renderFullStory(story);
+            content.innerHTML = renderFullStory(story);
             loadComments(storyId);
         })
         .catch((err) => {
-            document.getElementById('storyContent').innerHTML = `<div class="empty-state"><h3>Error loading story</h3><p>${err.message}</p></div>`;
+            content.innerHTML = `<div class="empty-state"><h3>Error loading story</h3><p>${err.message}</p></div>`;
         });
 }
 
@@ -760,6 +787,8 @@ function renderFullStory(story) {
 
 function loadComments(storyId) {
     const container = document.getElementById('commentsContainer');
+    if (!container) return;
+    
     container.innerHTML = '<div class="loading">⏳ Loading comments...</div>';
 
     db.collection('comments')
@@ -821,9 +850,14 @@ function postComment() {
 
     const urlParams = new URLSearchParams(window.location.search);
     const storyId = urlParams.get('id');
-    const text = sanitizeInput(document.getElementById('commentText').value.trim());
-    const isAnonymous = document.getElementById('commentAnonymous').checked;
+    const textInput = document.getElementById('commentText');
+    const anonymousCheck = document.getElementById('commentAnonymous');
     const error = document.getElementById('commentError');
+
+    if (!textInput || !error) return;
+
+    const text = sanitizeInput(textInput.value.trim());
+    const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
 
     error.textContent = '';
 
@@ -837,8 +871,10 @@ function postComment() {
     }
 
     const submitBtn = document.getElementById('commentSubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ Posting...';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Posting...';
+    }
 
     db.collection('comments').add({
         storyId: storyId,
@@ -850,19 +886,22 @@ function postComment() {
         likes: 0
     })
     .then(() => {
-        // Increment comment count on story
         db.collection('stories').doc(storyId).update({
             commentCount: firebase.firestore.FieldValue.increment(1)
         });
-        submitBtn.disabled = false;
-        submitBtn.textContent = '💬 Post Comment';
-        document.getElementById('commentText').value = '';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💬 Post Comment';
+        }
+        if (textInput) textInput.value = '';
         loadComments(storyId);
     })
     .catch((err) => {
         error.textContent = err.message;
-        submitBtn.disabled = false;
-        submitBtn.textContent = '💬 Post Comment';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💬 Post Comment';
+        }
     });
 }
 
@@ -899,6 +938,119 @@ function deleteComment(commentId) {
 }
 
 // ============================================
+// PROFILE PAGE
+// ============================================
+
+function loadProfile() {
+    if (!currentUser) {
+        document.getElementById('profileContent').innerHTML = `
+            <div class="empty-state">
+                <div class="big-emoji">🔐</div>
+                <h3>Please Log In</h3>
+                <p>You need to be logged in to view your profile.</p>
+                <button class="btn-primary" onclick="openModal('login')" style="margin-top:12px;">Log In</button>
+            </div>
+        `;
+        return;
+    }
+
+    const content = document.getElementById('profileContent');
+    content.innerHTML = '<div class="loading">⏳ Loading profile...</div>';
+
+    db.collection('users').doc(currentUser.uid).get()
+        .then((doc) => {
+            if (!doc.exists) {
+                content.innerHTML = '<div class="empty-state"><h3>Profile not found</h3></div>';
+                return;
+            }
+
+            const userData = doc.data();
+            
+            // Get user's stories
+            return db.collection('stories')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('createdAt', 'desc')
+                .get()
+                .then((storiesSnapshot) => {
+                    const stories = [];
+                    storiesSnapshot.forEach((s) => {
+                        stories.push(s.data());
+                    });
+                    return { userData, stories };
+                });
+        })
+        .then((result) => {
+            const { userData, stories } = result;
+            
+            let html = `
+                <div class="card">
+                    <div style="text-align:center;padding:10px 0;">
+                        <span style="font-size:4rem;">👤</span>
+                        <h2 style="color:#1a4a4a;">${escapeHTML(userData.name)}</h2>
+                        <p style="color:#7a9e7e;">${escapeHTML(userData.gender || '')}</p>
+                        <p style="color:#7a9e7e;font-size:0.9rem;">❤️ ${escapeHTML(userData.favorites || 'Not specified')}</p>
+                        <p style="color:#a8a09a;font-size:0.8rem;">Member since ${userData.createdAt ? userData.createdAt.toDate().toLocaleDateString() : 'Recently'}</p>
+                    </div>
+                </div>
+
+                <div style="margin-top:24px;">
+                    <h3 style="color:#1a4a4a;">📝 Your Stories (${stories.length})</h3>
+                    <div id="userStories">
+            `;
+
+            if (stories.length === 0) {
+                html += `
+                    <div class="empty-state" style="padding:20px;">
+                        <p>You haven't shared any stories yet.</p>
+                        <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:10px;">📝 Write Your First Story</a>
+                    </div>
+                `;
+            } else {
+                stories.forEach((story) => {
+                    const categoryNames = {
+                        'men': '🧔 Men\'s Harbor',
+                        'women': '👩 Women\'s Harbor',
+                        'struggles': '🌊 The Storm',
+                        'fun': '☀️ Sunny Skies',
+                        'learning': '🧭 The Compass'
+                    };
+                    const categoryDisplay = categoryNames[story.category] || story.category;
+                    const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+                    
+                    html += `
+                        <div class="story-card" style="margin-bottom:12px;">
+                            <div class="story-title">${escapeHTML(story.title)}</div>
+                            <div class="story-meta">
+                                <span class="category-badge">${categoryDisplay}</span>
+                                <span>📅 ${time}</span>
+                                <span>💬 ${story.commentCount || 0} comments</span>
+                                ${story.isAnonymous ? '🕊️ Anonymous' : '👤 Public'}
+                            </div>
+                            <div class="story-text">${escapeHTML(story.text.substring(0, 150))}${story.text.length > 150 ? '...' : ''}</div>
+                            <div style="margin-top:8px;">
+                                <a href="story.html?id=${story.id}" class="comment-link">Read more →</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                    </div>
+                </div>
+                <div style="text-align:center;margin-top:24px;">
+                    <button class="btn-secondary" onclick="logout()" style="border-color:#c0392b;color:#c0392b;">🚪 Logout</button>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        })
+        .catch((err) => {
+            content.innerHTML = `<div class="empty-state"><h3>Error loading profile</h3><p>${err.message}</p></div>`;
+        });
+}
+
+// ============================================
 // CLOSE MODAL ON CLICK OUTSIDE
 // ============================================
 
@@ -912,18 +1064,57 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Password strength checker
     const passwordInput = document.getElementById('authPassword');
     if (passwordInput) {
         passwordInput.addEventListener('input', checkPasswordOnType);
     }
 
-    // Keyboard shortcut: Enter to submit auth
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && document.getElementById('authModal').style.display === 'flex') {
-            handleAuth();
+        if (e.key === 'Enter') {
+            const modal = document.getElementById('authModal');
+            if (modal && modal.style.display === 'flex') {
+                handleAuth();
+            }
         }
     });
+
+    // Character counters for submit page
+    const titleInput = document.getElementById('storyTitle');
+    const textInput = document.getElementById('storyText');
+    const titleCount = document.getElementById('titleCount');
+    const textCount = document.getElementById('textCount');
+    
+    if (titleInput && titleCount) {
+        titleInput.addEventListener('input', function() {
+            titleCount.textContent = this.value.length;
+        });
+    }
+    
+    if (textInput && textCount) {
+        textInput.addEventListener('input', function() {
+            textCount.textContent = this.value.length;
+        });
+    }
+
+    // Comment character counter
+    const commentText = document.getElementById('commentText');
+    const commentCount = document.getElementById('commentCount');
+    if (commentText && commentCount) {
+        commentText.addEventListener('input', function() {
+            commentCount.textContent = this.value.length;
+        });
+    }
+
+    // Category restriction check
+    const categorySelect = document.getElementById('storyCategory');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', checkCategoryRestriction);
+    }
+
+    // Load profile if on profile page
+    if (window.location.pathname.includes('profile.html')) {
+        loadProfile();
+    }
 
     // Load single story if on story page
     if (window.location.pathname.includes('story.html')) {
@@ -931,6 +1122,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+function checkCategoryRestriction() {
+    const category = document.getElementById('storyCategory');
+    const notice = document.getElementById('genderRestrictionNotice');
+    const message = document.getElementById('restrictionMessage');
+    
+    if (!category || !notice || !message) return;
+    
+    const cat = category.value;
+
+    if (!currentUser || !currentUserData) {
+        notice.style.display = 'block';
+        message.textContent = 'Please log in to share your story.';
+        notice.className = 'gender-restriction-notice warning';
+        return;
+    }
+
+    const gender = currentUserData.gender;
+
+    if (cat === 'men' && gender !== '🧔 Man') {
+        notice.style.display = 'block';
+        message.textContent = '⚠️ This section is for men only. Please select a different category.';
+        notice.className = 'gender-restriction-notice warning';
+    } else if (cat === 'women' && gender !== '👩 Woman') {
+        notice.style.display = 'block';
+        message.textContent = '⚠️ This section is for women only. Please select a different category.';
+        notice.className = 'gender-restriction-notice warning';
+    } else {
+        notice.style.display = 'none';
+    }
+}
+
 console.log('⚓ The Harbor is ready!');
-console.log('🛡️ Security features: Input sanitization, XSS protection, CSRF protection, Password strength checking');
+console.log('🛡️ Security features: Input sanitization, XSS protection, Password strength checking');
 console.log('📚 Firebase connected:', firebase.app().name);
