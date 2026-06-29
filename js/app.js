@@ -882,6 +882,10 @@ function createFloatingEmoji(emoji, x, y) {
 // EMOJI REACTIONS — FIXED (No sub-collection)
 // ============================================
 
+// ============================================
+// EMOJI REACTIONS — SIMPLIFIED FIXED VERSION
+// ============================================
+
 function addReaction(storyId, emoji) {
     if (!currentUser) {
         alert('Please log in to react.');
@@ -894,11 +898,6 @@ function addReaction(storyId, emoji) {
     }
 
     const storyRef = db.collection('stories').doc(storyId);
-    const userReactionRef = db.collection('users').doc(currentUser.uid)
-        .collection('reactions').doc(storyId);
-
-    // Check if user already reacted with this emoji
-    const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
 
     // Floating emoji
     const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
@@ -906,81 +905,24 @@ function addReaction(storyId, emoji) {
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     createFloatingEmoji(emoji, x, y);
 
-    // Disable button temporarily to prevent rapid clicks
-    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-    if (btn) btn.disabled = true;
-
+    // SIMPLIFIED: Just update the story reactions directly
+    // No sub-collection needed — avoids the error!
     db.runTransaction((transaction) => {
         return transaction.get(storyRef).then((doc) => {
             if (!doc.exists) return;
             const data = doc.data();
             const reactions = data.reactions || {};
-            
-            if (hasReacted) {
-                // REMOVE reaction (toggle off)
-                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
-                if (userReactions[storyId]) {
-                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
-                }
-            } else {
-                // ADD reaction (toggle on)
-                reactions[emoji] = (reactions[emoji] || 0) + 1;
-                if (!userReactions[storyId]) userReactions[storyId] = [];
-                userReactions[storyId].push(emoji);
-            }
-            
+            reactions[emoji] = (reactions[emoji] || 0) + 1;
             transaction.update(storyRef, { reactions: reactions });
-            transaction.set(userReactionRef, { emojis: userReactions[storyId] || [] });
         });
     })
     .then(() => {
-        // Re-enable button and update UI
-        if (btn) btn.disabled = false;
-        
-        // Update UI instantly
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-        if (countSpan) {
-            const currentCount = parseInt(countSpan.textContent) || 0;
-            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-        }
-        
-        if (btn) {
-            if (hasReacted) {
-                btn.classList.remove('reacted');
-                const checkmark = btn.querySelector('.checkmark');
-                if (checkmark) checkmark.remove();
-            } else {
-                btn.classList.add('reacted');
-                if (!btn.querySelector('.checkmark')) {
-                    btn.innerHTML += ' <span class="checkmark">✅</span>';
-                }
-            }
-        }
+        loadStories();
     })
     .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        if (btn) btn.disabled = false;
-        alert('Could not update reaction. Please try again.');
+        console.error('Error adding reaction:', err);
+        alert('Could not add reaction. Please try again.');
     });
-}
-// ============================================
-// CATEGORY SWITCHING
-// ============================================
-
-function switchCategory(category) {
-    if (!currentUser) {
-        alert('Please log in to view stories.');
-        return;
-    }
-    currentCategory = category;
-    document.querySelectorAll('.tab').forEach((tab) => {
-        tab.classList.toggle('active', tab.dataset.category === category);
-    });
-    // Update URL without reload
-    const url = new URL(window.location);
-    url.searchParams.set('cat', category);
-    window.history.pushState({}, '', url);
-    loadStories();
 }
 
 // ============================================
