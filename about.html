@@ -299,7 +299,7 @@
                 </ul>
             </div>
 
-            <!-- Our Values (Removed Rainbow) -->
+            <!-- Our Values -->
             <div class="card" style="margin-top:20px;">
                 <h2>💚 Our Values</h2>
                 <div class="values-grid">
@@ -369,7 +369,7 @@
                 </div>
 
                 <div id="emergencyResult" class="emergency-result">
-                    <div class="country" id="resultCountry">🇺🇸 United States</div>
+                    <div class="country" id="resultCountry">📍 United States</div>
                     <div class="number" id="resultNumber">911</div>
                     <div class="note" id="resultNote">📞 Police, Fire, Ambulance</div>
                 </div>
@@ -667,29 +667,47 @@
 
         function findEmergencyNumber() {
             const input = document.getElementById('emergencySearch');
-            const result = document.getElementById('emergencyResult');
-            const noResult = document.getElementById('noResult');
-            const country = document.getElementById('resultCountry');
-            const number = document.getElementById('resultNumber');
-            const note = document.getElementById('resultNote');
+            const resultDiv = document.getElementById('emergencyResult');
+            const noResultDiv = document.getElementById('noResult');
+            const countryEl = document.getElementById('resultCountry');
+            const numberEl = document.getElementById('resultNumber');
+            const noteEl = document.getElementById('resultNote');
 
-            const query = input.value.toLowerCase().trim();
-
-            if (!query) {
-                result.style.display = 'none';
-                noResult.style.display = 'none';
+            // Check if all elements exist
+            if (!input || !resultDiv || !noResultDiv || !countryEl || !numberEl || !noteEl) {
+                console.error('Emergency search elements not found');
                 return;
             }
 
-            // Search for matching country
+            const query = input.value.toLowerCase().trim();
+
+            // Hide everything if search is empty
+            if (!query) {
+                resultDiv.style.display = 'none';
+                noResultDiv.style.display = 'none';
+                return;
+            }
+
+            // Search for matching country (exact or partial match)
             let found = null;
             let foundKey = '';
 
             for (const [key, data] of Object.entries(emergencyNumbers)) {
-                if (key.includes(query)) {
+                if (key.includes(query) || query.includes(key)) {
                     found = data;
                     foundKey = key;
                     break;
+                }
+            }
+
+            // If not found, try to find by partial match
+            if (!found) {
+                for (const [key, data] of Object.entries(emergencyNumbers)) {
+                    if (key.indexOf(query) !== -1 || query.indexOf(key) !== -1) {
+                        found = data;
+                        foundKey = key;
+                        break;
+                    }
                 }
             }
 
@@ -699,26 +717,41 @@
                     word.charAt(0).toUpperCase() + word.slice(1)
                 ).join(' ');
 
-                country.textContent = `📍 ${displayName}`;
-                number.textContent = found.number;
-                note.textContent = `📞 ${found.note}`;
-                result.style.display = 'block';
-                noResult.style.display = 'none';
+                countryEl.textContent = '📍 ' + displayName;
+                numberEl.textContent = found.number;
+                noteEl.textContent = '📞 ' + found.note;
+                resultDiv.style.display = 'block';
+                noResultDiv.style.display = 'none';
+                
+                console.log('✅ Found:', displayName, found.number);
             } else {
-                result.style.display = 'none';
-                noResult.style.display = 'block';
+                resultDiv.style.display = 'none';
+                noResultDiv.style.display = 'block';
+                
+                console.log('❌ Not found:', query);
             }
         }
 
-        // Search on Enter key
+        // ============================================
+        // INIT - Set up search on page load
+        // ============================================
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('emergencySearch');
+            
             if (searchInput) {
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        findEmergencyNumber();
+                // Show a default result on load
+                setTimeout(function() {
+                    const resultDiv = document.getElementById('emergencyResult');
+                    if (resultDiv) {
+                        resultDiv.style.display = 'block';
                     }
-                });
+                }, 500);
+                
+                console.log('🔍 Emergency search ready');
+                console.log('📞 Loaded', Object.keys(emergencyNumbers).length, 'countries');
+            } else {
+                console.error('⚠️ Emergency search input not found');
             }
         });
 
