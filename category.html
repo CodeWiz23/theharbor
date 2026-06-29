@@ -1,1 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Category — The Harbor</title>
 
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        style-src 'self' 'unsafe-inline';
+        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
+    ">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
+    </script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .category-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+            border-radius: 20px;
+            color: #f5f0eb;
+            margin-bottom: 30px;
+        }
+        .category-header .big-icon {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .category-header h1 {
+            font-size: 2.2rem;
+            font-weight: 300;
+        }
+        .category-header h1 span {
+            font-weight: 700;
+        }
+        .category-header p {
+            opacity: 0.9;
+            margin-top: 4px;
+            font-size: 1.05rem;
+        }
+        .category-header .story-count {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 16px;
+            color: #7a9e7e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .back-link:hover {
+            color: #1a4a4a;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .filter-bar label {
+            font-weight: 600;
+            color: #2d3a3a;
+        }
+        .filter-bar select {
+            padding: 8px 16px;
+            border: 2px solid #d4c8b8;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            background: #f5f0eb;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .filter-bar select:focus {
+            outline: none;
+            border-color: #1a4a4a;
+        }
+        .sort-options {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .sort-options button {
+            padding: 6px 16px;
+            border: 2px solid #d4c8b8;
+            border-radius: 30px;
+            background: #f5f0eb;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            color: #2d3a3a;
+        }
+        .sort-options button:hover {
+            background: #d4c8b8;
+        }
+        .sort-options button.active {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            border-color: #1a4a4a;
+        }
+        .category-description {
+            background: #e8f0e6;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1a4a4a;
+            color: #2d3a3a;
+        }
+        .category-description strong {
+            color: #1a4a4a;
+        }
+        .no-stories-msg {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7a9e7e;
+        }
+        .no-stories-msg .big-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .no-stories-msg h3 {
+            color: #1a4a4a;
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .sort-options {
+                margin-left: 0;
+                justify-content: center;
+            }
+            .category-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Crisis Banner -->
+        <div class="crisis-banner">
+            ⚠️ <strong>Peer support only.</strong> Not a crisis line.
+            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
+            or your local emergency number.
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <a href="index.html" class="logo" style="text-decoration:none;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="logo-icon">⚓</span>
+                    <div>
+                        <span class="logo-text">The <span>Harbor</span></span>
+                        <span class="logo-sub">Explore stories</span>
+                    </div>
+                </div>
+            </a>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+        </header>
+
+        <!-- User Info -->
+        <div class="user-info" id="userInfo">
+            👤 Welcome, <span class="user-name" id="userName">—</span>
+            <span id="userGenderDisplay"></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Back Link -->
+        <a href="index.html" class="back-link">← Back to All Stories</a>
+
+        <!-- Category Header (Dynamic) -->
+        <div class="category-header" id="categoryHeader">
+            <span class="big-icon" id="categoryIcon">📖</span>
+            <h1><span id="categoryTitle">All Stories</span></h1>
+            <p id="categoryDescription">Explore all stories shared by the community.</p>
+            <span class="story-count" id="storyCount">0 stories</span>
+        </div>
+
+        <!-- Category Description -->
+        <div class="category-description" id="categoryDescriptionBox">
+            <strong>📌 About this category:</strong>
+            <span id="categoryInfoText">Browse through all stories shared by our community members.</span>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <label for="filterCategory">📂 Filter:</label>
+            <select id="filterCategory" onchange="applyFilters()">
+                <option value="all">All Categories</option>
+                <option value="men">🧔 Men's Harbor</option>
+                <option value="women">👩 Women's Harbor</option>
+                <option value="struggles">🌊 The Storm</option>
+                <option value="fun">☀️ Sunny Skies</option>
+                <option value="learning">🧭 The Compass</option>
+            </select>
+
+            <div class="sort-options">
+                <button class="active" data-sort="newest" onclick="setSort('newest')">🕐 Newest</button>
+                <button data-sort="oldest" onclick="setSort('oldest')">🕐 Oldest</button>
+                <button data-sort="popular" onclick="setSort('popular')">🔥 Popular</button>
+            </div>
+        </div>
+
+        <!-- Stories Container -->
+        <div id="storiesContainer">
+            <div class="loading">⏳ Loading stories...</div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; 🕊️ Anonymous option
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+            <div id="passwordChecks"></div>
+
+            <div id="signupFields" style="display:none;">
+                <label for="authName">What should we call you?</label>
+                <input type="text" id="authName" placeholder="Your name or nickname" />
+
+                <label for="authGender">Your Gender</label>
+                <select id="authGender">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+
+                <label for="authFavorites">What are your favorite things?</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
+            </div>
+
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
+                Don't have an account? <strong>Sign Up</strong>
+            </div>
+
+            <div class="error-msg" id="authError"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // ============================================
+        // CATEGORY PAGE JAVASCRIPT
+        // ============================================
+
+        let currentCategory = 'all';
+        let currentSort = 'newest';
+        let allStories = [];
+
+        // Category metadata
+        const categoryMeta = {
+            'all': {
+                icon: '📖',
+                title: 'All Stories',
+                description: 'Explore all stories shared by the community.',
+                info: 'Browse through all stories shared by our community members. Every story matters.'
+            },
+            'men': {
+                icon: '🧔',
+                title: 'Men\'s Harbor',
+                description: 'A dedicated space for men to share and support each other.',
+                info: 'A safe space for men to share their experiences, challenges, and victories. This section is for men only.'
+            },
+            'women': {
+                icon: '👩',
+                title: 'Women\'s Harbor',
+                description: 'A dedicated space for women to share and support each other.',
+                info: 'A safe space for women to share their experiences, challenges, and victories. This section is for women only.'
+            },
+            'struggles': {
+                icon: '🌊',
+                title: 'The Storm',
+                description: 'For sharing struggles, depression, and difficult times.',
+                info: 'A compassionate space for sharing difficult experiences. You are not alone in your struggles.'
+            },
+            'fun': {
+                icon: '☀️',
+                title: 'Sunny Skies',
+                description: 'For sharing joy, fun moments, and positivity.',
+                info: 'A bright space for sharing joy, laughter, and positive moments. Let\'s celebrate life together.'
+            },
+            'learning': {
+                icon: '🧭',
+                title: 'The Compass',
+                description: 'For learning, growth, and practical advice.',
+                info: 'A space for sharing knowledge, practical advice, and life lessons. Learn and grow with the community.'
+            }
+        };
+
+        // ============================================
+        // LOAD CATEGORY STORIES
+        // ============================================
+
+        function loadCategoryStories() {
+            const container = document.getElementById('storiesContainer');
+            if (!container) return;
+
+            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
+
+            // Get category from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('cat') || 'all';
+            currentCategory = cat;
+
+            // Update header
+            updateCategoryHeader(cat);
+
+            // Update filter dropdown
+            const filterSelect = document.getElementById('filterCategory');
+            if (filterSelect) {
+                filterSelect.value = cat;
+            }
+
+            let query = db.collection('stories');
+
+            if (cat !== 'all') {
+                query = query.where('category', '==', cat);
+            }
+
+            query.orderBy('createdAt', 'desc')
+                .limit(100)
+                .get()
+                .then((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `
+                            <div class="no-stories-msg">
+                                <span class="big-emoji">📭</span>
+                                <h3>No stories in this category yet</h3>
+                                <p>Be the first to share your story!</p>
+                                <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
+                            </div>
+                        `;
+                        document.getElementById('storyCount').textContent = '0 stories';
+                        return;
+                    }
+
+                    let stories = [];
+                    snapshot.forEach((doc) => {
+                        const story = doc.data();
+                        story.id = doc.id;
+                        stories.push(story);
+                    });
+
+                    allStories = stories;
+                    document.getElementById('storyCount').textContent = `${stories.length} stories`;
+
+                    // Apply sorting
+                    applySort();
+                })
+                .catch((err) => {
+                    console.error('Error loading stories:', err);
+                    container.innerHTML = `
+                        <div class="no-stories-msg">
+                            <span class="big-emoji">⚠️</span>
+                            <h3>Oops! Something went wrong</h3>
+                            <p>${err.message}</p>
+                            <button class="btn-primary" onclick="loadCategoryStories()" style="margin-top:12px;">🔄 Try Again</button>
+                        </div>
+                    `;
+                });
+        }
+
+        // ============================================
+        // UPDATE CATEGORY HEADER
+        // ============================================
+
+        function updateCategoryHeader(cat) {
+            const meta = categoryMeta[cat] || categoryMeta['all'];
+
+            document.getElementById('categoryIcon').textContent = meta.icon;
+            document.getElementById('categoryTitle').textContent = meta.title;
+            document.getElementById('categoryDescription').textContent = meta.description;
+            document.getElementById('categoryInfoText').textContent = meta.info;
+        }
+
+        // ============================================
+        // APPLY FILTERS
+        // ============================================
+
+        function applyFilters() {
+            const filterSelect = document.getElementById('filterCategory');
+            const cat = filterSelect ? filterSelect.value : 'all';
+
+            // Update URL with new category
+            const url = new URL(window.location);
+            url.searchParams.set('cat', cat);
+            window.history.pushState({}, '', url);
+
+            currentCategory = cat;
+            updateCategoryHeader(cat);
+            loadCategoryStories();
+        }
+
+        // ============================================
+        // SORTING
+        // ============================================
+
+        function setSort(sortType) {
+            currentSort = sortType;
+
+            // Update button styles
+            document.querySelectorAll('.sort-options button').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.sort === sortType);
+            });
+
+            applySort();
+        }
+
+        function applySort() {
+            let sorted = [...allStories];
+
+            if (currentSort === 'newest') {
+                sorted.sort((a, b) => {
+                    const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                    const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                    return timeB - timeA;
+                });
+            } else if (currentSort === 'oldest') {
+                sorted.sort((a, b) => {
+                    const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                    const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                    return timeA - timeB;
+                });
+            } else if (currentSort === 'popular') {
+                sorted.sort((a, b) => {
+                    const totalA = Object.values(a.reactions || {}).reduce((sum, val) => sum + val, 0);
+                    const totalB = Object.values(b.reactions || {}).reduce((sum, val) => sum + val, 0);
+                    return totalB - totalA;
+                });
+            }
+
+            renderStories(sorted);
+        }
+
+        // ============================================
+        // RENDER STORIES
+        // ============================================
+
+        function renderStories(stories) {
+            const container = document.getElementById('storiesContainer');
+            if (!container) return;
+
+            if (stories.length === 0) {
+                container.innerHTML = `
+                    <div class="no-stories-msg">
+                        <span class="big-emoji">📭</span>
+                        <h3>No stories match your filters</h3>
+                        <p>Try changing your filters or category.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            stories.forEach((story) => {
+                html += renderStoryCard(story);
+            });
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // RENDER STORY CARD
+        // ============================================
+
+        function renderStoryCard(story) {
+            const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+            const categoryNames = {
+                'men': '🧔 Men\'s Harbor',
+                'women': '👩 Women\'s Harbor',
+                'struggles': '🌊 The Storm',
+                'fun': '☀️ Sunny Skies',
+                'learning': '🧭 The Compass'
+            };
+            const categoryDisplay = categoryNames[story.category] || story.category;
+
+            const reactions = story.reactions || {};
+            const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+
+            let reactionButtons = '';
+            emojis.forEach((emoji) => {
+                const count = reactions[emoji] || 0;
+                reactionButtons += `
+                    <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
+                        ${emoji} <span class="count">${count}</span>
+                    </button>
+                `;
+            });
+
+            const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+            const excerpt = story.text.length > 200 ? escapeHTML(story.text.substring(0, 200)) + '...' : escapeHTML(story.text);
+
+            return `
+                <div class="story-card" data-story-id="${story.id}">
+                    <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
+                    <div class="story-meta">
+                        <span>✍️ ${author}</span>
+                        <span class="category-badge">${categoryDisplay}</span>
+                        <span>📅 ${time}</span>
+                    </div>
+                    <div class="story-text">${excerpt}</div>
+                    <div class="story-actions">
+                        ${reactionButtons}
+                        <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // EMOJI REACTIONS
+        // ============================================
+
+        function addReaction(storyId, emoji) {
+            if (!currentUser) {
+                alert('Please log in to react.');
+                return;
+            }
+
+            const storyRef = db.collection('stories').doc(storyId);
+
+            db.runTransaction((transaction) => {
+                return transaction.get(storyRef).then((doc) => {
+                    if (!doc.exists) return;
+                    const data = doc.data();
+                    const reactions = data.reactions || {};
+                    reactions[emoji] = (reactions[emoji] || 0) + 1;
+                    transaction.update(storyRef, { reactions: reactions });
+                });
+            })
+            .then(() => {
+                loadCategoryStories();
+            })
+            .catch((err) => {
+                console.error('Error adding reaction:', err);
+                alert('Could not add reaction. Please try again.');
+            });
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load stories when page loads
+            loadCategoryStories();
+
+            // Listen for category changes from URL
+            window.addEventListener('popstate', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const cat = urlParams.get('cat') || 'all';
+                const filterSelect = document.getElementById('filterCategory');
+                if (filterSelect) {
+                    filterSelect.value = cat;
+                }
+                currentCategory = cat;
+                updateCategoryHeader(cat);
+                loadCategoryStories();
+            });
+        });
+
+        console.log('📂 Category page loaded');
+    </script>
+
+    <!-- Main App JS -->
+    <script src="js/app.js"></script>
+</body>
+</html>
