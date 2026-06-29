@@ -12,8 +12,9 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
-    <!-- Disable browser autofill -->
+    <!-- Strong autofill prevention -->
     <meta name="autofill" content="off" />
+    <input type="hidden" name="hidden" value="" style="display:none;" />
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
@@ -22,9 +23,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <link rel="stylesheet" href="css/style.css" />
-
     <style>
+        /* ============================================
+        COMPLETE STYLES
+        ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -236,7 +238,9 @@
             border-color: #1a4a4a;
             box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
         }
-        /* Fix autofill - prevent browser from filling these */
+        /* ============================================
+        FIX AUTO FILL - Completely block autofill
+        ============================================ */
         .submit-form input[type="text"],
         .submit-form select {
             width: 100%;
@@ -247,14 +251,25 @@
             background: #f5f0eb;
             font-family: inherit;
             transition: 0.3s;
-            autocomplete: "off";
+            /* Block autofill */
+            autocomplete: "off" !important;
+            -webkit-autofill: none !important;
         }
-        /* Override autofill background */
+        /* Override ALL autofill styles */
         .submit-form input[type="text"]:-webkit-autofill,
         .submit-form input[type="text"]:-webkit-autofill:hover,
-        .submit-form input[type="text"]:-webkit-autofill:focus {
+        .submit-form input[type="text"]:-webkit-autofill:focus,
+        .submit-form input[type="text"]:-internal-autofill-selected {
             -webkit-box-shadow: 0 0 0px 1000px #f5f0eb inset !important;
             -webkit-text-fill-color: #2d3a3a !important;
+            background-color: #f5f0eb !important;
+            background-image: none !important;
+            color: #2d3a3a !important;
+        }
+        /* Firefox autofill override */
+        .submit-form input[type="text"]:-moz-autofill {
+            background-color: #f5f0eb !important;
+            color: #2d3a3a !important;
         }
         .submit-form input[type="text"]:focus,
         .submit-form select:focus {
@@ -386,24 +401,6 @@
             border-radius: 16px;
             border: 1px solid #d4c8b8;
         }
-        .loading {
-            text-align: center;
-            color: #7a9e7e;
-            padding: 40px 0;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #7a9e7e;
-        }
-        .empty-state .big-emoji {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 16px;
-        }
-        .empty-state h3 {
-            color: #1a4a4a;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -525,7 +522,6 @@
         <div class="crisis-banner">
             ⚠️ <strong>Peer support only.</strong> Not a crisis line.
             If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
-            or your local emergency number.
         </div>
 
         <!-- Header -->
@@ -563,12 +559,13 @@
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
 
-                <!-- Title - NO AUTOFILL -->
+                <!-- Title - COMPLETELY BLOCK AUTOFILL -->
                 <label class="form-label" for="storyTitle">
                     📌 Title <span class="required-star">*</span>
                 </label>
-                <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100" 
-                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+                <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       readonly onfocus="this.removeAttribute('readonly')" />
                 <div class="char-count"><span id="titleCount">0</span>/100 characters</div>
 
                 <!-- Category -->
@@ -667,14 +664,9 @@
         </div>
     </div>
 
-    <!-- ============================================
-    JAVASCRIPT — Complete Working Code
-    ============================================ -->
     <script>
-        console.log('📝 Submit page loaded');
-
         // ============================================
-        // 🔥 FIREBASE CONFIG
+        // FIREBASE CONFIG
         // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
@@ -689,9 +681,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ============================================
-        // GLOBAL STATE
-        // ============================================
         let currentUser = null;
         let currentUserData = null;
 
@@ -702,21 +691,17 @@
         function openModal(mode) {
             const modal = document.getElementById('authModal');
             if (!modal) return;
-
             const title = document.getElementById('modalTitle');
             const submitBtn = document.getElementById('authSubmitBtn');
             const signupFields = document.getElementById('signupFields');
             const switchLink = document.getElementById('authSwitch');
             const error = document.getElementById('authError');
-
             if (error) error.textContent = '';
-
             document.getElementById('authEmail').value = '';
             document.getElementById('authPassword').value = '';
             document.getElementById('authName').value = '';
             document.getElementById('authFavorites').value = '';
             document.getElementById('passwordStrength').innerHTML = '';
-
             if (mode === 'login') {
                 title.textContent = '🔐 Welcome Back';
                 submitBtn.textContent = '🚀 Log In';
@@ -730,7 +715,6 @@
                 switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
                 switchLink.dataset.mode = 'login';
             }
-
             modal.style.display = 'flex';
         }
 
@@ -751,27 +735,20 @@
             const passwordInput = document.getElementById('authPassword');
             const error = document.getElementById('authError');
             const submitBtn = document.getElementById('authSubmitBtn');
-
             const email = emailInput.value.trim();
             const password = passwordInput.value;
-
             error.textContent = '';
-
             if (!email || !email.includes('@') || !email.includes('.')) {
                 error.textContent = 'Please enter a valid email address.';
                 return;
             }
-
             if (!password || password.length < 6) {
                 error.textContent = 'Password must be at least 6 characters.';
                 return;
             }
-
             const isLogin = submitBtn.textContent.includes('Log In');
-
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Please wait...';
-
             if (isLogin) {
                 auth.signInWithEmailAndPassword(email, password)
                     .then((userCredential) => {
@@ -796,14 +773,12 @@
                 const name = document.getElementById('authName').value.trim();
                 const gender = document.getElementById('authGender').value;
                 const favorites = document.getElementById('authFavorites').value.trim();
-
                 if (!name || name.length < 2) {
                     error.textContent = 'Please enter your name (minimum 2 characters).';
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Create Account';
                     return;
                 }
-
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
                         const user = userCredential.user;
@@ -852,12 +827,10 @@
             const userName = document.getElementById('userName');
             const userGenderBadge = document.getElementById('userGenderBadge');
             const verificationBadge = document.getElementById('verificationBadge');
-
             if (user) {
                 currentUser = user;
                 authButtons.style.display = 'none';
                 userInfo.style.display = 'flex';
-
                 if (user.emailVerified) {
                     verificationBadge.textContent = '✅ Verified';
                     verificationBadge.className = 'verification-badge verified';
@@ -865,7 +838,6 @@
                     verificationBadge.textContent = '⏳ Unverified';
                     verificationBadge.className = 'verification-badge';
                 }
-
                 db.collection('users').doc(user.uid).get()
                     .then((doc) => {
                         if (doc.exists) {
@@ -875,15 +847,12 @@
                             checkCategoryRestriction();
                         }
                     })
-                    .catch((err) => {
-                        console.error('Error fetching user data:', err);
-                    });
+                    .catch((err) => console.error('Error fetching user data:', err));
             } else {
                 currentUser = null;
                 currentUserData = null;
                 authButtons.style.display = 'flex';
                 userInfo.style.display = 'none';
-
                 const notice = document.getElementById('genderRestrictionNotice');
                 const message = document.getElementById('restrictionMessage');
                 if (notice && message) {
@@ -902,39 +871,31 @@
             const category = document.getElementById('storyCategory');
             const notice = document.getElementById('genderRestrictionNotice');
             const message = document.getElementById('restrictionMessage');
-
             if (!category || !notice || !message) return;
-
             const cat = category.value;
-
             if (!cat) {
                 notice.style.display = 'none';
                 return;
             }
-
             if (!currentUser || !currentUserData) {
                 notice.style.display = 'block';
                 message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
                 notice.className = 'gender-restriction-notice warning';
                 return;
             }
-
             if (!currentUser.emailVerified) {
                 notice.style.display = 'block';
                 message.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting. Check your inbox!';
                 notice.className = 'gender-restriction-notice warning';
                 return;
             }
-
             const gender = currentUserData.gender;
-
             if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
                 notice.style.display = 'block';
                 message.innerHTML = '✅ This category is <strong>open to everyone</strong>. You can post here!';
                 notice.className = 'gender-restriction-notice success';
                 return;
             }
-
             if (cat === 'men') {
                 if (gender === '🧔 Man') {
                     notice.style.display = 'block';
@@ -942,15 +903,12 @@
                     notice.className = 'gender-restriction-notice success';
                 } else {
                     notice.style.display = 'block';
-                    message.innerHTML = `
-                        ⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>
-                        📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass
-                    `;
+                    message.innerHTML =
+                        `⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
                     notice.className = 'gender-restriction-notice warning';
                 }
                 return;
             }
-
             if (cat === 'women') {
                 if (gender === '👩 Woman') {
                     notice.style.display = 'block';
@@ -958,38 +916,31 @@
                     notice.className = 'gender-restriction-notice success';
                 } else {
                     notice.style.display = 'block';
-                    message.innerHTML = `
-                        ⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>
-                        📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass
-                    `;
+                    message.innerHTML =
+                        `⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
                     notice.className = 'gender-restriction-notice warning';
                 }
                 return;
             }
-
             notice.style.display = 'none';
         }
 
         // ============================================
-        // SUBMIT STORY — FIXED
+        // SUBMIT STORY
         // ============================================
 
         function submitStory() {
             console.log('📤 Submit story function called');
 
-            // Check if user is logged in
             if (!currentUser) {
                 alert('⚠️ Please log in to share your story.');
                 return;
             }
-
-            // Check if email is verified
             if (!currentUser.emailVerified) {
                 alert('⚠️ Please verify your email first. Check your inbox!');
                 return;
             }
 
-            // Get form elements
             const titleInput = document.getElementById('storyTitle');
             const textInput = document.getElementById('storyText');
             const categorySelect = document.getElementById('storyCategory');
@@ -998,11 +949,9 @@
             const successDiv = document.getElementById('submitSuccess');
             const submitBtn = document.getElementById('submitBtn');
 
-            // Clear previous messages
             if (errorDiv) errorDiv.textContent = '';
             if (successDiv) successDiv.textContent = '';
 
-            // Get values
             const title = titleInput ? titleInput.value.trim() : '';
             const text = textInput ? textInput.value.trim() : '';
             const category = categorySelect ? categorySelect.value : '';
@@ -1010,7 +959,6 @@
 
             console.log('📝 Story data:', { title, textLength: text.length, category, isAnonymous });
 
-            // --- VALIDATION ---
             if (!title || title.length < 3) {
                 if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
                 return;
@@ -1032,9 +980,7 @@
                 return;
             }
 
-            // --- GENDER RESTRICTION CHECK ---
             const gender = currentUserData ? currentUserData.gender : null;
-
             if (category === 'men' && gender !== '🧔 Man') {
                 if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only. Please select a different category.';
                 return;
@@ -1044,7 +990,6 @@
                 return;
             }
 
-            // --- DISABLE BUTTON ---
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.textContent = '⏳ Posting...';
@@ -1052,7 +997,6 @@
 
             console.log('📤 Saving story to Firestore...');
 
-            // --- SAVE TO FIRESTORE ---
             db.collection('stories').add({
                 title: title,
                 text: text,
@@ -1073,8 +1017,6 @@
                     submitBtn.disabled = false;
                     submitBtn.textContent = '✅ Posted!';
                 }
-
-                // Clear form
                 if (titleInput) titleInput.value = '';
                 if (textInput) textInput.value = '';
                 if (categorySelect) categorySelect.value = '';
@@ -1082,7 +1024,6 @@
                 document.getElementById('titleCount').textContent = '0';
                 document.getElementById('textCount').textContent = '0';
 
-                // Redirect after 2 seconds
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 2000);
@@ -1100,7 +1041,7 @@
         }
 
         // ============================================
-        // CHARACTER COUNTERS
+        // INIT
         // ============================================
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1116,6 +1057,13 @@
                 titleInput.addEventListener('input', function() {
                     titleCount.textContent = this.value.length;
                 });
+                // Force clear any autofill on focus
+                titleInput.addEventListener('focus', function() {
+                    if (this.value.includes('@')) {
+                        this.value = '';
+                        titleCount.textContent = '0';
+                    }
+                });
             }
 
             if (textInput && textCount) {
@@ -1128,7 +1076,6 @@
                 categorySelect.addEventListener('change', checkCategoryRestriction);
             }
 
-            // Modal close on outside click
             const modal = document.getElementById('authModal');
             if (modal) {
                 modal.addEventListener('click', function(e) {
@@ -1136,7 +1083,6 @@
                 });
             }
 
-            // Password strength
             const passwordInput = document.getElementById('authPassword');
             if (passwordInput) {
                 passwordInput.addEventListener('input', function() {
@@ -1160,7 +1106,6 @@
                 });
             }
 
-            // Enter key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const modal = document.getElementById('authModal');
@@ -1170,7 +1115,6 @@
                 }
             });
 
-            // Make submitStory globally accessible
             window.submitStory = submitStory;
 
             console.log('✅ Submit page ready');
