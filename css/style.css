@@ -708,3 +708,70 @@ body {
         gap: 10px;
     }
 }
+/* ============================================
+   FIX: Mobile Signup Form - Username Visible
+   ============================================ */
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 20px 16px !important;
+        max-height: 95vh !important;
+        margin: 10px !important;
+        overflow-y: auto !important;
+    }
+    
+    .modal-content input,
+    .modal-content select {
+        font-size: 16px !important;
+        padding: 12px !important;
+    }
+    
+    .modal-content label {
+        font-size: 14px !important;
+        margin-top: 12px !important;
+    }
+    
+    #signupFields {
+        margin-top: 8px !important;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.4rem !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .modal-content .btn-modal {
+        padding: 14px !important;
+        font-size: 16px !important;
+    }
+    
+    /* Fix header on mobile */
+    .header {
+        padding: 10px 4% !important;
+        gap: 6px !important;
+    }
+    
+    .header-left .logo {
+        font-size: 1.2rem !important;
+    }
+    
+    .header-right {
+        gap: 4px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .header-right .btn-nav,
+    .header-right .btn-login,
+    .header-right .btn-signup,
+    .header-right .btn-logout {
+        font-size: 0.7rem !important;
+        padding: 4px 10px !important;
+    }
+    
+    #userInfo {
+        gap: 4px !important;
+    }
+    
+    #userName {
+        font-size: 0.8rem !important;
+    }
+}
