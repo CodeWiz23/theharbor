@@ -187,6 +187,327 @@
             transform: scale(1.02);
         }
 
+        .header {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f5d6b3;
+            text-decoration: none;
+        }
+        .logo span {
+            font-weight: 300;
+            color: #d4c8b8;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-nav {
+            background: transparent;
+            border: 1px solid #f5d6b3;
+            border-radius: 50px;
+            padding: 6px 16px;
+            color: #f5d6b3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-nav:hover {
+            background: #f5d6b3;
+            color: #1a4a4a;
+        }
+        .btn-login, .btn-signup, .btn-logout {
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-login {
+            background: transparent;
+            border: 1px solid #7a9e7e;
+            color: #7a9e7e;
+        }
+        .btn-login:hover {
+            background: #7a9e7e;
+            color: white;
+        }
+        .btn-signup {
+            background: #c47a5a;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #a8654a;
+        }
+        .btn-logout {
+            background: #c0392b;
+            color: white;
+        }
+        .btn-logout:hover {
+            background: #a93226;
+        }
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #userName {
+            font-weight: 600;
+            color: #f5d6b3;
+        }
+        #userGenderBadge {
+            background: #2d3a3a;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: #c0392b;
+            color: white;
+        }
+        .verification-badge.verified {
+            background: #27ae60;
+        }
+        .admin-badge {
+            background: #c47a5a;
+            color: white;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: none;
+        }
+
+        .footer {
+            background: #1a4a4a;
+            color: #d4c8b8;
+            padding: 30px 5% 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .footer-links a {
+            color: #f5d6b3;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .btn-primary {
+            background: #c47a5a;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: #a8654a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #c47a5a;
+            border-radius: 50px;
+            padding: 10px 24px;
+            color: #c47a5a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: #c47a5a;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            color: #7a9e7e;
+            padding: 40px 0;
+            font-size: 1.1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #f5f0eb;
+            padding: 30px 40px;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #7a9e7e;
+            transition: 0.3s;
+        }
+        .modal-close:hover {
+            color: #1a4a4a;
+        }
+        .modal-content label {
+            display: block;
+            margin-top: 14px;
+            font-weight: 600;
+            color: #1a4a4a;
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 4px;
+            background: white;
+            transition: 0.3s;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: #c47a5a;
+            outline: none;
+        }
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            margin-top: 18px;
+            background: #1a4a4a;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-modal:hover {
+            background: #2d5a5a;
+        }
+        .btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .switch-link {
+            text-align: center;
+            margin-top: 14px;
+            color: #7a9e7e;
+            cursor: pointer;
+        }
+        .switch-link strong {
+            color: #c47a5a;
+        }
+        .switch-link:hover strong {
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #c0392b;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .success-msg {
+            color: #27ae60;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .warning-box {
+            background: #f5d6b3;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: none;
+            font-size: 0.9rem;
+        }
+        .warning-box.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #signupFields {
+            display: none;
+        }
+        #passwordStrength {
+            margin-top: 4px;
+        }
+        #usernameStatus {
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+
+        #emergencyBanner {
+            background: #c0392b;
+            color: white;
+            padding: 10px 5%;
+            text-align: center;
+            font-size: 0.95rem;
+            display: none;
+        }
+
         @media (max-width: 600px) {
             .admin-header { flex-direction: column; gap: 12px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -212,7 +533,7 @@
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-                <span class="admin-badge" id="adminBadge" style="display:none;background:#c47a5a;color:white;padding:2px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;">👑 Admin</span>
+                <span class="admin-badge" id="adminBadge">👑 Admin</span>
                 <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
@@ -348,13 +669,6 @@
     // ============================================
     // SECURITY FUNCTIONS
     // ============================================
-    function sanitizeInput(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.textContent;
-    }
-
     function escapeHTML(text) {
         if (!text) return '';
         const map = {
@@ -370,9 +684,6 @@
         return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
     }
 
-    // ============================================
-    // AUTH FUNCTIONS
-    // ============================================
     function checkPasswordStrength(password) {
         let score = 0;
         if (password.length >= 8) score += 20;
@@ -382,14 +693,12 @@
         if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
         const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
         if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-        let strength = 'weak',
-            color = '#c0392b';
-        if (score >= 90) { strength = 'very-strong';
-            color = '#27ae60'; } else if (score >= 70) { strength = 'strong';
-            color = '#2ecc71'; } else if (score >= 50) { strength = 'medium';
-            color = '#f39c12'; } else if (score >= 30) { strength = 'weak';
-            color = '#e67e22'; } else { strength = 'very-weak';
-            color = '#c0392b'; }
+        let strength = 'weak', color = '#c0392b';
+        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
+        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
+        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
+        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
+        else { strength = 'very-weak'; color = '#c0392b'; }
         return { score, strength, color };
     }
 
@@ -651,7 +960,7 @@
     });
 
     // ============================================
-    // LOAD ADMIN PANEL
+    // LOAD ADMIN PANEL - FIXED
     // ============================================
     function loadAdminPanel() {
         const content = document.getElementById('adminContent');
@@ -665,14 +974,11 @@
             </div>
             <div id="adminStats"></div>
             <div class="moderation-tabs">
-                <button class="mod-tab active" data-tab="flagged" onclick="switchTab('flagged')">
+                <button class="mod-tab active" data-tab="flagged" onclick="switchModTab('flagged')">
                     ⚠️ Flagged <span class="count" id="flaggedCount">0</span>
                 </button>
-                <button class="mod-tab" data-tab="pending" onclick="switchTab('pending')">
+                <button class="mod-tab" data-tab="pending" onclick="switchModTab('pending')">
                     ⏳ Pending <span class="count" id="pendingCount">0</span>
-                </button>
-                <button class="mod-tab" data-tab="reported" onclick="switchTab('reported')">
-                    📢 Reported <span class="count" id="reportedCount">0</span>
                 </button>
             </div>
             <div id="modItems">
@@ -687,45 +993,57 @@
     function loadStats() {
         const statsDiv = document.getElementById('adminStats');
 
-        Promise.all([
-            db.collection('stories').where('flagged', '==', true).get(),
-            db.collection('stories').where('approved', '==', false).get(),
-            db.collection('comments').where('flagged', '==', true).get(),
-            db.collection('stories').get()
-        ]).then(([flaggedStories, pendingStories, flaggedComments, allStories]) => {
-            statsDiv.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="emoji">🚩</span>
-                        <div class="number">${flaggedStories.size}</div>
-                        <div class="label">Flagged Stories</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">⏳</span>
-                        <div class="number">${pendingStories.size}</div>
-                        <div class="label">Pending Review</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">💬</span>
-                        <div class="number">${flaggedComments.size}</div>
-                        <div class="label">Flagged Comments</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">📝</span>
-                        <div class="number">${allStories.size}</div>
-                        <div class="label">Total Stories</div>
-                    </div>
-                </div>
-            `;
+        // Get all stories (admin can read all)
+        db.collection('stories').get()
+            .then((snapshot) => {
+                let flaggedCount = 0;
+                let pendingCount = 0;
+                let totalCount = 0;
+                
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    totalCount++;
+                    if (data.flagged === true) flaggedCount++;
+                    if (data.approved === false) pendingCount++;
+                });
+                
+                // Also get flagged comments
+                return db.collection('comments').get().then((commentSnapshot) => {
+                    let flaggedComments = 0;
+                    commentSnapshot.forEach((doc) => {
+                        if (doc.data().flagged === true) flaggedComments++;
+                    });
+                    
+                    statsDiv.innerHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="emoji">🚩</span>
+                                <div class="number">${flaggedCount + flaggedComments}</div>
+                                <div class="label">Flagged Items</div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="emoji">⏳</span>
+                                <div class="number">${pendingCount}</div>
+                                <div class="label">Pending Stories</div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="emoji">📝</span>
+                                <div class="number">${totalCount}</div>
+                                <div class="label">Total Stories</div>
+                            </div>
+                        </div>
+                    `;
 
-            document.getElementById('flaggedCount').textContent = flaggedStories.size + flaggedComments.size;
-            document.getElementById('pendingCount').textContent = pendingStories.size;
-        }).catch((err) => {
-            console.error('Error loading stats:', err);
-        });
+                    document.getElementById('flaggedCount').textContent = flaggedCount + flaggedComments;
+                    document.getElementById('pendingCount').textContent = pendingCount;
+                });
+            })
+            .catch((err) => {
+                console.error('Error loading stats:', err);
+            });
     }
 
-    function switchTab(tab) {
+    function switchModTab(tab) {
         currentModTab = tab;
         document.querySelectorAll('.mod-tab').forEach(t => {
             t.classList.toggle('active', t.dataset.tab === tab);
@@ -733,97 +1051,86 @@
         loadModItems(tab);
     }
 
+    // ============================================
+    // LOAD MODERATION ITEMS - FIXED (No indexes needed)
+    // ============================================
     function loadModItems(type) {
         const container = document.getElementById('modItems');
         container.innerHTML = '<div class="loading">⏳ Loading...</div>';
 
-        let promise;
-        if (type === 'flagged') {
-            promise = db.collection('stories').where('flagged', '==', true).get()
-                .then(snapshot => {
-                    const items = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        data.id = doc.id;
-                        data.type = 'story';
+        // Get ALL stories and filter client-side (no index needed)
+        db.collection('stories').get()
+            .then((snapshot) => {
+                const items = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    data.type = 'story';
+                    
+                    if (type === 'flagged' && data.flagged === true) {
                         items.push(data);
-                    });
-                    return db.collection('comments').where('flagged', '==', true).get()
-                        .then(commentSnapshot => {
-                            commentSnapshot.forEach(doc => {
-                                const data = doc.data();
+                    } else if (type === 'pending' && data.approved === false) {
+                        items.push(data);
+                    }
+                });
+                
+                // Also get flagged comments for 'flagged' tab
+                if (type === 'flagged') {
+                    return db.collection('comments').get().then((commentSnapshot) => {
+                        commentSnapshot.forEach((doc) => {
+                            const data = doc.data();
+                            if (data.flagged === true) {
                                 data.id = doc.id;
                                 data.type = 'comment';
                                 items.push(data);
-                            });
-                            return items;
+                            }
                         });
-                });
-        } else if (type === 'pending') {
-            promise = db.collection('stories').where('approved', '==', false).get()
-                .then(snapshot => {
-                    const items = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        data.id = doc.id;
-                        data.type = 'story';
-                        items.push(data);
+                        return items;
                     });
-                    return items;
-                });
-        } else if (type === 'reported') {
-            promise = db.collection('reports').get()
-                .then(snapshot => {
-                    const items = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        data.id = doc.id;
-                        data.type = 'report';
-                        items.push(data);
-                    });
-                    items.sort((a, b) => {
-                        const ta = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                        const tb = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-                        return tb - ta;
-                    });
-                    return items;
-                });
-        }
+                }
+                return items;
+            })
+            .then((items) => {
+                if (items.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="big-emoji">✅</div>
+                            <h3>All Clear!</h3>
+                            <p>No items need moderation in this category.</p>
+                        </div>
+                    `;
+                    return;
+                }
 
-        promise.then(items => {
-            if (items.length === 0) {
+                // Sort by date (newest first)
+                items.sort((a, b) => {
+                    const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                    const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                    return timeB - timeA;
+                });
+
+                let html = '';
+                items.forEach(item => {
+                    html += renderModItem(item);
+                });
+                container.innerHTML = html;
+            })
+            .catch((err) => {
+                console.error('Error loading items:', err);
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="big-emoji">✅</div>
-                        <h3>All Clear!</h3>
-                        <p>No items need moderation in this category.</p>
+                        <div class="big-emoji">⚠️</div>
+                        <h3>Error Loading Items</h3>
+                        <p>${err.message}</p>
+                        <button class="btn-primary" onclick="loadModItems('${type}')" style="margin-top:12px;">🔄 Retry</button>
                     </div>
                 `;
-                return;
-            }
-
-            let html = '';
-            items.forEach(item => {
-                html += renderModItem(item);
             });
-            container.innerHTML = html;
-        }).catch(err => {
-            console.error('Error loading moderation items:', err);
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="big-emoji">⚠️</div>
-                    <h3>Error Loading Items</h3>
-                    <p>${err.message}</p>
-                    <button class="btn-primary" onclick="loadModItems('${type}')" style="margin-top:12px;">🔄 Retry</button>
-                </div>
-            `;
-        });
     }
 
     function renderModItem(item) {
         const time = item.createdAt ? item.createdAt.toDate().toLocaleString() : 'Recently';
         let content = '';
-        let actions = '';
 
         if (item.type === 'story') {
             content = `
@@ -834,7 +1141,6 @@
                 <div class="actions">
                     <button class="btn-success" onclick="approveItem('story', '${item.id}')">✅ Approve</button>
                     <button class="btn-danger" onclick="deleteItem('story', '${item.id}')">🗑️ Delete</button>
-                    <button class="btn-secondary" onclick="viewStory('${item.id}')" style="background:#e8ddd0;border:2px solid #1a4a4a;border-radius:50px;padding:8px 20px;cursor:pointer;">👁️ View</button>
                 </div>
             `;
         } else if (item.type === 'comment') {
@@ -845,17 +1151,6 @@
                 <div class="actions">
                     <button class="btn-success" onclick="approveItem('comment', '${item.id}')">✅ Approve</button>
                     <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')">🗑️ Delete</button>
-                </div>
-            `;
-        } else if (item.type === 'report') {
-            content = `
-                <div class="title">📢 Report</div>
-                <div class="meta">Reported by: ${escapeHTML(item.reporterName || 'Unknown')} · 📅 ${time}</div>
-                <div class="content">Reason: ${escapeHTML(item.reason || 'Not specified')}</div>
-                <div class="content" style="margin-top:8px;">Content: ${escapeHTML((item.content || '').substring(0, 200))}${(item.content || '').length > 200 ? '...' : ''}</div>
-                <div class="actions">
-                    <button class="btn-success" onclick="resolveReport('${item.id}')">✅ Resolved</button>
-                    <button class="btn-danger" onclick="deleteItem('report', '${item.id}')">🗑️ Dismiss</button>
                 </div>
             `;
         }
@@ -879,9 +1174,7 @@
 
     function deleteItem(type, id) {
         if (!confirm(`Delete this ${type}? This cannot be undone.`)) return;
-        const ref = type === 'story' ? db.collection('stories').doc(id) :
-            type === 'comment' ? db.collection('comments').doc(id) :
-            db.collection('reports').doc(id);
+        const ref = type === 'story' ? db.collection('stories').doc(id) : db.collection('comments').doc(id);
         ref.delete()
             .then(() => {
                 alert('✅ Item deleted!');
@@ -891,22 +1184,6 @@
             .catch((err) => {
                 alert('❌ Error: ' + err.message);
             });
-    }
-
-    function resolveReport(id) {
-        if (!confirm('Mark this report as resolved?')) return;
-        db.collection('reports').doc(id).update({ resolved: true })
-            .then(() => {
-                alert('✅ Report resolved!');
-                loadModItems(currentModTab);
-            })
-            .catch((err) => {
-                alert('❌ Error: ' + err.message);
-            });
-    }
-
-    function viewStory(id) {
-        window.open(`story.html?id=${id}`, '_blank');
     }
 
     // ============================================
@@ -945,7 +1222,5 @@
 
     console.log('👑 Admin panel loaded');
     </script>
-
-    <script src="js/app.js"></script>
 </body>
 </html>
