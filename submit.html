@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Share Your Story — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
-    ">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -19,6 +14,9 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
+        /* ============================================
+           SUBMIT PAGE STYLES
+           ============================================ */
         .submit-form {
             max-width: 700px;
             margin: 0 auto;
@@ -165,18 +163,22 @@
 
         @media (max-width: 600px) {
             .card { padding: 16px; }
+            .submit-form textarea { min-height: 120px; }
         }
     </style>
 </head>
 
 <body>
-    <!-- Header -->
+    <!-- ============================================
+    HEADER
+    ============================================ -->
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
             <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <a href="category.html" class="btn btn-nav">📂 Categories</a>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -193,25 +195,30 @@
     <!-- Emergency Banner -->
     <div id="emergencyBanner"></div>
 
-    <!-- Submit Form -->
+    <!-- ============================================
+    SUBMIT FORM
+    ============================================ -->
     <div class="container">
         <div class="submit-form">
             <h1 style="font-weight:300;color:#1a4a4a;margin-bottom:4px;">📝 Share Your Story</h1>
             <p style="color:#7a9e7e;margin-bottom:24px;">Your story could be the hope someone else needs.</p>
 
             <div class="card">
+                <!-- Gender Restriction Notice -->
                 <div id="genderRestrictionNotice" class="gender-restriction-notice warning">
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
 
+                <!-- Title -->
                 <label class="form-label" for="storyTitle">📌 Title <span class="required-star">*</span></label>
                 <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100"
                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                        readonly onfocus="this.removeAttribute('readonly')" />
                 <div class="char-count"><span id="titleCount">0</span>/100</div>
 
+                <!-- Category -->
                 <label class="form-label" for="storyCategory">📂 Category <span class="required-star">*</span></label>
-                <select id="storyCategory">
+                <select id="storyCategory" onchange="checkCategoryRestriction()">
                     <option value="">Select a category...</option>
                     <option value="men">🧔 Men's Harbor</option>
                     <option value="women">👩 Women's Harbor</option>
@@ -221,18 +228,22 @@
                 </select>
                 <div class="form-hint">📌 Men's Harbor — Men only · Women's Harbor — Women only · Others — Open to everyone</div>
 
+                <!-- Story Text -->
                 <label class="form-label" for="storyText">📖 Your Story <span class="required-star">*</span></label>
                 <textarea id="storyText" placeholder="Write your story here... (minimum 10 characters)" maxlength="5000"></textarea>
                 <div class="char-count"><span id="textCount">0</span>/5000</div>
 
+                <!-- Anonymous Toggle -->
                 <div class="checkbox-group">
                     <input type="checkbox" id="storyAnonymous" />
                     <label for="storyAnonymous">🕊️ Post anonymously</label>
                 </div>
 
+                <!-- Messages -->
                 <div id="submitError" class="error-msg"></div>
                 <div id="submitSuccess" class="success-msg"></div>
 
+                <!-- Submit Button -->
                 <button class="btn-submit-story" id="submitBtn" onclick="submitStory()">📤 Post Story</button>
 
                 <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#7a9e7e;">
@@ -246,7 +257,9 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- ============================================
+    FOOTER
+    ============================================ -->
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
@@ -254,13 +267,17 @@
             <a href="submit.html">📝 Share Story</a>
             <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
+            <a href="category.html">📂 Categories</a>
+            <a href="activity.html">📊 Activity</a>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
             &copy; 2026 The Harbor — Built with 💚 for the community
         </div>
     </footer>
 
-    <!-- Auth Modal -->
+    <!-- ============================================
+    AUTH MODAL
+    ============================================ -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -351,11 +368,11 @@
     ];
 
     function populateCountryDatalist() {
-        const datalist = document.getElementById('country-list');
+        var datalist = document.getElementById('country-list');
         if (!datalist) return;
         datalist.innerHTML = '';
-        countries.forEach(c => {
-            const option = document.createElement('option');
+        countries.forEach(function(c) {
+            var option = document.createElement('option');
             option.value = c.name;
             datalist.appendChild(option);
         });
@@ -366,42 +383,42 @@
     // ============================================
     function sanitizeInput(text) {
         if (!text) return '';
-        const div = document.createElement('div');
+        var div = document.createElement('div');
         div.textContent = text;
         return div.textContent;
     }
 
     function checkPasswordStrength(password) {
-        let score = 0;
+        var score = 0;
         if (password.length >= 8) score += 20;
         if (/[A-Z]/.test(password)) score += 20;
         if (/[a-z]/.test(password)) score += 20;
         if (/[0-9]/.test(password)) score += 20;
         if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
-        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
-        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-        let strength = 'weak', color = '#c0392b';
+        var common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+        if (!common.some(function(pwd) { return password.toLowerCase().includes(pwd); })) score += 10;
+        var strength = 'weak', color = '#c0392b';
         if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
         else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
         else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
         else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
         else { strength = 'very-weak'; color = '#c0392b'; }
-        return { score, strength, color };
+        return { score: score, strength: strength, color: color };
     }
 
     function checkUsernameAvailability(username) {
         if (!username || username.length < 2) return Promise.resolve(false);
-        return db.collection('users').where('name', '==', username).get().then(s => s.empty);
+        return db.collection('users').where('name', '==', username).get().then(function(s) { return s.empty; });
     }
 
     function openModal(mode) {
-        const modal = document.getElementById('authModal');
+        var modal = document.getElementById('authModal');
         if (!modal) return;
-        const title = document.getElementById('modalTitle');
-        const submitBtn = document.getElementById('authSubmitBtn');
-        const signupFields = document.getElementById('signupFields');
-        const switchLink = document.getElementById('authSwitch');
-        const error = document.getElementById('authError');
+        var title = document.getElementById('modalTitle');
+        var submitBtn = document.getElementById('authSubmitBtn');
+        var signupFields = document.getElementById('signupFields');
+        var switchLink = document.getElementById('authSwitch');
+        var error = document.getElementById('authError');
         if (error) error.textContent = '';
         document.getElementById('authEmail').value = '';
         document.getElementById('authPassword').value = '';
@@ -414,14 +431,14 @@
             title.textContent = '🔐 Welcome Back';
             submitBtn.textContent = '🚀 Log In';
             signupFields.style.display = 'none';
-            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.innerHTML = 'Don\'t have an account? <strong>Sign Up</strong>';
             switchLink.dataset.mode = 'signup';
         } else {
             title.textContent = '📝 Join The Harbor';
             submitBtn.textContent = '🚀 Create Account';
             signupFields.style.display = 'block';
             populateCountryDatalist();
-            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.innerHTML = 'Already have an account? <strong>Log In</strong>';
             switchLink.dataset.mode = 'login';
         }
         modal.style.display = 'flex';
@@ -432,20 +449,20 @@
     }
 
     function toggleAuthMode() {
-        const switchLink = document.getElementById('authSwitch');
+        var switchLink = document.getElementById('authSwitch');
         if (!switchLink) return;
-        const mode = switchLink.dataset.mode;
+        var mode = switchLink.dataset.mode;
         closeModal();
-        setTimeout(() => openModal(mode), 200);
+        setTimeout(function() { openModal(mode); }, 200);
     }
 
     function handleAuth() {
-        const emailInput = document.getElementById('authEmail');
-        const passwordInput = document.getElementById('authPassword');
-        const error = document.getElementById('authError');
-        const submitBtn = document.getElementById('authSubmitBtn');
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
+        var emailInput = document.getElementById('authEmail');
+        var passwordInput = document.getElementById('authPassword');
+        var error = document.getElementById('authError');
+        var submitBtn = document.getElementById('authSubmitBtn');
+        var email = emailInput.value.trim();
+        var password = passwordInput.value;
         error.textContent = '';
         if (!email || !email.includes('@') || !email.includes('.')) {
             error.textContent = 'Please enter a valid email address.';
@@ -455,13 +472,13 @@
             error.textContent = 'Password must be at least 6 characters.';
             return;
         }
-        const isLogin = submitBtn.textContent.includes('Log In');
+        var isLogin = submitBtn.textContent.includes('Log In');
         submitBtn.disabled = true;
         submitBtn.textContent = '⏳ Please wait...';
         if (isLogin) {
             auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
+                .then(function(userCredential) {
+                    var user = userCredential.user;
                     if (!user.emailVerified) {
                         error.textContent = '⚠️ Please verify your email first.';
                         auth.signOut();
@@ -473,20 +490,20 @@
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Log In';
                 })
-                .catch((err) => {
+                .catch(function(err) {
                     error.textContent = err.message;
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Log In';
                 });
         } else {
-            const nameInput = document.getElementById('authName');
-            const genderSelect = document.getElementById('authGender');
-            const favoritesInput = document.getElementById('authFavorites');
-            const countryInput = document.getElementById('authCountry');
-            const name = nameInput ? nameInput.value.trim() : '';
-            const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
-            const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-            const country = countryInput ? countryInput.value.trim() : '';
+            var nameInput = document.getElementById('authName');
+            var genderSelect = document.getElementById('authGender');
+            var favoritesInput = document.getElementById('authFavorites');
+            var countryInput = document.getElementById('authCountry');
+            var name = nameInput ? nameInput.value.trim() : '';
+            var gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+            var favorites = favoritesInput ? favoritesInput.value.trim() : '';
+            var country = countryInput ? countryInput.value.trim() : '';
             if (!name || name.length < 2) {
                 error.textContent = 'Please enter a username (minimum 2 characters).';
                 submitBtn.disabled = false;
@@ -500,7 +517,7 @@
                 return;
             }
             checkUsernameAvailability(name)
-                .then((available) => {
+                .then(function(available) {
                     if (!available) {
                         error.textContent = '❌ Username is already taken.';
                         submitBtn.disabled = false;
@@ -509,33 +526,33 @@
                     }
                     return auth.createUserWithEmailAndPassword(email, password);
                 })
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    return user.sendEmailVerification().then(() => user);
+                .then(function(userCredential) {
+                    var user = userCredential.user;
+                    return user.sendEmailVerification().then(function() { return user; });
                 })
-                .then((user) => {
-                    const countryData = countries.find(c => c.name === country);
+                .then(function(user) {
+                    var countryData = countries.find(function(c) { return c.name === country; });
                     return db.collection('users').doc(user.uid).set({
                         name: name,
                         email: email,
                         gender: gender,
                         favorites: favorites || 'Not specified',
                         country: country,
-                        emergencyNumber: countryData?.emergency || '911',
+                        emergencyNumber: countryData ? countryData.emergency : '911',
                         emailVerified: false,
                         isAdmin: false,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastActive: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 })
-                .then(() => {
+                .then(function() {
                     closeModal();
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Create Account';
                     auth.signOut();
                     alert('✅ Verification email sent! Please check your inbox.');
                 })
-                .catch((err) => {
+                .catch(function(err) {
                     if (err !== 'Username taken') {
                         error.textContent = err.message;
                     }
@@ -555,12 +572,12 @@
     // ============================================
     // AUTH STATE LISTENER
     // ============================================
-    auth.onAuthStateChanged((user) => {
-        const authButtons = document.getElementById('authButtons');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const userGenderBadge = document.getElementById('userGenderBadge');
-        const verificationBadge = document.getElementById('verificationBadge');
+    auth.onAuthStateChanged(function(user) {
+        var authButtons = document.getElementById('authButtons');
+        var userInfo = document.getElementById('userInfo');
+        var userName = document.getElementById('userName');
+        var userGenderBadge = document.getElementById('userGenderBadge');
+        var verificationBadge = document.getElementById('verificationBadge');
 
         if (user) {
             currentUser = user;
@@ -576,7 +593,7 @@
             }
 
             db.collection('users').doc(user.uid).get()
-                .then((doc) => {
+                .then(function(doc) {
                     if (doc.exists) {
                         currentUserData = doc.data();
                         userName.textContent = currentUserData.name || 'Friend';
@@ -584,14 +601,14 @@
                         checkCategoryRestriction();
                     }
                 })
-                .catch((err) => console.error('Error fetching user data:', err));
+                .catch(function(err) { console.error('Error fetching user data:', err); });
         } else {
             currentUser = null;
             currentUserData = null;
             authButtons.style.display = 'flex';
             userInfo.style.display = 'none';
-            const notice = document.getElementById('genderRestrictionNotice');
-            const message = document.getElementById('restrictionMessage');
+            var notice = document.getElementById('genderRestrictionNotice');
+            var message = document.getElementById('restrictionMessage');
             if (notice && message) {
                 notice.style.display = 'block';
                 message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
@@ -604,11 +621,11 @@
     // CHECK CATEGORY RESTRICTION
     // ============================================
     function checkCategoryRestriction() {
-        const category = document.getElementById('storyCategory');
-        const notice = document.getElementById('genderRestrictionNotice');
-        const message = document.getElementById('restrictionMessage');
+        var category = document.getElementById('storyCategory');
+        var notice = document.getElementById('genderRestrictionNotice');
+        var message = document.getElementById('restrictionMessage');
         if (!category || !notice || !message) return;
-        const cat = category.value;
+        var cat = category.value;
         if (!cat) { notice.style.display = 'none'; return; }
         if (!currentUser || !currentUserData) {
             notice.style.display = 'block';
@@ -622,7 +639,7 @@
             notice.className = 'gender-restriction-notice warning';
             return;
         }
-        const gender = currentUserData.gender;
+        var gender = currentUserData.gender;
         if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
             notice.style.display = 'block';
             message.innerHTML = '✅ Open to everyone. You can post here!';
@@ -636,7 +653,7 @@
                 notice.className = 'gender-restriction-notice success';
             } else {
                 notice.style.display = 'block';
-                message.innerHTML = `⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
+                message.innerHTML = '⚠️ <strong>Men\'s Harbor</strong> is for <strong>Men only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass';
                 notice.className = 'gender-restriction-notice warning';
             }
             return;
@@ -648,7 +665,7 @@
                 notice.className = 'gender-restriction-notice success';
             } else {
                 notice.style.display = 'block';
-                message.innerHTML = `⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
+                message.innerHTML = '⚠️ <strong>Women\'s Harbor</strong> is for <strong>Women only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass';
                 notice.className = 'gender-restriction-notice warning';
             }
             return;
@@ -670,21 +687,21 @@
             return;
         }
 
-        const titleInput = document.getElementById('storyTitle');
-        const textInput = document.getElementById('storyText');
-        const categorySelect = document.getElementById('storyCategory');
-        const anonymousCheck = document.getElementById('storyAnonymous');
-        const errorDiv = document.getElementById('submitError');
-        const successDiv = document.getElementById('submitSuccess');
-        const submitBtn = document.getElementById('submitBtn');
+        var titleInput = document.getElementById('storyTitle');
+        var textInput = document.getElementById('storyText');
+        var categorySelect = document.getElementById('storyCategory');
+        var anonymousCheck = document.getElementById('storyAnonymous');
+        var errorDiv = document.getElementById('submitError');
+        var successDiv = document.getElementById('submitSuccess');
+        var submitBtn = document.getElementById('submitBtn');
 
         if (errorDiv) errorDiv.textContent = '';
         if (successDiv) successDiv.textContent = '';
 
-        const title = titleInput ? titleInput.value.trim() : '';
-        const text = textInput ? textInput.value.trim() : '';
-        const category = categorySelect ? categorySelect.value : '';
-        const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
+        var title = titleInput ? titleInput.value.trim() : '';
+        var text = textInput ? textInput.value.trim() : '';
+        var category = categorySelect ? categorySelect.value : '';
+        var isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
 
         if (!title || title.length < 3) {
             if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
@@ -707,7 +724,7 @@
             return;
         }
 
-        const gender = currentUserData ? currentUserData.gender : null;
+        var gender = currentUserData ? currentUserData.gender : null;
         if (category === 'men' && gender !== '🧔 Man') {
             if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.';
             return;
@@ -722,10 +739,10 @@
             submitBtn.textContent = '⏳ Posting...';
         }
 
-        const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
-        const containsInappropriate = inappropriateWords.some(word =>
-            text.toLowerCase().includes(word) || title.toLowerCase().includes(word)
-        );
+        var inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
+        var containsInappropriate = inappropriateWords.some(function(word) {
+            return text.toLowerCase().includes(word) || title.toLowerCase().includes(word);
+        });
 
         db.collection('stories').add({
             title: title,
@@ -741,7 +758,7 @@
             flagged: containsInappropriate,
             flagReason: containsInappropriate ? 'Inappropriate content detected' : ''
         })
-        .then((docRef) => {
+        .then(function(docRef) {
             console.log('✅ Story saved! ID:', docRef.id);
             if (containsInappropriate) {
                 if (successDiv) {
@@ -764,11 +781,11 @@
             document.getElementById('titleCount').textContent = '0';
             document.getElementById('textCount').textContent = '0';
 
-            setTimeout(() => {
+            setTimeout(function() {
                 window.location.href = 'index.html';
             }, 2000);
         })
-        .catch((err) => {
+        .catch(function(err) {
             console.error('❌ Error saving story:', err);
             if (errorDiv) {
                 errorDiv.textContent = '❌ Error: ' + err.message;
@@ -786,11 +803,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         populateCountryDatalist();
 
-        const titleInput = document.getElementById('storyTitle');
-        const textInput = document.getElementById('storyText');
-        const titleCount = document.getElementById('titleCount');
-        const textCount = document.getElementById('textCount');
-        const categorySelect = document.getElementById('storyCategory');
+        var titleInput = document.getElementById('storyTitle');
+        var textInput = document.getElementById('storyText');
+        var titleCount = document.getElementById('titleCount');
+        var textCount = document.getElementById('textCount');
+        var categorySelect = document.getElementById('storyCategory');
 
         if (titleInput && titleCount) {
             titleInput.addEventListener('input', function() {
@@ -817,23 +834,19 @@
         });
 
         document.getElementById('authPassword').addEventListener('input', function() {
-            const pwd = this.value;
-            const strengthDiv = document.getElementById('passwordStrength');
+            var pwd = this.value;
+            var strengthDiv = document.getElementById('passwordStrength');
             if (!strengthDiv) return;
             if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-            const result = checkPasswordStrength(pwd);
-            strengthDiv.innerHTML = `
-                <div style="margin-top:6px;font-size:0.85rem;">
-                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                </div>
-            `;
+            var result = checkPasswordStrength(pwd);
+            strengthDiv.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:' + result.color + ';font-weight:700;">' + result.strength + '</span></div>';
         });
 
         document.getElementById('authName').addEventListener('input', checkUsernameOnType);
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                const modal = document.getElementById('authModal');
+                var modal = document.getElementById('authModal');
                 if (modal && modal.style.display === 'flex') handleAuth();
             }
         });
