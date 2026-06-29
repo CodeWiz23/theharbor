@@ -143,6 +143,99 @@
             margin-bottom: 6px;
         }
 
+        /* Story Cards */
+        #storiesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .story-card {
+            background: #f5f0eb;
+            padding: 20px 24px;
+            border-radius: 16px;
+            border: 1px solid #d4c8b8;
+            transition: all 0.3s ease;
+        }
+        .story-card:hover {
+            box-shadow: 0 4px 16px rgba(26, 74, 74, 0.06);
+        }
+        .story-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a4a4a;
+            margin-bottom: 6px;
+        }
+        .story-meta {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: #7a9e7e;
+            margin-bottom: 10px;
+        }
+        .category-badge {
+            background: #e8ddd0;
+            padding: 2px 14px;
+            border-radius: 20px;
+            color: #1a4a4a;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        .story-text {
+            font-size: 1rem;
+            color: #2d3a3a;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.7;
+        }
+        .story-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #d4c8b8;
+        }
+        .emoji-btn {
+            background: #e8ddd0;
+            border: 1px solid #d4c8b8;
+            border-radius: 30px;
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .emoji-btn:hover {
+            background: #d4c8b8;
+            transform: scale(1.05);
+        }
+        .emoji-btn:active {
+            transform: scale(0.93);
+        }
+        .emoji-btn .count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #7a9e7e;
+            margin-left: 4px;
+        }
+        .comment-link {
+            color: #7a9e7e;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .comment-link:hover {
+            color: #1a4a4a;
+        }
+        .loading {
+            text-align: center;
+            color: #7a9e7e;
+            padding: 40px 0;
+            font-size: 1.1rem;
+        }
+
         @media (max-width: 600px) {
             .filter-bar {
                 flex-direction: column;
@@ -576,6 +669,25 @@
                 console.error('Error adding reaction:', err);
                 alert('Could not add reaction. Please try again.');
             });
+        }
+
+        // ============================================
+        // ESCAPE HTML (Security)
+        // ============================================
+
+        function escapeHTML(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
         }
 
         // ============================================
