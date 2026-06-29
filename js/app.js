@@ -1,10 +1,3 @@
-// ============================================
-// 🔥 THE HARBOR — Complete JavaScript (FIXED)
-// ============================================
-
-// ============================================
-// FIREBASE CONFIG
-// ============================================
 const firebaseConfig = {
     apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
     authDomain: "the-harbor-community.firebaseapp.com",
@@ -32,12 +25,203 @@ let currentUser = null;
 let currentUserData = null;
 let currentCategory = 'all';
 let userReactions = {};
-let usernames = [];
-let isAdmin = false;
 let allStoriesCache = [];
+let userStoryHistory = [];
 
 // ============================================
-// SECURITY: Input Sanitization
+// COUNTRY DATA (190+ countries - FIXED EMERGENCY NUMBERS)
+// ============================================
+const countries = [
+    { name: 'Afghanistan', emergency: '119' },
+    { name: 'Albania', emergency: '112' },
+    { name: 'Algeria', emergency: '14' },
+    { name: 'Andorra', emergency: '112' },
+    { name: 'Angola', emergency: '113' },
+    { name: 'Argentina', emergency: '911' },
+    { name: 'Armenia', emergency: '112' },
+    { name: 'Australia', emergency: '000' },
+    { name: 'Austria', emergency: '112' },
+    { name: 'Azerbaijan', emergency: '112' },
+    { name: 'Bahamas', emergency: '911' },
+    { name: 'Bahrain', emergency: '999' },
+    { name: 'Bangladesh', emergency: '999' },
+    { name: 'Barbados', emergency: '911' },
+    { name: 'Belarus', emergency: '112' },
+    { name: 'Belgium', emergency: '112' },
+    { name: 'Belize', emergency: '911' },
+    { name: 'Benin', emergency: '112' },
+    { name: 'Bhutan', emergency: '112' },
+    { name: 'Bolivia', emergency: '911' },
+    { name: 'Bosnia and Herzegovina', emergency: '112' },
+    { name: 'Botswana', emergency: '999' },
+    { name: 'Brazil', emergency: '190' },
+    { name: 'Brunei', emergency: '995' },
+    { name: 'Bulgaria', emergency: '112' },
+    { name: 'Burkina Faso', emergency: '112' },
+    { name: 'Burundi', emergency: '112' },
+    { name: 'Cambodia', emergency: '119' },
+    { name: 'Cameroon', emergency: '112' },
+    { name: 'Canada', emergency: '911' },
+    { name: 'Cape Verde', emergency: '132' },
+    { name: 'Central African Republic', emergency: '112' },
+    { name: 'Chad', emergency: '112' },
+    { name: 'Chile', emergency: '131' },
+    { name: 'China', emergency: '110' },
+    { name: 'Colombia', emergency: '123' },
+    { name: 'Comoros', emergency: '112' },
+    { name: 'Congo', emergency: '112' },
+    { name: 'Costa Rica', emergency: '911' },
+    { name: 'Croatia', emergency: '112' },
+    { name: 'Cuba', emergency: '106' },
+    { name: 'Cyprus', emergency: '112' },
+    { name: 'Czech Republic', emergency: '112' },
+    { name: 'Denmark', emergency: '112' },
+    { name: 'Djibouti', emergency: '112' },
+    { name: 'Dominica', emergency: '911' },
+    { name: 'Dominican Republic', emergency: '911' },
+    { name: 'Ecuador', emergency: '911' },
+    { name: 'Egypt', emergency: '122' },
+    { name: 'El Salvador', emergency: '911' },
+    { name: 'Equatorial Guinea', emergency: '112' },
+    { name: 'Eritrea', emergency: '112' },
+    { name: 'Estonia', emergency: '112' },
+    { name: 'Eswatini', emergency: '999' },
+    { name: 'Ethiopia', emergency: '911' },
+    { name: 'Fiji', emergency: '911' },
+    { name: 'Finland', emergency: '112' },
+    { name: 'France', emergency: '112' },
+    { name: 'Gabon', emergency: '112' },
+    { name: 'Gambia', emergency: '112' },
+    { name: 'Georgia', emergency: '112' },
+    { name: 'Germany', emergency: '112' },
+    { name: 'Ghana', emergency: '112' },
+    { name: 'Greece', emergency: '112' },
+    { name: 'Grenada', emergency: '911' },
+    { name: 'Guatemala', emergency: '110' },
+    { name: 'Guinea', emergency: '112' },
+    { name: 'Guyana', emergency: '911' },
+    { name: 'Haiti', emergency: '116' },
+    { name: 'Honduras', emergency: '911' },
+    { name: 'Hungary', emergency: '112' },
+    { name: 'Iceland', emergency: '112' },
+    { name: 'India', emergency: '112' },
+    { name: 'Indonesia', emergency: '112' },
+    { name: 'Iran', emergency: '110' },
+    { name: 'Iraq', emergency: '112' },
+    { name: 'Ireland', emergency: '112' },
+    { name: 'Israel', emergency: '112' },
+    { name: 'Italy', emergency: '112' },
+    { name: 'Jamaica', emergency: '119' },
+    { name: 'Japan', emergency: '110' },
+    { name: 'Jordan', emergency: '911' },
+    { name: 'Kazakhstan', emergency: '112' },
+    { name: 'Kenya', emergency: '112' },
+    { name: 'Kiribati', emergency: '112' },
+    { name: 'Kuwait', emergency: '112' },
+    { name: 'Kyrgyzstan', emergency: '112' },
+    { name: 'Laos', emergency: '112' },
+    { name: 'Latvia', emergency: '112' },
+    { name: 'Lebanon', emergency: '112' },
+    { name: 'Lesotho', emergency: '112' },
+    { name: 'Liberia', emergency: '911' },
+    { name: 'Libya', emergency: '112' },
+    { name: 'Liechtenstein', emergency: '112' },
+    { name: 'Lithuania', emergency: '112' },
+    { name: 'Luxembourg', emergency: '112' },
+    { name: 'Madagascar', emergency: '112' },
+    { name: 'Malawi', emergency: '112' },
+    { name: 'Malaysia', emergency: '999' },
+    { name: 'Maldives', emergency: '119' },
+    { name: 'Mali', emergency: '112' },
+    { name: 'Malta', emergency: '112' },
+    { name: 'Marshall Islands', emergency: '911' },
+    { name: 'Mauritania', emergency: '112' },
+    { name: 'Mauritius', emergency: '999' },
+    { name: 'Mexico', emergency: '911' },
+    { name: 'Micronesia', emergency: '911' },
+    { name: 'Moldova', emergency: '112' },
+    { name: 'Monaco', emergency: '112' },
+    { name: 'Mongolia', emergency: '112' },
+    { name: 'Montenegro', emergency: '112' },
+    { name: 'Morocco', emergency: '112' },
+    { name: 'Mozambique', emergency: '112' },
+    { name: 'Myanmar', emergency: '112' },
+    { name: 'Namibia', emergency: '112' },
+    { name: 'Nauru', emergency: '112' },
+    { name: 'Nepal', emergency: '100' },
+    { name: 'Netherlands', emergency: '112' },
+    { name: 'New Zealand', emergency: '111' },
+    { name: 'Nicaragua', emergency: '911' },
+    { name: 'Niger', emergency: '112' },
+    { name: 'Nigeria', emergency: '112' },
+    { name: 'North Korea', emergency: '119' },
+    { name: 'North Macedonia', emergency: '112' },
+    { name: 'Norway', emergency: '112' },
+    { name: 'Oman', emergency: '999' },
+    { name: 'Pakistan', emergency: '112' },
+    { name: 'Palau', emergency: '911' },
+    { name: 'Panama', emergency: '911' },
+    { name: 'Papua New Guinea', emergency: '112' },
+    { name: 'Paraguay', emergency: '911' },
+    { name: 'Peru', emergency: '911' },
+    { name: 'Philippines', emergency: '911' },
+    { name: 'Poland', emergency: '112' },
+    { name: 'Portugal', emergency: '112' },
+    { name: 'Qatar', emergency: '999' },
+    { name: 'Romania', emergency: '112' },
+    { name: 'Russia', emergency: '112' },
+    { name: 'Rwanda', emergency: '112' },
+    { name: 'Saint Lucia', emergency: '911' },
+    { name: 'Samoa', emergency: '112' },
+    { name: 'San Marino', emergency: '112' },
+    { name: 'Saudi Arabia', emergency: '911' },
+    { name: 'Senegal', emergency: '112' },
+    { name: 'Serbia', emergency: '112' },
+    { name: 'Seychelles', emergency: '112' },
+    { name: 'Sierra Leone', emergency: '112' },
+    { name: 'Singapore', emergency: '999' },
+    { name: 'Slovakia', emergency: '112' },
+    { name: 'Slovenia', emergency: '112' },
+    { name: 'Solomon Islands', emergency: '911' },
+    { name: 'Somalia', emergency: '112' },
+    { name: 'South Africa', emergency: '112' },
+    { name: 'South Korea', emergency: '112' },
+    { name: 'Spain', emergency: '112' },
+    { name: 'Sri Lanka', emergency: '119' },
+    { name: 'Sudan', emergency: '112' },
+    { name: 'Suriname', emergency: '112' },
+    { name: 'Sweden', emergency: '112' },
+    { name: 'Switzerland', emergency: '112' },
+    { name: 'Syria', emergency: '112' },
+    { name: 'Taiwan', emergency: '110' },
+    { name: 'Tajikistan', emergency: '112' },
+    { name: 'Tanzania', emergency: '112' },
+    { name: 'Thailand', emergency: '191' },
+    { name: 'Togo', emergency: '112' },
+    { name: 'Tonga', emergency: '911' },
+    { name: 'Trinidad and Tobago', emergency: '911' },
+    { name: 'Tunisia', emergency: '112' },
+    { name: 'Turkey', emergency: '112' },
+    { name: 'Turkmenistan', emergency: '112' },
+    { name: 'Tuvalu', emergency: '112' },
+    { name: 'Uganda', emergency: '112' },
+    { name: 'Ukraine', emergency: '112' },
+    { name: 'United Arab Emirates', emergency: '999' },
+    { name: 'United Kingdom', emergency: '999' },
+    { name: 'United States', emergency: '911' },
+    { name: 'Uruguay', emergency: '911' },
+    { name: 'Uzbekistan', emergency: '112' },
+    { name: 'Vanuatu', emergency: '112' },
+    { name: 'Vatican City', emergency: '112' },
+    { name: 'Venezuela', emergency: '911' },
+    { name: 'Vietnam', emergency: '113' },
+    { name: 'Yemen', emergency: '112' },
+    { name: 'Zambia', emergency: '112' },
+    { name: 'Zimbabwe', emergency: '112' }
+];
+
+// ============================================
+// SECURITY: Input Sanitization (FIX AUTO FILL)
 // ============================================
 function sanitizeInput(text) {
     if (!text) return '';
@@ -62,17 +246,6 @@ function escapeHTML(text) {
 }
 
 // ============================================
-// SECURITY: CSRF Protection
-// ============================================
-function generateCSRFToken() {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
-}
-
-function validateCSRFToken(token) {
-    return token && token.length > 20;
-}
-
-// ============================================
 // SECURITY: Password Strength
 // ============================================
 function checkPasswordStrength(password) {
@@ -94,199 +267,6 @@ function checkPasswordStrength(password) {
 
     return { score, strength, color };
 }
-
-// ============================================
-// COUNTRY DATA
-// ============================================
-const countries = [
-    { code: 'AF', name: 'Afghanistan', emergency: '119' },
-    { code: 'AL', name: 'Albania', emergency: '112' },
-    { code: 'DZ', name: 'Algeria', emergency: '14' },
-    { code: 'AD', name: 'Andorra', emergency: '112' },
-    { code: 'AO', name: 'Angola', emergency: '113' },
-    { code: 'AR', name: 'Argentina', emergency: '911' },
-    { code: 'AM', name: 'Armenia', emergency: '112' },
-    { code: 'AU', name: 'Australia', emergency: '000' },
-    { code: 'AT', name: 'Austria', emergency: '112' },
-    { code: 'AZ', name: 'Azerbaijan', emergency: '112' },
-    { code: 'BS', name: 'Bahamas', emergency: '911' },
-    { code: 'BH', name: 'Bahrain', emergency: '999' },
-    { code: 'BD', name: 'Bangladesh', emergency: '999' },
-    { code: 'BB', name: 'Barbados', emergency: '911' },
-    { code: 'BY', name: 'Belarus', emergency: '112' },
-    { code: 'BE', name: 'Belgium', emergency: '112' },
-    { code: 'BZ', name: 'Belize', emergency: '911' },
-    { code: 'BJ', name: 'Benin', emergency: '112' },
-    { code: 'BT', name: 'Bhutan', emergency: '112' },
-    { code: 'BO', name: 'Bolivia', emergency: '911' },
-    { code: 'BA', name: 'Bosnia', emergency: '112' },
-    { code: 'BW', name: 'Botswana', emergency: '999' },
-    { code: 'BR', name: 'Brazil', emergency: '190' },
-    { code: 'BN', name: 'Brunei', emergency: '995' },
-    { code: 'BG', name: 'Bulgaria', emergency: '112' },
-    { code: 'BF', name: 'Burkina Faso', emergency: '112' },
-    { code: 'BI', name: 'Burundi', emergency: '112' },
-    { code: 'KH', name: 'Cambodia', emergency: '119' },
-    { code: 'CM', name: 'Cameroon', emergency: '112' },
-    { code: 'CA', name: 'Canada', emergency: '911' },
-    { code: 'CV', name: 'Cape Verde', emergency: '132' },
-    { code: 'CF', name: 'Central African Republic', emergency: '112' },
-    { code: 'TD', name: 'Chad', emergency: '112' },
-    { code: 'CL', name: 'Chile', emergency: '131' },
-    { code: 'CN', name: 'China', emergency: '110' },
-    { code: 'CO', name: 'Colombia', emergency: '123' },
-    { code: 'KM', name: 'Comoros', emergency: '112' },
-    { code: 'CG', name: 'Congo', emergency: '112' },
-    { code: 'CR', name: 'Costa Rica', emergency: '911' },
-    { code: 'HR', name: 'Croatia', emergency: '112' },
-    { code: 'CU', name: 'Cuba', emergency: '106' },
-    { code: 'CY', name: 'Cyprus', emergency: '112' },
-    { code: 'CZ', name: 'Czech Republic', emergency: '112' },
-    { code: 'DK', name: 'Denmark', emergency: '112' },
-    { code: 'DJ', name: 'Djibouti', emergency: '112' },
-    { code: 'DM', name: 'Dominica', emergency: '911' },
-    { code: 'DO', name: 'Dominican Republic', emergency: '911' },
-    { code: 'TL', name: 'East Timor', emergency: '112' },
-    { code: 'EC', name: 'Ecuador', emergency: '911' },
-    { code: 'EG', name: 'Egypt', emergency: '122' },
-    { code: 'SV', name: 'El Salvador', emergency: '911' },
-    { code: 'GQ', name: 'Equatorial Guinea', emergency: '112' },
-    { code: 'ER', name: 'Eritrea', emergency: '112' },
-    { code: 'EE', name: 'Estonia', emergency: '112' },
-    { code: 'SZ', name: 'Eswatini', emergency: '999' },
-    { code: 'ET', name: 'Ethiopia', emergency: '911' },
-    { code: 'FJ', name: 'Fiji', emergency: '911' },
-    { code: 'FI', name: 'Finland', emergency: '112' },
-    { code: 'FR', name: 'France', emergency: '112' },
-    { code: 'GA', name: 'Gabon', emergency: '112' },
-    { code: 'GM', name: 'Gambia', emergency: '112' },
-    { code: 'GE', name: 'Georgia', emergency: '112' },
-    { code: 'DE', name: 'Germany', emergency: '112' },
-    { code: 'GH', name: 'Ghana', emergency: '112' },
-    { code: 'GR', name: 'Greece', emergency: '112' },
-    { code: 'GD', name: 'Grenada', emergency: '911' },
-    { code: 'GT', name: 'Guatemala', emergency: '110' },
-    { code: 'GN', name: 'Guinea', emergency: '112' },
-    { code: 'GY', name: 'Guyana', emergency: '911' },
-    { code: 'HT', name: 'Haiti', emergency: '116' },
-    { code: 'HN', name: 'Honduras', emergency: '911' },
-    { code: 'HU', name: 'Hungary', emergency: '112' },
-    { code: 'IS', name: 'Iceland', emergency: '112' },
-    { code: 'IN', name: 'India', emergency: '112' },
-    { code: 'ID', name: 'Indonesia', emergency: '112' },
-    { code: 'IR', name: 'Iran', emergency: '110' },
-    { code: 'IQ', name: 'Iraq', emergency: '112' },
-    { code: 'IE', name: 'Ireland', emergency: '112' },
-    { code: 'IL', name: 'Israel', emergency: '112' },
-    { code: 'IT', name: 'Italy', emergency: '112' },
-    { code: 'JM', name: 'Jamaica', emergency: '119' },
-    { code: 'JP', name: 'Japan', emergency: '110' },
-    { code: 'JO', name: 'Jordan', emergency: '911' },
-    { code: 'KZ', name: 'Kazakhstan', emergency: '112' },
-    { code: 'KE', name: 'Kenya', emergency: '112' },
-    { code: 'KI', name: 'Kiribati', emergency: '112' },
-    { code: 'KW', name: 'Kuwait', emergency: '112' },
-    { code: 'KG', name: 'Kyrgyzstan', emergency: '112' },
-    { code: 'LA', name: 'Laos', emergency: '112' },
-    { code: 'LV', name: 'Latvia', emergency: '112' },
-    { code: 'LB', name: 'Lebanon', emergency: '112' },
-    { code: 'LS', name: 'Lesotho', emergency: '112' },
-    { code: 'LR', name: 'Liberia', emergency: '911' },
-    { code: 'LY', name: 'Libya', emergency: '112' },
-    { code: 'LI', name: 'Liechtenstein', emergency: '112' },
-    { code: 'LT', name: 'Lithuania', emergency: '112' },
-    { code: 'LU', name: 'Luxembourg', emergency: '112' },
-    { code: 'MG', name: 'Madagascar', emergency: '112' },
-    { code: 'MW', name: 'Malawi', emergency: '112' },
-    { code: 'MY', name: 'Malaysia', emergency: '999' },
-    { code: 'MV', name: 'Maldives', emergency: '119' },
-    { code: 'ML', name: 'Mali', emergency: '112' },
-    { code: 'MT', name: 'Malta', emergency: '112' },
-    { code: 'MH', name: 'Marshall Islands', emergency: '911' },
-    { code: 'MR', name: 'Mauritania', emergency: '112' },
-    { code: 'MU', name: 'Mauritius', emergency: '999' },
-    { code: 'MX', name: 'Mexico', emergency: '911' },
-    { code: 'FM', name: 'Micronesia', emergency: '911' },
-    { code: 'MD', name: 'Moldova', emergency: '112' },
-    { code: 'MC', name: 'Monaco', emergency: '112' },
-    { code: 'MN', name: 'Mongolia', emergency: '112' },
-    { code: 'ME', name: 'Montenegro', emergency: '112' },
-    { code: 'MA', name: 'Morocco', emergency: '112' },
-    { code: 'MZ', name: 'Mozambique', emergency: '112' },
-    { code: 'MM', name: 'Myanmar', emergency: '112' },
-    { code: 'NA', name: 'Namibia', emergency: '112' },
-    { code: 'NR', name: 'Nauru', emergency: '112' },
-    { code: 'NP', name: 'Nepal', emergency: '100' },
-    { code: 'NL', name: 'Netherlands', emergency: '112' },
-    { code: 'NZ', name: 'New Zealand', emergency: '111' },
-    { code: 'NI', name: 'Nicaragua', emergency: '911' },
-    { code: 'NE', name: 'Niger', emergency: '112' },
-    { code: 'NG', name: 'Nigeria', emergency: '112' },
-    { code: 'KP', name: 'North Korea', emergency: '119' },
-    { code: 'MK', name: 'North Macedonia', emergency: '112' },
-    { code: 'NO', name: 'Norway', emergency: '112' },
-    { code: 'OM', name: 'Oman', emergency: '999' },
-    { code: 'PK', name: 'Pakistan', emergency: '112' },
-    { code: 'PW', name: 'Palau', emergency: '911' },
-    { code: 'PA', name: 'Panama', emergency: '911' },
-    { code: 'PG', name: 'Papua New Guinea', emergency: '112' },
-    { code: 'PY', name: 'Paraguay', emergency: '911' },
-    { code: 'PE', name: 'Peru', emergency: '911' },
-    { code: 'PH', name: 'Philippines', emergency: '911' },
-    { code: 'PL', name: 'Poland', emergency: '112' },
-    { code: 'PT', name: 'Portugal', emergency: '112' },
-    { code: 'QA', name: 'Qatar', emergency: '999' },
-    { code: 'RO', name: 'Romania', emergency: '112' },
-    { code: 'RU', name: 'Russia', emergency: '112' },
-    { code: 'RW', name: 'Rwanda', emergency: '112' },
-    { code: 'LC', name: 'Saint Lucia', emergency: '911' },
-    { code: 'WS', name: 'Samoa', emergency: '112' },
-    { code: 'SM', name: 'San Marino', emergency: '112' },
-    { code: 'SA', name: 'Saudi Arabia', emergency: '911' },
-    { code: 'SN', name: 'Senegal', emergency: '112' },
-    { code: 'RS', name: 'Serbia', emergency: '112' },
-    { code: 'SC', name: 'Seychelles', emergency: '112' },
-    { code: 'SL', name: 'Sierra Leone', emergency: '112' },
-    { code: 'SG', name: 'Singapore', emergency: '999' },
-    { code: 'SK', name: 'Slovakia', emergency: '112' },
-    { code: 'SI', name: 'Slovenia', emergency: '112' },
-    { code: 'SB', name: 'Solomon Islands', emergency: '911' },
-    { code: 'SO', name: 'Somalia', emergency: '112' },
-    { code: 'ZA', name: 'South Africa', emergency: '112' },
-    { code: 'KR', name: 'South Korea', emergency: '112' },
-    { code: 'ES', name: 'Spain', emergency: '112' },
-    { code: 'LK', name: 'Sri Lanka', emergency: '119' },
-    { code: 'SD', name: 'Sudan', emergency: '112' },
-    { code: 'SR', name: 'Suriname', emergency: '112' },
-    { code: 'SE', name: 'Sweden', emergency: '112' },
-    { code: 'CH', name: 'Switzerland', emergency: '112' },
-    { code: 'SY', name: 'Syria', emergency: '112' },
-    { code: 'TW', name: 'Taiwan', emergency: '110' },
-    { code: 'TJ', name: 'Tajikistan', emergency: '112' },
-    { code: 'TZ', name: 'Tanzania', emergency: '112' },
-    { code: 'TH', name: 'Thailand', emergency: '191' },
-    { code: 'TG', name: 'Togo', emergency: '112' },
-    { code: 'TO', name: 'Tonga', emergency: '911' },
-    { code: 'TT', name: 'Trinidad', emergency: '911' },
-    { code: 'TN', name: 'Tunisia', emergency: '112' },
-    { code: 'TR', name: 'Turkey', emergency: '112' },
-    { code: 'TM', name: 'Turkmenistan', emergency: '112' },
-    { code: 'TV', name: 'Tuvalu', emergency: '112' },
-    { code: 'UG', name: 'Uganda', emergency: '112' },
-    { code: 'UA', name: 'Ukraine', emergency: '112' },
-    { code: 'AE', name: 'United Arab Emirates', emergency: '999' },
-    { code: 'GB', name: 'United Kingdom', emergency: '999' },
-    { code: 'US', name: 'United States', emergency: '911' },
-    { code: 'UY', name: 'Uruguay', emergency: '911' },
-    { code: 'UZ', name: 'Uzbekistan', emergency: '112' },
-    { code: 'VU', name: 'Vanuatu', emergency: '112' },
-    { code: 'VA', name: 'Vatican City', emergency: '112' },
-    { code: 'VE', name: 'Venezuela', emergency: '911' },
-    { code: 'VN', name: 'Vietnam', emergency: '113' },
-    { code: 'YE', name: 'Yemen', emergency: '112' },
-    { code: 'ZM', name: 'Zambia', emergency: '112' },
-    { code: 'ZW', name: 'Zimbabwe', emergency: '112' }
-];
 
 // ============================================
 // CHECK USERNAME AVAILABILITY
@@ -320,7 +300,7 @@ function openModal(mode) {
 
     if (error) error.textContent = '';
     
-    // Clear fields
+    // Clear ALL fields to prevent autofill
     const fields = ['authEmail', 'authPassword', 'authName', 'authFavorites', 'authCountry'];
     fields.forEach(id => {
         const el = document.getElementById(id);
@@ -342,6 +322,8 @@ function openModal(mode) {
         title.textContent = '📝 Join The Harbor';
         submitBtn.textContent = '🚀 Create Account';
         if (signupFields) signupFields.style.display = 'block';
+        // Populate country datalist
+        populateCountryDatalist();
         if (switchLink) {
             switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
             switchLink.dataset.mode = 'login';
@@ -458,7 +440,8 @@ function handleAuth() {
                 closeModal();
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Log In';
-                showWelcomeFireworks();
+                // Redirect to welcome page
+                window.location.href = 'welcome.html';
             })
             .catch((err) => {
                 error.textContent = err.message;
@@ -469,12 +452,12 @@ function handleAuth() {
         const nameInput = document.getElementById('authName');
         const genderSelect = document.getElementById('authGender');
         const favoritesInput = document.getElementById('authFavorites');
-        const countrySelect = document.getElementById('authCountry');
+        const countryInput = document.getElementById('authCountry');
 
         const name = nameInput ? nameInput.value.trim() : '';
         const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
         const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-        const country = countrySelect ? countrySelect.value : '';
+        const country = countryInput ? countryInput.value.trim() : '';
 
         if (!name || name.length < 2) {
             error.textContent = 'Please enter a username (minimum 2 characters).';
@@ -497,7 +480,6 @@ function handleAuth() {
             return;
         }
 
-        // Check username availability
         checkUsernameAvailability(name)
             .then((available) => {
                 if (!available) {
@@ -513,13 +495,14 @@ function handleAuth() {
                 return user.sendEmailVerification().then(() => user);
             })
             .then((user) => {
+                const countryData = countries.find(c => c.name === country);
                 return db.collection('users').doc(user.uid).set({
                     name: name,
                     email: cleanEmail,
                     gender: gender,
                     favorites: favorites || 'Not specified',
                     country: country,
-                    emergencyNumber: countries.find(c => c.name === country)?.emergency || '911',
+                    emergencyNumber: countryData?.emergency || '911',
                     emailVerified: false,
                     isAdmin: false,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -546,7 +529,6 @@ function handleAuth() {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         auth.signOut();
-        // Clear session storage
         sessionStorage.removeItem('hasSeenWelcome');
         window.location.href = 'index.html';
     }
@@ -557,95 +539,23 @@ function logout() {
 // ============================================
 
 function showWelcomeFireworks() {
-    // Check if already on welcome page
-    if (window.location.pathname.includes('welcome.html')) return;
-    
-    // Check if already shown in this session
-    if (sessionStorage.getItem('hasSeenWelcome') === 'true') return;
-    
-    // Show welcome overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'welcomeOverlay';
-    overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
-        z-index: 99999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        animation: welcomeFadeIn 0.8s ease;
-    `;
-    overlay.innerHTML = `
-        <style>
-            @keyframes welcomeFadeIn { from { opacity: 0; } to { opacity: 1; } }
-            @keyframes welcomeFadeOut { from { opacity: 1; } to { opacity: 0; } }
-            @keyframes confettiDrop { 
-                0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-            }
-            .confetti-piece {
-                position: fixed;
-                width: 12px;
-                height: 12px;
-                animation: confettiDrop 3s linear forwards;
-                pointer-events: none;
-                z-index: 100000;
-            }
-        </style>
-        <span style="font-size: 4rem; margin-bottom: 16px;">🎉</span>
-        <h1 style="font-size: 3rem; font-weight: 300;">Welcome to <span style="font-weight: 700; color: #c47a5a;">The Harbor</span></h1>
-        <p style="font-size: 1.2rem; opacity: 0.8; margin-top: 8px;">⚓ A safe place to share, heal, and grow</p>
-        <button onclick="closeWelcomeFireworks()" style="
-            margin-top: 30px;
-            padding: 14px 40px;
-            background: #c47a5a;
-            border: none;
-            border-radius: 50px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        ">Continue</button>
-    `;
-    document.body.appendChild(overlay);
-
-    // Create confetti
-    const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24'];
-    for (let i = 0; i < 80; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        piece.style.left = Math.random() * 100 + '%';
-        piece.style.top = '-20px';
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.width = (8 + Math.random() * 10) + 'px';
-        piece.style.height = (8 + Math.random() * 10) + 'px';
-        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        piece.style.animationDuration = (2 + Math.random() * 3) + 's';
-        piece.style.animationDelay = (Math.random() * 2) + 's';
-        document.body.appendChild(piece);
-        setTimeout(() => piece.remove(), 5000);
-    }
-
-    // Auto-remove after 8 seconds
-    setTimeout(() => {
-        const el = document.getElementById('welcomeOverlay');
-        if (el) {
-            el.style.animation = 'welcomeFadeOut 0.5s ease forwards';
-            setTimeout(() => el.remove(), 500);
-        }
-    }, 8000);
+    if (sessionStorage.getItem('welcomeShown') === 'true') return;
+    sessionStorage.setItem('welcomeShown', 'true');
+    window.location.href = 'welcome.html';
 }
 
-function closeWelcomeFireworks() {
-    const el = document.getElementById('welcomeOverlay');
-    if (el) {
-        el.style.animation = 'welcomeFadeOut 0.5s ease forwards';
-        setTimeout(() => el.remove(), 500);
-    }
+// ============================================
+// POPULATE COUNTRY DATALIST
+// ============================================
+function populateCountryDatalist() {
+    const datalist = document.getElementById('country-list');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    countries.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.name;
+        datalist.appendChild(option);
+    });
 }
 
 // ============================================
@@ -687,13 +597,6 @@ auth.onAuthStateChanged((user) => {
                         db.collection('users').doc(user.uid).update({ emailVerified: true });
                     }
 
-                    // Show welcome fireworks if not shown yet
-                    const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
-                    if (user.emailVerified && !hasSeenWelcome) {
-                        sessionStorage.setItem('hasSeenWelcome', 'true');
-                        setTimeout(showWelcomeFireworks, 500);
-                    }
-
                     // Update emergency number in banner
                     updateEmergencyBanner();
 
@@ -720,11 +623,16 @@ auth.onAuthStateChanged((user) => {
         
         const container = document.getElementById('storiesContainer');
         if (container) {
+            // REQUIRE LOGIN TO SEE STORIES
             container.innerHTML = `
-                <div class="empty-state">
-                    <div class="big-emoji">⚓</div>
-                    <h3>Welcome to The Harbor</h3>
-                    <p>Log in or join to read and share stories.</p>
+                <div class="empty-state" style="padding:50px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
+                    <div class="big-emoji">🔒</div>
+                    <h3 style="color:#1a4a4a;">Login Required</h3>
+                    <p style="color:#2d3a3a;">Please log in or join to read and share stories.</p>
+                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="openModal('login')" style="background:#c47a5a;border:none;border-radius:50px;padding:12px 28px;color:white;font-weight:700;cursor:pointer;">🔐 Log In</button>
+                        <button class="btn-secondary" onclick="openModal('signup')" style="background:transparent;border:2px solid #c47a5a;border-radius:50px;padding:12px 28px;color:#c47a5a;font-weight:700;cursor:pointer;">📝 Join</button>
+                    </div>
                 </div>
             `;
         }
@@ -776,12 +684,28 @@ function canPostInCategory(category) {
 }
 
 // ============================================
-// LOAD STORIES (FIXED - Better Query)
+// LOAD STORIES (FIXED - No orderBy index error)
 // ============================================
 
 function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
+
+    // REQUIRE LOGIN
+    if (!currentUser) {
+        container.innerHTML = `
+            <div class="empty-state" style="padding:50px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
+                <div class="big-emoji">🔒</div>
+                <h3 style="color:#1a4a4a;">Login Required</h3>
+                <p style="color:#2d3a3a;">Please log in or join to read and share stories.</p>
+                <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn-primary" onclick="openModal('login')" style="background:#c47a5a;border:none;border-radius:50px;padding:12px 28px;color:white;font-weight:700;cursor:pointer;">🔐 Log In</button>
+                    <button class="btn-secondary" onclick="openModal('signup')" style="background:transparent;border:2px solid #c47a5a;border-radius:50px;padding:12px 28px;color:#c47a5a;font-weight:700;cursor:pointer;">📝 Join</button>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     if (currentUser && !currentUser.emailVerified) {
         container.innerHTML = `
@@ -808,10 +732,9 @@ function loadStories() {
 
     container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
 
+    // SIMPLE QUERY - No orderBy to avoid index error
     let query = db.collection('stories')
-        .where('approved', '==', true)
-        .orderBy('createdAt', 'desc')
-        .limit(50);
+        .where('approved', '==', true);
 
     if (currentCategory && currentCategory !== 'all') {
         query = query.where('category', '==', currentCategory);
@@ -834,10 +757,26 @@ function loadStories() {
                 return;
             }
 
-            let html = '';
+            // Sort stories client-side (newest first)
+            let stories = [];
             snapshot.forEach((doc) => {
                 const story = doc.data();
                 story.id = doc.id;
+                stories.push(story);
+            });
+
+            // Sort by createdAt (newest first)
+            stories.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                return timeB - timeA;
+            });
+
+            // Limit to 50
+            stories = stories.slice(0, 50);
+
+            let html = '';
+            stories.forEach((story) => {
                 html += renderStoryCard(story);
             });
             container.innerHTML = html;
@@ -905,7 +844,7 @@ function renderStoryCard(story) {
 }
 
 // ============================================
-// TOGGLE REACTION (Add/Remove + Floating Emoji)
+// EMOJI REACTIONS
 // ============================================
 
 function createFloatingEmoji(emoji, x, y) {
@@ -922,7 +861,6 @@ function createFloatingEmoji(emoji, x, y) {
         opacity: 1;
     `;
     
-    // Add animation if not exists
     if (!document.getElementById('floatUpStyle')) {
         const style = document.createElement('style');
         style.id = 'floatUpStyle';
@@ -998,20 +936,33 @@ function addReaction(storyId, emoji) {
 // ============================================
 
 function switchCategory(category) {
+    if (!currentUser) {
+        alert('Please log in to view stories.');
+        return;
+    }
     currentCategory = category;
     document.querySelectorAll('.tab').forEach((tab) => {
         tab.classList.toggle('active', tab.dataset.category === category);
     });
+    // Update URL without reload
+    const url = new URL(window.location);
+    url.searchParams.set('cat', category);
+    window.history.pushState({}, '', url);
     loadStories();
 }
 
 // ============================================
-// SEARCH STORIES (FIXED - Using Firestore Query)
+// SEARCH STORIES (FIXED)
 // ============================================
 
 function searchStories() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
+    
+    if (!currentUser) {
+        alert('Please log in to search stories.');
+        return;
+    }
     
     const searchTerm = searchInput.value.trim();
     if (!searchTerm) {
@@ -1024,13 +975,10 @@ function searchStories() {
     
     container.innerHTML = '<div class="loading">⏳ Searching...</div>';
 
-    // Use Firestore's search capabilities
     const searchTermLower = searchTerm.toLowerCase();
     
     db.collection('stories')
         .where('approved', '==', true)
-        .orderBy('createdAt', 'desc')
-        .limit(100)
         .get()
         .then((snapshot) => {
             if (snapshot.empty) {
@@ -1054,6 +1002,13 @@ function searchStories() {
                         matched.push(story);
                     }
                 }
+            });
+
+            // Sort by date (newest first)
+            matched.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                return timeB - timeA;
             });
 
             if (matched.length === 0) {
@@ -1087,7 +1042,7 @@ function searchStories() {
 }
 
 // ============================================
-// SUBMIT STORY (for submit.html)
+// SUBMIT STORY
 // ============================================
 
 function submitStory() {
@@ -1095,6 +1050,7 @@ function submitStory() {
 
     if (!currentUser) {
         alert('⚠️ Please log in to share your story.');
+        window.location.href = 'index.html';
         return;
     }
     if (!currentUser.emailVerified) {
@@ -1154,7 +1110,7 @@ function submitStory() {
         submitBtn.textContent = '⏳ Posting...';
     }
 
-    // Check for inappropriate content (simple filter)
+    // Auto-moderation: Check for inappropriate content
     const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
     const containsInappropriate = inappropriateWords.some(word => 
         text.toLowerCase().includes(word) || title.toLowerCase().includes(word)
@@ -1170,7 +1126,7 @@ function submitStory() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         reactions: {},
         commentCount: 0,
-        approved: !containsInappropriate, // Auto-approve if clean
+        approved: !containsInappropriate,
         flagged: containsInappropriate,
         flagReason: containsInappropriate ? 'Inappropriate content detected' : ''
     })
@@ -1218,7 +1174,7 @@ function submitStory() {
 }
 
 // ============================================
-// LOAD COMMENTS (Fixed - No Index Error)
+// LOAD COMMENTS (FIXED - No Index Error)
 // ============================================
 
 function loadComments(storyId) {
@@ -1398,10 +1354,6 @@ function likeComment(commentId) {
     });
 }
 
-// ============================================
-// DELETE COMMENT (FIXED - With Ownership Check)
-// ============================================
-
 function deleteComment(commentId) {
     if (!currentUser) {
         alert('Please log in.');
@@ -1410,7 +1362,6 @@ function deleteComment(commentId) {
 
     if (!confirm('Are you sure you want to delete this comment?')) return;
 
-    // First, verify ownership
     db.collection('comments').doc(commentId).get()
         .then((doc) => {
             if (!doc.exists) {
@@ -1419,14 +1370,11 @@ function deleteComment(commentId) {
             }
             
             const commentData = doc.data();
-            
-            // Check if user owns the comment or is admin
             if (commentData.userId !== currentUser.uid && !currentUserData?.isAdmin) {
                 alert('You do not have permission to delete this comment.');
                 return;
             }
             
-            // Proceed with deletion
             return db.collection('comments').doc(commentId).delete();
         })
         .then(() => {
@@ -1440,7 +1388,7 @@ function deleteComment(commentId) {
 }
 
 // ============================================
-// PROFILE PAGE
+// PROFILE PAGE (FIXED - No Index Error)
 // ============================================
 
 function loadProfile() {
@@ -1483,6 +1431,12 @@ function loadProfile() {
                         const storyData = s.data();
                         storyData.id = s.id;
                         stories.push(storyData);
+                    });
+                    // Sort stories by date (newest first)
+                    stories.sort((a, b) => {
+                        const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                        const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                        return timeB - timeA;
                     });
                     return { userData, stories };
                 });
@@ -1764,7 +1718,7 @@ function loadUserReactions(storyId) {
 }
 
 // ============================================
-// ADMIN PANEL (Placeholder)
+// ADMIN PANEL
 // ============================================
 
 function loadAdminPanel() {
@@ -1783,26 +1737,24 @@ function loadAdminPanel() {
         return;
     }
     
+    // Simple admin panel with stats
     content.innerHTML = `
         <div class="card">
             <h2>👑 Admin Panel</h2>
             <p>Welcome, ${escapeHTML(currentUserData.name)}!</p>
             <hr style="margin:20px 0;border-color:#d4c8b8;">
             <h3>📊 Dashboard</h3>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:16px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:16px;">
                 <div style="background:#f5f0eb;padding:20px;border-radius:12px;text-align:center;">
                     <div style="font-size:2rem;">📝</div>
-                    <div style="font-weight:700;">Total Stories</div>
                     <div id="totalStories">Loading...</div>
                 </div>
                 <div style="background:#f5f0eb;padding:20px;border-radius:12px;text-align:center;">
                     <div style="font-size:2rem;">💬</div>
-                    <div style="font-weight:700;">Total Comments</div>
                     <div id="totalComments">Loading...</div>
                 </div>
                 <div style="background:#f5f0eb;padding:20px;border-radius:12px;text-align:center;">
                     <div style="font-size:2rem;">👥</div>
-                    <div style="font-weight:700;">Total Users</div>
                     <div id="totalUsers">Loading...</div>
                 </div>
             </div>
@@ -1895,6 +1847,13 @@ document.addEventListener('DOMContentLoaded', function() {
         titleInput.addEventListener('input', function() {
             titleCount.textContent = this.value.length;
         });
+        // Fix autofill - clear on focus
+        titleInput.addEventListener('focus', function() {
+            if (this.value.includes('@')) {
+                this.value = '';
+                titleCount.textContent = '0';
+            }
+        });
     }
     
     if (textInput && textCount) {
@@ -1937,15 +1896,72 @@ document.addEventListener('DOMContentLoaded', function() {
         loadAdminPanel();
     }
 
+    // --- POPULATE COUNTRY DATALIST ---
+    populateCountryDatalist();
+
+    // --- EMERGENCY SEARCH (About page) ---
+    setupEmergencySearch();
+
     console.log('✅ All event listeners attached');
 });
 
 // ============================================
-// CONSOLE LOGS
+// EMERGENCY SEARCH (For About page)
 // ============================================
 
-console.log('⚓ The Harbor app loaded (FIXED VERSION)');
-console.log('📚 Firebase connected:', firebase.app().name);
-console.log('🛡️ Security: XSS, CSRF, SQLi, XXE, OS injection protection');
-console.log('✅ All security vulnerabilities fixed');
-console.log('🚀 Ready to deploy!');
+function setupEmergencySearch() {
+    const input = document.getElementById('emergencySearch');
+    if (!input) return;
+    
+    const resultDiv = document.getElementById('emergencyResult');
+    const noResult = document.getElementById('noResult');
+    const resultCountry = document.getElementById('resultCountry');
+    const resultNumber = document.getElementById('resultNumber');
+    const resultNote = document.getElementById('resultNote');
+    
+    // Populate datalist for emergency search
+    const emergencyList = document.getElementById('emergency-list');
+    if (emergencyList) {
+        emergencyList.innerHTML = '';
+        countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            emergencyList.appendChild(opt);
+        });
+    }
+
+    input.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (!query) {
+            resultDiv.style.display = 'none';
+            noResult.style.display = 'none';
+            return;
+        }
+
+        let found = countries.find(c => c.name.toLowerCase() === query.toLowerCase());
+        if (!found) {
+            found = countries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
+        }
+        if (found) {
+            resultCountry.textContent = found.name;
+            resultNumber.textContent = found.emergency;
+            resultNote.textContent = '📞 Emergency Services';
+            resultDiv.style.display = 'block';
+            noResult.style.display = 'none';
+        } else {
+            resultDiv.style.display = 'none';
+            noResult.style.display = 'block';
+        }
+    });
+
+    // Show default result after page load
+    setTimeout(() => {
+        const defaultCountry = countries.find(c => c.name === 'United States');
+        if (defaultCountry && resultDiv) {
+            resultCountry.textContent = defaultCountry.name;
+            resultNumber.textContent = defaultCountry.emergency;
+            resultNote.textContent = '📞 Emergency Services';
+            resultDiv.style.display = 'block';
+        }
+    }, 500);
+}
