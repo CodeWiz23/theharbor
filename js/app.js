@@ -364,6 +364,15 @@ function handleAuth() {
             return;
         }
 
+        // ⭐ FIX #6: Check if Terms & Privacy checkbox is checked
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        if (termsCheckbox && !termsCheckbox.checked) {
+            error.textContent = '⚠️ Please agree to the Terms of Service and Privacy Policy.';
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🚀 Create Account';
+            return;
+        }
+
         checkUsernameAvailability(name)
             .then((available) => {
                 if (!available) {
@@ -460,7 +469,7 @@ function populateCountryDatalist() {
 }
 
 // ============================================
-// UPDATE ADMIN LINK VISIBILITY - ADD THIS FUNCTION
+// UPDATE ADMIN LINK VISIBILITY
 // ============================================
 function updateAdminLink() {
     const adminLink = document.getElementById('adminNavLink');
@@ -644,7 +653,6 @@ function addReaction(storyId, emoji) {
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
     if (btn) btn.disabled = true;
 
-    // Get current story data
     storyRef.get()
         .then((doc) => {
             if (!doc.exists) {
@@ -817,7 +825,7 @@ function toggleReaction(storyId, emoji) {
 }
 
 // ============================================
-// LOAD STORIES
+// LOAD STORIES - FIXED WITH GENDER FILTERING (Fix #3)
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
@@ -864,11 +872,22 @@ function loadStories() {
 
     container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
 
-    let query = db.collection('stories')
-        .where('approved', '==', true);
+    // ⭐ GENDER FILTERING - Get user's gender
+    const gender = getUserGender();
+    
+    let query = db.collection('stories').where('approved', '==', true);
 
     if (currentCategory && currentCategory !== 'all') {
         query = query.where('category', '==', currentCategory);
+    } else {
+        // ⭐ "ALL" CATEGORY - Filter based on gender
+        if (gender === '🧔 Man') {
+            query = query.where('category', 'in', ['men', 'struggles', 'fun', 'learning']);
+        } else if (gender === '👩 Woman') {
+            query = query.where('category', 'in', ['women', 'struggles', 'fun', 'learning']);
+        } else {
+            query = query.where('category', 'in', ['struggles', 'fun', 'learning']);
+        }
     }
 
     query.get()
@@ -971,13 +990,304 @@ function renderStoryCard(story) {
             <div class="story-actions">
                 ${reactionButtons}
                 <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
+                <!-- ⭐ FIX #5: REPORT BUTTON ON STORY -->
+                ${currentUser ? `<button class="emoji-btn" onclick="reportStory('${story.id}')" style="background:#f5d6d6;border-color:#c0392b;">🚩 Report</button>` : ''}
             </div>
         </div>
     `;
 }
 
 // ============================================
-// AUTH STATE LISTENER - FIXED WITH ADMIN LINK
+// ⭐ FIX #5: REPORT FUNCTIONS
+// ============================================
+function reportStory(storyId) {
+    if (!currentUser) {
+        alert('Please log in to report.');
+        return;
+    }
+    
+    const reason = prompt('Why are you reporting this story? (e.g., inappropriate content, harassment, spam):');
+    if (!reason || reason.trim().length < 3) {
+        alert('Please provide a valid reason (minimum 3 characters).');
+        return;
+    }
+    
+    db.collection('stories').doc(storyId).get()
+        .then((doc) => {
+            if (!doc.exists) {
+                alert('Story not found.');
+                return;
+            }
+            const story = doc.data();
+            return db.collection('reports').add({
+                storyId: storyId,
+                storyTitle: story.title || 'Untitled',
+                storyAuthor: story.authorName || 'Unknown',
+                reportedBy: currentUser.uid,
+                reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+                reason: reason.trim(),
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                type: 'story'
+            });
+        })
+        .then(() => {
+            alert('✅ Thank you! Your report has been submitted and will be reviewed by moderators.');
+        })
+        .catch((err) => {
+            console.error('Error reporting story:', err);
+            alert('❌ Could not submit report. Please try again.');
+        });
+}
+
+function reportComment(commentId, storyId) {
+    if (!currentUser) {
+        alert('Please log in to report.');
+        return;
+    }
+    
+    const reason = prompt('Why are you reporting this comment? (e.g., inappropriate content, harassment, spam):');
+    if (!reason || reason.trim().length < 3) {
+        alert('Please provide a valid reason (minimum 3 characters).');
+        return;
+    }
+    
+    db.collection('comments').doc(commentId).get()
+        .then((doc) => {
+            if (!doc.exists) {
+                alert('Comment not found.');
+                return;
+            }
+            const comment = doc.data();
+            return db.collection('reports').add({
+                commentId: commentId,
+                commentText: comment.text || '',
+                commentAuthor: comment.authorName || 'Unknown',
+                storyId: storyId,
+                reportedBy: currentUser.uid,
+                reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+                reason: reason.trim(),
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                type: 'comment'
+            });
+        })
+        .then(() => {
+            alert('✅ Thank you! Your report has been submitted and will be reviewed by moderators.');
+        })
+        .catch((err) => {
+            console.error('Error reporting comment:', err);
+            alert('❌ Could not submit report. Please try again.');
+        });
+}
+
+// ============================================
+// ⭐ FIX #4: SUGGESTION FUNCTIONS
+// ============================================
+function submitSuggestion() {
+    if (!currentUser) {
+        alert('⚠️ Please log in to submit a suggestion.');
+        return;
+    }
+
+    const titleInput = document.getElementById('suggestionTitle');
+    const textInput = document.getElementById('suggestionText');
+    const errorDiv = document.getElementById('suggestionError');
+    const successDiv = document.getElementById('suggestionSuccess');
+    const submitBtn = document.getElementById('suggestBtn');
+
+    if (!titleInput || !textInput) return;
+
+    const title = titleInput.value.trim();
+    const text = textInput.value.trim();
+
+    if (errorDiv) errorDiv.textContent = '';
+    if (successDiv) successDiv.textContent = '';
+
+    if (!title || title.length < 3) {
+        if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
+        return;
+    }
+    if (title.length > 100) {
+        if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.';
+        return;
+    }
+    if (!text || text.length < 10) {
+        if (errorDiv) errorDiv.textContent = '💡 Suggestion must be at least 10 characters.';
+        return;
+    }
+    if (text.length > 2000) {
+        if (errorDiv) errorDiv.textContent = '💡 Suggestion must be under 2000 characters.';
+        return;
+    }
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+    }
+
+    db.collection('suggestions').add({
+        title: title,
+        text: text,
+        userId: currentUser.uid,
+        userName: currentUserData ? currentUserData.name : 'Anonymous',
+        upvotes: 0,
+        upvoters: [],
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        if (successDiv) {
+            successDiv.textContent = '✅ Your suggestion has been submitted!';
+            successDiv.style.color = '#27ae60';
+        }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✅ Submitted!';
+        }
+        if (titleInput) titleInput.value = '';
+        if (textInput) textInput.value = '';
+        document.getElementById('titleCount').textContent = '0';
+        document.getElementById('textCount').textContent = '0';
+        
+        setTimeout(() => {
+            if (submitBtn) submitBtn.textContent = '💡 Submit Suggestion';
+            loadSuggestions();
+        }, 1500);
+    })
+    .catch((err) => {
+        console.error('Error submitting suggestion:', err);
+        if (errorDiv) {
+            errorDiv.textContent = '❌ Error: ' + err.message;
+        }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💡 Submit Suggestion';
+        }
+    });
+}
+
+function loadSuggestions() {
+    const container = document.getElementById('suggestionsContainer');
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading">⏳ Loading suggestions...</div>';
+
+    db.collection('suggestions')
+        .orderBy('createdAt', 'desc')
+        .get()
+        .then((snapshot) => {
+            if (snapshot.empty) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-emoji">💡</div>
+                        <h3>No suggestions yet</h3>
+                        <p>Be the first to suggest an improvement!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                data.id = doc.id;
+                html += renderSuggestionCard(data);
+            });
+            container.innerHTML = html;
+        })
+        .catch((err) => {
+            console.error('Error loading suggestions:', err);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="big-emoji">⚠️</div>
+                    <h3>Error Loading Suggestions</h3>
+                    <p>${err.message}</p>
+                    <button class="btn-primary" onclick="loadSuggestions()" style="margin-top:12px;">🔄 Retry</button>
+                </div>
+            `;
+        });
+}
+
+function renderSuggestionCard(suggestion) {
+    const time = suggestion.createdAt ? suggestion.createdAt.toDate().toLocaleDateString() : 'Recently';
+    const statusColors = {
+        'pending': 'status-pending',
+        'approved': 'status-approved',
+        'rejected': 'status-rejected'
+    };
+    const statusLabels = {
+        'pending': '⏳ Pending',
+        'approved': '✅ Approved',
+        'rejected': '❌ Rejected'
+    };
+    const statusClass = statusColors[suggestion.status] || 'status-pending';
+    const statusLabel = statusLabels[suggestion.status] || '⏳ Pending';
+    
+    const hasUpvoted = currentUser && suggestion.upvoters && suggestion.upvoters.includes(currentUser.uid);
+
+    return `
+        <div class="suggestion-card" data-suggestion-id="${suggestion.id}">
+            <div class="title">${escapeHTML(suggestion.title)}</div>
+            <div class="meta">
+                ✍️ ${escapeHTML(suggestion.userName || 'Anonymous')} · 📅 ${time}
+                <span class="status ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="content">${escapeHTML(suggestion.text)}</div>
+            <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+                <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" onclick="upvoteSuggestion('${suggestion.id}')">
+                    👍 <span class="count">${suggestion.upvotes || 0}</span>
+                    ${hasUpvoted ? '<span style="color:#27ae60;"> ✅</span>' : ''}
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function upvoteSuggestion(suggestionId) {
+    if (!currentUser) {
+        alert('Please log in to upvote.');
+        return;
+    }
+
+    const suggestionRef = db.collection('suggestions').doc(suggestionId);
+
+    suggestionRef.get()
+        .then((doc) => {
+            if (!doc.exists) {
+                alert('Suggestion not found.');
+                return;
+            }
+            const data = doc.data();
+            const upvoters = data.upvoters || [];
+            const hasUpvoted = upvoters.includes(currentUser.uid);
+            let newUpvotes = data.upvotes || 0;
+            let newUpvoters = [...upvoters];
+
+            if (hasUpvoted) {
+                newUpvotes = Math.max(0, newUpvotes - 1);
+                newUpvoters = newUpvoters.filter(uid => uid !== currentUser.uid);
+            } else {
+                newUpvotes += 1;
+                newUpvoters.push(currentUser.uid);
+            }
+
+            return suggestionRef.update({
+                upvotes: newUpvotes,
+                upvoters: newUpvoters
+            });
+        })
+        .then(() => {
+            loadSuggestions();
+        })
+        .catch((err) => {
+            console.error('Error upvoting suggestion:', err);
+            alert('Could not upvote. Please try again.');
+        });
+}
+
+// ============================================
+// AUTH STATE LISTENER
 // ============================================
 auth.onAuthStateChanged((user) => {
     const authButtons = document.getElementById('authButtons');
@@ -1051,6 +1361,11 @@ auth.onAuthStateChanged((user) => {
                         
                         if (window.location.pathname.includes('activity.html')) {
                             loadActivity();
+                        }
+                        
+                        // ⭐ Load suggestions if on suggest page
+                        if (window.location.pathname.includes('suggest.html')) {
+                            loadSuggestions();
                         }
                     });
                 }
@@ -1693,7 +2008,10 @@ function renderComment(comment) {
                 </button>
                 ${isOwner ? 
                     `<button onclick="deleteComment('${comment.id}')" style="background:#c0392b;color:white;border:none;border-radius:20px;padding:2px 14px;cursor:pointer;font-size:0.75rem;">Delete</button>` 
-                    : ''}
+                    : ''
+                }
+                <!-- ⭐ FIX #5: REPORT BUTTON ON COMMENT -->
+                ${currentUser ? `<button onclick="reportComment('${comment.id}', '${comment.storyId}')" style="background:#f5d6d6;border-color:#c0392b;border:none;border-radius:20px;padding:2px 12px;cursor:pointer;font-size:0.7rem;">🚩 Report</button>` : ''}
             </div>
         </div>
     `;
@@ -2044,6 +2362,8 @@ function renderFullStory(story) {
             <div class="story-text" style="font-size:1.1rem;line-height:1.8;white-space:pre-wrap;">${escapeHTML(story.text || '')}</div>
             <div class="story-actions" style="margin-top:20px;padding-top:20px;border-top:2px solid #d4c8b8;">
                 ${reactionButtons}
+                <!-- ⭐ FIX #5: REPORT BUTTON ON STORY PAGE -->
+                ${currentUser ? `<button class="emoji-btn" onclick="reportStory('${story.id}')" style="background:#f5d6d6;border-color:#c0392b;">🚩 Report Story</button>` : ''}
             </div>
             <div style="margin-top:16px;">
                 <a href="index.html" class="btn-secondary" style="display:inline-block;text-decoration:none;">← Back to Home</a>
@@ -2286,6 +2606,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (window.location.pathname.includes('activity.html')) {
         loadActivity();
+    }
+    
+    if (window.location.pathname.includes('suggest.html')) {
+        // Load suggestions when on suggest page
+        setTimeout(loadSuggestions, 500);
     }
 
     populateCountryDatalist();
