@@ -29,7 +29,7 @@ let allStoriesCache = [];
 let userStoryHistory = [];
 
 // ============================================
-// COUNTRY DATA (190+ countries - FIXED EMERGENCY NUMBERS)
+// COUNTRY DATA (190+ countries)
 // ============================================
 const countries = [
     { name: 'Afghanistan', emergency: '119' },
@@ -221,7 +221,7 @@ const countries = [
 ];
 
 // ============================================
-// SECURITY: Input Sanitization (FIX AUTO FILL)
+// SECURITY: Input Sanitization
 // ============================================
 function sanitizeInput(text) {
     if (!text) return '';
@@ -322,7 +322,6 @@ function openModal(mode) {
         title.textContent = '📝 Join The Harbor';
         submitBtn.textContent = '🚀 Create Account';
         if (signupFields) signupFields.style.display = 'block';
-        // Populate country datalist
         populateCountryDatalist();
         if (switchLink) {
             switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
@@ -440,7 +439,6 @@ function handleAuth() {
                 closeModal();
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Log In';
-                // Redirect to welcome page
                 window.location.href = 'welcome.html';
             })
             .catch((err) => {
@@ -535,16 +533,6 @@ function logout() {
 }
 
 // ============================================
-// WELCOME FIREWORKS
-// ============================================
-
-function showWelcomeFireworks() {
-    if (sessionStorage.getItem('welcomeShown') === 'true') return;
-    sessionStorage.setItem('welcomeShown', 'true');
-    window.location.href = 'welcome.html';
-}
-
-// ============================================
 // POPULATE COUNTRY DATALIST
 // ============================================
 function populateCountryDatalist() {
@@ -597,10 +585,8 @@ auth.onAuthStateChanged((user) => {
                         db.collection('users').doc(user.uid).update({ emailVerified: true });
                     }
 
-                    // Update emergency number in banner
                     updateEmergencyBanner();
 
-                    // Load stories if on homepage
                     if (document.getElementById('storiesContainer')) {
                         loadStories();
                     }
@@ -611,6 +597,10 @@ auth.onAuthStateChanged((user) => {
 
                     if (window.location.pathname.includes('admin.html')) {
                         loadAdminPanel();
+                    }
+                    
+                    if (window.location.pathname.includes('activity.html')) {
+                        loadActivity();
                     }
                 }
             })
@@ -623,7 +613,6 @@ auth.onAuthStateChanged((user) => {
         
         const container = document.getElementById('storiesContainer');
         if (container) {
-            // REQUIRE LOGIN TO SEE STORIES
             container.innerHTML = `
                 <div class="empty-state" style="padding:50px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
                     <div class="big-emoji">🔒</div>
@@ -684,14 +673,13 @@ function canPostInCategory(category) {
 }
 
 // ============================================
-// LOAD STORIES (FIXED - No orderBy index error)
+// LOAD STORIES
 // ============================================
 
 function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
 
-    // REQUIRE LOGIN
     if (!currentUser) {
         container.innerHTML = `
             <div class="empty-state" style="padding:50px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
@@ -732,7 +720,6 @@ function loadStories() {
 
     container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
 
-    // SIMPLE QUERY - No orderBy to avoid index error
     let query = db.collection('stories')
         .where('approved', '==', true);
 
@@ -757,7 +744,6 @@ function loadStories() {
                 return;
             }
 
-            // Sort stories client-side (newest first)
             let stories = [];
             snapshot.forEach((doc) => {
                 const story = doc.data();
@@ -765,14 +751,12 @@ function loadStories() {
                 stories.push(story);
             });
 
-            // Sort by createdAt (newest first)
             stories.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                 const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
                 return timeB - timeA;
             });
 
-            // Limit to 50
             stories = stories.slice(0, 50);
 
             let html = '';
@@ -815,9 +799,13 @@ function renderStoryCard(story) {
     let reactionButtons = '';
     emojis.forEach((emoji) => {
         const count = reactions[emoji] || 0;
+        const hasReacted = userReactions[story.id] && userReactions[story.id].includes(emoji);
         reactionButtons += `
-            <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
-                ${emoji} <span class="count">${count}</span>
+            <button class="emoji-btn ${hasReacted ? 'reacted' : ''}" 
+                    id="reaction-${story.id}-${emoji}" 
+                    onclick="addReaction('${story.id}', '${emoji}')">
+                ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
+                ${hasReacted ? '<span class="checkmark">✅</span>' : ''}
             </button>
         `;
     });
@@ -844,7 +832,7 @@ function renderStoryCard(story) {
 }
 
 // ============================================
-// EMOJI REACTIONS
+// CREATE FLOATING EMOJI
 // ============================================
 
 function createFloatingEmoji(emoji, x, y) {
@@ -879,11 +867,7 @@ function createFloatingEmoji(emoji, x, y) {
 }
 
 // ============================================
-// EMOJI REACTIONS — FIXED (No sub-collection)
-// ============================================
-
-// ============================================
-// EMOJI REACTIONS — WITH ACTIVITY LOG SUPPORT
+// ADD REACTION - FIXED FOR ACTIVITY LOG
 // ============================================
 
 function addReaction(storyId, emoji) {
@@ -975,8 +959,385 @@ function addReaction(storyId, emoji) {
         alert('Could not update reaction. Please try again.');
     });
 }
+
 // ============================================
-// SEARCH STORIES (FIXED)
+// TOGGLE REACTION (for story.html)
+// ============================================
+
+function toggleReaction(storyId, emoji) {
+    if (!currentUser) {
+        alert('Please log in to react.');
+        return;
+    }
+
+    if (!currentUser.emailVerified) {
+        alert('Please verify your email first.');
+        return;
+    }
+
+    const storyRef = db.collection('stories').doc(storyId);
+    const userReactionRef = db.collection('users').doc(currentUser.uid)
+        .collection('reactions').doc(storyId);
+
+    const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
+
+    const rect = document.getElementById('storyCard')?.getBoundingClientRect();
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+    createFloatingEmoji(emoji, x, y);
+
+    db.runTransaction((transaction) => {
+        return transaction.get(storyRef).then((doc) => {
+            if (!doc.exists) return;
+            const data = doc.data();
+            const reactions = data.reactions || {};
+            
+            if (hasReacted) {
+                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                if (userReactions[storyId]) {
+                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
+                }
+            } else {
+                reactions[emoji] = (reactions[emoji] || 0) + 1;
+                if (!userReactions[storyId]) userReactions[storyId] = [];
+                userReactions[storyId].push(emoji);
+            }
+            
+            transaction.update(storyRef, { reactions: reactions });
+            
+            // Save to user's reactions sub-collection for activity log
+            if (userReactions[storyId] && userReactions[storyId].length > 0) {
+                transaction.set(userReactionRef, { 
+                    emojis: userReactions[storyId],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    storyId: storyId
+                });
+            } else {
+                transaction.delete(userReactionRef);
+            }
+        });
+    })
+    .then(() => {
+        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+        
+        if (countSpan) {
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+        }
+        
+        if (btn) {
+            if (hasReacted) {
+                btn.classList.remove('reacted');
+                const checkmark = btn.querySelector('.checkmark');
+                if (checkmark) checkmark.remove();
+            } else {
+                btn.classList.add('reacted');
+                if (!btn.querySelector('.checkmark')) {
+                    btn.innerHTML += ' <span class="checkmark">✅</span>';
+                }
+            }
+        }
+    })
+    .catch((err) => {
+        console.error('Error toggling reaction:', err);
+        alert('Could not update reaction. Please try again.');
+    });
+}
+
+// ============================================
+// LOAD USER REACTIONS
+// ============================================
+
+function loadUserReactions(storyId) {
+    if (!currentUser) return;
+    
+    const userReactionRef = db.collection('users').doc(currentUser.uid)
+        .collection('reactions').doc(storyId);
+        
+    userReactionRef.get()
+        .then((doc) => {
+            if (doc.exists) {
+                userReactions[storyId] = doc.data().emojis || [];
+                const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+                emojis.forEach((emoji) => {
+                    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+                    if (btn && userReactions[storyId].includes(emoji)) {
+                        btn.classList.add('reacted');
+                        if (!btn.querySelector('.checkmark')) {
+                            btn.innerHTML += ' <span class="checkmark">✅</span>';
+                        }
+                    }
+                });
+            }
+        })
+        .catch((err) => console.error('Error loading user reactions:', err));
+}
+
+// ============================================
+// LOAD ACTIVITY - FIXED TO SHOW ALL USER ACTIVITY
+// ============================================
+
+function loadActivity() {
+    const container = document.getElementById('activityContainer');
+    if (!container) return;
+
+    if (!currentUser) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="big-emoji">🔐</div>
+                <h3>Please Log In</h3>
+                <p>You need to be logged in to view your activity.</p>
+                <button class="btn-primary" onclick="openModal('login')" style="margin-top:12px;">Log In</button>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = '<div class="loading">⏳ Loading activity...</div>';
+
+    // Load stories
+    const storiesPromise = db.collection('stories')
+        .where('userId', '==', currentUser.uid)
+        .where('approved', '==', true)
+        .get();
+
+    // Load comments
+    const commentsPromise = db.collection('comments')
+        .where('userId', '==', currentUser.uid)
+        .where('approved', '==', true)
+        .get();
+
+    // Load reactions from sub-collection
+    const reactionsPromise = db.collection('users')
+        .doc(currentUser.uid)
+        .collection('reactions')
+        .get();
+
+    Promise.all([storiesPromise, commentsPromise, reactionsPromise])
+        .then((results) => {
+            const storiesSnapshot = results[0];
+            const commentsSnapshot = results[1];
+            const reactionsSnapshot = results[2];
+            const activities = [];
+
+            // Process stories
+            storiesSnapshot.forEach((doc) => {
+                const data = doc.data();
+                data.id = doc.id;
+                data.type = 'story';
+                data.timestamp = data.createdAt ? data.createdAt.toDate() : new Date();
+                data.title = data.title || 'Untitled';
+                data.text = data.text || '';
+                activities.push(data);
+            });
+
+            // Process comments
+            commentsSnapshot.forEach((doc) => {
+                const data = doc.data();
+                data.id = doc.id;
+                data.type = 'comment';
+                data.timestamp = data.createdAt ? data.createdAt.toDate() : new Date();
+                data.text = data.text || '';
+                data.storyId = data.storyId || '';
+                activities.push(data);
+            });
+
+            // Process reactions - fetch story titles for each reaction
+            const reactionPromises = [];
+            reactionsSnapshot.forEach((doc) => {
+                const data = doc.data();
+                data.storyId = doc.id;
+                data.type = 'reaction';
+                data.timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+                data.emojis = data.emojis || [];
+                
+                // Fetch story title for this reaction
+                const storyPromise = db.collection('stories').doc(data.storyId).get()
+                    .then((storyDoc) => {
+                        if (storyDoc.exists) {
+                            const storyData = storyDoc.data();
+                            data.storyTitle = storyData.title || 'Untitled';
+                            data.storyApproved = storyData.approved || false;
+                        } else {
+                            data.storyTitle = 'Deleted Story';
+                            data.storyApproved = false;
+                        }
+                        return data;
+                    })
+                    .catch(() => {
+                        data.storyTitle = 'Unknown Story';
+                        data.storyApproved = false;
+                        return data;
+                    });
+                reactionPromises.push(storyPromise);
+            });
+
+            // Wait for all story titles to load
+            return Promise.all(reactionPromises).then((reactionsWithTitles) => {
+                activities.push(...reactionsWithTitles);
+                
+                // Sort by timestamp (newest first)
+                activities.sort((a, b) => {
+                    const ta = a.timestamp ? a.timestamp.getTime() : 0;
+                    const tb = b.timestamp ? b.timestamp.getTime() : 0;
+                    return tb - ta;
+                });
+
+                // Update counts
+                document.getElementById('countAll').textContent = activities.length;
+                document.getElementById('countStories').textContent = storiesSnapshot.size;
+                document.getElementById('countComments').textContent = commentsSnapshot.size;
+                document.getElementById('countReactions').textContent = reactionsSnapshot.size;
+
+                // Store for tab switching
+                window.allActivities = activities;
+                
+                // Render based on current tab
+                const currentTab = document.querySelector('.activity-tab.active')?.dataset.tab || 'all';
+                renderActivities(currentTab);
+            });
+        })
+        .catch((err) => {
+            console.error('Error loading activity:', err);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="big-emoji">⚠️</div>
+                    <h3>Error Loading Activity</h3>
+                    <p>${err.message}</p>
+                    <button class="btn-primary" onclick="loadActivity()" style="margin-top:12px;">🔄 Retry</button>
+                </div>
+            `;
+        });
+}
+
+// ============================================
+// RENDER ACTIVITIES
+// ============================================
+
+function renderActivities(tab) {
+    const container = document.getElementById('activityContainer');
+    if (!container) return;
+
+    const allActivities = window.allActivities || [];
+    
+    let filtered = allActivities;
+
+    if (tab === 'stories') {
+        filtered = allActivities.filter(a => a.type === 'story');
+    } else if (tab === 'comments') {
+        filtered = allActivities.filter(a => a.type === 'comment');
+    } else if (tab === 'reactions') {
+        filtered = allActivities.filter(a => a.type === 'reaction');
+    }
+
+    if (filtered.length === 0) {
+        const messages = {
+            'all': 'No activity yet. Start sharing your stories!',
+            'stories': 'You haven\'t shared any stories yet.',
+            'comments': 'You haven\'t commented on any stories yet.',
+            'reactions': 'You haven\'t reacted to any stories yet.'
+        };
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="big-emoji">📭</div>
+                <h3>No Activity</h3>
+                <p>${messages[tab] || 'No activity found.'}</p>
+                <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    filtered.forEach((item) => {
+        html += renderActivityItem(item);
+    });
+    container.innerHTML = html;
+}
+
+// ============================================
+// RENDER ACTIVITY ITEM
+// ============================================
+
+function renderActivityItem(item) {
+    let icon = '📋';
+    let badge = '';
+    let title = '';
+    let meta = '';
+    let excerpt = '';
+    let storyId = '';
+
+    const time = item.timestamp ? item.timestamp.toLocaleString() : 'Recently';
+
+    if (item.type === 'story') {
+        icon = '📝';
+        badge = '<span class="badge badge-story">Story</span>';
+        title = escapeHTML(item.title || 'Untitled');
+        meta = '✍️ Published on ' + time;
+        excerpt = escapeHTML((item.text || '').substring(0, 120)) + (item.text && item.text.length > 120 ? '...' : '');
+        storyId = item.id;
+    } else if (item.type === 'comment') {
+        icon = '💬';
+        badge = '<span class="badge badge-comment">Comment</span>';
+        title = 'Commented on a story';
+        meta = '💬 Posted on ' + time;
+        excerpt = escapeHTML((item.text || '').substring(0, 120)) + (item.text && item.text.length > 120 ? '...' : '');
+        storyId = item.storyId;
+    } else if (item.type === 'reaction') {
+        icon = '❤️';
+        badge = '<span class="badge badge-reaction">Reaction</span>';
+        const emojis = item.emojis || [];
+        const storyTitle = item.storyTitle || 'a story';
+        title = 'Reacted to "' + escapeHTML(storyTitle) + '"';
+        meta = '❤️ ' + emojis.join(' ') + ' · ' + time;
+        excerpt = 'You reacted to this story with ' + emojis.length + ' emoji' + (emojis.length > 1 ? 's' : '');
+        storyId = item.storyId;
+    }
+
+    // Only show view button if story exists and is approved
+    const viewButton = (storyId && item.type !== 'reaction') || (storyId && item.storyApproved !== false) ? 
+        `<a href="story.html?id=${storyId}" class="go-link">🔗 View Story</a>` : 
+        (item.type === 'reaction' && item.storyApproved === false ? 
+            '<span class="go-link" style="opacity:0.5;cursor:default;">🔗 Story pending</span>' : 
+            '');
+
+    return `
+        <div class="activity-item" onclick="goToStory('${storyId}')">
+            <div class="icon">${icon}</div>
+            <div class="content">
+                <div class="title">${title} ${badge}</div>
+                <div class="meta">${meta}</div>
+                <div class="excerpt">${excerpt}</div>
+            </div>
+            ${viewButton}
+        </div>
+    `;
+}
+
+// ============================================
+// SWITCH ACTIVITY TAB
+// ============================================
+
+function switchTab(tab) {
+    document.querySelectorAll('.activity-tab').forEach((t) => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    renderActivities(tab);
+}
+
+// ============================================
+// GO TO STORY
+// ============================================
+
+function goToStory(storyId) {
+    if (storyId) {
+        window.location.href = 'story.html?id=' + storyId;
+    }
+}
+
+// ============================================
+// SEARCH STORIES
 // ============================================
 
 function searchStories() {
@@ -1028,7 +1389,6 @@ function searchStories() {
                 }
             });
 
-            // Sort by date (newest first)
             matched.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                 const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
@@ -1134,7 +1494,6 @@ function submitStory() {
         submitBtn.textContent = '⏳ Posting...';
     }
 
-    // Auto-moderation: Check for inappropriate content
     const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
     const containsInappropriate = inappropriateWords.some(word => 
         text.toLowerCase().includes(word) || title.toLowerCase().includes(word)
@@ -1198,7 +1557,7 @@ function submitStory() {
 }
 
 // ============================================
-// LOAD COMMENTS (FIXED - No Index Error)
+// LOAD COMMENTS
 // ============================================
 
 function loadComments(storyId) {
@@ -1311,7 +1670,6 @@ function postComment() {
         return;
     }
 
-    // Check for inappropriate content
     const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
     const containsInappropriate = inappropriateWords.some(word => text.toLowerCase().includes(word));
 
@@ -1412,7 +1770,7 @@ function deleteComment(commentId) {
 }
 
 // ============================================
-// PROFILE PAGE (FIXED - No Index Error)
+// PROFILE PAGE
 // ============================================
 
 function loadProfile() {
@@ -1456,7 +1814,6 @@ function loadProfile() {
                         storyData.id = s.id;
                         stories.push(storyData);
                     });
-                    // Sort stories by date (newest first)
                     stories.sort((a, b) => {
                         const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                         const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
@@ -1540,7 +1897,7 @@ function loadProfile() {
 }
 
 // ============================================
-// LOAD SINGLE STORY (for story.html)
+// LOAD SINGLE STORY
 // ============================================
 
 function loadStory() {
@@ -1636,112 +1993,6 @@ function renderFullStory(story) {
 }
 
 // ============================================
-// TOGGLE REACTION (for story.html)
-// ============================================
-
-function toggleReaction(storyId, emoji) {
-    if (!currentUser) {
-        alert('Please log in to react.');
-        return;
-    }
-
-    if (!currentUser.emailVerified) {
-        alert('Please verify your email first.');
-        return;
-    }
-
-    const storyRef = db.collection('stories').doc(storyId);
-    const userReactionRef = db.collection('users').doc(currentUser.uid)
-        .collection('reactions').doc(storyId);
-
-    const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
-
-    // Floating emoji
-    const rect = document.getElementById('storyCard')?.getBoundingClientRect();
-    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
-    const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
-    createFloatingEmoji(emoji, x, y);
-
-    db.runTransaction((transaction) => {
-        return transaction.get(storyRef).then((doc) => {
-            if (!doc.exists) return;
-            const data = doc.data();
-            const reactions = data.reactions || {};
-            
-            if (hasReacted) {
-                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
-                if (userReactions[storyId]) {
-                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
-                }
-            } else {
-                reactions[emoji] = (reactions[emoji] || 0) + 1;
-                if (!userReactions[storyId]) userReactions[storyId] = [];
-                userReactions[storyId].push(emoji);
-            }
-            
-            transaction.update(storyRef, { reactions: reactions });
-            transaction.set(userReactionRef, { emojis: userReactions[storyId] || [] });
-        });
-    })
-    .then(() => {
-        // Update UI instantly
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-        
-        if (countSpan) {
-            const currentCount = parseInt(countSpan.textContent) || 0;
-            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-        }
-        
-        if (btn) {
-            if (hasReacted) {
-                btn.classList.remove('reacted');
-                const checkmark = btn.querySelector('.checkmark');
-                if (checkmark) checkmark.remove();
-            } else {
-                btn.classList.add('reacted');
-                if (!btn.querySelector('.checkmark')) {
-                    btn.innerHTML += ' <span class="checkmark">✅</span>';
-                }
-            }
-        }
-    })
-    .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        alert('Could not update reaction. Please try again.');
-    });
-}
-
-// ============================================
-// LOAD USER REACTIONS
-// ============================================
-
-function loadUserReactions(storyId) {
-    if (!currentUser) return;
-    
-    const userReactionRef = db.collection('users').doc(currentUser.uid)
-        .collection('reactions').doc(storyId);
-        
-    userReactionRef.get()
-        .then((doc) => {
-            if (doc.exists) {
-                userReactions[storyId] = doc.data().emojis || [];
-                const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-                emojis.forEach((emoji) => {
-                    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-                    if (btn && userReactions[storyId].includes(emoji)) {
-                        btn.classList.add('reacted');
-                        if (!btn.querySelector('.checkmark')) {
-                            btn.innerHTML += ' <span class="checkmark">✅</span>';
-                        }
-                    }
-                });
-            }
-        })
-        .catch((err) => console.error('Error loading user reactions:', err));
-}
-
-// ============================================
 // ADMIN PANEL
 // ============================================
 
@@ -1761,7 +2012,6 @@ function loadAdminPanel() {
         return;
     }
     
-    // Simple admin panel with stats
     content.innerHTML = `
         <div class="card">
             <h2>👑 Admin Panel</h2>
@@ -1785,7 +2035,6 @@ function loadAdminPanel() {
         </div>
     `;
     
-    // Load stats
     db.collection('stories').where('approved', '==', true).get()
         .then((snapshot) => {
             const el = document.getElementById('totalStories');
@@ -1825,111 +2074,6 @@ function resendVerification() {
 }
 
 // ============================================
-// INIT - DOM READY
-// ============================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM Ready — The Harbor (FIXED)');
-    
-    // --- MODAL CLOSE ---
-    const modal = document.getElementById('authModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-    }
-
-    // --- PASSWORD STRENGTH ---
-    const passwordInput = document.getElementById('authPassword');
-    if (passwordInput) {
-        passwordInput.addEventListener('input', checkPasswordOnType);
-    }
-
-    // --- USERNAME CHECK ---
-    const nameInput = document.getElementById('authName');
-    if (nameInput) {
-        nameInput.addEventListener('input', checkUsernameOnType);
-    }
-
-    // --- ENTER KEY ---
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            const modal = document.getElementById('authModal');
-            if (modal && modal.style.display === 'flex') {
-                handleAuth();
-            }
-        }
-    });
-
-    // --- CHARACTER COUNTERS ---
-    const titleInput = document.getElementById('storyTitle');
-    const textInput = document.getElementById('storyText');
-    const titleCount = document.getElementById('titleCount');
-    const textCount = document.getElementById('textCount');
-    
-    if (titleInput && titleCount) {
-        titleInput.addEventListener('input', function() {
-            titleCount.textContent = this.value.length;
-        });
-        // Fix autofill - clear on focus
-        titleInput.addEventListener('focus', function() {
-            if (this.value.includes('@')) {
-                this.value = '';
-                titleCount.textContent = '0';
-            }
-        });
-    }
-    
-    if (textInput && textCount) {
-        textInput.addEventListener('input', function() {
-            textCount.textContent = this.value.length;
-        });
-    }
-
-    // --- COMMENT CHARACTER COUNTER ---
-    const commentText = document.getElementById('commentText');
-    const commentCount = document.getElementById('commentCount');
-    if (commentText && commentCount) {
-        commentText.addEventListener('input', function() {
-            commentCount.textContent = this.value.length;
-        });
-    }
-
-    // --- SEARCH WITH ENTER KEY ---
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                searchStories();
-            }
-        });
-    }
-
-    // --- LOAD PROFILE ---
-    if (window.location.pathname.includes('profile.html')) {
-        loadProfile();
-    }
-
-    // --- LOAD SINGLE STORY ---
-    if (window.location.pathname.includes('story.html')) {
-        loadStory();
-    }
-
-    // --- LOAD ADMIN PANEL ---
-    if (window.location.pathname.includes('admin.html')) {
-        loadAdminPanel();
-    }
-
-    // --- POPULATE COUNTRY DATALIST ---
-    populateCountryDatalist();
-
-    // --- EMERGENCY SEARCH (About page) ---
-    setupEmergencySearch();
-
-    console.log('✅ All event listeners attached');
-});
-
-// ============================================
 // EMERGENCY SEARCH (For About page)
 // ============================================
 
@@ -1943,7 +2087,6 @@ function setupEmergencySearch() {
     const resultNumber = document.getElementById('resultNumber');
     const resultNote = document.getElementById('resultNote');
     
-    // Populate datalist for emergency search
     const emergencyList = document.getElementById('emergency-list');
     if (emergencyList) {
         emergencyList.innerHTML = '';
@@ -1978,7 +2121,6 @@ function setupEmergencySearch() {
         }
     });
 
-    // Show default result after page load
     setTimeout(() => {
         const defaultCountry = countries.find(c => c.name === 'United States');
         if (defaultCountry && resultDiv) {
@@ -1989,3 +2131,98 @@ function setupEmergencySearch() {
         }
     }, 500);
 }
+
+// ============================================
+// INIT - DOM READY
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM Ready — The Harbor (FIXED)');
+    
+    const modal = document.getElementById('authModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    }
+
+    const passwordInput = document.getElementById('authPassword');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', checkPasswordOnType);
+    }
+
+    const nameInput = document.getElementById('authName');
+    if (nameInput) {
+        nameInput.addEventListener('input', checkUsernameOnType);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const modal = document.getElementById('authModal');
+            if (modal && modal.style.display === 'flex') {
+                handleAuth();
+            }
+        }
+    });
+
+    const titleInput = document.getElementById('storyTitle');
+    const textInput = document.getElementById('storyText');
+    const titleCount = document.getElementById('titleCount');
+    const textCount = document.getElementById('textCount');
+    
+    if (titleInput && titleCount) {
+        titleInput.addEventListener('input', function() {
+            titleCount.textContent = this.value.length;
+        });
+        titleInput.addEventListener('focus', function() {
+            if (this.value.includes('@')) {
+                this.value = '';
+                titleCount.textContent = '0';
+            }
+        });
+    }
+    
+    if (textInput && textCount) {
+        textInput.addEventListener('input', function() {
+            textCount.textContent = this.value.length;
+        });
+    }
+
+    const commentText = document.getElementById('commentText');
+    const commentCount = document.getElementById('commentCount');
+    if (commentText && commentCount) {
+        commentText.addEventListener('input', function() {
+            commentCount.textContent = this.value.length;
+        });
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                searchStories();
+            }
+        });
+    }
+
+    if (window.location.pathname.includes('profile.html')) {
+        loadProfile();
+    }
+
+    if (window.location.pathname.includes('story.html')) {
+        loadStory();
+    }
+
+    if (window.location.pathname.includes('admin.html')) {
+        loadAdminPanel();
+    }
+
+    if (window.location.pathname.includes('activity.html')) {
+        loadActivity();
+    }
+
+    populateCountryDatalist();
+    setupEmergencySearch();
+
+    console.log('✅ All event listeners attached');
+});
