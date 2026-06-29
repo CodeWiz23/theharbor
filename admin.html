@@ -12,12 +12,9 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -161,6 +158,35 @@
             margin-bottom: 6px;
         }
 
+        .btn-success {
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-success:hover {
+            background: #2ecc71;
+            transform: scale(1.02);
+        }
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-danger:hover {
+            background: #e74c3c;
+            transform: scale(1.02);
+        }
+
         @media (max-width: 600px) {
             .admin-header { flex-direction: column; gap: 12px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -293,99 +319,18 @@
         // COUNTRY DATA
         // ============================================
         const countries = [
-            { name: 'Afghanistan', emergency: '119' }, { name: 'Albania', emergency: '112' },
-            { name: 'Algeria', emergency: '14' }, { name: 'Andorra', emergency: '112' },
-            { name: 'Angola', emergency: '113' }, { name: 'Argentina', emergency: '911' },
-            { name: 'Armenia', emergency: '112' }, { name: 'Australia', emergency: '000' },
-            { name: 'Austria', emergency: '112' }, { name: 'Azerbaijan', emergency: '112' },
-            { name: 'Bahamas', emergency: '911' }, { name: 'Bahrain', emergency: '999' },
-            { name: 'Bangladesh', emergency: '999' }, { name: 'Barbados', emergency: '911' },
-            { name: 'Belarus', emergency: '112' }, { name: 'Belgium', emergency: '112' },
-            { name: 'Belize', emergency: '911' }, { name: 'Benin', emergency: '112' },
-            { name: 'Bhutan', emergency: '112' }, { name: 'Bolivia', emergency: '911' },
-            { name: 'Bosnia and Herzegovina', emergency: '112' }, { name: 'Botswana', emergency: '999' },
-            { name: 'Brazil', emergency: '190' }, { name: 'Brunei', emergency: '995' },
-            { name: 'Bulgaria', emergency: '112' }, { name: 'Burkina Faso', emergency: '112' },
-            { name: 'Burundi', emergency: '112' }, { name: 'Cambodia', emergency: '119' },
-            { name: 'Cameroon', emergency: '112' }, { name: 'Canada', emergency: '911' },
-            { name: 'Cape Verde', emergency: '132' }, { name: 'Central African Republic', emergency: '112' },
-            { name: 'Chad', emergency: '112' }, { name: 'Chile', emergency: '131' },
-            { name: 'China', emergency: '110' }, { name: 'Colombia', emergency: '123' },
-            { name: 'Comoros', emergency: '112' }, { name: 'Congo', emergency: '112' },
-            { name: 'Costa Rica', emergency: '911' }, { name: 'Croatia', emergency: '112' },
-            { name: 'Cuba', emergency: '106' }, { name: 'Cyprus', emergency: '112' },
-            { name: 'Czech Republic', emergency: '112' }, { name: 'Denmark', emergency: '112' },
-            { name: 'Djibouti', emergency: '112' }, { name: 'Dominica', emergency: '911' },
-            { name: 'Dominican Republic', emergency: '911' }, { name: 'Ecuador', emergency: '911' },
-            { name: 'Egypt', emergency: '122' }, { name: 'El Salvador', emergency: '911' },
-            { name: 'Equatorial Guinea', emergency: '112' }, { name: 'Eritrea', emergency: '112' },
-            { name: 'Estonia', emergency: '112' }, { name: 'Eswatini', emergency: '999' },
-            { name: 'Ethiopia', emergency: '911' }, { name: 'Fiji', emergency: '911' },
-            { name: 'Finland', emergency: '112' }, { name: 'France', emergency: '112' },
-            { name: 'Gabon', emergency: '112' }, { name: 'Gambia', emergency: '112' },
-            { name: 'Georgia', emergency: '112' }, { name: 'Germany', emergency: '112' },
-            { name: 'Ghana', emergency: '112' }, { name: 'Greece', emergency: '112' },
-            { name: 'Grenada', emergency: '911' }, { name: 'Guatemala', emergency: '110' },
-            { name: 'Guinea', emergency: '112' }, { name: 'Guyana', emergency: '911' },
-            { name: 'Haiti', emergency: '116' }, { name: 'Honduras', emergency: '911' },
-            { name: 'Hungary', emergency: '112' }, { name: 'Iceland', emergency: '112' },
-            { name: 'India', emergency: '112' }, { name: 'Indonesia', emergency: '112' },
-            { name: 'Iran', emergency: '110' }, { name: 'Iraq', emergency: '112' },
-            { name: 'Ireland', emergency: '112' }, { name: 'Israel', emergency: '112' },
-            { name: 'Italy', emergency: '112' }, { name: 'Jamaica', emergency: '119' },
-            { name: 'Japan', emergency: '110' }, { name: 'Jordan', emergency: '911' },
-            { name: 'Kazakhstan', emergency: '112' }, { name: 'Kenya', emergency: '112' },
-            { name: 'Kiribati', emergency: '112' }, { name: 'Kuwait', emergency: '112' },
-            { name: 'Kyrgyzstan', emergency: '112' }, { name: 'Laos', emergency: '112' },
-            { name: 'Latvia', emergency: '112' }, { name: 'Lebanon', emergency: '112' },
-            { name: 'Lesotho', emergency: '112' }, { name: 'Liberia', emergency: '911' },
-            { name: 'Libya', emergency: '112' }, { name: 'Liechtenstein', emergency: '112' },
-            { name: 'Lithuania', emergency: '112' }, { name: 'Luxembourg', emergency: '112' },
-            { name: 'Madagascar', emergency: '112' }, { name: 'Malawi', emergency: '112' },
-            { name: 'Malaysia', emergency: '999' }, { name: 'Maldives', emergency: '119' },
-            { name: 'Mali', emergency: '112' }, { name: 'Malta', emergency: '112' },
-            { name: 'Marshall Islands', emergency: '911' }, { name: 'Mauritania', emergency: '112' },
-            { name: 'Mauritius', emergency: '999' }, { name: 'Mexico', emergency: '911' },
-            { name: 'Micronesia', emergency: '911' }, { name: 'Moldova', emergency: '112' },
-            { name: 'Monaco', emergency: '112' }, { name: 'Mongolia', emergency: '112' },
-            { name: 'Montenegro', emergency: '112' }, { name: 'Morocco', emergency: '112' },
-            { name: 'Mozambique', emergency: '112' }, { name: 'Myanmar', emergency: '112' },
-            { name: 'Namibia', emergency: '112' }, { name: 'Nauru', emergency: '112' },
-            { name: 'Nepal', emergency: '100' }, { name: 'Netherlands', emergency: '112' },
-            { name: 'New Zealand', emergency: '111' }, { name: 'Nicaragua', emergency: '911' },
-            { name: 'Niger', emergency: '112' }, { name: 'Nigeria', emergency: '112' },
-            { name: 'North Korea', emergency: '119' }, { name: 'North Macedonia', emergency: '112' },
-            { name: 'Norway', emergency: '112' }, { name: 'Oman', emergency: '999' },
-            { name: 'Pakistan', emergency: '112' }, { name: 'Palau', emergency: '911' },
-            { name: 'Panama', emergency: '911' }, { name: 'Papua New Guinea', emergency: '112' },
-            { name: 'Paraguay', emergency: '911' }, { name: 'Peru', emergency: '911' },
-            { name: 'Philippines', emergency: '911' }, { name: 'Poland', emergency: '112' },
-            { name: 'Portugal', emergency: '112' }, { name: 'Qatar', emergency: '999' },
-            { name: 'Romania', emergency: '112' }, { name: 'Russia', emergency: '112' },
-            { name: 'Rwanda', emergency: '112' }, { name: 'Saint Lucia', emergency: '911' },
-            { name: 'Samoa', emergency: '112' }, { name: 'San Marino', emergency: '112' },
-            { name: 'Saudi Arabia', emergency: '911' }, { name: 'Senegal', emergency: '112' },
-            { name: 'Serbia', emergency: '112' }, { name: 'Seychelles', emergency: '112' },
-            { name: 'Sierra Leone', emergency: '112' }, { name: 'Singapore', emergency: '999' },
-            { name: 'Slovakia', emergency: '112' }, { name: 'Slovenia', emergency: '112' },
-            { name: 'Solomon Islands', emergency: '911' }, { name: 'Somalia', emergency: '112' },
-            { name: 'South Africa', emergency: '112' }, { name: 'South Korea', emergency: '112' },
-            { name: 'Spain', emergency: '112' }, { name: 'Sri Lanka', emergency: '119' },
-            { name: 'Sudan', emergency: '112' }, { name: 'Suriname', emergency: '112' },
-            { name: 'Sweden', emergency: '112' }, { name: 'Switzerland', emergency: '112' },
-            { name: 'Syria', emergency: '112' }, { name: 'Taiwan', emergency: '110' },
-            { name: 'Tajikistan', emergency: '112' }, { name: 'Tanzania', emergency: '112' },
-            { name: 'Thailand', emergency: '191' }, { name: 'Togo', emergency: '112' },
-            { name: 'Tonga', emergency: '911' }, { name: 'Trinidad and Tobago', emergency: '911' },
-            { name: 'Tunisia', emergency: '112' }, { name: 'Turkey', emergency: '112' },
-            { name: 'Turkmenistan', emergency: '112' }, { name: 'Tuvalu', emergency: '112' },
-            { name: 'Uganda', emergency: '112' }, { name: 'Ukraine', emergency: '112' },
-            { name: 'United Arab Emirates', emergency: '999' }, { name: 'United Kingdom', emergency: '999' },
-            { name: 'United States', emergency: '911' }, { name: 'Uruguay', emergency: '911' },
-            { name: 'Uzbekistan', emergency: '112' }, { name: 'Vanuatu', emergency: '112' },
-            { name: 'Vatican City', emergency: '112' }, { name: 'Venezuela', emergency: '911' },
-            { name: 'Vietnam', emergency: '113' }, { name: 'Yemen', emergency: '112' },
-            { name: 'Zambia', emergency: '112' }, { name: 'Zimbabwe', emergency: '112' }
+            { name: 'United States', emergency: '911' },
+            { name: 'United Kingdom', emergency: '999' },
+            { name: 'Bangladesh', emergency: '999' },
+            { name: 'India', emergency: '112' },
+            { name: 'Canada', emergency: '911' },
+            { name: 'Australia', emergency: '000' },
+            { name: 'Germany', emergency: '112' },
+            { name: 'France', emergency: '112' },
+            { name: 'Italy', emergency: '112' },
+            { name: 'Spain', emergency: '112' },
+            { name: 'Brazil', emergency: '190' },
+            { name: 'Mexico', emergency: '911' }
         ];
 
         // Populate country datalist
@@ -837,7 +782,6 @@
                             data.type = 'report';
                             items.push(data);
                         });
-                        // Sort manually by createdAt
                         items.sort((a, b) => {
                             const ta = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                             const tb = b.createdAt ? b.createdAt.toDate().getTime() : 0;
@@ -889,8 +833,8 @@
                     ${item.flagReason ? `<div class="flag-reason">🚩 ${escapeHTML(item.flagReason)}</div>` : ''}
                     <div class="content">${escapeHTML((item.text || '').substring(0, 300))}${(item.text || '').length > 300 ? '...' : ''}</div>
                     <div class="actions">
-                        <button class="btn-success" onclick="approveItem('story', '${item.id}')" style="background:#27ae60;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">✅ Approve</button>
-                        <button class="btn-danger" onclick="deleteItem('story', '${item.id}')" style="background:#c0392b;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">🗑️ Delete</button>
+                        <button class="btn-success" onclick="approveItem('story', '${item.id}')">✅ Approve</button>
+                        <button class="btn-danger" onclick="deleteItem('story', '${item.id}')">🗑️ Delete</button>
                         <button class="btn-secondary" onclick="viewStory('${item.id}')" style="background:#e8ddd0;border:2px solid #1a4a4a;border-radius:50px;padding:8px 20px;cursor:pointer;">👁️ View</button>
                     </div>
                 `;
@@ -900,8 +844,8 @@
                     <div class="meta">✍️ ${item.isAnonymous ? 'Anonymous' : escapeHTML(item.authorName || 'Unknown')} · 📅 ${time}</div>
                     <div class="content">${escapeHTML(item.text || '')}</div>
                     <div class="actions">
-                        <button class="btn-success" onclick="approveItem('comment', '${item.id}')" style="background:#27ae60;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">✅ Approve</button>
-                        <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')" style="background:#c0392b;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">🗑️ Delete</button>
+                        <button class="btn-success" onclick="approveItem('comment', '${item.id}')">✅ Approve</button>
+                        <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')">🗑️ Delete</button>
                     </div>
                 `;
             } else if (item.type === 'report') {
@@ -911,8 +855,8 @@
                     <div class="content">Reason: ${escapeHTML(item.reason || 'Not specified')}</div>
                     <div class="content" style="margin-top:8px;">Content: ${escapeHTML((item.content || '').substring(0, 200))}${(item.content || '').length > 200 ? '...' : ''}</div>
                     <div class="actions">
-                        <button class="btn-success" onclick="resolveReport('${item.id}')" style="background:#27ae60;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">✅ Resolved</button>
-                        <button class="btn-danger" onclick="deleteItem('report', '${item.id}')" style="background:#c0392b;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">🗑️ Dismiss</button>
+                        <button class="btn-success" onclick="resolveReport('${item.id}')">✅ Resolved</button>
+                        <button class="btn-danger" onclick="deleteItem('report', '${item.id}')">🗑️ Dismiss</button>
                     </div>
                 `;
             }
@@ -995,7 +939,6 @@
                 }
             });
 
-            // Populate country datalist
             populateCountryDatalist();
 
             console.log('✅ Admin panel ready');
@@ -1003,5 +946,7 @@
 
         console.log('👑 Admin panel loaded');
     </script>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
