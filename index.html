@@ -12,6 +12,29 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
+    <!-- ============================================
+    META TAGS FOR SEO & SOCIAL SHARING (Fix #9)
+    ============================================ -->
+    <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together. Free mental health support community." />
+    <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
+    <meta name="author" content="The Harbor" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph Tags (for social media sharing) -->
+    <meta property="og:title" content="The Harbor — Share & Heal" />
+    <meta property="og:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://codewiz23.github.io/theharbor/" />
+    <meta property="og:image" content="https://codewiz23.github.io/theharbor/images/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The Harbor — Share & Heal" />
+    <meta name="twitter:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
+    <meta name="twitter:image" content="https://codewiz23.github.io/theharbor/images/og-image.png" />
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -106,7 +129,7 @@
 </head>
 <body>
     <!-- ============================================
-    HEADER
+    HEADER - WITH PROFILE & SUGGEST LINKS
     ============================================ -->
     <header class="header">
         <div class="header-left">
@@ -116,6 +139,8 @@
             <!-- Navigation Links -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
             <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
             <!-- Admin link - hidden by default, shown only to admins -->
             <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
 
@@ -246,7 +271,7 @@
     </div>
 
     <!-- ============================================
-    FOOTER - Admin link removed from footer
+    FOOTER - WITH PRIVACY, TERMS & COPYRIGHT
     ============================================ -->
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
@@ -256,10 +281,13 @@
             <a href="submit.html">📝 Share Story</a>
             <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <!-- Admin link REMOVED from footer - now only in header -->
+            <a href="suggest.html">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
-            &copy; 2026 The Harbor — Built with 💚 for the community
+            © 2026 The Harbor — All Rights Reserved.<br>
+            Built with 💚 for the community. Unauthorized reproduction or distribution is prohibited.
         </div>
     </footer>
 
