@@ -34,6 +34,7 @@
             margin-bottom: 24px;
             border-left: 5px solid #c47a5a;
         }
+        .crisis-banner a { color: #e8ddd0; font-weight: bold; }
         .header {
             display: flex;
             justify-content: space-between;
@@ -84,11 +85,15 @@
             font-size: 1.1rem;
             background: #f5f0eb;
             transition: 0.3s;
+            font-family: inherit;
         }
         .search-container input:focus {
             outline: none;
             border-color: #1a4a4a;
             box-shadow: 0 0 0 4px rgba(26, 74, 74, 0.12);
+        }
+        .search-container input::placeholder {
+            color: #a8a09a;
         }
         .dropdown {
             position: absolute;
@@ -103,6 +108,7 @@
             display: none;
             z-index: 100;
             margin-top: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
         .dropdown.show { display: block; }
         .dropdown-item {
@@ -114,6 +120,7 @@
             align-items: center;
             transition: 0.2s;
         }
+        .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #e8ddd0; }
         .dropdown-item .country { font-weight: 600; color: #1a4a4a; }
         .dropdown-item .emergency { color: #c47a5a; font-weight: 700; }
@@ -155,12 +162,18 @@
             transition: 0.3s;
         }
         .result-card .call-btn:hover { background: #c47a5a; transform: scale(1.02); }
+        .result-card .call-btn:active { transform: scale(0.98); }
         .no-result {
             text-align: center;
             padding: 30px;
             color: #c0392b;
             display: none;
+            background: #f5f0eb;
+            border-radius: 16px;
+            border: 1px solid #d4c8b8;
+            margin-top: 20px;
         }
+        .no-result .big-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
         .quick-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -170,21 +183,28 @@
         .quick-btn {
             padding: 12px;
             background: #e8ddd0;
-            border: none;
+            border: 2px solid #d4c8b8;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
             text-align: center;
+            font-family: inherit;
         }
-        .quick-btn:hover { background: #d4c8b8; transform: translateY(-2px); }
-        .quick-btn .num { display: block; font-size: 1.2rem; color: #1a4a4a; }
-        .quick-btn .name { font-size: 0.85rem; color: #7a9e7e; }
+        .quick-btn:hover { background: #d4c8b8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .quick-btn:active { transform: translateY(0); }
+        .quick-btn .num { display: block; font-size: 1.3rem; color: #1a4a4a; font-weight: 700; }
+        .quick-btn .name { font-size: 0.85rem; color: #7a9e7e; margin-top: 2px; }
         @media (max-width: 600px) {
             .header { flex-direction: column; align-items: stretch; gap: 12px; }
             .logo-text { font-size: 1.4rem; }
             .result-card .number { font-size: 3rem; }
             .quick-grid { grid-template-columns: 1fr 1fr; }
+            .result-card { padding: 20px; }
+        }
+        @media (max-width: 400px) {
+            .quick-grid { grid-template-columns: 1fr; }
+            .btn-secondary { text-align: center; }
         }
     </style>
 </head>
@@ -242,11 +262,13 @@
             <div class="country-name" id="resultCountry">United States</div>
             <div class="number" id="resultNumber">911</div>
             <div class="note" id="resultNote">📞 Police, Fire, Ambulance</div>
-            <a href="#" id="callBtn" class="call-btn">📞 Call Now</a>
+            <a href="tel:911" id="callBtn" class="call-btn">📞 Call Now</a>
         </div>
 
         <div id="noResult" class="no-result">
-            ❌ No emergency number found. Please check your spelling.
+            <span class="big-emoji">🔍</span>
+            ❌ No emergency number found for this country.<br />
+            <span style="font-size:0.9rem;color:#7a9e7e;">Please check your spelling or try another country.</span>
         </div>
 
         <footer class="footer">
@@ -255,6 +277,9 @@
     </div>
 
     <script>
+        // ============================================
+        // COUNTRY DATA
+        // ============================================
         const countries = [
             { code: 'AF', name: 'Afghanistan', emergency: '119', note: 'Police' },
             { code: 'AL', name: 'Albania', emergency: '112', note: 'General Emergency' },
@@ -445,32 +470,51 @@
             { code: 'ZW', name: 'Zimbabwe', emergency: '112', note: 'General Emergency' }
         ];
 
+        // ============================================
+        // DOM REFERENCES
+        // ============================================
         const searchInput = document.getElementById('countrySearch');
         const dropdown = document.getElementById('dropdown');
         const resultCard = document.getElementById('resultCard');
         const noResult = document.getElementById('noResult');
 
+        // ============================================
+        // SEARCH FUNCTIONS
+        // ============================================
         function searchCountry(name) {
+            if (!name) return;
             searchInput.value = name;
             const result = countries.find(c => c.name.toLowerCase() === name.toLowerCase());
             if (result) {
                 showResult(result);
+            } else {
+                resultCard.style.display = 'none';
+                noResult.style.display = 'block';
             }
             dropdown.classList.remove('show');
         }
 
         function showResult(result) {
-            document.getElementById('resultCountry').textContent = result.name;
-            document.getElementById('resultNumber').textContent = result.emergency;
-            document.getElementById('resultNote').textContent = '📞 ' + result.note;
+            const countryEl = document.getElementById('resultCountry');
+            const numberEl = document.getElementById('resultNumber');
+            const noteEl = document.getElementById('resultNote');
             const callBtn = document.getElementById('callBtn');
-            callBtn.href = 'tel:' + result.emergency;
+            
+            if (countryEl) countryEl.textContent = result.name;
+            if (numberEl) numberEl.textContent = result.emergency;
+            if (noteEl) noteEl.textContent = '📞 ' + result.note;
+            if (callBtn) callBtn.href = 'tel:' + result.emergency;
+            
             resultCard.style.display = 'block';
             noResult.style.display = 'none';
         }
 
+        // ============================================
+        // SEARCH INPUT HANDLER
+        // ============================================
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
+            
             if (!query) {
                 dropdown.classList.remove('show');
                 resultCard.style.display = 'none';
@@ -479,6 +523,7 @@
             }
 
             const matches = countries.filter(c => c.name.toLowerCase().includes(query));
+            
             if (matches.length > 0) {
                 dropdown.innerHTML = '';
                 matches.slice(0, 10).forEach(c => {
@@ -488,7 +533,7 @@
                         <span class="country">${c.name}</span>
                         <span class="emergency">${c.emergency}</span>
                     `;
-                    div.onclick = () => {
+                    div.onclick = function() {
                         searchInput.value = c.name;
                         showResult(c);
                         dropdown.classList.remove('show');
@@ -505,25 +550,75 @@
             }
         });
 
+        // ============================================
+        // CLOSE DROPDOWN ON CLICK OUTSIDE
+        // ============================================
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-container')) {
                 dropdown.classList.remove('show');
             }
         });
 
-        // Show default result
-        setTimeout(() => {
+        // ============================================
+        // ENTER KEY SUPPORT
+        // ============================================
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query) {
+                    const result = countries.find(c => c.name.toLowerCase() === query.toLowerCase());
+                    if (result) {
+                        showResult(result);
+                        dropdown.classList.remove('show');
+                    } else {
+                        // Try partial match
+                        const partial = countries.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
+                        if (partial.length > 0) {
+                            showResult(partial[0]);
+                            dropdown.classList.remove('show');
+                        } else {
+                            resultCard.style.display = 'none';
+                            noResult.style.display = 'block';
+                            dropdown.classList.remove('show');
+                        }
+                    }
+                }
+            }
+        });
+
+        // ============================================
+        // SHOW DEFAULT RESULT
+        // ============================================
+        function showDefaultResult() {
             const defaultCountry = countries.find(c => c.name === 'United States');
             if (defaultCountry) {
-                document.getElementById('resultCountry').textContent = defaultCountry.name;
-                document.getElementById('resultNumber').textContent = defaultCountry.emergency;
-                document.getElementById('resultNote').textContent = '📞 ' + defaultCountry.note;
-                document.getElementById('callBtn').href = 'tel:' + defaultCountry.emergency;
+                const countryEl = document.getElementById('resultCountry');
+                const numberEl = document.getElementById('resultNumber');
+                const noteEl = document.getElementById('resultNote');
+                const callBtn = document.getElementById('callBtn');
+                
+                if (countryEl) countryEl.textContent = defaultCountry.name;
+                if (numberEl) numberEl.textContent = defaultCountry.emergency;
+                if (noteEl) noteEl.textContent = '📞 ' + defaultCountry.note;
+                if (callBtn) callBtn.href = 'tel:' + defaultCountry.emergency;
+                
                 resultCard.style.display = 'block';
+                noResult.style.display = 'none';
             }
-        }, 300);
+        }
 
-        console.log('🆘 Emergency numbers loaded:', countries.length, 'countries');
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show default result after a small delay
+            setTimeout(showDefaultResult, 300);
+            
+            console.log('🆘 Emergency numbers loaded:', countries.length, 'countries');
+            console.log('📞 Search for any country to find emergency numbers');
+        });
+
+        console.log('🆘 Emergency numbers page loaded successfully');
     </script>
 </body>
 </html>
