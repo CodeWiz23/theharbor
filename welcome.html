@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome — The Harbor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .welcome-container {
+            text-align: center;
+            color: #f5f0eb;
+            animation: fadeIn 1s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .welcome-container .emoji {
+            font-size: 5rem;
+            display: block;
+            margin-bottom: 16px;
+        }
+        .welcome-container h1 {
+            font-size: 3.5rem;
+            font-weight: 300;
+        }
+        .welcome-container h1 span {
+            font-weight: 700;
+            color: #c47a5a;
+        }
+        .welcome-container p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+        .btn-primary {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 40px;
+            background: #c47a5a;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .btn-primary:hover { transform: scale(1.05); background: #a85a3a; }
+        
+        /* Fireworks */
+        .firework {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: firework 2s ease-out forwards;
+        }
+        @keyframes firework {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        .sparkle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkle 3s ease-out forwards;
+        }
+        @keyframes sparkle {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <span class="emoji">🎉</span>
+        <h1>Welcome to <span>The Harbor</span></h1>
+        <p>⚓ A safe place to share, heal, and grow</p>
+        <a href="index.html" class="btn-primary">Continue to The Harbor →</a>
+    </div>
 
+    <script>
+        // Fireworks effect
+        function createFirework() {
+            const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24', '#27ae60', '#f39c12'];
+            const cx = Math.random() * window.innerWidth;
+            const cy = Math.random() * window.innerHeight * 0.5;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const count = 30 + Math.floor(Math.random() * 40);
+
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'firework';
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 200;
+                el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                el.style.background = color;
+                el.style.left = cx + 'px';
+                el.style.top = cy + 'px';
+                el.style.width = (4 + Math.random() * 8) + 'px';
+                el.style.height = (4 + Math.random() * 8) + 'px';
+                el.style.animationDuration = (1.5 + Math.random()) + 's';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 2500);
+            }
+
+            // Sparkles
+            for (let i = 0; i < 10; i++) {
+                const el = document.createElement('div');
+                el.className = 'sparkle';
+                el.style.left = (cx + (Math.random() - 0.5) * 100) + 'px';
+                el.style.top = (cy + (Math.random() - 0.5) * 100) + 'px';
+                el.style.width = (2 + Math.random() * 4) + 'px';
+                el.style.height = (2 + Math.random() * 4) + 'px';
+                el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                el.style.animationDuration = (2 + Math.random()) + 's';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 3000);
+            }
+        }
+
+        // Launch fireworks every 500ms
+        let fireworkInterval = setInterval(createFirework, 300);
+        
+        // Stop after 8 seconds
+        setTimeout(() => {
+            clearInterval(fireworkInterval);
+        }, 8000);
+
+        // Also launch on click/tap
+        document.addEventListener('click', createFirework);
+        document.addEventListener('touchstart', createFirework);
+
+        console.log('🎆 Welcome fireworks started!');
+    </script>
+</body>
+</html>
