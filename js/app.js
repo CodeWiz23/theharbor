@@ -901,19 +901,17 @@ function addReaction(storyId, emoji) {
     const userReactionRef = db.collection('users').doc(currentUser.uid)
         .collection('reactions').doc(storyId);
 
-    // Check if user already reacted with this emoji
     const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
 
-    // Floating emoji
     const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     createFloatingEmoji(emoji, x, y);
 
-    // Disable button temporarily
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
     if (btn) btn.disabled = true;
 
+    // Use transaction to ensure data consistency
     db.runTransaction((transaction) => {
         return transaction.get(storyRef).then((doc) => {
             if (!doc.exists) return;
@@ -921,13 +919,11 @@ function addReaction(storyId, emoji) {
             const reactions = data.reactions || {};
             
             if (hasReacted) {
-                // REMOVE reaction (toggle off)
                 reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
                 if (userReactions[storyId]) {
                     userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
                 }
             } else {
-                // ADD reaction (toggle on)
                 reactions[emoji] = (reactions[emoji] || 0) + 1;
                 if (!userReactions[storyId]) userReactions[storyId] = [];
                 userReactions[storyId].push(emoji);
@@ -935,11 +931,12 @@ function addReaction(storyId, emoji) {
             
             transaction.update(storyRef, { reactions: reactions });
             
-            // ALSO save to user's reactions sub-collection for activity log
+            // Save to user's reactions sub-collection for activity log
             if (userReactions[storyId] && userReactions[storyId].length > 0) {
                 transaction.set(userReactionRef, { 
                     emojis: userReactions[storyId],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    storyId: storyId
                 });
             } else {
                 // If no reactions left, delete the document
@@ -950,7 +947,6 @@ function addReaction(storyId, emoji) {
     .then(() => {
         if (btn) btn.disabled = false;
         
-        // Update UI instantly
         const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
         if (countSpan) {
             const currentCount = parseInt(countSpan.textContent) || 0;
@@ -970,7 +966,7 @@ function addReaction(storyId, emoji) {
             }
         }
         
-        // Reload stories to keep everything in sync
+        // Refresh stories to update counts
         loadStories();
     })
     .catch((err) => {
