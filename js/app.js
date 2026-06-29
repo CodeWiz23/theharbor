@@ -878,6 +878,10 @@ function createFloatingEmoji(emoji, x, y) {
     setTimeout(() => el.remove(), 1600);
 }
 
+// ============================================
+// EMOJI REACTIONS — FIXED (No sub-collection)
+// ============================================
+
 function addReaction(storyId, emoji) {
     if (!currentUser) {
         alert('Please log in to react.');
@@ -890,10 +894,6 @@ function addReaction(storyId, emoji) {
     }
 
     const storyRef = db.collection('stories').doc(storyId);
-    const userReactionRef = db.collection('users').doc(currentUser.uid)
-        .collection('reactions').doc(storyId);
-
-    const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
 
     // Floating emoji
     const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
@@ -901,33 +901,22 @@ function addReaction(storyId, emoji) {
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     createFloatingEmoji(emoji, x, y);
 
+    // SIMPLIFIED: Just update the story reactions directly
     db.runTransaction((transaction) => {
         return transaction.get(storyRef).then((doc) => {
             if (!doc.exists) return;
             const data = doc.data();
             const reactions = data.reactions || {};
-            
-            if (hasReacted) {
-                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
-                if (userReactions[storyId]) {
-                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
-                }
-            } else {
-                reactions[emoji] = (reactions[emoji] || 0) + 1;
-                if (!userReactions[storyId]) userReactions[storyId] = [];
-                userReactions[storyId].push(emoji);
-            }
-            
+            reactions[emoji] = (reactions[emoji] || 0) + 1;
             transaction.update(storyRef, { reactions: reactions });
-            transaction.set(userReactionRef, { emojis: userReactions[storyId] || [] });
         });
     })
     .then(() => {
         loadStories();
     })
     .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        alert('Could not update reaction. Please try again.');
+        console.error('Error adding reaction:', err);
+        alert('Could not add reaction. Please try again.');
     });
 }
 
