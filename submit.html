@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Share Your Story — The Harbor</title>
 
+    <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
@@ -12,6 +13,7 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -19,6 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
@@ -34,10 +37,28 @@
             font-size: 1rem;
             font-family: inherit;
             resize: vertical;
-            min-height: 200px;
+            min-height: 180px;
             background: #f5f0eb;
+            transition: 0.3s;
         }
         .submit-form textarea:focus {
+            outline: none;
+            border-color: #1a4a4a;
+            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
+        }
+        .submit-form input[type="text"],
+        .submit-form select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #f5f0eb;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .submit-form input[type="text"]:focus,
+        .submit-form select:focus {
             outline: none;
             border-color: #1a4a4a;
             box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
@@ -52,7 +73,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 12px 0;
+            margin: 14px 0;
         }
         .checkbox-group input[type="checkbox"] {
             width: 20px;
@@ -64,37 +85,78 @@
             font-weight: 600;
             cursor: pointer;
             margin: 0;
-        }
-        .submit-form select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #d4c8b8;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: #f5f0eb;
-            font-family: inherit;
-        }
-        .submit-form select:focus {
-            outline: none;
-            border-color: #1a4a4a;
+            color: #2d3a3a;
         }
         .gender-restriction-notice {
             background: #e8ddd0;
-            padding: 8px 16px;
+            padding: 10px 16px;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #1a4a4a;
-            margin: 8px 0;
+            margin: 10px 0;
+            display: none;
         }
         .gender-restriction-notice.warning {
             background: #f5d6b3;
             border-left: 4px solid #c47a5a;
+        }
+        .gender-restriction-notice.success {
+            background: #d4e8d4;
+            border-left: 4px solid #27ae60;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3a3a;
+            margin-top: 16px;
+            margin-bottom: 4px;
+        }
+        .form-label:first-of-type {
+            margin-top: 0;
+        }
+        .form-hint {
+            font-size: 0.8rem;
+            color: #7a9e7e;
+            margin-top: 2px;
+        }
+        .btn-submit-story {
+            width: 100%;
+            padding: 14px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .btn-submit-story:hover {
+            background: #c47a5a;
+            transform: translateY(-2px);
+        }
+        .btn-submit-story:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .required-star {
+            color: #c0392b;
+            margin-left: 2px;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- Crisis Banner -->
+        <div class="crisis-banner">
+            ⚠️ <strong>Peer support only.</strong> Not a crisis line.
+            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
+            or your local emergency number.
+        </div>
+
         <!-- Header -->
         <header class="header">
             <a href="index.html" class="logo" style="text-decoration:none;">
@@ -121,20 +183,28 @@
 
         <!-- Submit Form -->
         <div class="submit-form">
-            <h1 style="font-weight:300;color:#1a4a4a;margin-bottom:8px;">📝 Share Your Story</h1>
+            <h1 style="font-weight:300;color:#1a4a4a;margin-bottom:4px;">📝 Share Your Story</h1>
             <p style="color:#7a9e7e;margin-bottom:24px;">Your story could be the hope someone else needs.</p>
 
             <div class="card">
-                <div id="genderRestrictionNotice" class="gender-restriction-notice warning" style="display:none;">
-                    ⚠️ <span id="restrictionMessage">This section is for men only.</span>
+
+                <!-- Gender Restriction Notice -->
+                <div id="genderRestrictionNotice" class="gender-restriction-notice warning">
+                    ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
 
-                <label for="storyTitle"><strong>📌 Title</strong></label>
-                <input type="text" id="storyTitle" placeholder="Give your story a title..." style="width:100%;padding:12px;border:2px solid #d4c8b8;border-radius:10px;font-size:1rem;margin-top:4px;" maxlength="100" />
-                <div style="font-size:0.75rem;color:#7a9e7e;text-align:right;margin-top:2px;"><span id="titleCount">0</span>/100</div>
+                <!-- Title -->
+                <label class="form-label" for="storyTitle">
+                    📌 Title <span class="required-star">*</span>
+                </label>
+                <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100" />
+                <div class="char-count"><span id="titleCount">0</span>/100 characters</div>
 
-                <label for="storyCategory" style="margin-top:16px;"><strong>📂 Category</strong></label>
-                <select id="storyCategory" onchange="checkCategoryRestriction()">
+                <!-- Category -->
+                <label class="form-label" for="storyCategory">
+                    📂 Category <span class="required-star">*</span>
+                </label>
+                <select id="storyCategory">
                     <option value="">Select a category...</option>
                     <option value="men">🧔 Men's Harbor</option>
                     <option value="women">👩 Women's Harbor</option>
@@ -142,21 +212,35 @@
                     <option value="fun">☀️ Sunny Skies (Fun)</option>
                     <option value="learning">🧭 The Compass (Learning)</option>
                 </select>
+                <div class="form-hint">Choose the category that best fits your story.</div>
 
-                <label for="storyText" style="margin-top:16px;"><strong>📖 Your Story</strong></label>
+                <!-- Story Text -->
+                <label class="form-label" for="storyText">
+                    📖 Your Story <span class="required-star">*</span>
+                </label>
                 <textarea id="storyText" placeholder="Write your story here... (minimum 10 characters)" maxlength="5000"></textarea>
                 <div class="char-count"><span id="textCount">0</span>/5000 characters</div>
 
+                <!-- Anonymous Toggle -->
                 <div class="checkbox-group">
                     <input type="checkbox" id="storyAnonymous" />
                     <label for="storyAnonymous">🕊️ Post anonymously (your name will be hidden)</label>
                 </div>
 
+                <!-- Error Message -->
                 <div id="submitError" class="error-msg"></div>
 
-                <button class="btn-primary" id="submitBtn" onclick="submitStory()" style="width:100%;margin-top:16px;">📤 Post Story</button>
+                <!-- Submit Button -->
+                <button class="btn-submit-story" id="submitBtn" onclick="submitStory()">
+                    📤 Post Story
+                </button>
+
+                <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#7a9e7e;">
+                    By posting, you agree to our <a href="about.html" style="color:#1a4a4a;">Community Guidelines</a>
+                </div>
             </div>
 
+            <!-- Back to Home -->
             <div style="text-align:center;margin-top:20px;">
                 <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
             </div>
@@ -164,7 +248,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; Anonymous option available
+            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; 🕊️ Anonymous option available
         </footer>
     </div>
 
@@ -173,15 +257,19 @@
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
+
             <label for="authEmail">Email</label>
             <input type="email" id="authEmail" placeholder="you@example.com" />
+
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
             <div id="passwordStrength"></div>
             <div id="passwordChecks"></div>
+
             <div id="signupFields" style="display:none;">
                 <label for="authName">What should we call you?</label>
                 <input type="text" id="authName" placeholder="Your name or nickname" />
+
                 <label for="authGender">Your Gender</label>
                 <select id="authGender">
                     <option value="🧔 Man">🧔 Man</option>
@@ -189,46 +277,88 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
+
                 <label for="authFavorites">What are your favorite things?</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
             </div>
+
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
                 Don't have an account? <strong>Sign Up</strong>
             </div>
+
             <div class="error-msg" id="authError"></div>
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
+        // ============================================
+        // PAGE-SPECIFIC JAVASCRIPT
+        // ============================================
+
         // Character counters
-        document.getElementById('storyTitle').addEventListener('input', function() {
-            document.getElementById('titleCount').textContent = this.value.length;
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('storyTitle');
+            const textInput = document.getElementById('storyText');
+            const titleCount = document.getElementById('titleCount');
+            const textCount = document.getElementById('textCount');
+
+            if (titleInput && titleCount) {
+                titleInput.addEventListener('input', function() {
+                    titleCount.textContent = this.value.length;
+                });
+            }
+
+            if (textInput && textCount) {
+                textInput.addEventListener('input', function() {
+                    textCount.textContent = this.value.length;
+                });
+            }
+
+            // Category change listener
+            const categorySelect = document.getElementById('storyCategory');
+            if (categorySelect) {
+                categorySelect.addEventListener('change', checkCategoryRestriction);
+            }
         });
 
-        document.getElementById('storyText').addEventListener('input', function() {
-            document.getElementById('textCount').textContent = this.value.length;
-        });
+        // ============================================
+        // CHECK CATEGORY RESTRICTION
+        // ============================================
 
         function checkCategoryRestriction() {
-            const category = document.getElementById('storyCategory').value;
+            const category = document.getElementById('storyCategory');
             const notice = document.getElementById('genderRestrictionNotice');
             const message = document.getElementById('restrictionMessage');
 
+            if (!category || !notice || !message) return;
+
+            const cat = category.value;
+
+            // If no category selected, hide notice
+            if (!cat) {
+                notice.style.display = 'none';
+                return;
+            }
+
+            // Check if user is logged in
             if (!currentUser || !currentUserData) {
                 notice.style.display = 'block';
-                message.textContent = 'Please log in to share your story.';
+                message.textContent = '⚠️ Please log in to share your story.';
                 notice.className = 'gender-restriction-notice warning';
                 return;
             }
 
             const gender = currentUserData.gender;
 
-            if (category === 'men' && gender !== '🧔 Man') {
+            // Check gender restrictions
+            if (cat === 'men' && gender !== '🧔 Man') {
                 notice.style.display = 'block';
                 message.textContent = '⚠️ This section is for men only. Please select a different category.';
                 notice.className = 'gender-restriction-notice warning';
-            } else if (category === 'women' && gender !== '👩 Woman') {
+            } else if (cat === 'women' && gender !== '👩 Woman') {
                 notice.style.display = 'block';
                 message.textContent = '⚠️ This section is for women only. Please select a different category.';
                 notice.className = 'gender-restriction-notice warning';
@@ -236,8 +366,29 @@
                 notice.style.display = 'none';
             }
         }
+
+        // ============================================
+        // OVERRIDE SUBMIT STORY (to fix any issues)
+        // ============================================
+
+        // This ensures the submit function works even if app.js loads after
+        // We're using the one from app.js, but this is a backup
+        function submitStory() {
+            if (typeof window.submitStory === 'function') {
+                // Use the one from app.js
+                window.submitStory();
+            } else {
+                // Fallback - call the global function
+                if (typeof submitStoryGlobal !== 'undefined') {
+                    submitStoryGlobal();
+                } else {
+                    alert('Please wait for the page to fully load and try again.');
+                }
+            }
+        }
     </script>
 
+    <!-- Main App JS -->
     <script src="js/app.js"></script>
 </body>
 </html>
