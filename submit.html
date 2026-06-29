@@ -12,9 +12,7 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
-    <!-- Strong autofill prevention -->
     <meta name="autofill" content="off" />
-    <input type="hidden" name="hidden" value="" style="display:none;" />
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
@@ -24,14 +22,7 @@
     </script>
 
     <style>
-        /* ============================================
-        COMPLETE STYLES
-        ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f5efe6;
@@ -41,10 +32,7 @@
             margin: 0 auto;
             line-height: 1.6;
         }
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-        }
+        .container { max-width: 960px; margin: 0 auto; }
         .crisis-banner {
             background: #1a4a4a;
             color: #f5f0eb;
@@ -55,10 +43,7 @@
             margin-bottom: 24px;
             border-left: 5px solid #c47a5a;
         }
-        .crisis-banner a {
-            color: #e8ddd0;
-            font-weight: bold;
-        }
+        .crisis-banner a { color: #e8ddd0; font-weight: bold; }
         .header {
             display: flex;
             justify-content: space-between;
@@ -74,30 +59,11 @@
             gap: 10px;
             text-decoration: none;
         }
-        .logo-icon {
-            font-size: 2.2rem;
-        }
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 300;
-            color: #1a4a4a;
-        }
-        .logo-text span {
-            font-weight: 700;
-            color: #c47a5a;
-        }
-        .logo-sub {
-            font-size: 0.75rem;
-            color: #7a9e7e;
-            font-style: italic;
-            display: block;
-            margin-top: -4px;
-        }
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .logo-icon { font-size: 2.2rem; }
+        .logo-text { font-size: 1.8rem; font-weight: 300; color: #1a4a4a; }
+        .logo-text span { font-weight: 700; color: #c47a5a; }
+        .logo-sub { font-size: 0.75rem; color: #7a9e7e; font-style: italic; display: block; margin-top: -4px; }
+        .auth-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn-login {
             padding: 8px 24px;
             border: 2px solid #1a4a4a;
@@ -108,10 +74,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-login:hover {
-            background: #1a4a4a;
-            color: #f5f0eb;
-        }
+        .btn-login:hover { background: #1a4a4a; color: #f5f0eb; }
         .btn-signup {
             padding: 8px 24px;
             border: none;
@@ -122,9 +85,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-signup:hover {
-            background: #c47a5a;
-        }
+        .btn-signup:hover { background: #c47a5a; }
         .btn-logout {
             padding: 6px 18px;
             border: none;
@@ -135,9 +96,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-logout:hover {
-            background: #a85a3a;
-        }
+        .btn-logout:hover { background: #a85a3a; }
         .user-info {
             background: #f5f0eb;
             padding: 12px 20px;
@@ -149,10 +108,7 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        .user-name {
-            font-weight: 700;
-            color: #1a4a4a;
-        }
+        .user-name { font-weight: 700; color: #1a4a4a; }
         .user-gender-badge {
             background: #e8ddd0;
             padding: 2px 14px;
@@ -167,9 +123,7 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .verification-badge.verified {
-            background: #27ae60;
-        }
+        .verification-badge.verified { background: #27ae60; }
         .btn-primary {
             background: #1a4a4a;
             color: #f5f0eb;
@@ -183,15 +137,7 @@
             display: inline-block;
             transition: 0.3s;
         }
-        .btn-primary:hover {
-            background: #c47a5a;
-            transform: translateY(-2px);
-        }
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-primary:hover { background: #c47a5a; transform: translateY(-2px); }
         .btn-secondary {
             background: #e8ddd0;
             color: #1a4a4a;
@@ -205,10 +151,7 @@
             display: inline-block;
             transition: 0.3s;
         }
-        .btn-secondary:hover {
-            background: #1a4a4a;
-            color: #f5f0eb;
-        }
+        .btn-secondary:hover { background: #1a4a4a; color: #f5f0eb; }
         .footer {
             text-align: center;
             color: #a8a09a;
@@ -217,10 +160,7 @@
             padding-top: 20px;
             border-top: 1px solid #d4c8b8;
         }
-        .submit-form {
-            max-width: 700px;
-            margin: 0 auto;
-        }
+        .submit-form { max-width: 700px; margin: 0 auto; }
         .submit-form textarea {
             width: 100%;
             padding: 14px;
@@ -238,9 +178,6 @@
             border-color: #1a4a4a;
             box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
         }
-        /* ============================================
-        FIX AUTO FILL - Completely block autofill
-        ============================================ */
         .submit-form input[type="text"],
         .submit-form select {
             width: 100%;
@@ -251,25 +188,11 @@
             background: #f5f0eb;
             font-family: inherit;
             transition: 0.3s;
-            /* Block autofill */
-            autocomplete: "off" !important;
-            -webkit-autofill: none !important;
+            autocomplete: off !important;
         }
-        /* Override ALL autofill styles */
-        .submit-form input[type="text"]:-webkit-autofill,
-        .submit-form input[type="text"]:-webkit-autofill:hover,
-        .submit-form input[type="text"]:-webkit-autofill:focus,
-        .submit-form input[type="text"]:-internal-autofill-selected {
+        .submit-form input[type="text"]:-webkit-autofill {
             -webkit-box-shadow: 0 0 0px 1000px #f5f0eb inset !important;
             -webkit-text-fill-color: #2d3a3a !important;
-            background-color: #f5f0eb !important;
-            background-image: none !important;
-            color: #2d3a3a !important;
-        }
-        /* Firefox autofill override */
-        .submit-form input[type="text"]:-moz-autofill {
-            background-color: #f5f0eb !important;
-            color: #2d3a3a !important;
         }
         .submit-form input[type="text"]:focus,
         .submit-form select:focus {
@@ -318,10 +241,6 @@
             background: #d4e8d4;
             border-left: 4px solid #27ae60;
         }
-        .gender-restriction-notice.info {
-            background: #d4e0f0;
-            border-left: 4px solid #4a7a9e;
-        }
         .form-label {
             display: block;
             font-weight: 600;
@@ -329,9 +248,7 @@
             margin-top: 16px;
             margin-bottom: 4px;
         }
-        .form-label:first-of-type {
-            margin-top: 0;
-        }
+        .form-label:first-of-type { margin-top: 0; }
         .form-hint {
             font-size: 0.8rem;
             color: #7a9e7e;
@@ -350,51 +267,11 @@
             transition: all 0.3s ease;
             margin-top: 20px;
         }
-        .btn-submit-story:hover {
-            background: #c47a5a;
-            transform: translateY(-2px);
-        }
-        .btn-submit-story:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .required-star {
-            color: #c0392b;
-            margin-left: 2px;
-        }
-        .public-badge {
-            display: inline-block;
-            background: #27ae60;
-            color: white;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 6px;
-        }
-        .restricted-badge {
-            display: inline-block;
-            background: #c47a5a;
-            color: white;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 6px;
-        }
-        .error-msg {
-            color: #c0392b;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .success-msg {
-            color: #27ae60;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            text-align: center;
-        }
+        .btn-submit-story:hover { background: #c47a5a; transform: translateY(-2px); }
+        .btn-submit-story:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .required-star { color: #c0392b; margin-left: 2px; }
+        .error-msg { color: #c0392b; font-size: 0.85rem; margin-top: 10px; text-align: center; }
+        .success-msg { color: #27ae60; font-size: 0.85rem; margin-top: 10px; text-align: center; }
         .card {
             background: #f5f0eb;
             padding: 24px;
@@ -423,108 +300,47 @@
             overflow-y: auto;
             border: 1px solid #d4c8b8;
         }
-        .modal-close {
-            float: right;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: #a8a09a;
+        .modal-close { float: right; font-size: 1.8rem; cursor: pointer; color: #a8a09a; transition: 0.3s; }
+        .modal-close:hover { color: #1a4a4a; }
+        .modal-content h2 { font-weight: 300; color: #1a4a4a; margin-bottom: 20px; }
+        .modal-content label { display: block; font-weight: 600; color: #2d3a3a; margin-top: 14px; font-size: 0.9rem; }
+        .modal-content input, .modal-content select {
+            width: 100%; padding: 12px;
+            border: 2px solid #d4c8b8; border-radius: 10px;
+            font-size: 1rem; margin-top: 4px;
+            background: #ffffff; font-family: inherit;
             transition: 0.3s;
         }
-        .modal-close:hover {
-            color: #1a4a4a;
-        }
-        .modal-content h2 {
-            font-weight: 300;
-            color: #1a4a4a;
-            margin-bottom: 20px;
-        }
-        .modal-content label {
-            display: block;
-            font-weight: 600;
-            color: #2d3a3a;
-            margin-top: 14px;
-            font-size: 0.9rem;
-        }
-        .modal-content input,
-        .modal-content select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #d4c8b8;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-top: 4px;
-            background: #ffffff;
-            font-family: inherit;
-            transition: 0.3s;
-        }
-        .modal-content input:focus,
-        .modal-content select:focus {
-            outline: none;
-            border-color: #1a4a4a;
+        .modal-content input:focus, .modal-content select:focus {
+            outline: none; border-color: #1a4a4a;
         }
         .modal-content .btn-modal {
-            width: 100%;
-            padding: 14px;
-            background: #1a4a4a;
-            color: #f5f0eb;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 18px;
+            width: 100%; padding: 14px;
+            background: #1a4a4a; color: #f5f0eb;
+            border: none; border-radius: 30px;
+            font-weight: 700; font-size: 1rem;
+            cursor: pointer; margin-top: 18px;
             transition: 0.3s;
         }
-        .modal-content .btn-modal:hover {
-            background: #c47a5a;
-        }
-        .modal-content .btn-modal:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .switch-link {
-            text-align: center;
-            margin-top: 16px;
-            color: #7a9e7e;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .switch-link:hover {
-            color: #1a4a4a;
-            text-decoration: underline;
-        }
+        .modal-content .btn-modal:hover { background: #c47a5a; }
+        .modal-content .btn-modal:disabled { opacity: 0.6; cursor: not-allowed; }
+        .switch-link { text-align: center; margin-top: 16px; color: #7a9e7e; cursor: pointer; font-size: 0.9rem; }
+        .switch-link:hover { color: #1a4a4a; text-decoration: underline; }
         @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-            .auth-buttons {
-                justify-content: center;
-            }
-            .logo-text {
-                font-size: 1.4rem;
-            }
-            .card {
-                padding: 16px;
-            }
-            .gender-restriction-notice {
-                font-size: 0.85rem;
-                padding: 12px 14px;
-            }
+            .header { flex-direction: column; align-items: stretch; gap: 12px; }
+            .auth-buttons { justify-content: center; }
+            .logo-text { font-size: 1.4rem; }
+            .card { padding: 16px; }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Crisis Banner -->
         <div class="crisis-banner">
-            ⚠️ <strong>Peer support only.</strong> Not a crisis line.
-            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
+            ⚠️ <strong>Peer support only.</strong> If you're in crisis, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
         </div>
 
-        <!-- Header -->
         <header class="header">
             <a href="index.html" class="logo">
                 <span class="logo-icon">⚓</span>
@@ -539,7 +355,6 @@
             </div>
         </header>
 
-        <!-- User Info -->
         <div class="user-info" id="userInfo">
             👤 Welcome, <span class="user-name" id="userName">—</span>
             <span class="user-gender-badge" id="userGenderBadge"></span>
@@ -547,31 +362,22 @@
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
 
-        <!-- Submit Form -->
         <div class="submit-form">
             <h1 style="font-weight:300;color:#1a4a4a;margin-bottom:4px;">📝 Share Your Story</h1>
             <p style="color:#7a9e7e;margin-bottom:24px;">Your story could be the hope someone else needs.</p>
 
             <div class="card">
-
-                <!-- Gender Restriction Notice -->
                 <div id="genderRestrictionNotice" class="gender-restriction-notice warning">
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
 
-                <!-- Title - COMPLETELY BLOCK AUTOFILL -->
-                <label class="form-label" for="storyTitle">
-                    📌 Title <span class="required-star">*</span>
-                </label>
+                <label class="form-label" for="storyTitle">📌 Title <span class="required-star">*</span></label>
                 <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100"
                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                        readonly onfocus="this.removeAttribute('readonly')" />
-                <div class="char-count"><span id="titleCount">0</span>/100 characters</div>
+                <div class="char-count"><span id="titleCount">0</span>/100</div>
 
-                <!-- Category -->
-                <label class="form-label" for="storyCategory">
-                    📂 Category <span class="required-star">*</span>
-                </label>
+                <label class="form-label" for="storyCategory">📂 Category <span class="required-star">*</span></label>
                 <select id="storyCategory">
                     <option value="">Select a category...</option>
                     <option value="men">🧔 Men's Harbor</option>
@@ -580,49 +386,33 @@
                     <option value="fun">☀️ Sunny Skies</option>
                     <option value="learning">🧭 The Compass</option>
                 </select>
-                <div class="form-hint">
-                    📌 <strong>Men's Harbor</strong> — Men only &bull; 
-                    <strong>Women's Harbor</strong> — Women only &bull; 
-                    <strong>The Storm, Sunny Skies, The Compass</strong> — Open to everyone
-                </div>
+                <div class="form-hint">📌 Men's Harbor — Men only · Women's Harbor — Women only · Others — Open to everyone</div>
 
-                <!-- Story Text -->
-                <label class="form-label" for="storyText">
-                    📖 Your Story <span class="required-star">*</span>
-                </label>
+                <label class="form-label" for="storyText">📖 Your Story <span class="required-star">*</span></label>
                 <textarea id="storyText" placeholder="Write your story here... (minimum 10 characters)" maxlength="5000"></textarea>
-                <div class="char-count"><span id="textCount">0</span>/5000 characters</div>
+                <div class="char-count"><span id="textCount">0</span>/5000</div>
 
-                <!-- Anonymous Toggle -->
                 <div class="checkbox-group">
                     <input type="checkbox" id="storyAnonymous" />
-                    <label for="storyAnonymous">🕊️ Post anonymously (your name will be hidden)</label>
+                    <label for="storyAnonymous">🕊️ Post anonymously</label>
                 </div>
 
-                <!-- Error/Success Message -->
                 <div id="submitError" class="error-msg"></div>
                 <div id="submitSuccess" class="success-msg"></div>
 
-                <!-- Submit Button -->
-                <button class="btn-submit-story" id="submitBtn" onclick="submitStory()">
-                    📤 Post Story
-                </button>
+                <button class="btn-submit-story" id="submitBtn" onclick="submitStory()">📤 Post Story</button>
 
                 <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#7a9e7e;">
                     By posting, you agree to our <a href="about.html" style="color:#1a4a4a;">Community Guidelines</a>
                 </div>
             </div>
 
-            <!-- Back to Home -->
             <div style="text-align:center;margin-top:20px;">
                 <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; 🕊️ Anonymous option available
-        </footer>
+        <footer class="footer">⚓ The Harbor &mdash; 🔒 Secure &bull; 🕊️ Anonymous option</footer>
     </div>
 
     <!-- Auth Modal -->
@@ -630,36 +420,31 @@
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
-
             <label for="authEmail">Email</label>
             <input type="email" id="authEmail" placeholder="you@example.com" />
-
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
             <div id="passwordStrength"></div>
-
             <div id="signupFields" style="display:none;">
-                <label for="authName">What should we call you?</label>
-                <input type="text" id="authName" placeholder="Your name or nickname" />
-
-                <label for="authGender">Your Gender <span style="color:#c0392b;">*</span></label>
+                <label for="authName">Username</label>
+                <input type="text" id="authName" placeholder="Choose a unique username" />
+                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
+                <label for="authGender">Gender</label>
                 <select id="authGender">
                     <option value="🧔 Man">🧔 Man</option>
                     <option value="👩 Woman">👩 Woman</option>
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-
-                <label for="authFavorites">What are your favorite things?</label>
+                <label for="authCountry">Country</label>
+                <select id="authCountry"><option value="">Select your country...</option></select>
+                <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
             </div>
-
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
                 Don't have an account? <strong>Sign Up</strong>
             </div>
-
             <div class="error-msg" id="authError"></div>
         </div>
     </div>
@@ -676,7 +461,6 @@
             messagingSenderId: "634248505303",
             appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -685,8 +469,163 @@
         let currentUserData = null;
 
         // ============================================
-        // AUTH FUNCTIONS
+        // COUNTRY DATA
         // ============================================
+        const countries = [
+            { name: 'Afghanistan', emergency: '119' }, { name: 'Albania', emergency: '112' },
+            { name: 'Algeria', emergency: '14' }, { name: 'Andorra', emergency: '112' },
+            { name: 'Angola', emergency: '113' }, { name: 'Argentina', emergency: '911' },
+            { name: 'Armenia', emergency: '112' }, { name: 'Australia', emergency: '000' },
+            { name: 'Austria', emergency: '112' }, { name: 'Azerbaijan', emergency: '112' },
+            { name: 'Bahamas', emergency: '911' }, { name: 'Bahrain', emergency: '999' },
+            { name: 'Bangladesh', emergency: '999' }, { name: 'Barbados', emergency: '911' },
+            { name: 'Belarus', emergency: '112' }, { name: 'Belgium', emergency: '112' },
+            { name: 'Belize', emergency: '911' }, { name: 'Benin', emergency: '112' },
+            { name: 'Bhutan', emergency: '112' }, { name: 'Bolivia', emergency: '911' },
+            { name: 'Bosnia', emergency: '112' }, { name: 'Botswana', emergency: '999' },
+            { name: 'Brazil', emergency: '190' }, { name: 'Brunei', emergency: '995' },
+            { name: 'Bulgaria', emergency: '112' }, { name: 'Burkina Faso', emergency: '112' },
+            { name: 'Burundi', emergency: '112' }, { name: 'Cambodia', emergency: '119' },
+            { name: 'Cameroon', emergency: '112' }, { name: 'Canada', emergency: '911' },
+            { name: 'Cape Verde', emergency: '132' }, { name: 'Central African Republic', emergency: '112' },
+            { name: 'Chad', emergency: '112' }, { name: 'Chile', emergency: '131' },
+            { name: 'China', emergency: '110' }, { name: 'Colombia', emergency: '123' },
+            { name: 'Comoros', emergency: '112' }, { name: 'Congo', emergency: '112' },
+            { name: 'Costa Rica', emergency: '911' }, { name: 'Croatia', emergency: '112' },
+            { name: 'Cuba', emergency: '106' }, { name: 'Cyprus', emergency: '112' },
+            { name: 'Czech Republic', emergency: '112' }, { name: 'Denmark', emergency: '112' },
+            { name: 'Djibouti', emergency: '112' }, { name: 'Dominica', emergency: '911' },
+            { name: 'Dominican Republic', emergency: '911' }, { name: 'East Timor', emergency: '112' },
+            { name: 'Ecuador', emergency: '911' }, { name: 'Egypt', emergency: '122' },
+            { name: 'El Salvador', emergency: '911' }, { name: 'Equatorial Guinea', emergency: '112' },
+            { name: 'Eritrea', emergency: '112' }, { name: 'Estonia', emergency: '112' },
+            { name: 'Eswatini', emergency: '999' }, { name: 'Ethiopia', emergency: '911' },
+            { name: 'Fiji', emergency: '911' }, { name: 'Finland', emergency: '112' },
+            { name: 'France', emergency: '112' }, { name: 'Gabon', emergency: '112' },
+            { name: 'Gambia', emergency: '112' }, { name: 'Georgia', emergency: '112' },
+            { name: 'Germany', emergency: '112' }, { name: 'Ghana', emergency: '112' },
+            { name: 'Greece', emergency: '112' }, { name: 'Grenada', emergency: '911' },
+            { name: 'Guatemala', emergency: '110' }, { name: 'Guinea', emergency: '112' },
+            { name: 'Guyana', emergency: '911' }, { name: 'Haiti', emergency: '116' },
+            { name: 'Honduras', emergency: '911' }, { name: 'Hungary', emergency: '112' },
+            { name: 'Iceland', emergency: '112' }, { name: 'India', emergency: '112' },
+            { name: 'Indonesia', emergency: '112' }, { name: 'Iran', emergency: '110' },
+            { name: 'Iraq', emergency: '112' }, { name: 'Ireland', emergency: '112' },
+            { name: 'Israel', emergency: '112' }, { name: 'Italy', emergency: '112' },
+            { name: 'Jamaica', emergency: '119' }, { name: 'Japan', emergency: '110' },
+            { name: 'Jordan', emergency: '911' }, { name: 'Kazakhstan', emergency: '112' },
+            { name: 'Kenya', emergency: '112' }, { name: 'Kiribati', emergency: '112' },
+            { name: 'Kuwait', emergency: '112' }, { name: 'Kyrgyzstan', emergency: '112' },
+            { name: 'Laos', emergency: '112' }, { name: 'Latvia', emergency: '112' },
+            { name: 'Lebanon', emergency: '112' }, { name: 'Lesotho', emergency: '112' },
+            { name: 'Liberia', emergency: '911' }, { name: 'Libya', emergency: '112' },
+            { name: 'Liechtenstein', emergency: '112' }, { name: 'Lithuania', emergency: '112' },
+            { name: 'Luxembourg', emergency: '112' }, { name: 'Madagascar', emergency: '112' },
+            { name: 'Malawi', emergency: '112' }, { name: 'Malaysia', emergency: '999' },
+            { name: 'Maldives', emergency: '119' }, { name: 'Mali', emergency: '112' },
+            { name: 'Malta', emergency: '112' }, { name: 'Marshall Islands', emergency: '911' },
+            { name: 'Mauritania', emergency: '112' }, { name: 'Mauritius', emergency: '999' },
+            { name: 'Mexico', emergency: '911' }, { name: 'Micronesia', emergency: '911' },
+            { name: 'Moldova', emergency: '112' }, { name: 'Monaco', emergency: '112' },
+            { name: 'Mongolia', emergency: '112' }, { name: 'Montenegro', emergency: '112' },
+            { name: 'Morocco', emergency: '112' }, { name: 'Mozambique', emergency: '112' },
+            { name: 'Myanmar', emergency: '112' }, { name: 'Namibia', emergency: '112' },
+            { name: 'Nauru', emergency: '112' }, { name: 'Nepal', emergency: '100' },
+            { name: 'Netherlands', emergency: '112' }, { name: 'New Zealand', emergency: '111' },
+            { name: 'Nicaragua', emergency: '911' }, { name: 'Niger', emergency: '112' },
+            { name: 'Nigeria', emergency: '112' }, { name: 'North Korea', emergency: '119' },
+            { name: 'North Macedonia', emergency: '112' }, { name: 'Norway', emergency: '112' },
+            { name: 'Oman', emergency: '999' }, { name: 'Pakistan', emergency: '112' },
+            { name: 'Palau', emergency: '911' }, { name: 'Panama', emergency: '911' },
+            { name: 'Papua New Guinea', emergency: '112' }, { name: 'Paraguay', emergency: '911' },
+            { name: 'Peru', emergency: '911' }, { name: 'Philippines', emergency: '911' },
+            { name: 'Poland', emergency: '112' }, { name: 'Portugal', emergency: '112' },
+            { name: 'Qatar', emergency: '999' }, { name: 'Romania', emergency: '112' },
+            { name: 'Russia', emergency: '112' }, { name: 'Rwanda', emergency: '112' },
+            { name: 'Saint Lucia', emergency: '911' }, { name: 'Samoa', emergency: '112' },
+            { name: 'San Marino', emergency: '112' }, { name: 'Saudi Arabia', emergency: '911' },
+            { name: 'Senegal', emergency: '112' }, { name: 'Serbia', emergency: '112' },
+            { name: 'Seychelles', emergency: '112' }, { name: 'Sierra Leone', emergency: '112' },
+            { name: 'Singapore', emergency: '999' }, { name: 'Slovakia', emergency: '112' },
+            { name: 'Slovenia', emergency: '112' }, { name: 'Solomon Islands', emergency: '911' },
+            { name: 'Somalia', emergency: '112' }, { name: 'South Africa', emergency: '112' },
+            { name: 'South Korea', emergency: '112' }, { name: 'Spain', emergency: '112' },
+            { name: 'Sri Lanka', emergency: '119' }, { name: 'Sudan', emergency: '112' },
+            { name: 'Suriname', emergency: '112' }, { name: 'Sweden', emergency: '112' },
+            { name: 'Switzerland', emergency: '112' }, { name: 'Syria', emergency: '112' },
+            { name: 'Taiwan', emergency: '110' }, { name: 'Tajikistan', emergency: '112' },
+            { name: 'Tanzania', emergency: '112' }, { name: 'Thailand', emergency: '191' },
+            { name: 'Togo', emergency: '112' }, { name: 'Tonga', emergency: '911' },
+            { name: 'Trinidad', emergency: '911' }, { name: 'Tunisia', emergency: '112' },
+            { name: 'Turkey', emergency: '112' }, { name: 'Turkmenistan', emergency: '112' },
+            { name: 'Tuvalu', emergency: '112' }, { name: 'Uganda', emergency: '112' },
+            { name: 'Ukraine', emergency: '112' }, { name: 'United Arab Emirates', emergency: '999' },
+            { name: 'United Kingdom', emergency: '999' }, { name: 'United States', emergency: '911' },
+            { name: 'Uruguay', emergency: '911' }, { name: 'Uzbekistan', emergency: '112' },
+            { name: 'Vanuatu', emergency: '112' }, { name: 'Vatican City', emergency: '112' },
+            { name: 'Venezuela', emergency: '911' }, { name: 'Vietnam', emergency: '113' },
+            { name: 'Yemen', emergency: '112' }, { name: 'Zambia', emergency: '112' },
+            { name: 'Zimbabwe', emergency: '112' }
+        ];
+
+        function sanitizeInput(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.textContent;
+        }
+
+        function escapeHTML(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+        }
+
+        function checkPasswordStrength(password) {
+            let score = 0;
+            if (password.length >= 8) score += 20;
+            if (/[A-Z]/.test(password)) score += 20;
+            if (/[a-z]/.test(password)) score += 20;
+            if (/[0-9]/.test(password)) score += 20;
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+            const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+            if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+            let strength = 'weak',
+                color = '#c0392b';
+            if (score >= 90) { strength = 'very-strong';
+                color = '#27ae60'; } else if (score >= 70) { strength = 'strong';
+                color = '#2ecc71'; } else if (score >= 50) { strength = 'medium';
+                color = '#f39c12'; } else if (score >= 30) { strength = 'weak';
+                color = '#e67e22'; } else { strength = 'very-weak';
+                color = '#c0392b'; }
+            return { score, strength, color };
+        }
+
+        function checkUsernameAvailability(username) {
+            if (!username || username.length < 2) return Promise.resolve(false);
+            return db.collection('users').where('name', '==', username).get().then(s => s.empty);
+        }
+
+        async function checkUsernameOnType() {
+            const nameInput = document.getElementById('authName');
+            const statusDiv = document.getElementById('usernameStatus');
+            if (!nameInput || !statusDiv) return;
+            const username = nameInput.value.trim();
+            if (username.length < 2) { statusDiv.innerHTML = ''; return; }
+            const available = await checkUsernameAvailability(username);
+            statusDiv.innerHTML = available ?
+                `<span style="color:#27ae60;">✅ Username available!</span>` :
+                `<span style="color:#c0392b;">❌ Username taken</span>`;
+        }
 
         function openModal(mode) {
             const modal = document.getElementById('authModal');
@@ -702,6 +641,7 @@
             document.getElementById('authName').value = '';
             document.getElementById('authFavorites').value = '';
             document.getElementById('passwordStrength').innerHTML = '';
+            document.getElementById('usernameStatus').innerHTML = '';
             if (mode === 'login') {
                 title.textContent = '🔐 Welcome Back';
                 submitBtn.textContent = '🚀 Log In';
@@ -712,6 +652,15 @@
                 title.textContent = '📝 Join The Harbor';
                 submitBtn.textContent = '🚀 Create Account';
                 signupFields.style.display = 'block';
+                const countrySelect = document.getElementById('authCountry');
+                if (countrySelect && countrySelect.options.length <= 1) {
+                    countries.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.name;
+                        opt.textContent = c.name;
+                        countrySelect.appendChild(opt);
+                    });
+                }
                 switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
                 switchLink.dataset.mode = 'login';
             }
@@ -754,7 +703,7 @@
                     .then((userCredential) => {
                         const user = userCredential.user;
                         if (!user.emailVerified) {
-                            error.textContent = '⚠️ Please verify your email first. Check your inbox!';
+                            error.textContent = '⚠️ Please verify your email first.';
                             auth.signOut();
                             submitBtn.disabled = false;
                             submitBtn.textContent = '🚀 Log In';
@@ -770,27 +719,51 @@
                         submitBtn.textContent = '🚀 Log In';
                     });
             } else {
-                const name = document.getElementById('authName').value.trim();
-                const gender = document.getElementById('authGender').value;
-                const favorites = document.getElementById('authFavorites').value.trim();
+                const nameInput = document.getElementById('authName');
+                const genderSelect = document.getElementById('authGender');
+                const favoritesInput = document.getElementById('authFavorites');
+                const countrySelect = document.getElementById('authCountry');
+                const name = nameInput ? nameInput.value.trim() : '';
+                const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+                const favorites = favoritesInput ? favoritesInput.value.trim() : '';
+                const country = countrySelect ? countrySelect.value : '';
                 if (!name || name.length < 2) {
-                    error.textContent = 'Please enter your name (minimum 2 characters).';
+                    error.textContent = 'Please enter a username (minimum 2 characters).';
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Create Account';
                     return;
                 }
-                auth.createUserWithEmailAndPassword(email, password)
+                if (!country) {
+                    error.textContent = 'Please select your country.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+                checkUsernameAvailability(name)
+                    .then((available) => {
+                        if (!available) {
+                            error.textContent = '❌ Username is already taken.';
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '🚀 Create Account';
+                            return Promise.reject('Username taken');
+                        }
+                        return auth.createUserWithEmailAndPassword(email, password);
+                    })
                     .then((userCredential) => {
                         const user = userCredential.user;
                         return user.sendEmailVerification().then(() => user);
                     })
                     .then((user) => {
+                        const countryData = countries.find(c => c.name === country);
                         return db.collection('users').doc(user.uid).set({
                             name: name,
                             email: email,
                             gender: gender,
                             favorites: favorites || 'Not specified',
+                            country: country,
+                            emergencyNumber: countryData?.emergency || '911',
                             emailVerified: false,
+                            isAdmin: false,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                             lastActive: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -803,7 +776,9 @@
                         alert('✅ Verification email sent! Please check your inbox.');
                     })
                     .catch((err) => {
-                        error.textContent = err.message;
+                        if (err !== 'Username taken') {
+                            error.textContent = err.message;
+                        }
                         submitBtn.disabled = false;
                         submitBtn.textContent = '🚀 Create Account';
                     });
@@ -816,10 +791,6 @@
                 window.location.href = 'index.html';
             }
         }
-
-        // ============================================
-        // AUTH STATE LISTENER
-        // ============================================
 
         auth.onAuthStateChanged((user) => {
             const authButtons = document.getElementById('authButtons');
@@ -863,20 +834,13 @@
             }
         });
 
-        // ============================================
-        // CHECK CATEGORY RESTRICTION
-        // ============================================
-
         function checkCategoryRestriction() {
             const category = document.getElementById('storyCategory');
             const notice = document.getElementById('genderRestrictionNotice');
             const message = document.getElementById('restrictionMessage');
             if (!category || !notice || !message) return;
             const cat = category.value;
-            if (!cat) {
-                notice.style.display = 'none';
-                return;
-            }
+            if (!cat) { notice.style.display = 'none'; return; }
             if (!currentUser || !currentUserData) {
                 notice.style.display = 'block';
                 message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
@@ -885,14 +849,14 @@
             }
             if (!currentUser.emailVerified) {
                 notice.style.display = 'block';
-                message.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting. Check your inbox!';
+                message.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting.';
                 notice.className = 'gender-restriction-notice warning';
                 return;
             }
             const gender = currentUserData.gender;
             if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
                 notice.style.display = 'block';
-                message.innerHTML = '✅ This category is <strong>open to everyone</strong>. You can post here!';
+                message.innerHTML = '✅ Open to everyone. You can post here!';
                 notice.className = 'gender-restriction-notice success';
                 return;
             }
@@ -925,19 +889,14 @@
             notice.style.display = 'none';
         }
 
-        // ============================================
-        // SUBMIT STORY
-        // ============================================
-
         function submitStory() {
             console.log('📤 Submit story function called');
-
             if (!currentUser) {
                 alert('⚠️ Please log in to share your story.');
                 return;
             }
             if (!currentUser.emailVerified) {
-                alert('⚠️ Please verify your email first. Check your inbox!');
+                alert('⚠️ Please verify your email first.');
                 return;
             }
 
@@ -956,8 +915,6 @@
             const text = textInput ? textInput.value.trim() : '';
             const category = categorySelect ? categorySelect.value : '';
             const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
-
-            console.log('📝 Story data:', { title, textLength: text.length, category, isAnonymous });
 
             if (!title || title.length < 3) {
                 if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
@@ -982,11 +939,11 @@
 
             const gender = currentUserData ? currentUserData.gender : null;
             if (category === 'men' && gender !== '🧔 Man') {
-                if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only. Please select a different category.';
+                if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.';
                 return;
             }
             if (category === 'women' && gender !== '👩 Woman') {
-                if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only. Please select a different category.';
+                if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only.';
                 return;
             }
 
@@ -995,7 +952,11 @@
                 submitBtn.textContent = '⏳ Posting...';
             }
 
-            console.log('📤 Saving story to Firestore...');
+            // Auto-moderation: Check for inappropriate content
+            const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
+            const containsInappropriate = inappropriateWords.some(word =>
+                text.toLowerCase().includes(word) || title.toLowerCase().includes(word)
+            );
 
             db.collection('stories').add({
                 title: title,
@@ -1006,12 +967,22 @@
                 isAnonymous: isAnonymous,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 reactions: {},
-                commentCount: 0
+                commentCount: 0,
+                approved: !containsInappropriate,
+                flagged: containsInappropriate,
+                flagReason: containsInappropriate ? 'Inappropriate content detected' : ''
             })
             .then((docRef) => {
                 console.log('✅ Story saved! ID:', docRef.id);
-                if (successDiv) {
-                    successDiv.textContent = '✅ Your story has been shared with the community!';
+                if (containsInappropriate) {
+                    if (successDiv) {
+                        successDiv.textContent = '⚠️ Your story has been sent for review. It will be published after moderation.';
+                        successDiv.style.color = '#f39c12';
+                    }
+                } else {
+                    if (successDiv) {
+                        successDiv.textContent = '✅ Your story has been shared with the community!';
+                    }
                 }
                 if (submitBtn) {
                     submitBtn.disabled = false;
@@ -1040,13 +1011,7 @@
             });
         }
 
-        // ============================================
-        // INIT
-        // ============================================
-
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 DOM Ready - Submit page');
-
             const titleInput = document.getElementById('storyTitle');
             const textInput = document.getElementById('storyText');
             const titleCount = document.getElementById('titleCount');
@@ -1057,7 +1022,6 @@
                 titleInput.addEventListener('input', function() {
                     titleCount.textContent = this.value.length;
                 });
-                // Force clear any autofill on focus
                 titleInput.addEventListener('focus', function() {
                     if (this.value.includes('@')) {
                         this.value = '';
@@ -1065,58 +1029,42 @@
                     }
                 });
             }
-
             if (textInput && textCount) {
                 textInput.addEventListener('input', function() {
                     textCount.textContent = this.value.length;
                 });
             }
-
             if (categorySelect) {
                 categorySelect.addEventListener('change', checkCategoryRestriction);
             }
 
-            const modal = document.getElementById('authModal');
-            if (modal) {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) closeModal();
-                });
-            }
+            document.getElementById('authModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
 
-            const passwordInput = document.getElementById('authPassword');
-            if (passwordInput) {
-                passwordInput.addEventListener('input', function() {
-                    const pwd = this.value;
-                    const strengthDiv = document.getElementById('passwordStrength');
-                    if (!strengthDiv) return;
-                    if (pwd.length === 0) {
-                        strengthDiv.innerHTML = '';
-                        return;
-                    }
-                    let strength = 'Weak',
-                        color = '#c0392b';
-                    if (pwd.length >= 12) { strength = 'Strong';
-                        color = '#27ae60'; } else if (pwd.length >= 8) { strength = 'Medium';
-                        color = '#f39c12'; }
-                    strengthDiv.innerHTML = `
-                        <div style="margin-top:6px;font-size:0.85rem;">
-                            Strength: <span style="color:${color};font-weight:700;">${strength}</span>
-                        </div>
-                    `;
-                });
-            }
+            document.getElementById('authPassword').addEventListener('input', function() {
+                const pwd = this.value;
+                const strengthDiv = document.getElementById('passwordStrength');
+                if (!strengthDiv) return;
+                if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+                const result = checkPasswordStrength(pwd);
+                strengthDiv.innerHTML = `
+                    <div style="margin-top:6px;font-size:0.85rem;">
+                        Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('authName').addEventListener('input', checkUsernameOnType);
 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const modal = document.getElementById('authModal');
-                    if (modal && modal.style.display === 'flex') {
-                        handleAuth();
-                    }
+                    if (modal && modal.style.display === 'flex') handleAuth();
                 }
             });
 
             window.submitStory = submitStory;
-
             console.log('✅ Submit page ready');
         });
 
@@ -1124,4 +1072,3 @@
     </script>
 </body>
 </html>
-</body>
