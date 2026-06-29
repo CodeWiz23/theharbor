@@ -8,14 +8,9 @@
     <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
         style-src 'self' 'unsafe-inline';
-        img-src 'self' data: https:;
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
-        frame-src 'self';
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
     ">
 
     <!-- Firebase SDKs -->
@@ -30,7 +25,73 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* Additional homepage-specific styles */
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        .crisis-banner {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 24px;
+            border-left: 5px solid #c47a5a;
+        }
+        .crisis-banner a { color: #e8ddd0; font-weight: bold; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 16px 0;
+            border-bottom: 2px solid #c47a5a;
+            margin-bottom: 24px;
+        }
+        .logo-icon { font-size: 2.2rem; }
+        .logo-text { font-size: 1.8rem; font-weight: 300; color: #1a4a4a; }
+        .logo-text span { font-weight: 700; color: #c47a5a; }
+        .logo-sub { font-size: 0.75rem; color: #7a9e7e; font-style: italic; display: block; margin-top: -4px; }
+        .auth-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-login {
+            padding: 8px 24px;
+            border: 2px solid #1a4a4a;
+            border-radius: 30px;
+            background: #e8ddd0;
+            color: #1a4a4a;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-login:hover { background: #1a4a4a; color: #f5f0eb; }
+        .btn-signup {
+            padding: 8px 24px;
+            border: none;
+            border-radius: 30px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-signup:hover { background: #c47a5a; }
+        .btn-logout {
+            padding: 6px 18px;
+            border: none;
+            border-radius: 30px;
+            background: #c47a5a;
+            color: #f5f0eb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .user-info {
+            background: #f5f0eb;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #d4c8b8;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .user-name { font-weight: 700; color: #1a4a4a; }
         .hero {
             text-align: center;
             padding: 40px 20px;
@@ -39,44 +100,143 @@
             color: #f5f0eb;
             margin-bottom: 30px;
         }
-        .hero h1 {
-            font-size: 2.8rem;
-            font-weight: 300;
-        }
-        .hero h1 span {
-            color: #e8ddd0;
+        .hero h1 { font-size: 2.8rem; font-weight: 300; }
+        .hero h1 span { color: #e8ddd0; font-weight: 700; }
+        .hero .emoji-big { font-size: 3.5rem; display: block; margin-bottom: 10px; }
+        .btn-primary {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
             font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
-        .hero p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-top: 8px;
+        .btn-primary:hover { background: #c47a5a; }
+        .btn-secondary {
+            background: #e8ddd0;
+            color: #1a4a4a;
+            padding: 10px 28px;
+            border: 2px solid #1a4a4a;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
-        .hero .emoji-big {
-            font-size: 3.5rem;
-            display: block;
-            margin-bottom: 10px;
+        .search-container input {
+            width: 100%;
+            padding: 14px 24px;
+            border: 2px solid #d4c8b8;
+            border-radius: 30px;
+            font-size: 1rem;
+            background: #f5f0eb;
         }
-        .loading {
-            text-align: center;
-            color: #7a9e7e;
-            padding: 40px 0;
-            font-size: 1.1rem;
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #d4c8b8;
+            padding-bottom: 12px;
         }
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #7a9e7e;
+        .tab {
+            background: #f5f0eb;
+            padding: 8px 22px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #2d3a3a;
         }
-        .empty-state .big-emoji {
-            font-size: 3rem;
-            display: block;
+        .tab:hover { background: #d4c8b8; }
+        .tab.active { background: #1a4a4a; color: #f5f0eb; }
+        .story-card {
+            background: #f5f0eb;
+            padding: 20px 24px;
+            border-radius: 16px;
+            border: 1px solid #d4c8b8;
             margin-bottom: 16px;
         }
-        .empty-state h3 {
-            color: #1a4a4a;
-            margin-bottom: 8px;
+        .story-title { font-size: 1.2rem; font-weight: 700; color: #1a4a4a; }
+        .story-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.8rem; color: #7a9e7e; }
+        .category-badge { background: #e8ddd0; padding: 2px 14px; border-radius: 20px; color: #1a4a4a; font-weight: 600; font-size: 0.75rem; }
+        .story-text { font-size: 1rem; color: #2d3a3a; line-height: 1.7; }
+        .story-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid #d4c8b8; }
+        .emoji-btn {
+            background: #e8ddd0;
+            border: 1px solid #d4c8b8;
+            border-radius: 30px;
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 1rem;
         }
+        .emoji-btn:hover { background: #d4c8b8; }
+        .emoji-btn .count { font-size: 0.75rem; font-weight: 600; color: #7a9e7e; margin-left: 4px; }
+        .comment-link { color: #7a9e7e; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .comment-link:hover { color: #1a4a4a; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-content {
+            background: #f5f0eb;
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 440px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #d4c8b8;
+        }
+        .modal-close { float: right; font-size: 1.8rem; cursor: pointer; color: #a8a09a; }
+        .modal-close:hover { color: #1a4a4a; }
+        .modal-content h2 { font-weight: 300; color: #1a4a4a; margin-bottom: 20px; }
+        .modal-content label { display: block; font-weight: 600; color: #2d3a3a; margin-top: 14px; font-size: 0.9rem; }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4c8b8;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-top: 4px;
+            background: #ffffff;
+            font-family: inherit;
+        }
+        .modal-content .btn-modal {
+            width: 100%;
+            padding: 14px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 18px;
+        }
+        .modal-content .btn-modal:hover { background: #c47a5a; }
+        .switch-link { text-align: center; margin-top: 16px; color: #7a9e7e; cursor: pointer; }
+        .switch-link:hover { color: #1a4a4a; text-decoration: underline; }
+        .error-msg { color: #c0392b; font-size: 0.85rem; margin-top: 10px; text-align: center; }
+        .footer { text-align: center; color: #a8a09a; font-size: 0.8rem; margin-top: 40px; padding-top: 20px; border-top: 1px solid #d4c8b8; }
+        .loading { text-align: center; color: #7a9e7e; padding: 40px 0; }
+        .empty-state { text-align: center; padding: 50px 20px; color: #7a9e7e; }
+        .empty-state .big-emoji { font-size: 3rem; display: block; margin-bottom: 16px; }
+        .empty-state h3 { color: #1a4a4a; }
     </style>
 </head>
 
@@ -86,20 +246,15 @@
         <div class="crisis-banner">
             ⚠️ <strong>Peer support only.</strong> Not a crisis line.
             If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
-            or your local emergency number.
         </div>
 
         <!-- Header -->
         <header class="header">
-            <a href="index.html" class="logo" style="text-decoration:none;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span class="logo-icon">⚓</span>
-                    <div>
-                        <span class="logo-text">The <span>Harbor</span></span>
-                        <span class="logo-sub">A safe place to share, heal, and grow</span>
-                    </div>
-                </div>
-            </a>
+            <div class="logo">
+                <span class="logo-icon">⚓</span>
+                <span class="logo-text">The <span>Harbor</span></span>
+                <span class="logo-sub">A safe place to share, heal, and grow</span>
+            </div>
             <div class="auth-buttons" id="authButtons">
                 <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -119,14 +274,14 @@
             <h1>Welcome to The <span>Harbor</span></h1>
             <p>A safe space to share your story, find support, and discover hope.</p>
             <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                <a href="submit.html" class="btn-primary" style="text-decoration:none;display:inline-block;">📝 Share Your Story</a>
-                <a href="about.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">🌿 About Us</a>
+                <a href="submit.html" class="btn-primary">📝 Share Your Story</a>
+                <a href="about.html" class="btn-secondary">🌿 About Us</a>
             </div>
         </div>
 
         <!-- Search -->
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="🔍 Search stories... (e.g., anxiety, grief, hope)" onkeyup="searchStories()" />
+            <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeyup="searchStories()" />
         </div>
 
         <!-- Category Tabs -->
@@ -146,7 +301,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            ⚓ The Harbor &mdash; built with 💚 for the community &bull; No ads &bull; No tracking &bull; 🔒 Secure
+            ⚓ The Harbor &mdash; built with 💚 for the community
         </footer>
     </div>
 
@@ -177,7 +332,7 @@
                 </select>
 
                 <label for="authFavorites">What are your favorite things?</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
             </div>
 
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
@@ -190,7 +345,548 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="js/app.js"></script>
+    <!-- ============================================
+    JAVASCRIPT — Everything in one file for testing
+    ============================================ -->
+    <script>
+        console.log('🚀 Script started...');
+
+        // ============================================
+        // 🔥 FIREBASE CONFIG
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+            authDomain: "the-harbor-community.firebaseapp.com",
+            projectId: "the-harbor-community",
+            storageBucket: "the-harbor-community.firebasestorage.app",
+            messagingSenderId: "634248505303",
+            appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+        };
+
+        console.log('📦 Firebase config loaded');
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        console.log('✅ Firebase initialized');
+
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        let currentUser = null;
+        let currentUserData = null;
+        let currentCategory = 'all';
+
+        // ============================================
+        // TEST: Check if functions are working
+        // ============================================
+        console.log('📝 Testing functions...');
+
+        // ============================================
+        // AUTH FUNCTIONS
+        // ============================================
+
+        function openModal(mode) {
+            console.log('🔓 openModal called with mode:', mode);
+            const modal = document.getElementById('authModal');
+            if (!modal) {
+                console.error('❌ Modal not found!');
+                return;
+            }
+
+            const title = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const signupFields = document.getElementById('signupFields');
+            const switchLink = document.getElementById('authSwitch');
+            const error = document.getElementById('authError');
+
+            if (error) error.textContent = '';
+
+            // Clear fields
+            const emailInput = document.getElementById('authEmail');
+            const passwordInput = document.getElementById('authPassword');
+            const nameInput = document.getElementById('authName');
+            const favoritesInput = document.getElementById('authFavorites');
+
+            if (emailInput) emailInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            if (nameInput) nameInput.value = '';
+            if (favoritesInput) favoritesInput.value = '';
+
+            // Clear password strength
+            const strengthDiv = document.getElementById('passwordStrength');
+            const checksDiv = document.getElementById('passwordChecks');
+            if (strengthDiv) strengthDiv.innerHTML = '';
+            if (checksDiv) checksDiv.innerHTML = '';
+
+            if (mode === 'login') {
+                if (title) title.textContent = '🔐 Welcome Back';
+                if (submitBtn) submitBtn.textContent = '🚀 Log In';
+                if (signupFields) signupFields.style.display = 'none';
+                if (switchLink) {
+                    switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+                    switchLink.dataset.mode = 'signup';
+                }
+            } else {
+                if (title) title.textContent = '📝 Join The Harbor';
+                if (submitBtn) submitBtn.textContent = '🚀 Create Account';
+                if (signupFields) signupFields.style.display = 'block';
+                if (switchLink) {
+                    switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+                    switchLink.dataset.mode = 'login';
+                }
+            }
+
+            modal.style.display = 'flex';
+            console.log('✅ Modal opened');
+        }
+
+        function closeModal() {
+            console.log('🔒 closeModal called');
+            const modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function toggleAuthMode() {
+            console.log('🔄 toggleAuthMode called');
+            const switchLink = document.getElementById('authSwitch');
+            if (!switchLink) return;
+            const mode = switchLink.dataset.mode;
+            closeModal();
+            setTimeout(() => openModal(mode), 200);
+        }
+
+        function handleAuth() {
+            console.log('🔐 handleAuth called');
+            const emailInput = document.getElementById('authEmail');
+            const passwordInput = document.getElementById('authPassword');
+            const error = document.getElementById('authError');
+            const submitBtn = document.getElementById('authSubmitBtn');
+
+            if (!emailInput || !passwordInput || !error || !submitBtn) {
+                console.error('❌ Auth elements not found!');
+                return;
+            }
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            error.textContent = '';
+
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                error.textContent = 'Please enter a valid email address.';
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                error.textContent = 'Password must be at least 6 characters.';
+                return;
+            }
+
+            const isLogin = submitBtn.textContent.includes('Log In');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Please wait...';
+
+            if (isLogin) {
+                console.log('🔐 Attempting login for:', email);
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        console.log('✅ Login successful:', userCredential.user.email);
+                        closeModal();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                    })
+                    .catch((err) => {
+                        console.error('❌ Login error:', err.message);
+                        error.textContent = err.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                    });
+            } else {
+                console.log('📝 Attempting signup for:', email);
+                const nameInput = document.getElementById('authName');
+                const genderSelect = document.getElementById('authGender');
+                const favoritesInput = document.getElementById('authFavorites');
+
+                const name = nameInput ? nameInput.value.trim() : '';
+                const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+                const favorites = favoritesInput ? favoritesInput.value.trim() : '';
+
+                if (!name || name.length < 2) {
+                    error.textContent = 'Please enter your name (minimum 2 characters).';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        console.log('✅ Signup successful:', user.email);
+                        return db.collection('users').doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            gender: gender,
+                            favorites: favorites || 'Not specified',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    })
+                    .then(() => {
+                        closeModal();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                        alert('✅ Welcome to The Harbor! Your account has been created.');
+                    })
+                    .catch((err) => {
+                        console.error('❌ Signup error:', err.message);
+                        error.textContent = err.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                    });
+            }
+        }
+
+        function logout() {
+            console.log('🚪 Logout called');
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut();
+            }
+        }
+
+        // ============================================
+        // AUTH STATE LISTENER
+        // ============================================
+
+        auth.onAuthStateChanged((user) => {
+            console.log('👤 Auth state changed:', user ? 'Logged in' : 'Logged out');
+
+            const authButtons = document.getElementById('authButtons');
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userGenderDisplay = document.getElementById('userGenderDisplay');
+
+            if (user) {
+                currentUser = user;
+                if (authButtons) authButtons.style.display = 'none';
+                if (userInfo) userInfo.style.display = 'flex';
+
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            currentUserData = doc.data();
+                            if (userName) userName.textContent = currentUserData.name || 'Friend';
+                            if (userGenderDisplay) userGenderDisplay.textContent = currentUserData.gender || '';
+                            console.log('👤 User data loaded:', currentUserData.name);
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('❌ Error fetching user data:', err);
+                    });
+
+                loadStories();
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                if (authButtons) authButtons.style.display = 'flex';
+                if (userInfo) userInfo.style.display = 'none';
+
+                const container = document.getElementById('storiesContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="big-emoji">⚓</div>
+                            <h3>Welcome to The Harbor</h3>
+                            <p>Log in or join to read and share stories.</p>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        // ============================================
+        // LOAD STORIES
+        // ============================================
+
+        function loadStories() {
+            console.log('📖 Loading stories...');
+            const container = document.getElementById('storiesContainer');
+            if (!container) return;
+
+            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
+
+            let query = db.collection('stories')
+                .orderBy('createdAt', 'desc')
+                .limit(50);
+
+            if (currentCategory && currentCategory !== 'all') {
+                query = query.where('category', '==', currentCategory);
+            }
+
+            query.get()
+                .then((snapshot) => {
+                    console.log('📖 Stories loaded:', snapshot.size);
+                    if (snapshot.empty) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="big-emoji">🌊</div>
+                                <h3>No stories yet</h3>
+                                <p>Be the first to share your story!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '';
+                    snapshot.forEach((doc) => {
+                        const story = doc.data();
+                        story.id = doc.id;
+                        html += renderStoryCard(story);
+                    });
+
+                    container.innerHTML = html;
+                })
+                .catch((err) => {
+                    console.error('❌ Error loading stories:', err);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="big-emoji">⚠️</div>
+                            <h3>Oops!</h3>
+                            <p>Could not load stories. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function renderStoryCard(story) {
+            const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+            const categoryNames = {
+                'men': '🧔 Men\'s Harbor',
+                'women': '👩 Women\'s Harbor',
+                'struggles': '🌊 The Storm',
+                'fun': '☀️ Sunny Skies',
+                'learning': '🧭 The Compass'
+            };
+            const categoryDisplay = categoryNames[story.category] || story.category;
+
+            const reactions = story.reactions || {};
+            const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+
+            let reactionButtons = '';
+            emojis.forEach((emoji) => {
+                const count = reactions[emoji] || 0;
+                reactionButtons += `
+                    <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
+                        ${emoji} <span class="count">${count}</span>
+                    </button>
+                `;
+            });
+
+            const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+            const excerpt = story.text.length > 200 ? escapeHTML(story.text.substring(0, 200)) + '...' : escapeHTML(story.text);
+
+            return `
+                <div class="story-card" data-story-id="${story.id}">
+                    <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
+                    <div class="story-meta">
+                        <span>✍️ ${author}</span>
+                        <span class="category-badge">${categoryDisplay}</span>
+                        <span>📅 ${time}</span>
+                    </div>
+                    <div class="story-text">${excerpt}</div>
+                    <div class="story-actions">
+                        ${reactionButtons}
+                        <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addReaction(storyId, emoji) {
+            if (!currentUser) {
+                alert('Please log in to react.');
+                return;
+            }
+
+            const storyRef = db.collection('stories').doc(storyId);
+
+            db.runTransaction((transaction) => {
+                return transaction.get(storyRef).then((doc) => {
+                    if (!doc.exists) return;
+                    const data = doc.data();
+                    const reactions = data.reactions || {};
+                    reactions[emoji] = (reactions[emoji] || 0) + 1;
+                    transaction.update(storyRef, { reactions: reactions });
+                });
+            })
+            .then(() => {
+                loadStories();
+            })
+            .catch((err) => {
+                console.error('Error adding reaction:', err);
+                alert('Could not add reaction. Please try again.');
+            });
+        }
+
+        function switchCategory(category) {
+            console.log('🔄 Switching category to:', category);
+            currentCategory = category;
+            document.querySelectorAll('.tab').forEach((tab) => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            loadStories();
+        }
+
+        function searchStories() {
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) return;
+
+            const query = searchInput.value.toLowerCase().trim();
+            if (!query) {
+                loadStories();
+                return;
+            }
+
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = '<div class="loading">⏳ Searching...</div>';
+
+            db.collection('stories')
+                .orderBy('createdAt', 'desc')
+                .limit(100)
+                .get()
+                .then((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="big-emoji">🔍</div>
+                                <h3>No stories found</h3>
+                                <p>Try different keywords.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let matched = [];
+                    snapshot.forEach((doc) => {
+                        const story = doc.data();
+                        story.id = doc.id;
+                        const searchText = (story.title + ' ' + story.text + ' ' + story.authorName).toLowerCase();
+                        if (searchText.includes(query)) {
+                            matched.push(story);
+                        }
+                    });
+
+                    if (matched.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="big-emoji">🔍</div>
+                                <h3>No stories match "${escapeHTML(query)}"</h3>
+                                <p>Try different keywords.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '';
+                    matched.forEach((story) => {
+                        html += renderStoryCard(story);
+                    });
+                    container.innerHTML = html;
+                })
+                .catch((err) => {
+                    console.error('Search error:', err);
+                    loadStories();
+                });
+        }
+
+        function escapeHTML(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+        }
+
+        // ============================================
+        // PASSWORD STRENGTH (Simple version)
+        // ============================================
+
+        function checkPasswordOnType() {
+            const password = document.getElementById('authPassword');
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (!password || !strengthDiv) return;
+
+            const pwd = password.value;
+            if (pwd.length === 0) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+
+            let strength = 'Weak';
+            let color = '#c0392b';
+            if (pwd.length >= 12) { strength = 'Strong'; color = '#27ae60'; }
+            else if (pwd.length >= 8) { strength = 'Medium'; color = '#f39c12'; }
+
+            strengthDiv.innerHTML = `
+                <div style="margin-top:8px;font-size:0.85rem;">
+                    Strength: <span style="color:${color};font-weight:700;">${strength}</span>
+                    <div style="width:100%;height:4px;background:#e8ddd0;border-radius:4px;margin-top:4px;">
+                        <div style="width:${pwd.length > 12 ? 100 : (pwd.length / 12 * 100)}%;height:100%;background:${color};border-radius:4px;"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // INIT - DOM READY
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM Ready — The Harbor');
+
+            // Modal close on outside click
+            const modal = document.getElementById('authModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // Password strength checker
+            const passwordInput = document.getElementById('authPassword');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', checkPasswordOnType);
+            }
+
+            // Enter key to submit auth
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const modal = document.getElementById('authModal');
+                    if (modal && modal.style.display === 'flex') {
+                        handleAuth();
+                    }
+                }
+            });
+
+            console.log('✅ All event listeners attached');
+            console.log('✅ App ready!');
+        });
+
+        console.log('⚓ The Harbor app loaded successfully!');
+        console.log('📚 Firebase connected:', firebase.app().name);
+        console.log('👤 Auth state:', currentUser ? 'Logged in' : 'Not logged in');
+    </script>
 </body>
 </html>
