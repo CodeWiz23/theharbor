@@ -12,6 +12,9 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
+    <!-- Disable browser autofill -->
+    <meta name="autofill" content="off" />
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -233,6 +236,7 @@
             border-color: #1a4a4a;
             box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
         }
+        /* Fix autofill - prevent browser from filling these */
         .submit-form input[type="text"],
         .submit-form select {
             width: 100%;
@@ -243,6 +247,14 @@
             background: #f5f0eb;
             font-family: inherit;
             transition: 0.3s;
+            autocomplete: "off";
+        }
+        /* Override autofill background */
+        .submit-form input[type="text"]:-webkit-autofill,
+        .submit-form input[type="text"]:-webkit-autofill:hover,
+        .submit-form input[type="text"]:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #f5f0eb inset !important;
+            -webkit-text-fill-color: #2d3a3a !important;
         }
         .submit-form input[type="text"]:focus,
         .submit-form select:focus {
@@ -392,6 +404,98 @@
         .empty-state h3 {
             color: #1a4a4a;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-content {
+            background: #f5f0eb;
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 440px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #d4c8b8;
+        }
+        .modal-close {
+            float: right;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #a8a09a;
+            transition: 0.3s;
+        }
+        .modal-close:hover {
+            color: #1a4a4a;
+        }
+        .modal-content h2 {
+            font-weight: 300;
+            color: #1a4a4a;
+            margin-bottom: 20px;
+        }
+        .modal-content label {
+            display: block;
+            font-weight: 600;
+            color: #2d3a3a;
+            margin-top: 14px;
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4c8b8;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-top: 4px;
+            background: #ffffff;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            outline: none;
+            border-color: #1a4a4a;
+        }
+        .modal-content .btn-modal {
+            width: 100%;
+            padding: 14px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: 0.3s;
+        }
+        .modal-content .btn-modal:hover {
+            background: #c47a5a;
+        }
+        .modal-content .btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .switch-link {
+            text-align: center;
+            margin-top: 16px;
+            color: #7a9e7e;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .switch-link:hover {
+            color: #1a4a4a;
+            text-decoration: underline;
+        }
         @media (max-width: 600px) {
             .header {
                 flex-direction: column;
@@ -459,11 +563,12 @@
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
 
-                <!-- Title -->
+                <!-- Title - NO AUTOFILL -->
                 <label class="form-label" for="storyTitle">
                     📌 Title <span class="required-star">*</span>
                 </label>
-                <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100" />
+                <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100" 
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
                 <div class="char-count"><span id="titleCount">0</span>/100 characters</div>
 
                 <!-- Category -->
@@ -472,11 +577,11 @@
                 </label>
                 <select id="storyCategory">
                     <option value="">Select a category...</option>
-                    <option value="men">🧔 Men's Harbor <span class="restricted-badge">Men Only</span></option>
-                    <option value="women">👩 Women's Harbor <span class="restricted-badge">Women Only</span></option>
-                    <option value="struggles">🌊 The Storm <span class="public-badge">Open to All</span></option>
-                    <option value="fun">☀️ Sunny Skies <span class="public-badge">Open to All</span></option>
-                    <option value="learning">🧭 The Compass <span class="public-badge">Open to All</span></option>
+                    <option value="men">🧔 Men's Harbor</option>
+                    <option value="women">👩 Women's Harbor</option>
+                    <option value="struggles">🌊 The Storm</option>
+                    <option value="fun">☀️ Sunny Skies</option>
+                    <option value="learning">🧭 The Compass</option>
                 </select>
                 <div class="form-hint">
                     📌 <strong>Men's Harbor</strong> — Men only &bull; 
@@ -767,8 +872,6 @@
                             currentUserData = doc.data();
                             userName.textContent = currentUserData.name || 'Friend';
                             userGenderBadge.textContent = currentUserData.gender || '';
-                            
-                            // Check if user can post
                             checkCategoryRestriction();
                         }
                     })
@@ -780,8 +883,7 @@
                 currentUserData = null;
                 authButtons.style.display = 'flex';
                 userInfo.style.display = 'none';
-                
-                // Show login prompt
+
                 const notice = document.getElementById('genderRestrictionNotice');
                 const message = document.getElementById('restrictionMessage');
                 if (notice && message) {
@@ -826,7 +928,6 @@
 
             const gender = currentUserData.gender;
 
-            // Public categories
             if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
                 notice.style.display = 'block';
                 message.innerHTML = '✅ This category is <strong>open to everyone</strong>. You can post here!';
@@ -834,7 +935,6 @@
                 return;
             }
 
-            // Men's Harbor
             if (cat === 'men') {
                 if (gender === '🧔 Man') {
                     notice.style.display = 'block';
@@ -844,17 +944,13 @@
                     notice.style.display = 'block';
                     message.innerHTML = `
                         ⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>
-                        📌 You can post in:
-                        <br>🌊 <strong>The Storm</strong>
-                        <br>☀️ <strong>Sunny Skies</strong>
-                        <br>🧭 <strong>The Compass</strong>
+                        📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass
                     `;
                     notice.className = 'gender-restriction-notice warning';
                 }
                 return;
             }
 
-            // Women's Harbor
             if (cat === 'women') {
                 if (gender === '👩 Woman') {
                     notice.style.display = 'block';
@@ -864,10 +960,7 @@
                     notice.style.display = 'block';
                     message.innerHTML = `
                         ⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>
-                        📌 You can post in:
-                        <br>🌊 <strong>The Storm</strong>
-                        <br>☀️ <strong>Sunny Skies</strong>
-                        <br>🧭 <strong>The Compass</strong>
+                        📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass
                     `;
                     notice.className = 'gender-restriction-notice warning';
                 }
@@ -980,7 +1073,7 @@
                     submitBtn.disabled = false;
                     submitBtn.textContent = '✅ Posted!';
                 }
-                
+
                 // Clear form
                 if (titleInput) titleInput.value = '';
                 if (textInput) textInput.value = '';
@@ -1011,6 +1104,8 @@
         // ============================================
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM Ready - Submit page');
+
             const titleInput = document.getElementById('storyTitle');
             const textInput = document.getElementById('storyText');
             const titleCount = document.getElementById('titleCount');
@@ -1034,27 +1129,36 @@
             }
 
             // Modal close on outside click
-            document.getElementById('authModal').addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
+            const modal = document.getElementById('authModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal();
+                });
+            }
 
             // Password strength
-            document.getElementById('authPassword').addEventListener('input', function() {
-                const pwd = this.value;
-                const strengthDiv = document.getElementById('passwordStrength');
-                if (pwd.length === 0) {
-                    strengthDiv.innerHTML = '';
-                    return;
-                }
-                let strength = 'Weak', color = '#c0392b';
-                if (pwd.length >= 12) { strength = 'Strong'; color = '#27ae60'; }
-                else if (pwd.length >= 8) { strength = 'Medium'; color = '#f39c12'; }
-                strengthDiv.innerHTML = `
-                    <div style="margin-top:6px;font-size:0.85rem;">
-                        Strength: <span style="color:${color};font-weight:700;">${strength}</span>
-                    </div>
-                `;
-            });
+            const passwordInput = document.getElementById('authPassword');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const pwd = this.value;
+                    const strengthDiv = document.getElementById('passwordStrength');
+                    if (!strengthDiv) return;
+                    if (pwd.length === 0) {
+                        strengthDiv.innerHTML = '';
+                        return;
+                    }
+                    let strength = 'Weak',
+                        color = '#c0392b';
+                    if (pwd.length >= 12) { strength = 'Strong';
+                        color = '#27ae60'; } else if (pwd.length >= 8) { strength = 'Medium';
+                        color = '#f39c12'; }
+                    strengthDiv.innerHTML = `
+                        <div style="margin-top:6px;font-size:0.85rem;">
+                            Strength: <span style="color:${color};font-weight:700;">${strength}</span>
+                        </div>
+                    `;
+                });
+            }
 
             // Enter key
             document.addEventListener('keydown', function(e) {
@@ -1065,6 +1169,9 @@
                     }
                 }
             });
+
+            // Make submitStory globally accessible
+            window.submitStory = submitStory;
 
             console.log('✅ Submit page ready');
         });
