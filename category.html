@@ -8,7 +8,7 @@
     <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
         style-src 'self' 'unsafe-inline';
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
@@ -21,10 +21,181 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css" />
-
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5efe6;
+            color: #2d3a3a;
+            padding: 20px;
+            max-width: 960px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .crisis-banner {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 24px;
+            border-left: 5px solid #c47a5a;
+        }
+        .crisis-banner a {
+            color: #e8ddd0;
+            font-weight: bold;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 16px 0;
+            border-bottom: 2px solid #c47a5a;
+            margin-bottom: 24px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2.2rem;
+        }
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: #1a4a4a;
+        }
+        .logo-text span {
+            font-weight: 700;
+            color: #c47a5a;
+        }
+        .logo-sub {
+            font-size: 0.75rem;
+            color: #7a9e7e;
+            font-style: italic;
+            display: block;
+            margin-top: -4px;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-login {
+            padding: 8px 24px;
+            border: 2px solid #1a4a4a;
+            border-radius: 30px;
+            background: #e8ddd0;
+            color: #1a4a4a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-login:hover {
+            background: #1a4a4a;
+            color: #f5f0eb;
+        }
+        .btn-signup {
+            padding: 8px 24px;
+            border: none;
+            border-radius: 30px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-signup:hover {
+            background: #c47a5a;
+        }
+        .btn-logout {
+            padding: 6px 18px;
+            border: none;
+            border-radius: 30px;
+            background: #c47a5a;
+            color: #f5f0eb;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-logout:hover {
+            background: #a85a3a;
+        }
+        .user-info {
+            background: #f5f0eb;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #d4c8b8;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .user-name {
+            font-weight: 700;
+            color: #1a4a4a;
+        }
+        .user-gender-badge {
+            background: #e8ddd0;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .btn-primary {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .btn-primary:hover {
+            background: #c47a5a;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e8ddd0;
+            color: #1a4a4a;
+            padding: 10px 28px;
+            border: 2px solid #1a4a4a;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #1a4a4a;
+            color: #f5f0eb;
+        }
+        .footer {
+            text-align: center;
+            color: #a8a09a;
+            font-size: 0.8rem;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c8b8;
+        }
         .category-header {
             text-align: center;
             padding: 30px 20px;
@@ -136,28 +307,11 @@
             border-left: 4px solid #c47a5a;
             color: #2d3a3a;
             display: none;
+            line-height: 1.7;
         }
         .restriction-note.show {
             display: block;
         }
-        .restriction-note .icon {
-            font-size: 1.2rem;
-        }
-        .no-stories-msg {
-            text-align: center;
-            padding: 60px 20px;
-            color: #7a9e7e;
-        }
-        .no-stories-msg .big-emoji {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 12px;
-        }
-        .no-stories-msg h3 {
-            color: #1a4a4a;
-            margin-bottom: 6px;
-        }
-
         /* Story Cards */
         #storiesContainer {
             display: flex;
@@ -217,15 +371,12 @@
             border-radius: 30px;
             padding: 4px 14px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.2s ease;
         }
         .emoji-btn:hover {
             background: #d4c8b8;
             transform: scale(1.05);
-        }
-        .emoji-btn:active {
-            transform: scale(0.93);
         }
         .emoji-btn .count {
             font-size: 0.75rem;
@@ -248,7 +399,6 @@
             text-align: center;
             color: #7a9e7e;
             padding: 40px 0;
-            font-size: 1.1rem;
         }
         .empty-state {
             text-align: center;
@@ -264,8 +414,113 @@
             color: #1a4a4a;
             margin-bottom: 6px;
         }
-
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-content {
+            background: #f5f0eb;
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 440px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #d4c8b8;
+        }
+        .modal-close {
+            float: right;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #a8a09a;
+            transition: 0.3s;
+        }
+        .modal-close:hover {
+            color: #1a4a4a;
+        }
+        .modal-content h2 {
+            font-weight: 300;
+            color: #1a4a4a;
+            margin-bottom: 20px;
+        }
+        .modal-content label {
+            display: block;
+            font-weight: 600;
+            color: #2d3a3a;
+            margin-top: 14px;
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4c8b8;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-top: 4px;
+            background: #ffffff;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            outline: none;
+            border-color: #1a4a4a;
+        }
+        .modal-content .btn-modal {
+            width: 100%;
+            padding: 14px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: 0.3s;
+        }
+        .modal-content .btn-modal:hover {
+            background: #c47a5a;
+        }
+        .modal-content .btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .switch-link {
+            text-align: center;
+            margin-top: 16px;
+            color: #7a9e7e;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .switch-link:hover {
+            color: #1a4a4a;
+            text-decoration: underline;
+        }
         @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .auth-buttons {
+                justify-content: center;
+            }
+            .logo-text {
+                font-size: 1.4rem;
+            }
+            .category-header h1 {
+                font-size: 1.6rem;
+            }
             .filter-bar {
                 flex-direction: column;
                 align-items: stretch;
@@ -273,9 +528,6 @@
             .sort-options {
                 margin-left: 0;
                 justify-content: center;
-            }
-            .category-header h1 {
-                font-size: 1.6rem;
             }
         }
     </style>
@@ -292,13 +544,11 @@
 
         <!-- Header -->
         <header class="header">
-            <a href="index.html" class="logo" style="text-decoration:none;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span class="logo-icon">⚓</span>
-                    <div>
-                        <span class="logo-text">The <span>Harbor</span></span>
-                        <span class="logo-sub">Explore stories</span>
-                    </div>
+            <a href="index.html" class="logo">
+                <span class="logo-icon">⚓</span>
+                <div>
+                    <span class="logo-text">The <span>Harbor</span></span>
+                    <span class="logo-sub">Explore stories</span>
                 </div>
             </a>
             <div class="auth-buttons" id="authButtons">
@@ -310,7 +560,7 @@
         <!-- User Info -->
         <div class="user-info" id="userInfo">
             👤 Welcome, <span class="user-name" id="userName">—</span>
-            <span id="userGenderDisplay"></span>
+            <span class="user-gender-badge" id="userGenderBadge"></span>
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
 
@@ -379,13 +629,12 @@
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
             <div id="passwordStrength"></div>
-            <div id="passwordChecks"></div>
 
             <div id="signupFields" style="display:none;">
                 <label for="authName">What should we call you?</label>
                 <input type="text" id="authName" placeholder="Your name or nickname" />
 
-                <label for="authGender">Your Gender</label>
+                <label for="authGender">Your Gender <span style="color:#c0392b;">*</span></label>
                 <select id="authGender">
                     <option value="🧔 Man">🧔 Man</option>
                     <option value="👩 Woman">👩 Woman</option>
@@ -394,7 +643,7 @@
                 </select>
 
                 <label for="authFavorites">What are your favorite things?</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
             </div>
 
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
@@ -407,95 +656,253 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script>
         // ============================================
-        // CATEGORY PAGE JAVASCRIPT
+        // FIREBASE CONFIG
         // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+            authDomain: "the-harbor-community.firebaseapp.com",
+            projectId: "the-harbor-community",
+            storageBucket: "the-harbor-community.firebasestorage.app",
+            messagingSenderId: "634248505303",
+            appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+        };
 
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let currentUserData = null;
         let currentCategory = 'all';
         let currentSort = 'newest';
         let allStories = [];
 
-        // Category metadata
+        // ============================================
+        // CATEGORY METADATA
+        // ============================================
+
         const categoryMeta = {
             'all': {
                 icon: '📖',
                 title: 'All Stories',
                 description: 'Explore all stories shared by the community.',
                 info: 'Browse through all stories shared by our community members. Every story matters.',
-                restriction: null,
-                isPublic: true
+                restriction: null
             },
             'men': {
                 icon: '🧔',
                 title: 'Men\'s Harbor',
                 description: 'A dedicated space for men to share and support each other.',
                 info: 'A safe space for men to share their experiences, challenges, and victories. This section is for men only.',
-                restriction: '🧔 Men only',
-                isPublic: false
+                restriction: '🧔 Men only'
             },
             'women': {
                 icon: '👩',
                 title: 'Women\'s Harbor',
                 description: 'A dedicated space for women to share and support each other.',
                 info: 'A safe space for women to share their experiences, challenges, and victories. This section is for women only.',
-                restriction: '👩 Women only',
-                isPublic: false
+                restriction: '👩 Women only'
             },
             'struggles': {
                 icon: '🌊',
                 title: 'The Storm',
                 description: 'For sharing struggles, depression, and difficult times.',
                 info: 'A compassionate space for sharing difficult experiences. You are not alone in your struggles. Open to everyone.',
-                restriction: null,
-                isPublic: true
+                restriction: null
             },
             'fun': {
                 icon: '☀️',
                 title: 'Sunny Skies',
                 description: 'For sharing joy, fun moments, and positivity.',
                 info: 'A bright space for sharing joy, laughter, and positive moments. Let\'s celebrate life together. Open to everyone.',
-                restriction: null,
-                isPublic: true
+                restriction: null
             },
             'learning': {
                 icon: '🧭',
                 title: 'The Compass',
                 description: 'For learning, growth, and practical advice.',
                 info: 'A space for sharing knowledge, practical advice, and life lessons. Learn and grow with the community. Open to everyone.',
-                restriction: null,
-                isPublic: true
+                restriction: null
             }
         };
 
         // ============================================
-        // GENDER RESTRICTION FUNCTIONS
+        // AUTH FUNCTIONS
+        // ============================================
+
+        function openModal(mode) {
+            const modal = document.getElementById('authModal');
+            if (!modal) return;
+            const title = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const signupFields = document.getElementById('signupFields');
+            const switchLink = document.getElementById('authSwitch');
+            const error = document.getElementById('authError');
+            if (error) error.textContent = '';
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authName').value = '';
+            document.getElementById('authFavorites').value = '';
+            document.getElementById('passwordStrength').innerHTML = '';
+            if (mode === 'login') {
+                title.textContent = '🔐 Welcome Back';
+                submitBtn.textContent = '🚀 Log In';
+                signupFields.style.display = 'none';
+                switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+                switchLink.dataset.mode = 'signup';
+            } else {
+                title.textContent = '📝 Join The Harbor';
+                submitBtn.textContent = '🚀 Create Account';
+                signupFields.style.display = 'block';
+                switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+                switchLink.dataset.mode = 'login';
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function toggleAuthMode() {
+            const switchLink = document.getElementById('authSwitch');
+            if (!switchLink) return;
+            const mode = switchLink.dataset.mode;
+            closeModal();
+            setTimeout(() => openModal(mode), 200);
+        }
+
+        function handleAuth() {
+            const emailInput = document.getElementById('authEmail');
+            const passwordInput = document.getElementById('authPassword');
+            const error = document.getElementById('authError');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            error.textContent = '';
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                error.textContent = 'Please enter a valid email address.';
+                return;
+            }
+            if (!password || password.length < 6) {
+                error.textContent = 'Password must be at least 6 characters.';
+                return;
+            }
+            const isLogin = submitBtn.textContent.includes('Log In');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Please wait...';
+            if (isLogin) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        if (!user.emailVerified) {
+                            error.textContent = '⚠️ Please verify your email first. Check your inbox!';
+                            auth.signOut();
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '🚀 Log In';
+                            return;
+                        }
+                        closeModal();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                    })
+                    .catch((err) => {
+                        error.textContent = err.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                    });
+            } else {
+                const name = document.getElementById('authName').value.trim();
+                const gender = document.getElementById('authGender').value;
+                const favorites = document.getElementById('authFavorites').value.trim();
+                if (!name || name.length < 2) {
+                    error.textContent = 'Please enter your name (minimum 2 characters).';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return user.sendEmailVerification().then(() => user);
+                    })
+                    .then((user) => {
+                        return db.collection('users').doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            gender: gender,
+                            favorites: favorites || 'Not specified',
+                            emailVerified: false,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    })
+                    .then(() => {
+                        closeModal();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                        auth.signOut();
+                        alert('✅ Verification email sent! Please check your inbox.');
+                    })
+                    .catch((err) => {
+                        error.textContent = err.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                    });
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut();
+                window.location.href = 'index.html';
+            }
+        }
+
+        auth.onAuthStateChanged((user) => {
+            const authButtons = document.getElementById('authButtons');
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userGenderBadge = document.getElementById('userGenderBadge');
+            if (user) {
+                currentUser = user;
+                authButtons.style.display = 'none';
+                userInfo.style.display = 'flex';
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            currentUserData = doc.data();
+                            userName.textContent = currentUserData.name || 'Friend';
+                            userGenderBadge.textContent = currentUserData.gender || '';
+                            loadCategoryStories();
+                        }
+                    })
+                    .catch((err) => console.error('Error fetching user data:', err));
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                authButtons.style.display = 'flex';
+                userInfo.style.display = 'none';
+                loadCategoryStories();
+            }
+        });
+
+        // ============================================
+        // GENDER RESTRICTION
         // ============================================
 
         function canReadCategory(category) {
             if (!currentUser || !currentUserData) {
-                // Not logged in - can only read public categories
                 return category === 'struggles' || category === 'fun' || category === 'learning' || category === 'all';
             }
-
             const gender = currentUserData.gender;
-
-            // Public categories (everyone can read)
             if (category === 'struggles' || category === 'fun' || category === 'learning' || category === 'all') {
                 return true;
             }
-
-            // Men's section - only men can read
-            if (category === 'men' && gender === '🧔 Man') {
-                return true;
-            }
-
-            // Women's section - only women can read
-            if (category === 'women' && gender === '👩 Woman') {
-                return true;
-            }
-
+            if (category === 'men' && gender === '🧔 Man') return true;
+            if (category === 'women' && gender === '👩 Woman') return true;
             return false;
         }
 
@@ -503,23 +910,13 @@
             if (!currentUser || !currentUserData) {
                 return '🔒 Please log in to access this section.';
             }
-
             const gender = currentUserData.gender;
-
             if (category === 'men' && gender !== '🧔 Man') {
-                return `⚠️ The <strong>Men's Harbor</strong> section is for <strong>Men only</strong>.<br>You can read and post in:
-                    <br>🌊 <strong>The Storm</strong> (Struggles)
-                    <br>☀️ <strong>Sunny Skies</strong> (Fun)
-                    <br>🧭 <strong>The Compass</strong> (Learning)`;
+                return '⚠️ <strong>Men\'s Harbor</strong> is for <strong>Men only</strong>.<br>You can view: 🌊 The Storm, ☀️ Sunny Skies, 🧭 The Compass';
             }
-
             if (category === 'women' && gender !== '👩 Woman') {
-                return `⚠️ The <strong>Women's Harbor</strong> section is for <strong>Women only</strong>.<br>You can read and post in:
-                    <br>🌊 <strong>The Storm</strong> (Struggles)
-                    <br>☀️ <strong>Sunny Skies</strong> (Fun)
-                    <br>🧭 <strong>The Compass</strong> (Learning)`;
+                return '⚠️ <strong>Women\'s Harbor</strong> is for <strong>Women only</strong>.<br>You can view: 🌊 The Storm, ☀️ Sunny Skies, 🧭 The Compass';
             }
-
             return null;
         }
 
@@ -531,23 +928,36 @@
             const container = document.getElementById('storiesContainer');
             if (!container) return;
 
+            // Get category from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('cat') || 'all';
+            currentCategory = cat;
+
+            // Update filter dropdown
+            const filterSelect = document.getElementById('filterCategory');
+            if (filterSelect) {
+                filterSelect.value = cat;
+            }
+
+            // Update header
+            updateCategoryHeader(cat);
+
             // Check if user can read this category
-            if (!canReadCategory(currentCategory)) {
-                const msg = getRestrictionMessage(currentCategory) || 'You do not have permission to view this section.';
-                
+            if (!canReadCategory(cat)) {
+                const msg = getRestrictionMessage(cat) || 'You do not have permission to view this section.';
                 container.innerHTML = `
                     <div class="empty-state" style="padding:40px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
                         <div class="big-emoji">🔒</div>
                         <h3 style="color:#1a4a4a;">Access Restricted</h3>
                         <p style="color:#2d3a3a;line-height:1.8;">${msg}</p>
-                        <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                        <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
                             <a href="category.html?cat=struggles" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🌊 The Storm</a>
                             <a href="category.html?cat=fun" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">☀️ Sunny Skies</a>
                             <a href="category.html?cat=learning" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🧭 The Compass</a>
                         </div>
                     </div>
                 `;
-
+                document.getElementById('storyCount').textContent = '0 stories';
                 // Show restriction note
                 const note = document.getElementById('restrictionNote');
                 const noteText = document.getElementById('restrictionNoteText');
@@ -568,8 +978,8 @@
 
             let query = db.collection('stories');
 
-            if (currentCategory !== 'all') {
-                query = query.where('category', '==', currentCategory);
+            if (cat !== 'all') {
+                query = query.where('category', '==', cat);
             }
 
             query.orderBy('createdAt', 'desc')
@@ -624,6 +1034,9 @@
             document.getElementById('categoryTitle').textContent = meta.title;
             document.getElementById('categoryDescription').textContent = meta.description;
             document.getElementById('categoryInfoText').textContent = meta.info;
+
+            // Update page title
+            document.title = `${meta.title} — The Harbor`;
         }
 
         // ============================================
@@ -634,6 +1047,7 @@
             const filterSelect = document.getElementById('filterCategory');
             const cat = filterSelect ? filterSelect.value : 'all';
 
+            // Update URL with new category
             const url = new URL(window.location);
             url.searchParams.set('cat', cat);
             window.history.pushState({}, '', url);
@@ -758,7 +1172,7 @@
         }
 
         // ============================================
-        // EMOJI REACTIONS
+        // ADD REACTION (from category page)
         // ============================================
 
         function addReaction(storyId, emoji) {
@@ -788,7 +1202,7 @@
         }
 
         // ============================================
-        // ESCAPE HTML (Security)
+        // UTILITY
         // ============================================
 
         function escapeHTML(text) {
@@ -828,7 +1242,7 @@
             // Load stories
             loadCategoryStories();
 
-            // Listen for URL changes
+            // Listen for URL changes (back/forward buttons)
             window.addEventListener('popstate', function() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const cat = urlParams.get('cat') || 'all';
@@ -840,12 +1254,47 @@
                 updateCategoryHeader(cat);
                 loadCategoryStories();
             });
+
+            // Modal close
+            document.getElementById('authModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
+            // Password strength
+            document.getElementById('authPassword').addEventListener('input', function() {
+                const pwd = this.value;
+                const strengthDiv = document.getElementById('passwordStrength');
+                if (!strengthDiv) return;
+                if (pwd.length === 0) {
+                    strengthDiv.innerHTML = '';
+                    return;
+                }
+                let strength = 'Weak',
+                    color = '#c0392b';
+                if (pwd.length >= 12) { strength = 'Strong';
+                    color = '#27ae60'; } else if (pwd.length >= 8) { strength = 'Medium';
+                    color = '#f39c12'; }
+                strengthDiv.innerHTML = `
+                    <div style="margin-top:6px;font-size:0.85rem;">
+                        Strength: <span style="color:${color};font-weight:700;">${strength}</span>
+                    </div>
+                `;
+            });
+
+            // Enter key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const modal = document.getElementById('authModal');
+                    if (modal && modal.style.display === 'flex') {
+                        handleAuth();
+                    }
+                }
+            });
+
+            console.log('✅ Category page ready');
         });
 
-        console.log('📂 Category page loaded with gender restrictions');
+        console.log('📂 Category page loaded successfully');
     </script>
-
-    <!-- Main App JS -->
-    <script src="js/app.js"></script>
 </body>
 </html>
