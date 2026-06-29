@@ -296,655 +296,654 @@
     </div>
 
     <script>
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
-            authDomain: "the-harbor-community.firebaseapp.com",
-            projectId: "the-harbor-community",
-            storageBucket: "the-harbor-community.firebasestorage.app",
-            messagingSenderId: "634248505303",
-            appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    // ============================================
+    // FIREBASE CONFIG
+    // ============================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+        authDomain: "the-harbor-community.firebaseapp.com",
+        projectId: "the-harbor-community",
+        storageBucket: "the-harbor-community.firebasestorage.app",
+        messagingSenderId: "634248505303",
+        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        let currentUser = null;
-        let currentUserData = null;
-        let currentModTab = 'flagged';
+    let currentUser = null;
+    let currentUserData = null;
+    let currentModTab = 'flagged';
 
-        // ============================================
-        // COUNTRY DATA
-        // ============================================
-        const countries = [
-            { name: 'United States', emergency: '911' },
-            { name: 'United Kingdom', emergency: '999' },
-            { name: 'Bangladesh', emergency: '999' },
-            { name: 'India', emergency: '112' },
-            { name: 'Canada', emergency: '911' },
-            { name: 'Australia', emergency: '000' },
-            { name: 'Germany', emergency: '112' },
-            { name: 'France', emergency: '112' },
-            { name: 'Italy', emergency: '112' },
-            { name: 'Spain', emergency: '112' },
-            { name: 'Brazil', emergency: '190' },
-            { name: 'Mexico', emergency: '911' }
-        ];
+    // ============================================
+    // COUNTRY DATA
+    // ============================================
+    const countries = [
+        { name: 'United States', emergency: '911' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'India', emergency: '112' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Mexico', emergency: '911' }
+    ];
 
-        // Populate country datalist
-        function populateCountryDatalist() {
-            const datalist = document.getElementById('country-list');
-            if (!datalist) return;
-            datalist.innerHTML = '';
-            countries.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.name;
-                datalist.appendChild(option);
-            });
-        }
-        populateCountryDatalist();
-
-        // ============================================
-        // SECURITY FUNCTIONS
-        // ============================================
-        function sanitizeInput(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.textContent;
-        }
-
-        function escapeHTML(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;',
-                '/': '&#x2F;',
-                '`': '&#x60;',
-                '=': '&#x3D;'
-            };
-            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-        }
-
-        // ============================================
-        // AUTH FUNCTIONS
-        // ============================================
-        function checkPasswordStrength(password) {
-            let score = 0;
-            if (password.length >= 8) score += 20;
-            if (/[A-Z]/.test(password)) score += 20;
-            if (/[a-z]/.test(password)) score += 20;
-            if (/[0-9]/.test(password)) score += 20;
-            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
-            const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
-            if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-            let strength = 'weak',
-                color = '#c0392b';
-            if (score >= 90) { strength = 'very-strong';
-                color = '#27ae60'; } else if (score >= 70) { strength = 'strong';
-                color = '#2ecc71'; } else if (score >= 50) { strength = 'medium';
-                color = '#f39c12'; } else if (score >= 30) { strength = 'weak';
-                color = '#e67e22'; } else { strength = 'very-weak';
-                color = '#c0392b'; }
-            return { score, strength, color };
-        }
-
-        function checkUsernameAvailability(username) {
-            if (!username || username.length < 2) return Promise.resolve(false);
-            return db.collection('users').where('name', '==', username).get().then(s => s.empty);
-        }
-
-        async function checkUsernameOnType() {
-            const nameInput = document.getElementById('authName');
-            const statusDiv = document.getElementById('usernameStatus');
-            if (!nameInput || !statusDiv) return;
-            const username = nameInput.value.trim();
-            if (username.length < 2) { statusDiv.innerHTML = ''; return; }
-            const available = await checkUsernameAvailability(username);
-            statusDiv.innerHTML = available ?
-                `<span style="color:#27ae60;">✅ Username available!</span>` :
-                `<span style="color:#c0392b;">❌ Username taken</span>`;
-        }
-
-        function openModal(mode) {
-            const modal = document.getElementById('authModal');
-            if (!modal) return;
-            const title = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const signupFields = document.getElementById('signupFields');
-            const switchLink = document.getElementById('authSwitch');
-            const error = document.getElementById('authError');
-            if (error) error.textContent = '';
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-            document.getElementById('authName').value = '';
-            document.getElementById('authFavorites').value = '';
-            document.getElementById('authCountry').value = '';
-            document.getElementById('passwordStrength').innerHTML = '';
-            document.getElementById('usernameStatus').innerHTML = '';
-            if (mode === 'login') {
-                title.textContent = '🔐 Welcome Back';
-                submitBtn.textContent = '🚀 Log In';
-                signupFields.style.display = 'none';
-                switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
-                switchLink.dataset.mode = 'signup';
-            } else {
-                title.textContent = '📝 Join The Harbor';
-                submitBtn.textContent = '🚀 Create Account';
-                signupFields.style.display = 'block';
-                populateCountryDatalist();
-                switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
-                switchLink.dataset.mode = 'login';
-            }
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
-        function toggleAuthMode() {
-            const switchLink = document.getElementById('authSwitch');
-            if (!switchLink) return;
-            const mode = switchLink.dataset.mode;
-            closeModal();
-            setTimeout(() => openModal(mode), 200);
-        }
-
-        function updateGenderWarning() {
-            const genderSelect = document.getElementById('authGender');
-            const warning = document.getElementById('genderWarning');
-            const text = document.getElementById('genderWarningText');
-            if (!genderSelect) return;
-            const gender = genderSelect.value;
-            if (gender === '🧔 Man') {
-                text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
-                warning.classList.add('show');
-            } else if (gender === '👩 Woman') {
-                text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
-                warning.classList.add('show');
-            } else {
-                text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
-                warning.classList.add('show');
-            }
-        }
-
-        function handleAuth() {
-            const emailInput = document.getElementById('authEmail');
-            const passwordInput = document.getElementById('authPassword');
-            const error = document.getElementById('authError');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            error.textContent = '';
-            if (!email || !email.includes('@') || !email.includes('.')) {
-                error.textContent = 'Please enter a valid email address.';
-                return;
-            }
-            if (!password || password.length < 6) {
-                error.textContent = 'Password must be at least 6 characters.';
-                return;
-            }
-            const isLogin = submitBtn.textContent.includes('Log In');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Please wait...';
-            if (isLogin) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        if (!user.emailVerified) {
-                            error.textContent = '⚠️ Please verify your email first.';
-                            auth.signOut();
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = '🚀 Log In';
-                            return;
-                        }
-                        closeModal();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                    })
-                    .catch((err) => {
-                        error.textContent = err.message;
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                    });
-            } else {
-                const nameInput = document.getElementById('authName');
-                const genderSelect = document.getElementById('authGender');
-                const favoritesInput = document.getElementById('authFavorites');
-                const countryInput = document.getElementById('authCountry');
-                const name = nameInput ? nameInput.value.trim() : '';
-                const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
-                const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-                const country = countryInput ? countryInput.value.trim() : '';
-                if (!name || name.length < 2) {
-                    error.textContent = 'Please enter a username (minimum 2 characters).';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    return;
-                }
-                if (!country) {
-                    error.textContent = 'Please select your country.';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    return;
-                }
-                checkUsernameAvailability(name)
-                    .then((available) => {
-                        if (!available) {
-                            error.textContent = '❌ Username is already taken.';
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = '🚀 Create Account';
-                            return Promise.reject('Username taken');
-                        }
-                        return auth.createUserWithEmailAndPassword(email, password);
-                    })
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        return user.sendEmailVerification().then(() => user);
-                    })
-                    .then((user) => {
-                        const countryData = countries.find(c => c.name === country);
-                        return db.collection('users').doc(user.uid).set({
-                            name: name,
-                            email: email,
-                            gender: gender,
-                            favorites: favorites || 'Not specified',
-                            country: country,
-                            emergencyNumber: countryData?.emergency || '911',
-                            emailVerified: false,
-                            isAdmin: false,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    })
-                    .then(() => {
-                        closeModal();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                        auth.signOut();
-                        alert('✅ Verification email sent! Please check your inbox.');
-                    })
-                    .catch((err) => {
-                        if (err !== 'Username taken') {
-                            error.textContent = err.message;
-                        }
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                    });
-            }
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                auth.signOut();
-                window.location.href = 'index.html';
-            }
-        }
-
-        // ============================================
-        // AUTH STATE LISTENER
-        // ============================================
-        auth.onAuthStateChanged((user) => {
-            const authButtons = document.getElementById('authButtons');
-            const userInfo = document.getElementById('userInfo');
-            const userName = document.getElementById('userName');
-            const userGenderBadge = document.getElementById('userGenderBadge');
-            const verificationBadge = document.getElementById('verificationBadge');
-            const adminBadge = document.getElementById('adminBadge');
-
-            if (user) {
-                currentUser = user;
-                authButtons.style.display = 'none';
-                userInfo.style.display = 'flex';
-
-                if (user.emailVerified) {
-                    verificationBadge.textContent = '✅ Verified';
-                    verificationBadge.className = 'verification-badge verified';
-                } else {
-                    verificationBadge.textContent = '⏳ Unverified';
-                    verificationBadge.className = 'verification-badge';
-                }
-
-                db.collection('users').doc(user.uid).get()
-                    .then((doc) => {
-                        if (doc.exists) {
-                            currentUserData = doc.data();
-                            userName.textContent = currentUserData.name || 'Admin';
-                            userGenderBadge.textContent = currentUserData.gender || '';
-
-                            if (currentUserData.isAdmin) {
-                                adminBadge.style.display = 'inline-block';
-                                loadAdminPanel();
-                            } else {
-                                adminBadge.style.display = 'none';
-                                document.getElementById('adminContent').innerHTML = `
-                                    <div class="empty-state">
-                                        <div class="big-emoji">🚫</div>
-                                        <h3>Access Denied</h3>
-                                        <p>You need administrator privileges to access this page.</p>
-                                        <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
-                                    </div>
-                                `;
-                            }
-                        }
-                    })
-                    .catch((err) => console.error('Error fetching user data:', err));
-            } else {
-                currentUser = null;
-                currentUserData = null;
-                authButtons.style.display = 'flex';
-                userInfo.style.display = 'none';
-                document.getElementById('adminContent').innerHTML = `
-                    <div class="empty-state">
-                        <div class="big-emoji">🔐</div>
-                        <h3>Please Log In</h3>
-                        <p>You need to be logged in as an admin to access this page.</p>
-                        <button class="btn-primary" onclick="openModal('login')" style="margin-top:12px;">Log In</button>
-                    </div>
-                `;
-            }
+    function populateCountryDatalist() {
+        const datalist = document.getElementById('country-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        countries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
         });
+    }
+    populateCountryDatalist();
 
-        // ============================================
-        // LOAD ADMIN PANEL
-        // ============================================
-        function loadAdminPanel() {
-            const content = document.getElementById('adminContent');
-            content.innerHTML = `
-                <div class="admin-header">
-                    <h1>👑 Admin <span>Panel</span></h1>
-                    <div>
-                        <button class="btn-secondary" onclick="loadAdminPanel()" style="margin-right:8px;">🔄 Refresh</button>
-                        <a href="index.html" class="btn-secondary" style="text-decoration:none;">← Back</a>
+    // ============================================
+    // SECURITY FUNCTIONS
+    // ============================================
+    function sanitizeInput(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
+    }
+
+    function escapeHTML(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    }
+
+    // ============================================
+    // AUTH FUNCTIONS
+    // ============================================
+    function checkPasswordStrength(password) {
+        let score = 0;
+        if (password.length >= 8) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[a-z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+        let strength = 'weak',
+            color = '#c0392b';
+        if (score >= 90) { strength = 'very-strong';
+            color = '#27ae60'; } else if (score >= 70) { strength = 'strong';
+            color = '#2ecc71'; } else if (score >= 50) { strength = 'medium';
+            color = '#f39c12'; } else if (score >= 30) { strength = 'weak';
+            color = '#e67e22'; } else { strength = 'very-weak';
+            color = '#c0392b'; }
+        return { score, strength, color };
+    }
+
+    function checkUsernameAvailability(username) {
+        if (!username || username.length < 2) return Promise.resolve(false);
+        return db.collection('users').where('name', '==', username).get().then(s => s.empty);
+    }
+
+    async function checkUsernameOnType() {
+        const nameInput = document.getElementById('authName');
+        const statusDiv = document.getElementById('usernameStatus');
+        if (!nameInput || !statusDiv) return;
+        const username = nameInput.value.trim();
+        if (username.length < 2) { statusDiv.innerHTML = ''; return; }
+        const available = await checkUsernameAvailability(username);
+        statusDiv.innerHTML = available ?
+            `<span style="color:#27ae60;">✅ Username available!</span>` :
+            `<span style="color:#c0392b;">❌ Username taken</span>`;
+    }
+
+    function openModal(mode) {
+        const modal = document.getElementById('authModal');
+        if (!modal) return;
+        const title = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const signupFields = document.getElementById('signupFields');
+        const switchLink = document.getElementById('authSwitch');
+        const error = document.getElementById('authError');
+        if (error) error.textContent = '';
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        document.getElementById('authFavorites').value = '';
+        document.getElementById('authCountry').value = '';
+        document.getElementById('passwordStrength').innerHTML = '';
+        document.getElementById('usernameStatus').innerHTML = '';
+        if (mode === 'login') {
+            title.textContent = '🔐 Welcome Back';
+            submitBtn.textContent = '🚀 Log In';
+            signupFields.style.display = 'none';
+            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.dataset.mode = 'signup';
+        } else {
+            title.textContent = '📝 Join The Harbor';
+            submitBtn.textContent = '🚀 Create Account';
+            signupFields.style.display = 'block';
+            populateCountryDatalist();
+            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.dataset.mode = 'login';
+        }
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').style.display = 'none';
+    }
+
+    function toggleAuthMode() {
+        const switchLink = document.getElementById('authSwitch');
+        if (!switchLink) return;
+        const mode = switchLink.dataset.mode;
+        closeModal();
+        setTimeout(() => openModal(mode), 200);
+    }
+
+    function updateGenderWarning() {
+        const genderSelect = document.getElementById('authGender');
+        const warning = document.getElementById('genderWarning');
+        const text = document.getElementById('genderWarningText');
+        if (!genderSelect) return;
+        const gender = genderSelect.value;
+        if (gender === '🧔 Man') {
+            text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
+            warning.classList.add('show');
+        } else if (gender === '👩 Woman') {
+            text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
+            warning.classList.add('show');
+        } else {
+            text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
+            warning.classList.add('show');
+        }
+    }
+
+    function handleAuth() {
+        const emailInput = document.getElementById('authEmail');
+        const passwordInput = document.getElementById('authPassword');
+        const error = document.getElementById('authError');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        error.textContent = '';
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            error.textContent = 'Please enter a valid email address.';
+            return;
+        }
+        if (!password || password.length < 6) {
+            error.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+        const isLogin = submitBtn.textContent.includes('Log In');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Please wait...';
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (!user.emailVerified) {
+                        error.textContent = '⚠️ Please verify your email first.';
+                        auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        return;
+                    }
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                });
+        } else {
+            const nameInput = document.getElementById('authName');
+            const genderSelect = document.getElementById('authGender');
+            const favoritesInput = document.getElementById('authFavorites');
+            const countryInput = document.getElementById('authCountry');
+            const name = nameInput ? nameInput.value.trim() : '';
+            const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+            const favorites = favoritesInput ? favoritesInput.value.trim() : '';
+            const country = countryInput ? countryInput.value.trim() : '';
+            if (!name || name.length < 2) {
+                error.textContent = 'Please enter a username (minimum 2 characters).';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            if (!country) {
+                error.textContent = 'Please select your country.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            checkUsernameAvailability(name)
+                .then((available) => {
+                    if (!available) {
+                        error.textContent = '❌ Username is already taken.';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                        return Promise.reject('Username taken');
+                    }
+                    return auth.createUserWithEmailAndPassword(email, password);
+                })
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return user.sendEmailVerification().then(() => user);
+                })
+                .then((user) => {
+                    const countryData = countries.find(c => c.name === country);
+                    return db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        gender: gender,
+                        favorites: favorites || 'Not specified',
+                        country: country,
+                        emergencyNumber: countryData?.emergency || '911',
+                        emailVerified: false,
+                        isAdmin: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    auth.signOut();
+                    alert('✅ Verification email sent! Please check your inbox.');
+                })
+                .catch((err) => {
+                    if (err !== 'Username taken') {
+                        error.textContent = err.message;
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                });
+        }
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userGenderBadge = document.getElementById('userGenderBadge');
+        const verificationBadge = document.getElementById('verificationBadge');
+        const adminBadge = document.getElementById('adminBadge');
+
+        if (user) {
+            currentUser = user;
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+
+            if (user.emailVerified) {
+                verificationBadge.textContent = '✅ Verified';
+                verificationBadge.className = 'verification-badge verified';
+            } else {
+                verificationBadge.textContent = '⏳ Unverified';
+                verificationBadge.className = 'verification-badge';
+            }
+
+            db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        userName.textContent = currentUserData.name || 'Admin';
+                        userGenderBadge.textContent = currentUserData.gender || '';
+
+                        if (currentUserData.isAdmin) {
+                            adminBadge.style.display = 'inline-block';
+                            loadAdminPanel();
+                        } else {
+                            adminBadge.style.display = 'none';
+                            document.getElementById('adminContent').innerHTML = `
+                                <div class="empty-state">
+                                    <div class="big-emoji">🚫</div>
+                                    <h3>Access Denied</h3>
+                                    <p>You need administrator privileges to access this page.</p>
+                                    <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
+                                </div>
+                            `;
+                        }
+                    }
+                })
+                .catch((err) => console.error('Error fetching user data:', err));
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
+            document.getElementById('adminContent').innerHTML = `
+                <div class="empty-state">
+                    <div class="big-emoji">🔐</div>
+                    <h3>Please Log In</h3>
+                    <p>You need to be logged in as an admin to access this page.</p>
+                    <button class="btn-primary" onclick="openModal('login')" style="margin-top:12px;">Log In</button>
+                </div>
+            `;
+        }
+    });
+
+    // ============================================
+    // LOAD ADMIN PANEL
+    // ============================================
+    function loadAdminPanel() {
+        const content = document.getElementById('adminContent');
+        content.innerHTML = `
+            <div class="admin-header">
+                <h1>👑 Admin <span>Panel</span></h1>
+                <div>
+                    <button class="btn-secondary" onclick="loadAdminPanel()" style="margin-right:8px;">🔄 Refresh</button>
+                    <a href="index.html" class="btn-secondary" style="text-decoration:none;">← Back</a>
+                </div>
+            </div>
+            <div id="adminStats"></div>
+            <div class="moderation-tabs">
+                <button class="mod-tab active" data-tab="flagged" onclick="switchTab('flagged')">
+                    ⚠️ Flagged <span class="count" id="flaggedCount">0</span>
+                </button>
+                <button class="mod-tab" data-tab="pending" onclick="switchTab('pending')">
+                    ⏳ Pending <span class="count" id="pendingCount">0</span>
+                </button>
+                <button class="mod-tab" data-tab="reported" onclick="switchTab('reported')">
+                    📢 Reported <span class="count" id="reportedCount">0</span>
+                </button>
+            </div>
+            <div id="modItems">
+                <div class="loading">⏳ Loading...</div>
+            </div>
+        `;
+
+        loadStats();
+        loadModItems('flagged');
+    }
+
+    function loadStats() {
+        const statsDiv = document.getElementById('adminStats');
+
+        Promise.all([
+            db.collection('stories').where('flagged', '==', true).get(),
+            db.collection('stories').where('approved', '==', false).get(),
+            db.collection('comments').where('flagged', '==', true).get(),
+            db.collection('stories').get()
+        ]).then(([flaggedStories, pendingStories, flaggedComments, allStories]) => {
+            statsDiv.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="emoji">🚩</span>
+                        <div class="number">${flaggedStories.size}</div>
+                        <div class="label">Flagged Stories</div>
                     </div>
-                </div>
-                <div id="adminStats"></div>
-                <div class="moderation-tabs">
-                    <button class="mod-tab active" data-tab="flagged" onclick="switchTab('flagged')">
-                        ⚠️ Flagged <span class="count" id="flaggedCount">0</span>
-                    </button>
-                    <button class="mod-tab" data-tab="pending" onclick="switchTab('pending')">
-                        ⏳ Pending <span class="count" id="pendingCount">0</span>
-                    </button>
-                    <button class="mod-tab" data-tab="reported" onclick="switchTab('reported')">
-                        📢 Reported <span class="count" id="reportedCount">0</span>
-                    </button>
-                </div>
-                <div id="modItems">
-                    <div class="loading">⏳ Loading...</div>
+                    <div class="stat-card">
+                        <span class="emoji">⏳</span>
+                        <div class="number">${pendingStories.size}</div>
+                        <div class="label">Pending Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="emoji">💬</span>
+                        <div class="number">${flaggedComments.size}</div>
+                        <div class="label">Flagged Comments</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="emoji">📝</span>
+                        <div class="number">${allStories.size}</div>
+                        <div class="label">Total Stories</div>
+                    </div>
                 </div>
             `;
 
-            loadStats();
-            loadModItems('flagged');
-        }
+            document.getElementById('flaggedCount').textContent = flaggedStories.size + flaggedComments.size;
+            document.getElementById('pendingCount').textContent = pendingStories.size;
+        }).catch((err) => {
+            console.error('Error loading stats:', err);
+        });
+    }
 
-        function loadStats() {
-            const statsDiv = document.getElementById('adminStats');
+    function switchTab(tab) {
+        currentModTab = tab;
+        document.querySelectorAll('.mod-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.tab === tab);
+        });
+        loadModItems(tab);
+    }
 
-            Promise.all([
-                db.collection('stories').where('flagged', '==', true).get(),
-                db.collection('stories').where('approved', '==', false).get(),
-                db.collection('comments').where('flagged', '==', true).get(),
-                db.collection('stories').get()
-            ]).then(([flaggedStories, pendingStories, flaggedComments, allStories]) => {
-                statsDiv.innerHTML = `
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <span class="emoji">🚩</span>
-                            <div class="number">${flaggedStories.size}</div>
-                            <div class="label">Flagged Stories</div>
-                        </div>
-                        <div class="stat-card">
-                            <span class="emoji">⏳</span>
-                            <div class="number">${pendingStories.size}</div>
-                            <div class="label">Pending Review</div>
-                        </div>
-                        <div class="stat-card">
-                            <span class="emoji">💬</span>
-                            <div class="number">${flaggedComments.size}</div>
-                            <div class="label">Flagged Comments</div>
-                        </div>
-                        <div class="stat-card">
-                            <span class="emoji">📝</span>
-                            <div class="number">${allStories.size}</div>
-                            <div class="label">Total Stories</div>
-                        </div>
-                    </div>
-                `;
+    function loadModItems(type) {
+        const container = document.getElementById('modItems');
+        container.innerHTML = '<div class="loading">⏳ Loading...</div>';
 
-                document.getElementById('flaggedCount').textContent = flaggedStories.size + flaggedComments.size;
-                document.getElementById('pendingCount').textContent = pendingStories.size;
-            }).catch((err) => {
-                console.error('Error loading stats:', err);
-            });
-        }
-
-        function switchTab(tab) {
-            currentModTab = tab;
-            document.querySelectorAll('.mod-tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.tab === tab);
-            });
-            loadModItems(tab);
-        }
-
-        function loadModItems(type) {
-            const container = document.getElementById('modItems');
-            container.innerHTML = '<div class="loading">⏳ Loading...</div>';
-
-            let promise;
-            if (type === 'flagged') {
-                promise = db.collection('stories').where('flagged', '==', true).get()
-                    .then(snapshot => {
-                        const items = [];
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            data.id = doc.id;
-                            data.type = 'story';
-                            items.push(data);
-                        });
-                        return db.collection('comments').where('flagged', '==', true).get()
-                            .then(commentSnapshot => {
-                                commentSnapshot.forEach(doc => {
-                                    const data = doc.data();
-                                    data.id = doc.id;
-                                    data.type = 'comment';
-                                    items.push(data);
-                                });
-                                return items;
+        let promise;
+        if (type === 'flagged') {
+            promise = db.collection('stories').where('flagged', '==', true).get()
+                .then(snapshot => {
+                    const items = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        data.id = doc.id;
+                        data.type = 'story';
+                        items.push(data);
+                    });
+                    return db.collection('comments').where('flagged', '==', true).get()
+                        .then(commentSnapshot => {
+                            commentSnapshot.forEach(doc => {
+                                const data = doc.data();
+                                data.id = doc.id;
+                                data.type = 'comment';
+                                items.push(data);
                             });
-                    });
-            } else if (type === 'pending') {
-                promise = db.collection('stories').where('approved', '==', false).get()
-                    .then(snapshot => {
-                        const items = [];
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            data.id = doc.id;
-                            data.type = 'story';
-                            items.push(data);
+                            return items;
                         });
-                        return items;
-                    });
-            } else if (type === 'reported') {
-                promise = db.collection('reports').get()
-                    .then(snapshot => {
-                        const items = [];
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            data.id = doc.id;
-                            data.type = 'report';
-                            items.push(data);
-                        });
-                        items.sort((a, b) => {
-                            const ta = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                            const tb = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-                            return tb - ta;
-                        });
-                        return items;
-                    });
-            }
-
-            promise.then(items => {
-                if (items.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="big-emoji">✅</div>
-                            <h3>All Clear!</h3>
-                            <p>No items need moderation in this category.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                items.forEach(item => {
-                    html += renderModItem(item);
                 });
-                container.innerHTML = html;
-            }).catch(err => {
-                console.error('Error loading moderation items:', err);
+        } else if (type === 'pending') {
+            promise = db.collection('stories').where('approved', '==', false).get()
+                .then(snapshot => {
+                    const items = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        data.id = doc.id;
+                        data.type = 'story';
+                        items.push(data);
+                    });
+                    return items;
+                });
+        } else if (type === 'reported') {
+            promise = db.collection('reports').get()
+                .then(snapshot => {
+                    const items = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        data.id = doc.id;
+                        data.type = 'report';
+                        items.push(data);
+                    });
+                    items.sort((a, b) => {
+                        const ta = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                        const tb = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                        return tb - ta;
+                    });
+                    return items;
+                });
+        }
+
+        promise.then(items => {
+            if (items.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="big-emoji">⚠️</div>
-                        <h3>Error Loading Items</h3>
-                        <p>${err.message}</p>
-                        <button class="btn-primary" onclick="loadModItems('${type}')" style="margin-top:12px;">🔄 Retry</button>
+                        <div class="big-emoji">✅</div>
+                        <h3>All Clear!</h3>
+                        <p>No items need moderation in this category.</p>
                     </div>
                 `;
-            });
-        }
-
-        function renderModItem(item) {
-            const time = item.createdAt ? item.createdAt.toDate().toLocaleString() : 'Recently';
-            let content = '';
-            let actions = '';
-
-            if (item.type === 'story') {
-                content = `
-                    <div class="title">📖 ${escapeHTML(item.title || 'Untitled')}</div>
-                    <div class="meta">✍️ ${item.isAnonymous ? 'Anonymous' : escapeHTML(item.authorName || 'Unknown')} · 📅 ${time}</div>
-                    ${item.flagReason ? `<div class="flag-reason">🚩 ${escapeHTML(item.flagReason)}</div>` : ''}
-                    <div class="content">${escapeHTML((item.text || '').substring(0, 300))}${(item.text || '').length > 300 ? '...' : ''}</div>
-                    <div class="actions">
-                        <button class="btn-success" onclick="approveItem('story', '${item.id}')">✅ Approve</button>
-                        <button class="btn-danger" onclick="deleteItem('story', '${item.id}')">🗑️ Delete</button>
-                        <button class="btn-secondary" onclick="viewStory('${item.id}')" style="background:#e8ddd0;border:2px solid #1a4a4a;border-radius:50px;padding:8px 20px;cursor:pointer;">👁️ View</button>
-                    </div>
-                `;
-            } else if (item.type === 'comment') {
-                content = `
-                    <div class="title">💬 Comment</div>
-                    <div class="meta">✍️ ${item.isAnonymous ? 'Anonymous' : escapeHTML(item.authorName || 'Unknown')} · 📅 ${time}</div>
-                    <div class="content">${escapeHTML(item.text || '')}</div>
-                    <div class="actions">
-                        <button class="btn-success" onclick="approveItem('comment', '${item.id}')">✅ Approve</button>
-                        <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')">🗑️ Delete</button>
-                    </div>
-                `;
-            } else if (item.type === 'report') {
-                content = `
-                    <div class="title">📢 Report</div>
-                    <div class="meta">Reported by: ${escapeHTML(item.reporterName || 'Unknown')} · 📅 ${time}</div>
-                    <div class="content">Reason: ${escapeHTML(item.reason || 'Not specified')}</div>
-                    <div class="content" style="margin-top:8px;">Content: ${escapeHTML((item.content || '').substring(0, 200))}${(item.content || '').length > 200 ? '...' : ''}</div>
-                    <div class="actions">
-                        <button class="btn-success" onclick="resolveReport('${item.id}')">✅ Resolved</button>
-                        <button class="btn-danger" onclick="deleteItem('report', '${item.id}')">🗑️ Dismiss</button>
-                    </div>
-                `;
+                return;
             }
 
-            return `<div class="mod-item">${content}</div>`;
-        }
-
-        function approveItem(type, id) {
-            if (!confirm(`Approve this ${type}?`)) return;
-            const ref = type === 'story' ? db.collection('stories').doc(id) : db.collection('comments').doc(id);
-            ref.update({ approved: true, flagged: false })
-                .then(() => {
-                    alert('✅ Item approved!');
-                    loadModItems(currentModTab);
-                    loadStats();
-                })
-                .catch((err) => {
-                    alert('❌ Error: ' + err.message);
-                });
-        }
-
-        function deleteItem(type, id) {
-            if (!confirm(`Delete this ${type}? This cannot be undone.`)) return;
-            const ref = type === 'story' ? db.collection('stories').doc(id) :
-                type === 'comment' ? db.collection('comments').doc(id) :
-                db.collection('reports').doc(id);
-            ref.delete()
-                .then(() => {
-                    alert('✅ Item deleted!');
-                    loadModItems(currentModTab);
-                    loadStats();
-                })
-                .catch((err) => {
-                    alert('❌ Error: ' + err.message);
-                });
-        }
-
-        function resolveReport(id) {
-            if (!confirm('Mark this report as resolved?')) return;
-            db.collection('reports').doc(id).update({ resolved: true })
-                .then(() => {
-                    alert('✅ Report resolved!');
-                    loadModItems(currentModTab);
-                })
-                .catch((err) => {
-                    alert('❌ Error: ' + err.message);
-                });
-        }
-
-        function viewStory(id) {
-            window.open(`story.html?id=${id}`, '_blank');
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('authModal').addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
+            let html = '';
+            items.forEach(item => {
+                html += renderModItem(item);
             });
+            container.innerHTML = html;
+        }).catch(err => {
+            console.error('Error loading moderation items:', err);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="big-emoji">⚠️</div>
+                    <h3>Error Loading Items</h3>
+                    <p>${err.message}</p>
+                    <button class="btn-primary" onclick="loadModItems('${type}')" style="margin-top:12px;">🔄 Retry</button>
+                </div>
+            `;
+        });
+    }
 
-            document.getElementById('authPassword').addEventListener('input', function() {
-                const pwd = this.value;
-                const strengthDiv = document.getElementById('passwordStrength');
-                if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-                const result = checkPasswordStrength(pwd);
-                strengthDiv.innerHTML = `
-                    <div style="margin-top:6px;font-size:0.85rem;">
-                        Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                    </div>
-                `;
+    function renderModItem(item) {
+        const time = item.createdAt ? item.createdAt.toDate().toLocaleString() : 'Recently';
+        let content = '';
+        let actions = '';
+
+        if (item.type === 'story') {
+            content = `
+                <div class="title">📖 ${escapeHTML(item.title || 'Untitled')}</div>
+                <div class="meta">✍️ ${item.isAnonymous ? 'Anonymous' : escapeHTML(item.authorName || 'Unknown')} · 📅 ${time}</div>
+                ${item.flagReason ? `<div class="flag-reason">🚩 ${escapeHTML(item.flagReason)}</div>` : ''}
+                <div class="content">${escapeHTML((item.text || '').substring(0, 300))}${(item.text || '').length > 300 ? '...' : ''}</div>
+                <div class="actions">
+                    <button class="btn-success" onclick="approveItem('story', '${item.id}')">✅ Approve</button>
+                    <button class="btn-danger" onclick="deleteItem('story', '${item.id}')">🗑️ Delete</button>
+                    <button class="btn-secondary" onclick="viewStory('${item.id}')" style="background:#e8ddd0;border:2px solid #1a4a4a;border-radius:50px;padding:8px 20px;cursor:pointer;">👁️ View</button>
+                </div>
+            `;
+        } else if (item.type === 'comment') {
+            content = `
+                <div class="title">💬 Comment</div>
+                <div class="meta">✍️ ${item.isAnonymous ? 'Anonymous' : escapeHTML(item.authorName || 'Unknown')} · 📅 ${time}</div>
+                <div class="content">${escapeHTML(item.text || '')}</div>
+                <div class="actions">
+                    <button class="btn-success" onclick="approveItem('comment', '${item.id}')">✅ Approve</button>
+                    <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')">🗑️ Delete</button>
+                </div>
+            `;
+        } else if (item.type === 'report') {
+            content = `
+                <div class="title">📢 Report</div>
+                <div class="meta">Reported by: ${escapeHTML(item.reporterName || 'Unknown')} · 📅 ${time}</div>
+                <div class="content">Reason: ${escapeHTML(item.reason || 'Not specified')}</div>
+                <div class="content" style="margin-top:8px;">Content: ${escapeHTML((item.content || '').substring(0, 200))}${(item.content || '').length > 200 ? '...' : ''}</div>
+                <div class="actions">
+                    <button class="btn-success" onclick="resolveReport('${item.id}')">✅ Resolved</button>
+                    <button class="btn-danger" onclick="deleteItem('report', '${item.id}')">🗑️ Dismiss</button>
+                </div>
+            `;
+        }
+
+        return `<div class="mod-item">${content}</div>`;
+    }
+
+    function approveItem(type, id) {
+        if (!confirm(`Approve this ${type}?`)) return;
+        const ref = type === 'story' ? db.collection('stories').doc(id) : db.collection('comments').doc(id);
+        ref.update({ approved: true, flagged: false })
+            .then(() => {
+                alert('✅ Item approved!');
+                loadModItems(currentModTab);
+                loadStats();
+            })
+            .catch((err) => {
+                alert('❌ Error: ' + err.message);
             });
+    }
 
-            document.getElementById('authName').addEventListener('input', checkUsernameOnType);
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const modal = document.getElementById('authModal');
-                    if (modal && modal.style.display === 'flex') handleAuth();
-                }
+    function deleteItem(type, id) {
+        if (!confirm(`Delete this ${type}? This cannot be undone.`)) return;
+        const ref = type === 'story' ? db.collection('stories').doc(id) :
+            type === 'comment' ? db.collection('comments').doc(id) :
+            db.collection('reports').doc(id);
+        ref.delete()
+            .then(() => {
+                alert('✅ Item deleted!');
+                loadModItems(currentModTab);
+                loadStats();
+            })
+            .catch((err) => {
+                alert('❌ Error: ' + err.message);
             });
+    }
 
-            populateCountryDatalist();
+    function resolveReport(id) {
+        if (!confirm('Mark this report as resolved?')) return;
+        db.collection('reports').doc(id).update({ resolved: true })
+            .then(() => {
+                alert('✅ Report resolved!');
+                loadModItems(currentModTab);
+            })
+            .catch((err) => {
+                alert('❌ Error: ' + err.message);
+            });
+    }
 
-            console.log('✅ Admin panel ready');
+    function viewStory(id) {
+        window.open(`story.html?id=${id}`, '_blank');
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
         });
 
-        console.log('👑 Admin panel loaded');
+        document.getElementById('authPassword').addEventListener('input', function() {
+            const pwd = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+            const result = checkPasswordStrength(pwd);
+            strengthDiv.innerHTML = `
+                <div style="margin-top:6px;font-size:0.85rem;">
+                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                </div>
+            `;
+        });
+
+        document.getElementById('authName').addEventListener('input', checkUsernameOnType);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const modal = document.getElementById('authModal');
+                if (modal && modal.style.display === 'flex') handleAuth();
+            }
+        });
+
+        populateCountryDatalist();
+
+        console.log('✅ Admin panel ready');
+    });
+
+    console.log('👑 Admin panel loaded');
     </script>
 
     <script src="js/app.js"></script>
