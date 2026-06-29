@@ -1,1 +1,244 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Share Your Story — The Harbor</title>
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        style-src 'self' 'unsafe-inline';
+        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
+    ">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
+    </script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .submit-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .submit-form textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 200px;
+            background: #f5f0eb;
+        }
+        .submit-form textarea:focus {
+            outline: none;
+            border-color: #1a4a4a;
+            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
+        }
+        .submit-form .char-count {
+            font-size: 0.8rem;
+            color: #7a9e7e;
+            text-align: right;
+            margin-top: 4px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #1a4a4a;
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0;
+        }
+        .submit-form select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4c8b8;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #f5f0eb;
+            font-family: inherit;
+        }
+        .submit-form select:focus {
+            outline: none;
+            border-color: #1a4a4a;
+        }
+        .gender-restriction-notice {
+            background: #e8ddd0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #1a4a4a;
+            margin: 8px 0;
+        }
+        .gender-restriction-notice.warning {
+            background: #f5d6b3;
+            border-left: 4px solid #c47a5a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="index.html" class="logo" style="text-decoration:none;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="logo-icon">⚓</span>
+                    <div>
+                        <span class="logo-text">The <span>Harbor</span></span>
+                        <span class="logo-sub">Share your story</span>
+                    </div>
+                </div>
+            </a>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+        </header>
+
+        <!-- User Info -->
+        <div class="user-info" id="userInfo">
+            👤 Welcome, <span class="user-name" id="userName">—</span>
+            <span id="userGenderDisplay"></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Submit Form -->
+        <div class="submit-form">
+            <h1 style="font-weight:300;color:#1a4a4a;margin-bottom:8px;">📝 Share Your Story</h1>
+            <p style="color:#7a9e7e;margin-bottom:24px;">Your story could be the hope someone else needs.</p>
+
+            <div class="card">
+                <div id="genderRestrictionNotice" class="gender-restriction-notice warning" style="display:none;">
+                    ⚠️ <span id="restrictionMessage">This section is for men only.</span>
+                </div>
+
+                <label for="storyTitle"><strong>📌 Title</strong></label>
+                <input type="text" id="storyTitle" placeholder="Give your story a title..." style="width:100%;padding:12px;border:2px solid #d4c8b8;border-radius:10px;font-size:1rem;margin-top:4px;" maxlength="100" />
+                <div style="font-size:0.75rem;color:#7a9e7e;text-align:right;margin-top:2px;"><span id="titleCount">0</span>/100</div>
+
+                <label for="storyCategory" style="margin-top:16px;"><strong>📂 Category</strong></label>
+                <select id="storyCategory" onchange="checkCategoryRestriction()">
+                    <option value="">Select a category...</option>
+                    <option value="men">🧔 Men's Harbor</option>
+                    <option value="women">👩 Women's Harbor</option>
+                    <option value="struggles">🌊 The Storm (Struggles)</option>
+                    <option value="fun">☀️ Sunny Skies (Fun)</option>
+                    <option value="learning">🧭 The Compass (Learning)</option>
+                </select>
+
+                <label for="storyText" style="margin-top:16px;"><strong>📖 Your Story</strong></label>
+                <textarea id="storyText" placeholder="Write your story here... (minimum 10 characters)" maxlength="5000"></textarea>
+                <div class="char-count"><span id="textCount">0</span>/5000 characters</div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="storyAnonymous" />
+                    <label for="storyAnonymous">🕊️ Post anonymously (your name will be hidden)</label>
+                </div>
+
+                <div id="submitError" class="error-msg"></div>
+
+                <button class="btn-primary" id="submitBtn" onclick="submitStory()" style="width:100%;margin-top:16px;">📤 Post Story</button>
+            </div>
+
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; Anonymous option available
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+            <div id="passwordChecks"></div>
+            <div id="signupFields" style="display:none;">
+                <label for="authName">What should we call you?</label>
+                <input type="text" id="authName" placeholder="Your name or nickname" />
+                <label for="authGender">Your Gender</label>
+                <select id="authGender">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <label for="authFavorites">What are your favorite things?</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing, music..." />
+            </div>
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
+                Don't have an account? <strong>Sign Up</strong>
+            </div>
+            <div class="error-msg" id="authError"></div>
+        </div>
+    </div>
+
+    <script>
+        // Character counters
+        document.getElementById('storyTitle').addEventListener('input', function() {
+            document.getElementById('titleCount').textContent = this.value.length;
+        });
+
+        document.getElementById('storyText').addEventListener('input', function() {
+            document.getElementById('textCount').textContent = this.value.length;
+        });
+
+        function checkCategoryRestriction() {
+            const category = document.getElementById('storyCategory').value;
+            const notice = document.getElementById('genderRestrictionNotice');
+            const message = document.getElementById('restrictionMessage');
+
+            if (!currentUser || !currentUserData) {
+                notice.style.display = 'block';
+                message.textContent = 'Please log in to share your story.';
+                notice.className = 'gender-restriction-notice warning';
+                return;
+            }
+
+            const gender = currentUserData.gender;
+
+            if (category === 'men' && gender !== '🧔 Man') {
+                notice.style.display = 'block';
+                message.textContent = '⚠️ This section is for men only. Please select a different category.';
+                notice.className = 'gender-restriction-notice warning';
+            } else if (category === 'women' && gender !== '👩 Woman') {
+                notice.style.display = 'block';
+                message.textContent = '⚠️ This section is for women only. Please select a different category.';
+                notice.className = 'gender-restriction-notice warning';
+            } else {
+                notice.style.display = 'none';
+            }
+        }
+    </script>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
