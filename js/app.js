@@ -894,6 +894,11 @@ function addReaction(storyId, emoji) {
     }
 
     const storyRef = db.collection('stories').doc(storyId);
+    const userReactionRef = db.collection('users').doc(currentUser.uid)
+        .collection('reactions').doc(storyId);
+
+    // Check if user already reacted with this emoji
+    const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
 
     // Floating emoji
     const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
@@ -901,25 +906,63 @@ function addReaction(storyId, emoji) {
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     createFloatingEmoji(emoji, x, y);
 
-    // SIMPLIFIED: Just update the story reactions directly
+    // Disable button temporarily to prevent rapid clicks
+    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+    if (btn) btn.disabled = true;
+
     db.runTransaction((transaction) => {
         return transaction.get(storyRef).then((doc) => {
             if (!doc.exists) return;
             const data = doc.data();
             const reactions = data.reactions || {};
-            reactions[emoji] = (reactions[emoji] || 0) + 1;
+            
+            if (hasReacted) {
+                // REMOVE reaction (toggle off)
+                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                if (userReactions[storyId]) {
+                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
+                }
+            } else {
+                // ADD reaction (toggle on)
+                reactions[emoji] = (reactions[emoji] || 0) + 1;
+                if (!userReactions[storyId]) userReactions[storyId] = [];
+                userReactions[storyId].push(emoji);
+            }
+            
             transaction.update(storyRef, { reactions: reactions });
+            transaction.set(userReactionRef, { emojis: userReactions[storyId] || [] });
         });
     })
     .then(() => {
-        loadStories();
+        // Re-enable button and update UI
+        if (btn) btn.disabled = false;
+        
+        // Update UI instantly
+        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+        if (countSpan) {
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+        }
+        
+        if (btn) {
+            if (hasReacted) {
+                btn.classList.remove('reacted');
+                const checkmark = btn.querySelector('.checkmark');
+                if (checkmark) checkmark.remove();
+            } else {
+                btn.classList.add('reacted');
+                if (!btn.querySelector('.checkmark')) {
+                    btn.innerHTML += ' <span class="checkmark">✅</span>';
+                }
+            }
+        }
     })
     .catch((err) => {
-        console.error('Error adding reaction:', err);
-        alert('Could not add reaction. Please try again.');
+        console.error('Error toggling reaction:', err);
+        if (btn) btn.disabled = false;
+        alert('Could not update reaction. Please try again.');
     });
 }
-
 // ============================================
 // CATEGORY SWITCHING
 // ============================================
