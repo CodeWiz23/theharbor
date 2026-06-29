@@ -19,12 +19,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <link rel="stylesheet" href="css/style.css" />
-
     <style>
-        /* ============================================
-        COMPLETE STYLES
-        ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -205,6 +200,8 @@
             border-radius: 16px;
             border: 1px solid #d4c8b8;
             margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
         .story-title {
             font-size: 1.4rem;
@@ -249,29 +246,65 @@
             border-radius: 30px;
             padding: 6px 16px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: 0.2s;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            position: relative;
+            user-select: none;
         }
         .emoji-btn:hover {
             background: #d4c8b8;
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
-        .emoji-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
+        .emoji-btn:active {
+            transform: scale(0.9);
         }
         .emoji-btn .count {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #7a9e7e;
-            margin-left: 4px;
+            margin-left: 6px;
         }
         .emoji-btn .checkmark {
             color: #27ae60;
-            font-size: 0.7rem;
-            margin-left: 2px;
+            font-size: 0.8rem;
+            margin-left: 4px;
         }
+        .emoji-btn.reacted {
+            background: #d4e8d4;
+            border-color: #27ae60;
+        }
+        .emoji-btn.reacted .count {
+            color: #27ae60;
+        }
+
+        /* ============================================
+        FLOATING EMOJI ANIMATION
+        ============================================ */
+        .floating-emoji {
+            position: fixed;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 1.5s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-150px) scale(1.3) rotate(20deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-350px) scale(1) rotate(-10deg);
+            }
+        }
+
+        /* ============================================
+        COMMENTS
+        ============================================ */
         .comment-section {
             margin-top: 30px;
         }
@@ -299,8 +332,14 @@
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .checkbox-group {
             display: flex;
@@ -342,6 +381,12 @@
         }
         .empty-state h3 {
             color: #1a4a4a;
+        }
+        .card {
+            background: #f5f0eb;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #d4c8b8;
         }
         .modal {
             display: none;
@@ -574,6 +619,7 @@
         let currentUser = null;
         let currentUserData = null;
         let userReactions = {};
+        let currentStoryId = null;
 
         // ============================================
         // AUTH FUNCTIONS
@@ -645,7 +691,7 @@
                     .then((userCredential) => {
                         const user = userCredential.user;
                         if (!user.emailVerified) {
-                            error.textContent = '⚠️ Please verify your email first.';
+                            error.textContent = '⚠️ Please verify your email first. Check your inbox!';
                             auth.signOut();
                             submitBtn.disabled = false;
                             submitBtn.textContent = '🚀 Log In';
@@ -691,7 +737,7 @@
                         submitBtn.disabled = false;
                         submitBtn.textContent = '🚀 Create Account';
                         auth.signOut();
-                        alert('✅ Verification email sent!');
+                        alert('✅ Verification email sent! Please check your inbox.');
                     })
                     .catch((err) => {
                         error.textContent = err.message;
@@ -735,6 +781,31 @@
         });
 
         // ============================================
+        // FLOATING EMOJI ANIMATION
+        // ============================================
+
+        function createFloatingEmoji(emoji, x, y) {
+            const el = document.createElement('div');
+            el.className = 'floating-emoji';
+            el.textContent = emoji;
+            
+            // Random offset from click position
+            const offsetX = (Math.random() - 0.5) * 200;
+            const offsetY = (Math.random() - 0.5) * 100;
+            
+            el.style.left = (x + offsetX) + 'px';
+            el.style.top = (y + offsetY) + 'px';
+            el.style.fontSize = (2 + Math.random() * 2) + 'rem';
+            
+            document.body.appendChild(el);
+            
+            // Remove after animation
+            setTimeout(() => {
+                el.remove();
+            }, 1600);
+        }
+
+        // ============================================
         // LOAD STORY
         // ============================================
 
@@ -750,6 +821,7 @@
                 return;
             }
 
+            currentStoryId = storyId;
             content.innerHTML = '<div class="loading">⏳ Loading story...</div>';
 
             db.collection('stories').doc(storyId).get()
@@ -763,7 +835,6 @@
                     story.id = doc.id;
                     content.innerHTML = renderFullStory(story);
                     
-                    // Load user's reactions for this story
                     if (currentUser) {
                         loadUserReactions(storyId);
                     }
@@ -796,9 +867,9 @@
                 const count = reactions[emoji] || 0;
                 const hasReacted = userReactions[story.id] && userReactions[story.id].includes(emoji);
                 reactionButtons += `
-                    <button class="emoji-btn" id="reaction-${story.id}-${emoji}" 
-                            onclick="addReaction('${story.id}', '${emoji}')"
-                            ${hasReacted ? 'disabled' : ''}>
+                    <button class="emoji-btn ${hasReacted ? 'reacted' : ''}" 
+                            id="reaction-${story.id}-${emoji}" 
+                            onclick="toggleReaction('${story.id}', '${emoji}')">
                         ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
                         ${hasReacted ? '<span class="checkmark">✅</span>' : ''}
                     </button>
@@ -806,7 +877,7 @@
             });
 
             return `
-                <div class="story-card">
+                <div class="story-card" id="storyCard">
                     <div class="story-title">${escapeHTML(story.title)}</div>
                     <div class="story-meta">
                         <span>✍️ ${author}</span>
@@ -822,7 +893,95 @@
         }
 
         // ============================================
-        // USER REACTIONS - Track what user reacted to
+        // TOGGLE REACTION (Add/Remove - No Page Reload)
+        // ============================================
+
+        function toggleReaction(storyId, emoji) {
+            if (!currentUser) {
+                alert('Please log in to react.');
+                return;
+            }
+
+            if (!currentUser.emailVerified) {
+                alert('Please verify your email first.');
+                return;
+            }
+
+            const storyRef = db.collection('stories').doc(storyId);
+            const userReactionRef = db.collection('users').doc(currentUser.uid)
+                .collection('reactions').doc(storyId);
+
+            // Check if user already reacted with this emoji
+            const hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
+
+            // Get click position for floating emoji
+            const rect = document.getElementById('storyCard')?.getBoundingClientRect();
+            const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+            const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+            
+            // Create floating emoji (even before DB update for instant feedback)
+            createFloatingEmoji(emoji, x, y);
+
+            db.runTransaction((transaction) => {
+                return transaction.get(storyRef).then((doc) => {
+                    if (!doc.exists) return;
+                    const data = doc.data();
+                    const reactions = data.reactions || {};
+                    
+                    if (hasReacted) {
+                        // REMOVE reaction
+                        reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                        // Remove from user reactions
+                        if (userReactions[storyId]) {
+                            userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
+                        }
+                    } else {
+                        // ADD reaction
+                        reactions[emoji] = (reactions[emoji] || 0) + 1;
+                        // Add to user reactions
+                        if (!userReactions[storyId]) {
+                            userReactions[storyId] = [];
+                        }
+                        userReactions[storyId].push(emoji);
+                    }
+                    
+                    transaction.update(storyRef, { reactions: reactions });
+                    transaction.set(userReactionRef, {
+                        emojis: userReactions[storyId] || []
+                    });
+                });
+            })
+            .then(() => {
+                // Update UI instantly - NO PAGE RELOAD
+                const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+                const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+                
+                if (countSpan) {
+                    const currentCount = parseInt(countSpan.textContent) || 0;
+                    countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+                }
+                
+                if (btn) {
+                    if (hasReacted) {
+                        btn.classList.remove('reacted');
+                        const checkmark = btn.querySelector('.checkmark');
+                        if (checkmark) checkmark.remove();
+                    } else {
+                        btn.classList.add('reacted');
+                        if (!btn.querySelector('.checkmark')) {
+                            btn.innerHTML += ' <span class="checkmark">✅</span>';
+                        }
+                    }
+                }
+            })
+            .catch((err) => {
+                console.error('Error toggling reaction:', err);
+                alert('Could not update reaction. Please try again.');
+            });
+        }
+
+        // ============================================
+        // LOAD USER REACTIONS
         // ============================================
 
         function loadUserReactions(storyId) {
@@ -841,8 +1000,10 @@
                             const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
                             if (btn) {
                                 if (userReactions[storyId].includes(emoji)) {
-                                    btn.disabled = true;
-                                    btn.innerHTML = btn.innerHTML.replace('✅', '') + ' <span class="checkmark">✅</span>';
+                                    btn.classList.add('reacted');
+                                    if (!btn.querySelector('.checkmark')) {
+                                        btn.innerHTML += ' <span class="checkmark">✅</span>';
+                                    }
                                 }
                             }
                         });
@@ -852,64 +1013,7 @@
         }
 
         // ============================================
-        // ADD REACTION - ONE TIME ONLY
-        // ============================================
-
-        function addReaction(storyId, emoji) {
-            if (!currentUser) {
-                alert('Please log in to react.');
-                return;
-            }
-
-            // Check if user already reacted to this story with this emoji
-            if (userReactions[storyId] && userReactions[storyId].includes(emoji)) {
-                alert('You already reacted with this emoji!');
-                return;
-            }
-
-            const storyRef = db.collection('stories').doc(storyId);
-            const userReactionRef = db.collection('users').doc(currentUser.uid)
-                .collection('reactions').doc(storyId);
-
-            db.runTransaction((transaction) => {
-                return transaction.get(storyRef).then((doc) => {
-                    if (!doc.exists) return;
-                    const data = doc.data();
-                    const reactions = data.reactions || {};
-                    reactions[emoji] = (reactions[emoji] || 0) + 1;
-                    transaction.update(storyRef, { reactions: reactions });
-                    
-                    // Save user reaction
-                    if (!userReactions[storyId]) {
-                        userReactions[storyId] = [];
-                    }
-                    userReactions[storyId].push(emoji);
-                    transaction.set(userReactionRef, {
-                        emojis: userReactions[storyId]
-                    });
-                });
-            })
-            .then(() => {
-                // Update UI
-                const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-                if (countSpan) {
-                    const currentCount = parseInt(countSpan.textContent) || 0;
-                    countSpan.textContent = currentCount + 1;
-                }
-                const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerHTML = btn.innerHTML.replace('✅', '') + ' <span class="checkmark">✅</span>';
-                }
-            })
-            .catch((err) => {
-                console.error('Error adding reaction:', err);
-                alert('Could not add reaction. Please try again.');
-            });
-        }
-
-        // ============================================
-        // COMMENTS - FIXED INDEX ERROR
+        // COMMENTS
         // ============================================
 
         function loadComments(storyId) {
@@ -918,7 +1022,6 @@
 
             container.innerHTML = '<div class="loading">⏳ Loading comments...</div>';
 
-            // SIMPLE QUERY - No index needed
             db.collection('comments')
                 .where('storyId', '==', storyId)
                 .get()
@@ -932,7 +1035,6 @@
                         return;
                     }
 
-                    // Sort manually by createdAt (no index needed)
                     const comments = [];
                     snapshot.forEach((doc) => {
                         const comment = doc.data();
@@ -940,7 +1042,6 @@
                         comments.push(comment);
                     });
                     
-                    // Sort by newest first (client-side)
                     comments.sort((a, b) => {
                         const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                         const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
@@ -958,7 +1059,6 @@
                     container.innerHTML = `
                         <div class="empty-state">
                             <p style="color:#c0392b;">⚠️ Error loading comments</p>
-                            <p style="font-size:0.85rem;">Please refresh the page or try again later.</p>
                             <button class="btn-primary" onclick="loadComments('${storyId}')" style="margin-top:10px;padding:8px 20px;font-size:0.9rem;">
                                 🔄 Retry
                             </button>
@@ -995,6 +1095,11 @@
         function postComment() {
             if (!currentUser) {
                 alert('Please log in to comment.');
+                return;
+            }
+
+            if (!currentUser.emailVerified) {
+                alert('Please verify your email first.');
                 return;
             }
 
@@ -1036,7 +1141,6 @@
                 likes: 0
             })
             .then(() => {
-                // Increment comment count
                 db.collection('stories').doc(storyId).update({
                     commentCount: firebase.firestore.FieldValue.increment(1)
                 });
@@ -1164,7 +1268,7 @@
             console.log('✅ Story page ready');
         });
 
-        console.log('📖 Story page loaded');
+        console.log('📖 Story page loaded with toggle reactions + floating emojis');
     </script>
 </body>
 </html>
