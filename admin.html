@@ -19,163 +19,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f5efe6;
-            color: #2d3a3a;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .crisis-banner {
-            background: #1a4a4a;
-            color: #f5f0eb;
-            padding: 12px 20px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 13px;
-            margin-bottom: 24px;
-            border-left: 5px solid #c47a5a;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            padding: 16px 0;
-            border-bottom: 2px solid #c47a5a;
-            margin-bottom: 24px;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2.2rem; }
-        .logo-text { font-size: 1.8rem; font-weight: 300; color: #1a4a4a; }
-        .logo-text span { font-weight: 700; color: #c47a5a; }
-        .logo-sub { font-size: 0.75rem; color: #7a9e7e; font-style: italic; display: block; margin-top: -4px; }
-        .auth-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn-login {
-            padding: 8px 24px;
-            border: 2px solid #1a4a4a;
-            border-radius: 30px;
-            background: #e8ddd0;
-            color: #1a4a4a;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-login:hover { background: #1a4a4a; color: #f5f0eb; }
-        .btn-signup {
-            padding: 8px 24px;
-            border: none;
-            border-radius: 30px;
-            background: #1a4a4a;
-            color: #f5f0eb;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-signup:hover { background: #c47a5a; }
-        .btn-logout {
-            padding: 6px 18px;
-            border: none;
-            border-radius: 30px;
-            background: #c47a5a;
-            color: #f5f0eb;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-logout:hover { background: #a85a3a; }
-        .user-info {
-            background: #f5f0eb;
-            padding: 12px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: none;
-            border: 1px solid #d4c8b8;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .user-name { font-weight: 700; color: #1a4a4a; }
-        .admin-badge {
-            background: #c47a5a;
-            color: white;
-            padding: 2px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .btn-primary {
-            background: #1a4a4a;
-            color: #f5f0eb;
-            padding: 10px 24px;
-            border: none;
-            border-radius: 50px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-primary:hover { background: #c47a5a; transform: translateY(-2px); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-secondary {
-            background: #e8ddd0;
-            color: #1a4a4a;
-            padding: 8px 20px;
-            border: 2px solid #1a4a4a;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-secondary:hover { background: #1a4a4a; color: #f5f0eb; }
-        .btn-danger {
-            background: #c0392b;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-danger:hover { background: #e74c3c; }
-        .btn-success {
-            background: #27ae60;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-success:hover { background: #2ecc71; }
-        .footer {
-            text-align: center;
-            color: #a8a09a;
-            font-size: 0.8rem;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #d4c8b8;
-        }
+    <link rel="stylesheet" href="css/style.css" />
 
+    <style>
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -187,7 +33,10 @@
             font-weight: 300;
             color: #1a4a4a;
         }
-        .admin-header h1 span { font-weight: 700; color: #c47a5a; }
+        .admin-header h1 span {
+            font-weight: 700;
+            color: #c47a5a;
+        }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -210,7 +59,11 @@
             font-size: 0.85rem;
             color: #7a9e7e;
         }
-        .stat-card .emoji { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+        .stat-card .emoji {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 4px;
+        }
 
         .moderation-tabs {
             display: flex;
@@ -230,8 +83,13 @@
             color: #2d3a3a;
             transition: 0.3s;
         }
-        .mod-tab:hover { background: #d4c8b8; }
-        .mod-tab.active { background: #1a4a4a; color: #f5f0eb; }
+        .mod-tab:hover {
+            background: #d4c8b8;
+        }
+        .mod-tab.active {
+            background: #1a4a4a;
+            color: #f5f0eb;
+        }
         .mod-tab .count {
             background: #c47a5a;
             color: white;
@@ -293,67 +151,17 @@
             padding: 60px 20px;
             color: #7a9e7e;
         }
-        .empty-state .big-emoji { font-size: 3rem; display: block; margin-bottom: 12px; }
-        .empty-state h3 { color: #1a4a4a; margin-bottom: 6px; }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
+        .empty-state .big-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
         }
-        .modal-content {
-            background: #f5f0eb;
-            padding: 32px;
-            border-radius: 24px;
-            max-width: 440px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid #d4c8b8;
+        .empty-state h3 {
+            color: #1a4a4a;
+            margin-bottom: 6px;
         }
-        .modal-close { float: right; font-size: 1.8rem; cursor: pointer; color: #a8a09a; transition: 0.3s; }
-        .modal-close:hover { color: #1a4a4a; }
-        .modal-content h2 { font-weight: 300; color: #1a4a4a; margin-bottom: 20px; }
-        .modal-content label { display: block; font-weight: 600; color: #2d3a3a; margin-top: 14px; font-size: 0.9rem; }
-        .modal-content input, .modal-content select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #d4c8b8;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-top: 4px;
-            background: #ffffff;
-            font-family: inherit;
-        }
-        .modal-content .btn-modal {
-            width: 100%;
-            padding: 14px;
-            background: #1a4a4a;
-            color: #f5f0eb;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 18px;
-            transition: 0.3s;
-        }
-        .modal-content .btn-modal:hover { background: #c47a5a; }
-        .switch-link { text-align: center; margin-top: 16px; color: #7a9e7e; cursor: pointer; }
-        .switch-link:hover { color: #1a4a4a; text-decoration: underline; }
-        .error-msg { color: #c0392b; font-size: 0.85rem; margin-top: 10px; text-align: center; }
 
         @media (max-width: 600px) {
-            .header { flex-direction: column; align-items: stretch; gap: 12px; }
-            .auth-buttons { justify-content: center; }
-            .logo-text { font-size: 1.4rem; }
             .admin-header { flex-direction: column; gap: 12px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .mod-item { padding: 16px; }
@@ -362,78 +170,102 @@
 </head>
 
 <body>
-    <div class="container">
-        <!-- Crisis Banner -->
-        <div class="crisis-banner" id="emergencyBanner" style="display:none;">
-            🆘 <strong>Emergency Number:</strong> <a href="#" style="color:#f5d6b3;font-weight:bold;">911</a>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
-
-        <!-- Header -->
-        <header class="header">
-            <a href="index.html" class="logo">
-                <span class="logo-icon">⚓</span>
-                <div>
-                    <span class="logo-text">The <span>Harbor</span></span>
-                    <span class="logo-sub">Admin Panel</span>
-                </div>
-            </a>
-            <div class="auth-buttons" id="authButtons">
-                <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
-                <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
+        <div class="header-right">
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <div id="authButtons">
+                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
-        </header>
-
-        <!-- User Info -->
-        <div class="user-info" id="userInfo">
-            👤 Welcome, <span class="user-name" id="userName">—</span>
-            <span class="admin-badge" id="adminBadge">👑 Admin</span>
-            <button class="btn-logout" onclick="logout()">Logout</button>
+            <div id="userInfo">
+                <span id="userName">Friend</span>
+                <span id="userGenderBadge"></span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span class="admin-badge" id="adminBadge" style="display:none;background:#c47a5a;color:white;padding:2px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;">👑 Admin</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
         </div>
+    </header>
 
-        <!-- Admin Panel -->
+    <!-- Emergency Banner -->
+    <div id="emergencyBanner"></div>
+
+    <!-- Main Content -->
+    <div class="container">
         <div id="adminContent">
             <div class="loading">⏳ Loading admin panel...</div>
         </div>
-
-        <!-- Footer -->
-        <footer class="footer">
-            ⚓ The Harbor &mdash; Admin Panel &bull; 🔒 Secure
-        </footer>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div>⚓ The Harbor — Admin Panel</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+        </div>
+        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
+            &copy; 2026 The Harbor — Built with 💚 for the community
+        </div>
+    </footer>
 
     <!-- Auth Modal -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
+
+            <div class="warning-box" id="genderWarning">
+                <span class="icon">⚠️</span>
+                <span id="genderWarningText">Your gender determines which sections you can see.</span>
+            </div>
+
             <label for="authEmail">Email</label>
             <input type="email" id="authEmail" placeholder="you@example.com" />
+
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
             <div id="passwordStrength"></div>
+
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label>
                 <input type="text" id="authName" placeholder="Choose a unique username" />
                 <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
+
                 <label for="authGender">Gender</label>
-                <select id="authGender">
+                <select id="authGender" onchange="updateGenderWarning()">
                     <option value="🧔 Man">🧔 Man</option>
                     <option value="👩 Woman">👩 Woman</option>
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
+                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
+                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
+                </div>
+
                 <label for="authCountry">Country</label>
-                <select id="authCountry">
-                    <option value="">Select your country...</option>
-                </select>
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <datalist id="country-list"></datalist>
+
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
             </div>
+
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
                 Don't have an account? <strong>Sign Up</strong>
             </div>
+
             <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
@@ -449,212 +281,129 @@
             messagingSenderId: "634248505303",
             appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
         let currentUser = null;
         let currentUserData = null;
-        let currentTab = 'flagged';
+        let currentModTab = 'flagged';
 
         // ============================================
         // COUNTRY DATA
         // ============================================
         const countries = [
-            { code: 'AF', name: 'Afghanistan', emergency: '119' },
-            { code: 'AL', name: 'Albania', emergency: '112' },
-            { code: 'DZ', name: 'Algeria', emergency: '14' },
-            { code: 'AD', name: 'Andorra', emergency: '112' },
-            { code: 'AO', name: 'Angola', emergency: '113' },
-            { code: 'AR', name: 'Argentina', emergency: '911' },
-            { code: 'AM', name: 'Armenia', emergency: '112' },
-            { code: 'AU', name: 'Australia', emergency: '000' },
-            { code: 'AT', name: 'Austria', emergency: '112' },
-            { code: 'AZ', name: 'Azerbaijan', emergency: '112' },
-            { code: 'BS', name: 'Bahamas', emergency: '911' },
-            { code: 'BH', name: 'Bahrain', emergency: '999' },
-            { code: 'BD', name: 'Bangladesh', emergency: '999' },
-            { code: 'BB', name: 'Barbados', emergency: '911' },
-            { code: 'BY', name: 'Belarus', emergency: '112' },
-            { code: 'BE', name: 'Belgium', emergency: '112' },
-            { code: 'BZ', name: 'Belize', emergency: '911' },
-            { code: 'BJ', name: 'Benin', emergency: '112' },
-            { code: 'BT', name: 'Bhutan', emergency: '112' },
-            { code: 'BO', name: 'Bolivia', emergency: '911' },
-            { code: 'BA', name: 'Bosnia', emergency: '112' },
-            { code: 'BW', name: 'Botswana', emergency: '999' },
-            { code: 'BR', name: 'Brazil', emergency: '190' },
-            { code: 'BN', name: 'Brunei', emergency: '995' },
-            { code: 'BG', name: 'Bulgaria', emergency: '112' },
-            { code: 'BF', name: 'Burkina Faso', emergency: '112' },
-            { code: 'BI', name: 'Burundi', emergency: '112' },
-            { code: 'KH', name: 'Cambodia', emergency: '119' },
-            { code: 'CM', name: 'Cameroon', emergency: '112' },
-            { code: 'CA', name: 'Canada', emergency: '911' },
-            { code: 'CV', name: 'Cape Verde', emergency: '132' },
-            { code: 'CF', name: 'Central African Republic', emergency: '112' },
-            { code: 'TD', name: 'Chad', emergency: '112' },
-            { code: 'CL', name: 'Chile', emergency: '131' },
-            { code: 'CN', name: 'China', emergency: '110' },
-            { code: 'CO', name: 'Colombia', emergency: '123' },
-            { code: 'KM', name: 'Comoros', emergency: '112' },
-            { code: 'CG', name: 'Congo', emergency: '112' },
-            { code: 'CR', name: 'Costa Rica', emergency: '911' },
-            { code: 'HR', name: 'Croatia', emergency: '112' },
-            { code: 'CU', name: 'Cuba', emergency: '106' },
-            { code: 'CY', name: 'Cyprus', emergency: '112' },
-            { code: 'CZ', name: 'Czech Republic', emergency: '112' },
-            { code: 'DK', name: 'Denmark', emergency: '112' },
-            { code: 'DJ', name: 'Djibouti', emergency: '112' },
-            { code: 'DM', name: 'Dominica', emergency: '911' },
-            { code: 'DO', name: 'Dominican Republic', emergency: '911' },
-            { code: 'TL', name: 'East Timor', emergency: '112' },
-            { code: 'EC', name: 'Ecuador', emergency: '911' },
-            { code: 'EG', name: 'Egypt', emergency: '122' },
-            { code: 'SV', name: 'El Salvador', emergency: '911' },
-            { code: 'GQ', name: 'Equatorial Guinea', emergency: '112' },
-            { code: 'ER', name: 'Eritrea', emergency: '112' },
-            { code: 'EE', name: 'Estonia', emergency: '112' },
-            { code: 'SZ', name: 'Eswatini', emergency: '999' },
-            { code: 'ET', name: 'Ethiopia', emergency: '911' },
-            { code: 'FJ', name: 'Fiji', emergency: '911' },
-            { code: 'FI', name: 'Finland', emergency: '112' },
-            { code: 'FR', name: 'France', emergency: '112' },
-            { code: 'GA', name: 'Gabon', emergency: '112' },
-            { code: 'GM', name: 'Gambia', emergency: '112' },
-            { code: 'GE', name: 'Georgia', emergency: '112' },
-            { code: 'DE', name: 'Germany', emergency: '112' },
-            { code: 'GH', name: 'Ghana', emergency: '112' },
-            { code: 'GR', name: 'Greece', emergency: '112' },
-            { code: 'GD', name: 'Grenada', emergency: '911' },
-            { code: 'GT', name: 'Guatemala', emergency: '110' },
-            { code: 'GN', name: 'Guinea', emergency: '112' },
-            { code: 'GY', name: 'Guyana', emergency: '911' },
-            { code: 'HT', name: 'Haiti', emergency: '116' },
-            { code: 'HN', name: 'Honduras', emergency: '911' },
-            { code: 'HU', name: 'Hungary', emergency: '112' },
-            { code: 'IS', name: 'Iceland', emergency: '112' },
-            { code: 'IN', name: 'India', emergency: '112' },
-            { code: 'ID', name: 'Indonesia', emergency: '112' },
-            { code: 'IR', name: 'Iran', emergency: '110' },
-            { code: 'IQ', name: 'Iraq', emergency: '112' },
-            { code: 'IE', name: 'Ireland', emergency: '112' },
-            { code: 'IL', name: 'Israel', emergency: '112' },
-            { code: 'IT', name: 'Italy', emergency: '112' },
-            { code: 'JM', name: 'Jamaica', emergency: '119' },
-            { code: 'JP', name: 'Japan', emergency: '110' },
-            { code: 'JO', name: 'Jordan', emergency: '911' },
-            { code: 'KZ', name: 'Kazakhstan', emergency: '112' },
-            { code: 'KE', name: 'Kenya', emergency: '112' },
-            { code: 'KI', name: 'Kiribati', emergency: '112' },
-            { code: 'KW', name: 'Kuwait', emergency: '112' },
-            { code: 'KG', name: 'Kyrgyzstan', emergency: '112' },
-            { code: 'LA', name: 'Laos', emergency: '112' },
-            { code: 'LV', name: 'Latvia', emergency: '112' },
-            { code: 'LB', name: 'Lebanon', emergency: '112' },
-            { code: 'LS', name: 'Lesotho', emergency: '112' },
-            { code: 'LR', name: 'Liberia', emergency: '911' },
-            { code: 'LY', name: 'Libya', emergency: '112' },
-            { code: 'LI', name: 'Liechtenstein', emergency: '112' },
-            { code: 'LT', name: 'Lithuania', emergency: '112' },
-            { code: 'LU', name: 'Luxembourg', emergency: '112' },
-            { code: 'MG', name: 'Madagascar', emergency: '112' },
-            { code: 'MW', name: 'Malawi', emergency: '112' },
-            { code: 'MY', name: 'Malaysia', emergency: '999' },
-            { code: 'MV', name: 'Maldives', emergency: '119' },
-            { code: 'ML', name: 'Mali', emergency: '112' },
-            { code: 'MT', name: 'Malta', emergency: '112' },
-            { code: 'MH', name: 'Marshall Islands', emergency: '911' },
-            { code: 'MR', name: 'Mauritania', emergency: '112' },
-            { code: 'MU', name: 'Mauritius', emergency: '999' },
-            { code: 'MX', name: 'Mexico', emergency: '911' },
-            { code: 'FM', name: 'Micronesia', emergency: '911' },
-            { code: 'MD', name: 'Moldova', emergency: '112' },
-            { code: 'MC', name: 'Monaco', emergency: '112' },
-            { code: 'MN', name: 'Mongolia', emergency: '112' },
-            { code: 'ME', name: 'Montenegro', emergency: '112' },
-            { code: 'MA', name: 'Morocco', emergency: '112' },
-            { code: 'MZ', name: 'Mozambique', emergency: '112' },
-            { code: 'MM', name: 'Myanmar', emergency: '112' },
-            { code: 'NA', name: 'Namibia', emergency: '112' },
-            { code: 'NR', name: 'Nauru', emergency: '112' },
-            { code: 'NP', name: 'Nepal', emergency: '100' },
-            { code: 'NL', name: 'Netherlands', emergency: '112' },
-            { code: 'NZ', name: 'New Zealand', emergency: '111' },
-            { code: 'NI', name: 'Nicaragua', emergency: '911' },
-            { code: 'NE', name: 'Niger', emergency: '112' },
-            { code: 'NG', name: 'Nigeria', emergency: '112' },
-            { code: 'KP', name: 'North Korea', emergency: '119' },
-            { code: 'MK', name: 'North Macedonia', emergency: '112' },
-            { code: 'NO', name: 'Norway', emergency: '112' },
-            { code: 'OM', name: 'Oman', emergency: '999' },
-            { code: 'PK', name: 'Pakistan', emergency: '112' },
-            { code: 'PW', name: 'Palau', emergency: '911' },
-            { code: 'PA', name: 'Panama', emergency: '911' },
-            { code: 'PG', name: 'Papua New Guinea', emergency: '112' },
-            { code: 'PY', name: 'Paraguay', emergency: '911' },
-            { code: 'PE', name: 'Peru', emergency: '911' },
-            { code: 'PH', name: 'Philippines', emergency: '911' },
-            { code: 'PL', name: 'Poland', emergency: '112' },
-            { code: 'PT', name: 'Portugal', emergency: '112' },
-            { code: 'QA', name: 'Qatar', emergency: '999' },
-            { code: 'RO', name: 'Romania', emergency: '112' },
-            { code: 'RU', name: 'Russia', emergency: '112' },
-            { code: 'RW', name: 'Rwanda', emergency: '112' },
-            { code: 'LC', name: 'Saint Lucia', emergency: '911' },
-            { code: 'WS', name: 'Samoa', emergency: '112' },
-            { code: 'SM', name: 'San Marino', emergency: '112' },
-            { code: 'SA', name: 'Saudi Arabia', emergency: '911' },
-            { code: 'SN', name: 'Senegal', emergency: '112' },
-            { code: 'RS', name: 'Serbia', emergency: '112' },
-            { code: 'SC', name: 'Seychelles', emergency: '112' },
-            { code: 'SL', name: 'Sierra Leone', emergency: '112' },
-            { code: 'SG', name: 'Singapore', emergency: '999' },
-            { code: 'SK', name: 'Slovakia', emergency: '112' },
-            { code: 'SI', name: 'Slovenia', emergency: '112' },
-            { code: 'SB', name: 'Solomon Islands', emergency: '911' },
-            { code: 'SO', name: 'Somalia', emergency: '112' },
-            { code: 'ZA', name: 'South Africa', emergency: '112' },
-            { code: 'KR', name: 'South Korea', emergency: '112' },
-            { code: 'ES', name: 'Spain', emergency: '112' },
-            { code: 'LK', name: 'Sri Lanka', emergency: '119' },
-            { code: 'SD', name: 'Sudan', emergency: '112' },
-            { code: 'SR', name: 'Suriname', emergency: '112' },
-            { code: 'SE', name: 'Sweden', emergency: '112' },
-            { code: 'CH', name: 'Switzerland', emergency: '112' },
-            { code: 'SY', name: 'Syria', emergency: '112' },
-            { code: 'TW', name: 'Taiwan', emergency: '110' },
-            { code: 'TJ', name: 'Tajikistan', emergency: '112' },
-            { code: 'TZ', name: 'Tanzania', emergency: '112' },
-            { code: 'TH', name: 'Thailand', emergency: '191' },
-            { code: 'TG', name: 'Togo', emergency: '112' },
-            { code: 'TO', name: 'Tonga', emergency: '911' },
-            { code: 'TT', name: 'Trinidad', emergency: '911' },
-            { code: 'TN', name: 'Tunisia', emergency: '112' },
-            { code: 'TR', name: 'Turkey', emergency: '112' },
-            { code: 'TM', name: 'Turkmenistan', emergency: '112' },
-            { code: 'TV', name: 'Tuvalu', emergency: '112' },
-            { code: 'UG', name: 'Uganda', emergency: '112' },
-            { code: 'UA', name: 'Ukraine', emergency: '112' },
-            { code: 'AE', name: 'United Arab Emirates', emergency: '999' },
-            { code: 'GB', name: 'United Kingdom', emergency: '999' },
-            { code: 'US', name: 'United States', emergency: '911' },
-            { code: 'UY', name: 'Uruguay', emergency: '911' },
-            { code: 'UZ', name: 'Uzbekistan', emergency: '112' },
-            { code: 'VU', name: 'Vanuatu', emergency: '112' },
-            { code: 'VA', name: 'Vatican City', emergency: '112' },
-            { code: 'VE', name: 'Venezuela', emergency: '911' },
-            { code: 'VN', name: 'Vietnam', emergency: '113' },
-            { code: 'YE', name: 'Yemen', emergency: '112' },
-            { code: 'ZM', name: 'Zambia', emergency: '112' },
-            { code: 'ZW', name: 'Zimbabwe', emergency: '112' }
+            { name: 'Afghanistan', emergency: '119' }, { name: 'Albania', emergency: '112' },
+            { name: 'Algeria', emergency: '14' }, { name: 'Andorra', emergency: '112' },
+            { name: 'Angola', emergency: '113' }, { name: 'Argentina', emergency: '911' },
+            { name: 'Armenia', emergency: '112' }, { name: 'Australia', emergency: '000' },
+            { name: 'Austria', emergency: '112' }, { name: 'Azerbaijan', emergency: '112' },
+            { name: 'Bahamas', emergency: '911' }, { name: 'Bahrain', emergency: '999' },
+            { name: 'Bangladesh', emergency: '999' }, { name: 'Barbados', emergency: '911' },
+            { name: 'Belarus', emergency: '112' }, { name: 'Belgium', emergency: '112' },
+            { name: 'Belize', emergency: '911' }, { name: 'Benin', emergency: '112' },
+            { name: 'Bhutan', emergency: '112' }, { name: 'Bolivia', emergency: '911' },
+            { name: 'Bosnia and Herzegovina', emergency: '112' }, { name: 'Botswana', emergency: '999' },
+            { name: 'Brazil', emergency: '190' }, { name: 'Brunei', emergency: '995' },
+            { name: 'Bulgaria', emergency: '112' }, { name: 'Burkina Faso', emergency: '112' },
+            { name: 'Burundi', emergency: '112' }, { name: 'Cambodia', emergency: '119' },
+            { name: 'Cameroon', emergency: '112' }, { name: 'Canada', emergency: '911' },
+            { name: 'Cape Verde', emergency: '132' }, { name: 'Central African Republic', emergency: '112' },
+            { name: 'Chad', emergency: '112' }, { name: 'Chile', emergency: '131' },
+            { name: 'China', emergency: '110' }, { name: 'Colombia', emergency: '123' },
+            { name: 'Comoros', emergency: '112' }, { name: 'Congo', emergency: '112' },
+            { name: 'Costa Rica', emergency: '911' }, { name: 'Croatia', emergency: '112' },
+            { name: 'Cuba', emergency: '106' }, { name: 'Cyprus', emergency: '112' },
+            { name: 'Czech Republic', emergency: '112' }, { name: 'Denmark', emergency: '112' },
+            { name: 'Djibouti', emergency: '112' }, { name: 'Dominica', emergency: '911' },
+            { name: 'Dominican Republic', emergency: '911' }, { name: 'Ecuador', emergency: '911' },
+            { name: 'Egypt', emergency: '122' }, { name: 'El Salvador', emergency: '911' },
+            { name: 'Equatorial Guinea', emergency: '112' }, { name: 'Eritrea', emergency: '112' },
+            { name: 'Estonia', emergency: '112' }, { name: 'Eswatini', emergency: '999' },
+            { name: 'Ethiopia', emergency: '911' }, { name: 'Fiji', emergency: '911' },
+            { name: 'Finland', emergency: '112' }, { name: 'France', emergency: '112' },
+            { name: 'Gabon', emergency: '112' }, { name: 'Gambia', emergency: '112' },
+            { name: 'Georgia', emergency: '112' }, { name: 'Germany', emergency: '112' },
+            { name: 'Ghana', emergency: '112' }, { name: 'Greece', emergency: '112' },
+            { name: 'Grenada', emergency: '911' }, { name: 'Guatemala', emergency: '110' },
+            { name: 'Guinea', emergency: '112' }, { name: 'Guyana', emergency: '911' },
+            { name: 'Haiti', emergency: '116' }, { name: 'Honduras', emergency: '911' },
+            { name: 'Hungary', emergency: '112' }, { name: 'Iceland', emergency: '112' },
+            { name: 'India', emergency: '112' }, { name: 'Indonesia', emergency: '112' },
+            { name: 'Iran', emergency: '110' }, { name: 'Iraq', emergency: '112' },
+            { name: 'Ireland', emergency: '112' }, { name: 'Israel', emergency: '112' },
+            { name: 'Italy', emergency: '112' }, { name: 'Jamaica', emergency: '119' },
+            { name: 'Japan', emergency: '110' }, { name: 'Jordan', emergency: '911' },
+            { name: 'Kazakhstan', emergency: '112' }, { name: 'Kenya', emergency: '112' },
+            { name: 'Kiribati', emergency: '112' }, { name: 'Kuwait', emergency: '112' },
+            { name: 'Kyrgyzstan', emergency: '112' }, { name: 'Laos', emergency: '112' },
+            { name: 'Latvia', emergency: '112' }, { name: 'Lebanon', emergency: '112' },
+            { name: 'Lesotho', emergency: '112' }, { name: 'Liberia', emergency: '911' },
+            { name: 'Libya', emergency: '112' }, { name: 'Liechtenstein', emergency: '112' },
+            { name: 'Lithuania', emergency: '112' }, { name: 'Luxembourg', emergency: '112' },
+            { name: 'Madagascar', emergency: '112' }, { name: 'Malawi', emergency: '112' },
+            { name: 'Malaysia', emergency: '999' }, { name: 'Maldives', emergency: '119' },
+            { name: 'Mali', emergency: '112' }, { name: 'Malta', emergency: '112' },
+            { name: 'Marshall Islands', emergency: '911' }, { name: 'Mauritania', emergency: '112' },
+            { name: 'Mauritius', emergency: '999' }, { name: 'Mexico', emergency: '911' },
+            { name: 'Micronesia', emergency: '911' }, { name: 'Moldova', emergency: '112' },
+            { name: 'Monaco', emergency: '112' }, { name: 'Mongolia', emergency: '112' },
+            { name: 'Montenegro', emergency: '112' }, { name: 'Morocco', emergency: '112' },
+            { name: 'Mozambique', emergency: '112' }, { name: 'Myanmar', emergency: '112' },
+            { name: 'Namibia', emergency: '112' }, { name: 'Nauru', emergency: '112' },
+            { name: 'Nepal', emergency: '100' }, { name: 'Netherlands', emergency: '112' },
+            { name: 'New Zealand', emergency: '111' }, { name: 'Nicaragua', emergency: '911' },
+            { name: 'Niger', emergency: '112' }, { name: 'Nigeria', emergency: '112' },
+            { name: 'North Korea', emergency: '119' }, { name: 'North Macedonia', emergency: '112' },
+            { name: 'Norway', emergency: '112' }, { name: 'Oman', emergency: '999' },
+            { name: 'Pakistan', emergency: '112' }, { name: 'Palau', emergency: '911' },
+            { name: 'Panama', emergency: '911' }, { name: 'Papua New Guinea', emergency: '112' },
+            { name: 'Paraguay', emergency: '911' }, { name: 'Peru', emergency: '911' },
+            { name: 'Philippines', emergency: '911' }, { name: 'Poland', emergency: '112' },
+            { name: 'Portugal', emergency: '112' }, { name: 'Qatar', emergency: '999' },
+            { name: 'Romania', emergency: '112' }, { name: 'Russia', emergency: '112' },
+            { name: 'Rwanda', emergency: '112' }, { name: 'Saint Lucia', emergency: '911' },
+            { name: 'Samoa', emergency: '112' }, { name: 'San Marino', emergency: '112' },
+            { name: 'Saudi Arabia', emergency: '911' }, { name: 'Senegal', emergency: '112' },
+            { name: 'Serbia', emergency: '112' }, { name: 'Seychelles', emergency: '112' },
+            { name: 'Sierra Leone', emergency: '112' }, { name: 'Singapore', emergency: '999' },
+            { name: 'Slovakia', emergency: '112' }, { name: 'Slovenia', emergency: '112' },
+            { name: 'Solomon Islands', emergency: '911' }, { name: 'Somalia', emergency: '112' },
+            { name: 'South Africa', emergency: '112' }, { name: 'South Korea', emergency: '112' },
+            { name: 'Spain', emergency: '112' }, { name: 'Sri Lanka', emergency: '119' },
+            { name: 'Sudan', emergency: '112' }, { name: 'Suriname', emergency: '112' },
+            { name: 'Sweden', emergency: '112' }, { name: 'Switzerland', emergency: '112' },
+            { name: 'Syria', emergency: '112' }, { name: 'Taiwan', emergency: '110' },
+            { name: 'Tajikistan', emergency: '112' }, { name: 'Tanzania', emergency: '112' },
+            { name: 'Thailand', emergency: '191' }, { name: 'Togo', emergency: '112' },
+            { name: 'Tonga', emergency: '911' }, { name: 'Trinidad and Tobago', emergency: '911' },
+            { name: 'Tunisia', emergency: '112' }, { name: 'Turkey', emergency: '112' },
+            { name: 'Turkmenistan', emergency: '112' }, { name: 'Tuvalu', emergency: '112' },
+            { name: 'Uganda', emergency: '112' }, { name: 'Ukraine', emergency: '112' },
+            { name: 'United Arab Emirates', emergency: '999' }, { name: 'United Kingdom', emergency: '999' },
+            { name: 'United States', emergency: '911' }, { name: 'Uruguay', emergency: '911' },
+            { name: 'Uzbekistan', emergency: '112' }, { name: 'Vanuatu', emergency: '112' },
+            { name: 'Vatican City', emergency: '112' }, { name: 'Venezuela', emergency: '911' },
+            { name: 'Vietnam', emergency: '113' }, { name: 'Yemen', emergency: '112' },
+            { name: 'Zambia', emergency: '112' }, { name: 'Zimbabwe', emergency: '112' }
         ];
 
-        // ============================================
-        // AUTH FUNCTIONS
-        // ============================================
+        // Populate country datalist
+        function populateCountryDatalist() {
+            const datalist = document.getElementById('country-list');
+            if (!datalist) return;
+            datalist.innerHTML = '';
+            countries.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.name;
+                datalist.appendChild(option);
+            });
+        }
+        populateCountryDatalist();
 
+        // ============================================
+        // SECURITY FUNCTIONS
+        // ============================================
         function sanitizeInput(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -677,6 +426,9 @@
             return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
         }
 
+        // ============================================
+        // AUTH FUNCTIONS
+        // ============================================
         function checkPasswordStrength(password) {
             let score = 0;
             if (password.length >= 8) score += 20;
@@ -686,20 +438,20 @@
             if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
             const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
             if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-
-            let strength = 'weak', color = '#c0392b';
-            if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
-            else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
-            else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
-            else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
-            else { strength = 'very-weak'; color = '#c0392b'; }
+            let strength = 'weak',
+                color = '#c0392b';
+            if (score >= 90) { strength = 'very-strong';
+                color = '#27ae60'; } else if (score >= 70) { strength = 'strong';
+                color = '#2ecc71'; } else if (score >= 50) { strength = 'medium';
+                color = '#f39c12'; } else if (score >= 30) { strength = 'weak';
+                color = '#e67e22'; } else { strength = 'very-weak';
+                color = '#c0392b'; }
             return { score, strength, color };
         }
 
         function checkUsernameAvailability(username) {
             if (!username || username.length < 2) return Promise.resolve(false);
-            return db.collection('users').where('name', '==', username).get()
-                .then(snapshot => snapshot.empty);
+            return db.collection('users').where('name', '==', username).get().then(s => s.empty);
         }
 
         async function checkUsernameOnType() {
@@ -709,8 +461,8 @@
             const username = nameInput.value.trim();
             if (username.length < 2) { statusDiv.innerHTML = ''; return; }
             const available = await checkUsernameAvailability(username);
-            statusDiv.innerHTML = available ? 
-                `<span style="color:#27ae60;">✅ Username available!</span>` : 
+            statusDiv.innerHTML = available ?
+                `<span style="color:#27ae60;">✅ Username available!</span>` :
                 `<span style="color:#c0392b;">❌ Username taken</span>`;
         }
 
@@ -727,6 +479,7 @@
             document.getElementById('authPassword').value = '';
             document.getElementById('authName').value = '';
             document.getElementById('authFavorites').value = '';
+            document.getElementById('authCountry').value = '';
             document.getElementById('passwordStrength').innerHTML = '';
             document.getElementById('usernameStatus').innerHTML = '';
             if (mode === 'login') {
@@ -739,16 +492,7 @@
                 title.textContent = '📝 Join The Harbor';
                 submitBtn.textContent = '🚀 Create Account';
                 signupFields.style.display = 'block';
-                // Populate country dropdown
-                const countrySelect = document.getElementById('authCountry');
-                if (countrySelect && countrySelect.options.length <= 1) {
-                    countries.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.name;
-                        opt.textContent = c.name;
-                        countrySelect.appendChild(opt);
-                    });
-                }
+                populateCountryDatalist();
                 switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
                 switchLink.dataset.mode = 'login';
             }
@@ -765,6 +509,24 @@
             const mode = switchLink.dataset.mode;
             closeModal();
             setTimeout(() => openModal(mode), 200);
+        }
+
+        function updateGenderWarning() {
+            const genderSelect = document.getElementById('authGender');
+            const warning = document.getElementById('genderWarning');
+            const text = document.getElementById('genderWarningText');
+            if (!genderSelect) return;
+            const gender = genderSelect.value;
+            if (gender === '🧔 Man') {
+                text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
+                warning.classList.add('show');
+            } else if (gender === '👩 Woman') {
+                text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
+                warning.classList.add('show');
+            } else {
+                text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
+                warning.classList.add('show');
+            }
         }
 
         function handleAuth() {
@@ -810,11 +572,11 @@
                 const nameInput = document.getElementById('authName');
                 const genderSelect = document.getElementById('authGender');
                 const favoritesInput = document.getElementById('authFavorites');
-                const countrySelect = document.getElementById('authCountry');
+                const countryInput = document.getElementById('authCountry');
                 const name = nameInput ? nameInput.value.trim() : '';
                 const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
                 const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-                const country = countrySelect ? countrySelect.value : '';
+                const country = countryInput ? countryInput.value.trim() : '';
                 if (!name || name.length < 2) {
                     error.textContent = 'Please enter a username (minimum 2 characters).';
                     submitBtn.disabled = false;
@@ -883,11 +645,12 @@
         // ============================================
         // AUTH STATE LISTENER
         // ============================================
-
         auth.onAuthStateChanged((user) => {
             const authButtons = document.getElementById('authButtons');
             const userInfo = document.getElementById('userInfo');
             const userName = document.getElementById('userName');
+            const userGenderBadge = document.getElementById('userGenderBadge');
+            const verificationBadge = document.getElementById('verificationBadge');
             const adminBadge = document.getElementById('adminBadge');
 
             if (user) {
@@ -895,11 +658,21 @@
                 authButtons.style.display = 'none';
                 userInfo.style.display = 'flex';
 
+                if (user.emailVerified) {
+                    verificationBadge.textContent = '✅ Verified';
+                    verificationBadge.className = 'verification-badge verified';
+                } else {
+                    verificationBadge.textContent = '⏳ Unverified';
+                    verificationBadge.className = 'verification-badge';
+                }
+
                 db.collection('users').doc(user.uid).get()
                     .then((doc) => {
                         if (doc.exists) {
                             currentUserData = doc.data();
                             userName.textContent = currentUserData.name || 'Admin';
+                            userGenderBadge.textContent = currentUserData.gender || '';
+
                             if (currentUserData.isAdmin) {
                                 adminBadge.style.display = 'inline-block';
                                 loadAdminPanel();
@@ -936,7 +709,6 @@
         // ============================================
         // LOAD ADMIN PANEL
         // ============================================
-
         function loadAdminPanel() {
             const content = document.getElementById('adminContent');
             content.innerHTML = `
@@ -963,14 +735,14 @@
                     <div class="loading">⏳ Loading...</div>
                 </div>
             `;
-            
+
             loadStats();
             loadModItems('flagged');
         }
 
         function loadStats() {
             const statsDiv = document.getElementById('adminStats');
-            
+
             Promise.all([
                 db.collection('stories').where('flagged', '==', true).get(),
                 db.collection('stories').where('approved', '==', false).get(),
@@ -1001,19 +773,13 @@
                         </div>
                     </div>
                 `;
-                
+
                 document.getElementById('flaggedCount').textContent = flaggedStories.size + flaggedComments.size;
                 document.getElementById('pendingCount').textContent = pendingStories.size;
             }).catch((err) => {
                 console.error('Error loading stats:', err);
             });
         }
-
-        // ============================================
-        // LOAD MODERATION ITEMS
-        // ============================================
-
-        let currentModTab = 'flagged';
 
         function switchTab(tab) {
             currentModTab = tab;
@@ -1062,7 +828,7 @@
                         return items;
                     });
             } else if (type === 'reported') {
-                promise = db.collection('reports').orderBy('createdAt', 'desc').get()
+                promise = db.collection('reports').get()
                     .then(snapshot => {
                         const items = [];
                         snapshot.forEach(doc => {
@@ -1070,6 +836,12 @@
                             data.id = doc.id;
                             data.type = 'report';
                             items.push(data);
+                        });
+                        // Sort manually by createdAt
+                        items.sort((a, b) => {
+                            const ta = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                            const tb = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                            return tb - ta;
                         });
                         return items;
                     });
@@ -1105,10 +877,6 @@
             });
         }
 
-        // ============================================
-        // RENDER MODERATION ITEM
-        // ============================================
-
         function renderModItem(item) {
             const time = item.createdAt ? item.createdAt.toDate().toLocaleString() : 'Recently';
             let content = '';
@@ -1121,9 +889,9 @@
                     ${item.flagReason ? `<div class="flag-reason">🚩 ${escapeHTML(item.flagReason)}</div>` : ''}
                     <div class="content">${escapeHTML((item.text || '').substring(0, 300))}${(item.text || '').length > 300 ? '...' : ''}</div>
                     <div class="actions">
-                        <button class="btn-success" onclick="approveItem('story', '${item.id}')">✅ Approve</button>
-                        <button class="btn-danger" onclick="deleteItem('story', '${item.id}')">🗑️ Delete</button>
-                        <button class="btn-secondary" onclick="viewStory('${item.id}')">👁️ View</button>
+                        <button class="btn-success" onclick="approveItem('story', '${item.id}')" style="background:#27ae60;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">✅ Approve</button>
+                        <button class="btn-danger" onclick="deleteItem('story', '${item.id}')" style="background:#c0392b;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">🗑️ Delete</button>
+                        <button class="btn-secondary" onclick="viewStory('${item.id}')" style="background:#e8ddd0;border:2px solid #1a4a4a;border-radius:50px;padding:8px 20px;cursor:pointer;">👁️ View</button>
                     </div>
                 `;
             } else if (item.type === 'comment') {
@@ -1132,8 +900,8 @@
                     <div class="meta">✍️ ${item.isAnonymous ? 'Anonymous' : escapeHTML(item.authorName || 'Unknown')} · 📅 ${time}</div>
                     <div class="content">${escapeHTML(item.text || '')}</div>
                     <div class="actions">
-                        <button class="btn-success" onclick="approveItem('comment', '${item.id}')">✅ Approve</button>
-                        <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')">🗑️ Delete</button>
+                        <button class="btn-success" onclick="approveItem('comment', '${item.id}')" style="background:#27ae60;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">✅ Approve</button>
+                        <button class="btn-danger" onclick="deleteItem('comment', '${item.id}')" style="background:#c0392b;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">🗑️ Delete</button>
                     </div>
                 `;
             } else if (item.type === 'report') {
@@ -1143,8 +911,8 @@
                     <div class="content">Reason: ${escapeHTML(item.reason || 'Not specified')}</div>
                     <div class="content" style="margin-top:8px;">Content: ${escapeHTML((item.content || '').substring(0, 200))}${(item.content || '').length > 200 ? '...' : ''}</div>
                     <div class="actions">
-                        <button class="btn-success" onclick="resolveReport('${item.id}')">✅ Resolved</button>
-                        <button class="btn-danger" onclick="deleteItem('report', '${item.id}')">🗑️ Dismiss</button>
+                        <button class="btn-success" onclick="resolveReport('${item.id}')" style="background:#27ae60;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">✅ Resolved</button>
+                        <button class="btn-danger" onclick="deleteItem('report', '${item.id}')" style="background:#c0392b;color:white;border:none;border-radius:50px;padding:8px 20px;cursor:pointer;">🗑️ Dismiss</button>
                     </div>
                 `;
             }
@@ -1152,13 +920,8 @@
             return `<div class="mod-item">${content}</div>`;
         }
 
-        // ============================================
-        // MODERATION ACTIONS
-        // ============================================
-
         function approveItem(type, id) {
             if (!confirm(`Approve this ${type}?`)) return;
-            
             const ref = type === 'story' ? db.collection('stories').doc(id) : db.collection('comments').doc(id);
             ref.update({ approved: true, flagged: false })
                 .then(() => {
@@ -1173,10 +936,9 @@
 
         function deleteItem(type, id) {
             if (!confirm(`Delete this ${type}? This cannot be undone.`)) return;
-            
-            const ref = type === 'story' ? db.collection('stories').doc(id) : 
-                        type === 'comment' ? db.collection('comments').doc(id) : 
-                        db.collection('reports').doc(id);
+            const ref = type === 'story' ? db.collection('stories').doc(id) :
+                type === 'comment' ? db.collection('comments').doc(id) :
+                db.collection('reports').doc(id);
             ref.delete()
                 .then(() => {
                     alert('✅ Item deleted!');
@@ -1190,7 +952,6 @@
 
         function resolveReport(id) {
             if (!confirm('Mark this report as resolved?')) return;
-            
             db.collection('reports').doc(id).update({ resolved: true })
                 .then(() => {
                     alert('✅ Report resolved!');
@@ -1208,7 +969,6 @@
         // ============================================
         // INIT
         // ============================================
-
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('authModal').addEventListener('click', function(e) {
                 if (e.target === this) closeModal();
@@ -1234,6 +994,9 @@
                     if (modal && modal.style.display === 'flex') handleAuth();
                 }
             });
+
+            // Populate country datalist
+            populateCountryDatalist();
 
             console.log('✅ Admin panel ready');
         });
