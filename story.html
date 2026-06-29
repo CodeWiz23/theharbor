@@ -250,7 +250,6 @@
 </head>
 
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
@@ -273,16 +272,13 @@
         </div>
     </header>
 
-    <!-- Emergency Banner -->
     <div id="emergencyBanner"></div>
 
-    <!-- Main Content -->
     <div class="container">
         <div id="storyContent">
             <div class="loading">⏳ Loading story...</div>
         </div>
 
-        <!-- Comments Section -->
         <div class="comment-section card">
             <h3 style="margin-bottom:12px;">💬 Comments</h3>
             <div id="commentsContainer">
@@ -314,7 +310,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
@@ -330,7 +325,6 @@
         </div>
     </footer>
 
-    <!-- Auth Modal -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -384,9 +378,6 @@
     </div>
 
     <script>
-    // ============================================
-    // FIREBASE CONFIG
-    // ============================================
     var firebaseConfig = {
         apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
         authDomain: "the-harbor-community.firebaseapp.com",
@@ -403,9 +394,6 @@
     var currentUserData = null;
     var userReactions = {};
 
-    // ============================================
-    // COUNTRY DATA
-    // ============================================
     var countries = [
         { name: 'United States', emergency: '911' },
         { name: 'United Kingdom', emergency: '999' },
@@ -433,9 +421,6 @@
     }
     populateCountryDatalist();
 
-    // ============================================
-    // SECURITY FUNCTIONS
-    // ============================================
     function sanitizeInput(text) {
         if (!text) return '';
         var div = document.createElement('div');
@@ -670,9 +655,6 @@
         }
     }
 
-    // ============================================
-    // AUTH STATE LISTENER
-    // ============================================
     auth.onAuthStateChanged(function(user) {
         var authButtons = document.getElementById('authButtons');
         var userInfo = document.getElementById('userInfo');
@@ -714,9 +696,6 @@
         }
     });
 
-    // ============================================
-    // FLOATING EMOJI
-    // ============================================
     function createFloatingEmoji(emoji, x, y) {
         var el = document.createElement('div');
         el.className = 'floating-emoji';
@@ -730,9 +709,6 @@
         setTimeout(function() { el.remove(); }, 1600);
     }
 
-    // ============================================
-    // LOAD STORY
-    // ============================================
     function loadStory() {
         var urlParams = new URLSearchParams(window.location.search);
         var storyId = urlParams.get('id');
@@ -806,9 +782,6 @@
         `;
     }
 
-    // ============================================
-    // TOGGLE REACTION
-    // ============================================
     function toggleReaction(storyId, emoji) {
         if (!currentUser) {
             alert('Please log in to react.');
@@ -884,9 +857,6 @@
         });
     }
 
-    // ============================================
-    // LOAD USER REACTIONS
-    // ============================================
     function loadUserReactions() {
         if (!currentUser) return;
 
@@ -902,9 +872,6 @@
             });
     }
 
-    // ============================================
-    // LOAD COMMENTS
-    // ============================================
     function loadComments(storyId) {
         var container = document.getElementById('commentsContainer');
         if (!container) return;
@@ -1076,9 +1043,6 @@
             });
     }
 
-    // ============================================
-    // INIT
-    // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         var commentText = document.getElementById('commentText');
         var commentCount = document.getElementById('commentCount');
