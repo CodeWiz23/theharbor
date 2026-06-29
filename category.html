@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Category — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
-    ">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -383,24 +378,20 @@
     // LOAD CATEGORY STORIES
     // ============================================
     function loadCategoryStories() {
-        const container = document.getElementById('storiesContainer');
+        var container = document.getElementById('storiesContainer');
         if (!container) return;
 
-        // Get category from URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const cat = urlParams.get('cat') || 'all';
+        var urlParams = new URLSearchParams(window.location.search);
+        var cat = urlParams.get('cat') || 'all';
         currentCategory = cat;
 
-        // Update filter dropdown
-        const filterSelect = document.getElementById('filterCategory');
+        var filterSelect = document.getElementById('filterCategory');
         if (filterSelect) {
             filterSelect.value = cat;
         }
 
-        // Update header
         updateCategoryHeader(cat);
 
-        // Check if user is logged in
         if (typeof currentUser === 'undefined' || !currentUser) {
             container.innerHTML = `
                 <div class="empty-state" style="padding:40px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
@@ -419,20 +410,16 @@
 
         container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
 
-        let query = db.collection('stories').where('approved', '==', true);
+        var query = db.collection('stories').where('approved', '==', true);
 
-        // Handle "my-stories" - show user's own stories
         if (cat === 'my-stories') {
             query = query.where('userId', '==', currentUser.uid);
         } else if (cat !== 'all') {
             query = query.where('category', '==', cat);
         }
 
-        // If "all" - show all stories (no filter)
-        // If "my-stories" - filtered by userId
-
         query.get()
-            .then((snapshot) => {
+            .then(function(snapshot) {
                 if (snapshot.empty) {
                     container.innerHTML = `
                         <div class="empty-state">
@@ -446,25 +433,24 @@
                     return;
                 }
 
-                let stories = [];
-                snapshot.forEach((doc) => {
-                    const s = doc.data();
+                var stories = [];
+                snapshot.forEach(function(doc) {
+                    var s = doc.data();
                     s.id = doc.id;
                     stories.push(s);
                 });
 
-                // Sort by createdAt (newest first)
-                stories.sort((a, b) => {
-                    const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                    const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                stories.sort(function(a, b) {
+                    var timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                    var timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
                     return timeB - timeA;
                 });
 
                 allStories = stories;
-                document.getElementById('storyCount').textContent = `${stories.length} stories`;
+                document.getElementById('storyCount').textContent = stories.length + ' stories';
                 applySort();
             })
-            .catch((err) => {
+            .catch(function(err) {
                 console.error('Error loading stories:', err);
                 container.innerHTML = `
                     <div class="empty-state">
@@ -481,24 +467,24 @@
     // UPDATE CATEGORY HEADER
     // ============================================
     function updateCategoryHeader(cat) {
-        const meta = categoryMeta[cat] || categoryMeta['all'];
+        var meta = categoryMeta[cat] || categoryMeta['all'];
 
         document.getElementById('categoryIcon').textContent = meta.icon;
         document.getElementById('categoryTitle').textContent = meta.title;
         document.getElementById('categoryDescription').textContent = meta.description;
         document.getElementById('categoryInfoText').textContent = meta.info;
 
-        document.title = `${meta.title} — The Harbor`;
+        document.title = meta.title + ' — The Harbor';
     }
 
     // ============================================
     // APPLY FILTERS
     // ============================================
     function applyFilters() {
-        const filterSelect = document.getElementById('filterCategory');
-        const cat = filterSelect ? filterSelect.value : 'all';
+        var filterSelect = document.getElementById('filterCategory');
+        var cat = filterSelect ? filterSelect.value : 'all';
 
-        const url = new URL(window.location);
+        var url = new URL(window.location);
         url.searchParams.set('cat', cat);
         window.history.pushState({}, '', url);
 
@@ -513,7 +499,7 @@
     function setSort(sortType) {
         currentSort = sortType;
 
-        document.querySelectorAll('.sort-options button').forEach((btn) => {
+        document.querySelectorAll('.sort-options button').forEach(function(btn) {
             btn.classList.toggle('active', btn.dataset.sort === sortType);
         });
 
@@ -524,24 +510,24 @@
     // APPLY SORT
     // ============================================
     function applySort() {
-        let sorted = [...allStories];
+        var sorted = allStories.slice();
 
         if (currentSort === 'newest') {
-            sorted.sort((a, b) => {
-                const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+            sorted.sort(function(a, b) {
+                var timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                var timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
                 return timeB - timeA;
             });
         } else if (currentSort === 'oldest') {
-            sorted.sort((a, b) => {
-                const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+            sorted.sort(function(a, b) {
+                var timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                var timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
                 return timeA - timeB;
             });
         } else if (currentSort === 'popular') {
-            sorted.sort((a, b) => {
-                const totalA = Object.values(a.reactions || {}).reduce((sum, val) => sum + val, 0);
-                const totalB = Object.values(b.reactions || {}).reduce((sum, val) => sum + val, 0);
+            sorted.sort(function(a, b) {
+                var totalA = Object.values(a.reactions || {}).reduce(function(sum, val) { return sum + val; }, 0);
+                var totalB = Object.values(b.reactions || {}).reduce(function(sum, val) { return sum + val; }, 0);
                 return totalB - totalA;
             });
         }
@@ -553,7 +539,7 @@
     // RENDER STORIES
     // ============================================
     function renderStories(stories) {
-        const container = document.getElementById('storiesContainer');
+        var container = document.getElementById('storiesContainer');
         if (!container) return;
 
         if (stories.length === 0) {
@@ -567,8 +553,8 @@
             return;
         }
 
-        let html = '';
-        stories.forEach((story) => {
+        var html = '';
+        stories.forEach(function(story) {
             html += renderStoryCard(story);
         });
         container.innerHTML = html;
@@ -578,22 +564,22 @@
     // RENDER STORY CARD
     // ============================================
     function renderStoryCard(story) {
-        const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
-        const categoryNames = {
+        var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+        var categoryNames = {
             'men': '🧔 Men\'s Harbor',
             'women': '👩 Women\'s Harbor',
             'struggles': '🌊 The Storm',
             'fun': '☀️ Sunny Skies',
             'learning': '🧭 The Compass'
         };
-        const categoryDisplay = categoryNames[story.category] || story.category;
+        var categoryDisplay = categoryNames[story.category] || story.category;
 
-        const reactions = story.reactions || {};
-        const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+        var reactions = story.reactions || {};
+        var emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
 
-        let reactionButtons = '';
-        emojis.forEach((emoji) => {
-            const count = reactions[emoji] || 0;
+        var reactionButtons = '';
+        emojis.forEach(function(emoji) {
+            var count = reactions[emoji] || 0;
             reactionButtons += `
                 <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
                     ${emoji} <span class="count">${count}</span>
@@ -601,9 +587,9 @@
             `;
         });
 
-        const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
-        const storyText = story.text || '';
-        const excerpt = storyText.length > 200 ? escapeHTML(storyText.substring(0, 200)) + '...' : escapeHTML(storyText);
+        var time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+        var storyText = story.text || '';
+        var excerpt = storyText.length > 200 ? escapeHTML(storyText.substring(0, 200)) + '...' : escapeHTML(storyText);
 
         return `
             <div class="story-card" data-story-id="${story.id}">
@@ -632,21 +618,21 @@
             return;
         }
 
-        const storyRef = db.collection('stories').doc(storyId);
+        var storyRef = db.collection('stories').doc(storyId);
 
-        db.runTransaction((transaction) => {
-            return transaction.get(storyRef).then((doc) => {
+        db.runTransaction(function(transaction) {
+            return transaction.get(storyRef).then(function(doc) {
                 if (!doc.exists) return;
-                const data = doc.data();
-                const reactions = data.reactions || {};
+                var data = doc.data();
+                var reactions = data.reactions || {};
                 reactions[emoji] = (reactions[emoji] || 0) + 1;
                 transaction.update(storyRef, { reactions: reactions });
             });
         })
-        .then(() => {
+        .then(function() {
             loadCategoryStories();
         })
-        .catch((err) => {
+        .catch(function(err) {
             console.error('Error adding reaction:', err);
             alert('Could not add reaction. Please try again.');
         });
@@ -657,7 +643,7 @@
     // ============================================
     function escapeHTML(text) {
         if (!text) return '';
-        const map = {
+        var map = {
             '&': '&amp;',
             '<': '&lt;',
             '>': '&gt;',
@@ -674,41 +660,41 @@
     // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const cat = urlParams.get('cat') || 'all';
+        var urlParams = new URLSearchParams(window.location.search);
+        var cat = urlParams.get('cat') || 'all';
         currentCategory = cat;
 
-        const filterSelect = document.getElementById('filterCategory');
+        var filterSelect = document.getElementById('filterCategory');
         if (filterSelect) filterSelect.value = cat;
 
         updateCategoryHeader(cat);
         loadCategoryStories();
 
         window.addEventListener('popstate', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('cat') || 'all';
-            const filterSelect = document.getElementById('filterCategory');
+            var urlParams = new URLSearchParams(window.location.search);
+            var cat = urlParams.get('cat') || 'all';
+            var filterSelect = document.getElementById('filterCategory');
             if (filterSelect) filterSelect.value = cat;
             currentCategory = cat;
             updateCategoryHeader(cat);
             loadCategoryStories();
         });
 
-        const modal = document.getElementById('authModal');
+        var modal = document.getElementById('authModal');
         if (modal) {
             modal.addEventListener('click', function(e) {
                 if (e.target === this) closeModal();
             });
         }
 
-        const passwordInput = document.getElementById('authPassword');
+        var passwordInput = document.getElementById('authPassword');
         if (passwordInput) {
             passwordInput.addEventListener('input', function() {
-                const pwd = this.value;
-                const strengthDiv = document.getElementById('passwordStrength');
+                var pwd = this.value;
+                var strengthDiv = document.getElementById('passwordStrength');
                 if (!strengthDiv) return;
                 if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-                const result = checkPasswordStrength(pwd);
+                var result = checkPasswordStrength(pwd);
                 strengthDiv.innerHTML = `
                     <div style="margin-top:6px;font-size:0.85rem;">
                         Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
@@ -717,14 +703,14 @@
             });
         }
 
-        const nameInput = document.getElementById('authName');
+        var nameInput = document.getElementById('authName');
         if (nameInput) {
             nameInput.addEventListener('input', checkUsernameOnType);
         }
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                const modal = document.getElementById('authModal');
+                var modal = document.getElementById('authModal');
                 if (modal && modal.style.display === 'flex') handleAuth();
             }
         });
@@ -735,8 +721,6 @@
     });
 
     console.log('📂 Category page loaded successfully');
-    </script>
-
-    <script src="js/app.js"></script>
+</script>
 </body>
 </html>
