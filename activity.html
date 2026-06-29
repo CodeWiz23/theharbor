@@ -614,7 +614,7 @@
     });
 
     // ============================================
-    // LOAD ACTIVITY
+    // LOAD ACTIVITY — FIXED (Includes Reactions)
     // ============================================
     function loadActivity() {
         var container = document.getElementById('activityContainer');
@@ -625,22 +625,32 @@
             return;
         }
 
+        // Load stories
         var storiesPromise = db.collection('stories')
             .where('userId', '==', currentUser.uid)
             .where('approved', '==', true)
             .get();
 
+        // Load comments
         var commentsPromise = db.collection('comments')
             .where('userId', '==', currentUser.uid)
             .where('approved', '==', true)
             .get();
 
-        Promise.all([storiesPromise, commentsPromise])
+        // Load reactions from sub-collection
+        var reactionsPromise = db.collection('users')
+            .doc(currentUser.uid)
+            .collection('reactions')
+            .get();
+
+        Promise.all([storiesPromise, commentsPromise, reactionsPromise])
             .then(function(results) {
                 var storiesSnapshot = results[0];
                 var commentsSnapshot = results[1];
+                var reactionsSnapshot = results[2];
                 var activities = [];
 
+                // Process stories
                 storiesSnapshot.forEach(function(doc) {
                     var data = doc.data();
                     data.id = doc.id;
@@ -649,6 +659,7 @@
                     activities.push(data);
                 });
 
+                // Process comments
                 commentsSnapshot.forEach(function(doc) {
                     var data = doc.data();
                     data.id = doc.id;
@@ -657,6 +668,16 @@
                     activities.push(data);
                 });
 
+                // Process reactions
+                reactionsSnapshot.forEach(function(doc) {
+                    var data = doc.data();
+                    data.storyId = doc.id;
+                    data.type = 'reaction';
+                    data.timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+                    activities.push(data);
+                });
+
+                // Sort by timestamp (newest first)
                 activities.sort(function(a, b) {
                     var ta = a.timestamp ? a.timestamp.getTime() : 0;
                     var tb = b.timestamp ? b.timestamp.getTime() : 0;
@@ -668,7 +689,7 @@
                 document.getElementById('countAll').textContent = activities.length;
                 document.getElementById('countStories').textContent = storiesSnapshot.size;
                 document.getElementById('countComments').textContent = commentsSnapshot.size;
-                document.getElementById('countReactions').textContent = 0;
+                document.getElementById('countReactions').textContent = reactionsSnapshot.size;
 
                 renderActivities(currentTab);
             })
@@ -749,6 +770,14 @@
             title = 'Commented on a story';
             meta = '💬 Posted on ' + time;
             excerpt = escapeHTML((item.text || '').substring(0, 120)) + (item.text && item.text.length > 120 ? '...' : '');
+            storyId = item.storyId;
+        } else if (item.type === 'reaction') {
+            icon = '❤️';
+            badge = '<span class="badge badge-reaction">Reaction</span>';
+            var emojis = item.emojis || [];
+            title = 'Reacted to a story';
+            meta = '❤️ ' + emojis.join(' ') + ' · ' + time;
+            excerpt = 'You reacted to this story with ' + emojis.length + ' emoji' + (emojis.length > 1 ? 's' : '');
             storyId = item.storyId;
         }
 
