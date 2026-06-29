@@ -12,7 +12,7 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
-    <!-- Firebase SDKs (for user auth) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -20,101 +20,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
+    <link rel="stylesheet" href="css/style.css" />
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f5efe6;
-            color: #2d3a3a;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            flex: 1;
-        }
-
-        /* Crisis Banner */
-        .crisis-banner {
-            background: #1a4a4a;
-            color: #f5f0eb;
-            padding: 12px 20px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 13px;
-            margin-bottom: 24px;
-            border-left: 5px solid #c47a5a;
-        }
-        .crisis-banner a {
-            color: #e8ddd0;
-            font-weight: bold;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            padding: 16px 0;
-            border-bottom: 2px solid #c47a5a;
-            margin-bottom: 24px;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .logo-icon {
-            font-size: 2.2rem;
-        }
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 300;
-            color: #1a4a4a;
-        }
-        .logo-text span {
-            font-weight: 700;
-            color: #c47a5a;
-        }
-        .logo-sub {
-            font-size: 0.75rem;
-            color: #7a9e7e;
-            font-style: italic;
-            display: block;
-            margin-top: -4px;
-        }
-
-        .btn-secondary {
-            background: #e8ddd0;
-            color: #1a4a4a;
-            padding: 10px 28px;
-            border: 2px solid #1a4a4a;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: 0.3s;
-        }
-        .btn-secondary:hover {
-            background: #1a4a4a;
-            color: #f5f0eb;
-        }
-
-        /* Search Container */
         .search-container {
             margin: 20px 0;
             position: relative;
@@ -138,7 +46,6 @@
             color: #a8a09a;
         }
 
-        /* Dropdown */
         .dropdown {
             position: absolute;
             top: 100%;
@@ -181,7 +88,6 @@
             font-weight: 700;
         }
 
-        /* Result Card */
         .result-card {
             background: #f5f0eb;
             padding: 30px;
@@ -193,14 +99,8 @@
             animation: fadeIn 0.4s ease;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .result-card .number {
             font-size: 4rem;
@@ -238,7 +138,6 @@
             transform: scale(0.98);
         }
 
-        /* No Result */
         .no-result {
             text-align: center;
             padding: 30px;
@@ -255,7 +154,6 @@
             margin-bottom: 8px;
         }
 
-        /* Quick Grid */
         .quick-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -293,26 +191,7 @@
             margin-top: 2px;
         }
 
-        /* Footer */
-        .footer {
-            text-align: center;
-            color: #a8a09a;
-            font-size: 0.8rem;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #d4c8b8;
-        }
-
-        /* Responsive */
         @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-            .logo-text {
-                font-size: 1.4rem;
-            }
             .result-card .number {
                 font-size: 3rem;
             }
@@ -321,9 +200,6 @@
             }
             .result-card {
                 padding: 20px;
-            }
-            .btn-secondary {
-                text-align: center;
             }
         }
         @media (max-width: 400px) {
@@ -335,23 +211,37 @@
 </head>
 
 <body>
-    <div class="container">
-        <!-- Crisis Banner -->
-        <div class="crisis-banner">
-            🆘 <strong>Global Emergency Numbers</strong> — Find help anywhere in the world
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
+        <div class="header-right">
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <div id="authButtons">
+                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+            <div id="userInfo">
+                <span id="userName">Friend</span>
+                <span id="userGenderBadge"></span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </header>
 
-        <!-- Header -->
-        <header class="header">
-            <a href="index.html" class="logo">
-                <span class="logo-icon">⚓</span>
-                <div>
-                    <span class="logo-text">The <span>Harbor</span></span>
-                    <span class="logo-sub">Emergency Numbers</span>
-                </div>
-            </a>
-            <a href="index.html" class="btn-secondary">← Back</a>
-        </header>
+    <!-- Emergency Banner -->
+    <div id="emergencyBanner"></div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div style="text-align:center;padding:20px 0 10px 0;">
+            <span style="font-size:3rem;">🆘</span>
+            <h1 style="font-weight:300;color:#1a4a4a;font-size:2.2rem;margin-top:4px;">Emergency Numbers</h1>
+            <p style="color:#7a9e7e;font-size:1rem;">Find emergency numbers anywhere in the world</p>
+        </div>
 
         <!-- Search -->
         <div class="search-container">
@@ -402,15 +292,81 @@
             <span style="font-size:0.9rem;color:#7a9e7e;">Please check your spelling or try another country.</span>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            ⚓ The Harbor &mdash; Emergency Numbers &bull; 🔒 Secure
-        </footer>
+        <div style="text-align:center;margin-top:20px;">
+            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div>⚓ The Harbor — Emergency Numbers</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+        </div>
+        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
+            &copy; 2026 The Harbor — Built with 💚 for the community
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+
+            <div class="warning-box" id="genderWarning">
+                <span class="icon">⚠️</span>
+                <span id="genderWarningText">Your gender determines which sections you can see.</span>
+            </div>
+
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+
+            <div id="signupFields" style="display:none;">
+                <label for="authName">Username</label>
+                <input type="text" id="authName" placeholder="Choose a unique username" />
+                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
+
+                <label for="authGender">Gender</label>
+                <select id="authGender" onchange="updateGenderWarning()">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
+                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
+                </div>
+
+                <label for="authCountry">Country</label>
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <datalist id="country-list"></datalist>
+
+                <label for="authFavorites">Favorite things</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+            </div>
+
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
+                Don't have an account? <strong>Sign Up</strong>
+            </div>
+
+            <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
+        </div>
     </div>
 
     <script>
         // ============================================
-        // FIREBASE CONFIG (for auth)
+        // FIREBASE CONFIG
         // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
@@ -424,196 +380,195 @@
         const auth = firebase.auth();
 
         // ============================================
-        // COUNTRY DATA (190+ countries)
+        // COUNTRY DATA (Full 190+ countries - FIXED)
         // ============================================
         const countries = [
-            { code: 'AF', name: 'Afghanistan', emergency: '119', note: 'Police' },
-            { code: 'AL', name: 'Albania', emergency: '112', note: 'General Emergency' },
-            { code: 'DZ', name: 'Algeria', emergency: '14', note: 'Police' },
-            { code: 'AD', name: 'Andorra', emergency: '112', note: 'General Emergency' },
-            { code: 'AO', name: 'Angola', emergency: '113', note: 'Police' },
-            { code: 'AR', name: 'Argentina', emergency: '911', note: 'General Emergency' },
-            { code: 'AM', name: 'Armenia', emergency: '112', note: 'General Emergency' },
-            { code: 'AU', name: 'Australia', emergency: '000', note: 'Police, Fire, Ambulance' },
-            { code: 'AT', name: 'Austria', emergency: '112', note: 'General Emergency' },
-            { code: 'AZ', name: 'Azerbaijan', emergency: '112', note: 'General Emergency' },
-            { code: 'BS', name: 'Bahamas', emergency: '911', note: 'General Emergency' },
-            { code: 'BH', name: 'Bahrain', emergency: '999', note: 'General Emergency' },
-            { code: 'BD', name: 'Bangladesh', emergency: '999', note: 'Police, Fire, Ambulance' },
-            { code: 'BB', name: 'Barbados', emergency: '911', note: 'General Emergency' },
-            { code: 'BY', name: 'Belarus', emergency: '112', note: 'General Emergency' },
-            { code: 'BE', name: 'Belgium', emergency: '112', note: 'General Emergency' },
-            { code: 'BZ', name: 'Belize', emergency: '911', note: 'General Emergency' },
-            { code: 'BJ', name: 'Benin', emergency: '112', note: 'General Emergency' },
-            { code: 'BT', name: 'Bhutan', emergency: '112', note: 'General Emergency' },
-            { code: 'BO', name: 'Bolivia', emergency: '911', note: 'General Emergency' },
-            { code: 'BA', name: 'Bosnia', emergency: '112', note: 'General Emergency' },
-            { code: 'BW', name: 'Botswana', emergency: '999', note: 'General Emergency' },
-            { code: 'BR', name: 'Brazil', emergency: '190', note: 'Police / 192 Ambulance / 193 Fire' },
-            { code: 'BN', name: 'Brunei', emergency: '995', note: 'General Emergency' },
-            { code: 'BG', name: 'Bulgaria', emergency: '112', note: 'General Emergency' },
-            { code: 'BF', name: 'Burkina Faso', emergency: '112', note: 'General Emergency' },
-            { code: 'BI', name: 'Burundi', emergency: '112', note: 'General Emergency' },
-            { code: 'KH', name: 'Cambodia', emergency: '119', note: 'Police' },
-            { code: 'CM', name: 'Cameroon', emergency: '112', note: 'General Emergency' },
-            { code: 'CA', name: 'Canada', emergency: '911', note: 'Police, Fire, Ambulance' },
-            { code: 'CV', name: 'Cape Verde', emergency: '132', note: 'Police' },
-            { code: 'CF', name: 'Central African Republic', emergency: '112', note: 'General Emergency' },
-            { code: 'TD', name: 'Chad', emergency: '112', note: 'General Emergency' },
-            { code: 'CL', name: 'Chile', emergency: '131', note: 'Ambulance / 133 Police' },
-            { code: 'CN', name: 'China', emergency: '110', note: 'Police / 120 Ambulance / 119 Fire' },
-            { code: 'CO', name: 'Colombia', emergency: '123', note: 'General Emergency' },
-            { code: 'KM', name: 'Comoros', emergency: '112', note: 'General Emergency' },
-            { code: 'CG', name: 'Congo', emergency: '112', note: 'General Emergency' },
-            { code: 'CR', name: 'Costa Rica', emergency: '911', note: 'General Emergency' },
-            { code: 'HR', name: 'Croatia', emergency: '112', note: 'General Emergency' },
-            { code: 'CU', name: 'Cuba', emergency: '106', note: 'General Emergency' },
-            { code: 'CY', name: 'Cyprus', emergency: '112', note: 'General Emergency' },
-            { code: 'CZ', name: 'Czech Republic', emergency: '112', note: 'General Emergency' },
-            { code: 'DK', name: 'Denmark', emergency: '112', note: 'General Emergency' },
-            { code: 'DJ', name: 'Djibouti', emergency: '112', note: 'General Emergency' },
-            { code: 'DM', name: 'Dominica', emergency: '911', note: 'General Emergency' },
-            { code: 'DO', name: 'Dominican Republic', emergency: '911', note: 'General Emergency' },
-            { code: 'TL', name: 'East Timor', emergency: '112', note: 'General Emergency' },
-            { code: 'EC', name: 'Ecuador', emergency: '911', note: 'General Emergency' },
-            { code: 'EG', name: 'Egypt', emergency: '122', note: 'Police / 123 Ambulance' },
-            { code: 'SV', name: 'El Salvador', emergency: '911', note: 'General Emergency' },
-            { code: 'GQ', name: 'Equatorial Guinea', emergency: '112', note: 'General Emergency' },
-            { code: 'ER', name: 'Eritrea', emergency: '112', note: 'General Emergency' },
-            { code: 'EE', name: 'Estonia', emergency: '112', note: 'General Emergency' },
-            { code: 'SZ', name: 'Eswatini', emergency: '999', note: 'General Emergency' },
-            { code: 'ET', name: 'Ethiopia', emergency: '911', note: 'General Emergency' },
-            { code: 'FJ', name: 'Fiji', emergency: '911', note: 'General Emergency' },
-            { code: 'FI', name: 'Finland', emergency: '112', note: 'General Emergency' },
-            { code: 'FR', name: 'France', emergency: '112', note: 'General Emergency' },
-            { code: 'GA', name: 'Gabon', emergency: '112', note: 'General Emergency' },
-            { code: 'GM', name: 'Gambia', emergency: '112', note: 'General Emergency' },
-            { code: 'GE', name: 'Georgia', emergency: '112', note: 'General Emergency' },
-            { code: 'DE', name: 'Germany', emergency: '112', note: 'General Emergency' },
-            { code: 'GH', name: 'Ghana', emergency: '112', note: 'General Emergency' },
-            { code: 'GR', name: 'Greece', emergency: '112', note: 'General Emergency' },
-            { code: 'GD', name: 'Grenada', emergency: '911', note: 'General Emergency' },
-            { code: 'GT', name: 'Guatemala', emergency: '110', note: 'Police' },
-            { code: 'GN', name: 'Guinea', emergency: '112', note: 'General Emergency' },
-            { code: 'GY', name: 'Guyana', emergency: '911', note: 'General Emergency' },
-            { code: 'HT', name: 'Haiti', emergency: '116', note: 'Police' },
-            { code: 'HN', name: 'Honduras', emergency: '911', note: 'General Emergency' },
-            { code: 'HU', name: 'Hungary', emergency: '112', note: 'General Emergency' },
-            { code: 'IS', name: 'Iceland', emergency: '112', note: 'General Emergency' },
-            { code: 'IN', name: 'India', emergency: '112', note: 'General Emergency' },
-            { code: 'ID', name: 'Indonesia', emergency: '112', note: 'General Emergency' },
-            { code: 'IR', name: 'Iran', emergency: '110', note: 'Police / 115 Ambulance' },
-            { code: 'IQ', name: 'Iraq', emergency: '112', note: 'General Emergency' },
-            { code: 'IE', name: 'Ireland', emergency: '112', note: 'General Emergency' },
-            { code: 'IL', name: 'Israel', emergency: '112', note: 'General Emergency' },
-            { code: 'IT', name: 'Italy', emergency: '112', note: 'General Emergency' },
-            { code: 'JM', name: 'Jamaica', emergency: '119', note: 'Police / 110 Ambulance' },
-            { code: 'JP', name: 'Japan', emergency: '110', note: 'Police / 119 Ambulance & Fire' },
-            { code: 'JO', name: 'Jordan', emergency: '911', note: 'General Emergency' },
-            { code: 'KZ', name: 'Kazakhstan', emergency: '112', note: 'General Emergency' },
-            { code: 'KE', name: 'Kenya', emergency: '112', note: 'General Emergency' },
-            { code: 'KI', name: 'Kiribati', emergency: '112', note: 'General Emergency' },
-            { code: 'KW', name: 'Kuwait', emergency: '112', note: 'General Emergency' },
-            { code: 'KG', name: 'Kyrgyzstan', emergency: '112', note: 'General Emergency' },
-            { code: 'LA', name: 'Laos', emergency: '112', note: 'General Emergency' },
-            { code: 'LV', name: 'Latvia', emergency: '112', note: 'General Emergency' },
-            { code: 'LB', name: 'Lebanon', emergency: '112', note: 'General Emergency' },
-            { code: 'LS', name: 'Lesotho', emergency: '112', note: 'General Emergency' },
-            { code: 'LR', name: 'Liberia', emergency: '911', note: 'General Emergency' },
-            { code: 'LY', name: 'Libya', emergency: '112', note: 'General Emergency' },
-            { code: 'LI', name: 'Liechtenstein', emergency: '112', note: 'General Emergency' },
-            { code: 'LT', name: 'Lithuania', emergency: '112', note: 'General Emergency' },
-            { code: 'LU', name: 'Luxembourg', emergency: '112', note: 'General Emergency' },
-            { code: 'MG', name: 'Madagascar', emergency: '112', note: 'General Emergency' },
-            { code: 'MW', name: 'Malawi', emergency: '112', note: 'General Emergency' },
-            { code: 'MY', name: 'Malaysia', emergency: '999', note: 'General Emergency' },
-            { code: 'MV', name: 'Maldives', emergency: '119', note: 'Police' },
-            { code: 'ML', name: 'Mali', emergency: '112', note: 'General Emergency' },
-            { code: 'MT', name: 'Malta', emergency: '112', note: 'General Emergency' },
-            { code: 'MH', name: 'Marshall Islands', emergency: '911', note: 'General Emergency' },
-            { code: 'MR', name: 'Mauritania', emergency: '112', note: 'General Emergency' },
-            { code: 'MU', name: 'Mauritius', emergency: '999', note: 'General Emergency' },
-            { code: 'MX', name: 'Mexico', emergency: '911', note: 'General Emergency' },
-            { code: 'FM', name: 'Micronesia', emergency: '911', note: 'General Emergency' },
-            { code: 'MD', name: 'Moldova', emergency: '112', note: 'General Emergency' },
-            { code: 'MC', name: 'Monaco', emergency: '112', note: 'General Emergency' },
-            { code: 'MN', name: 'Mongolia', emergency: '112', note: 'General Emergency' },
-            { code: 'ME', name: 'Montenegro', emergency: '112', note: 'General Emergency' },
-            { code: 'MA', name: 'Morocco', emergency: '112', note: 'General Emergency' },
-            { code: 'MZ', name: 'Mozambique', emergency: '112', note: 'General Emergency' },
-            { code: 'MM', name: 'Myanmar', emergency: '112', note: 'General Emergency' },
-            { code: 'NA', name: 'Namibia', emergency: '112', note: 'General Emergency' },
-            { code: 'NR', name: 'Nauru', emergency: '112', note: 'General Emergency' },
-            { code: 'NP', name: 'Nepal', emergency: '100', note: 'Police / 101 Fire / 102 Ambulance' },
-            { code: 'NL', name: 'Netherlands', emergency: '112', note: 'General Emergency' },
-            { code: 'NZ', name: 'New Zealand', emergency: '111', note: 'Police, Fire, Ambulance' },
-            { code: 'NI', name: 'Nicaragua', emergency: '911', note: 'General Emergency' },
-            { code: 'NE', name: 'Niger', emergency: '112', note: 'General Emergency' },
-            { code: 'NG', name: 'Nigeria', emergency: '112', note: 'General Emergency' },
-            { code: 'KP', name: 'North Korea', emergency: '119', note: 'General Emergency' },
-            { code: 'MK', name: 'North Macedonia', emergency: '112', note: 'General Emergency' },
-            { code: 'NO', name: 'Norway', emergency: '112', note: 'General Emergency' },
-            { code: 'OM', name: 'Oman', emergency: '999', note: 'General Emergency' },
-            { code: 'PK', name: 'Pakistan', emergency: '112', note: 'General Emergency' },
-            { code: 'PW', name: 'Palau', emergency: '911', note: 'General Emergency' },
-            { code: 'PA', name: 'Panama', emergency: '911', note: 'General Emergency' },
-            { code: 'PG', name: 'Papua New Guinea', emergency: '112', note: 'General Emergency' },
-            { code: 'PY', name: 'Paraguay', emergency: '911', note: 'General Emergency' },
-            { code: 'PE', name: 'Peru', emergency: '911', note: 'General Emergency' },
-            { code: 'PH', name: 'Philippines', emergency: '911', note: 'General Emergency' },
-            { code: 'PL', name: 'Poland', emergency: '112', note: 'General Emergency' },
-            { code: 'PT', name: 'Portugal', emergency: '112', note: 'General Emergency' },
-            { code: 'QA', name: 'Qatar', emergency: '999', note: 'General Emergency' },
-            { code: 'RO', name: 'Romania', emergency: '112', note: 'General Emergency' },
-            { code: 'RU', name: 'Russia', emergency: '112', note: 'General Emergency' },
-            { code: 'RW', name: 'Rwanda', emergency: '112', note: 'General Emergency' },
-            { code: 'LC', name: 'Saint Lucia', emergency: '911', note: 'General Emergency' },
-            { code: 'WS', name: 'Samoa', emergency: '112', note: 'General Emergency' },
-            { code: 'SM', name: 'San Marino', emergency: '112', note: 'General Emergency' },
-            { code: 'SA', name: 'Saudi Arabia', emergency: '911', note: 'General Emergency' },
-            { code: 'SN', name: 'Senegal', emergency: '112', note: 'General Emergency' },
-            { code: 'RS', name: 'Serbia', emergency: '112', note: 'General Emergency' },
-            { code: 'SC', name: 'Seychelles', emergency: '112', note: 'General Emergency' },
-            { code: 'SL', name: 'Sierra Leone', emergency: '112', note: 'General Emergency' },
-            { code: 'SG', name: 'Singapore', emergency: '999', note: 'Police / 995 Ambulance & Fire' },
-            { code: 'SK', name: 'Slovakia', emergency: '112', note: 'General Emergency' },
-            { code: 'SI', name: 'Slovenia', emergency: '112', note: 'General Emergency' },
-            { code: 'SB', name: 'Solomon Islands', emergency: '911', note: 'General Emergency' },
-            { code: 'SO', name: 'Somalia', emergency: '112', note: 'General Emergency' },
-            { code: 'ZA', name: 'South Africa', emergency: '112', note: 'General Emergency' },
-            { code: 'KR', name: 'South Korea', emergency: '112', note: 'Police / 119 Ambulance & Fire' },
-            { code: 'ES', name: 'Spain', emergency: '112', note: 'General Emergency' },
-            { code: 'LK', name: 'Sri Lanka', emergency: '119', note: 'Police / 110 Ambulance' },
-            { code: 'SD', name: 'Sudan', emergency: '112', note: 'General Emergency' },
-            { code: 'SR', name: 'Suriname', emergency: '112', note: 'General Emergency' },
-            { code: 'SE', name: 'Sweden', emergency: '112', note: 'General Emergency' },
-            { code: 'CH', name: 'Switzerland', emergency: '112', note: 'General Emergency' },
-            { code: 'SY', name: 'Syria', emergency: '112', note: 'General Emergency' },
-            { code: 'TW', name: 'Taiwan', emergency: '110', note: 'Police / 119 Ambulance & Fire' },
-            { code: 'TJ', name: 'Tajikistan', emergency: '112', note: 'General Emergency' },
-            { code: 'TZ', name: 'Tanzania', emergency: '112', note: 'General Emergency' },
-            { code: 'TH', name: 'Thailand', emergency: '191', note: 'Police / 1669 Ambulance' },
-            { code: 'TG', name: 'Togo', emergency: '112', note: 'General Emergency' },
-            { code: 'TO', name: 'Tonga', emergency: '911', note: 'General Emergency' },
-            { code: 'TT', name: 'Trinidad', emergency: '911', note: 'General Emergency' },
-            { code: 'TN', name: 'Tunisia', emergency: '112', note: 'General Emergency' },
-            { code: 'TR', name: 'Turkey', emergency: '112', note: 'General Emergency' },
-            { code: 'TM', name: 'Turkmenistan', emergency: '112', note: 'General Emergency' },
-            { code: 'TV', name: 'Tuvalu', emergency: '112', note: 'General Emergency' },
-            { code: 'UG', name: 'Uganda', emergency: '112', note: 'General Emergency' },
-            { code: 'UA', name: 'Ukraine', emergency: '112', note: 'General Emergency' },
-            { code: 'AE', name: 'United Arab Emirates', emergency: '999', note: 'General Emergency' },
-            { code: 'GB', name: 'United Kingdom', emergency: '999', note: 'Police, Fire, Ambulance' },
-            { code: 'US', name: 'United States', emergency: '911', note: 'Police, Fire, Ambulance' },
-            { code: 'UY', name: 'Uruguay', emergency: '911', note: 'General Emergency' },
-            { code: 'UZ', name: 'Uzbekistan', emergency: '112', note: 'General Emergency' },
-            { code: 'VU', name: 'Vanuatu', emergency: '112', note: 'General Emergency' },
-            { code: 'VA', name: 'Vatican City', emergency: '112', note: 'General Emergency' },
-            { code: 'VE', name: 'Venezuela', emergency: '911', note: 'General Emergency' },
-            { code: 'VN', name: 'Vietnam', emergency: '113', note: 'Police / 114 Fire / 115 Ambulance' },
-            { code: 'YE', name: 'Yemen', emergency: '112', note: 'General Emergency' },
-            { code: 'ZM', name: 'Zambia', emergency: '112', note: 'General Emergency' },
-            { code: 'ZW', name: 'Zimbabwe', emergency: '112', note: 'General Emergency' }
+            { name: 'Afghanistan', emergency: '119', note: 'Police' },
+            { name: 'Albania', emergency: '112', note: 'General Emergency' },
+            { name: 'Algeria', emergency: '14', note: 'Police' },
+            { name: 'Andorra', emergency: '112', note: 'General Emergency' },
+            { name: 'Angola', emergency: '113', note: 'Police' },
+            { name: 'Argentina', emergency: '911', note: 'General Emergency' },
+            { name: 'Armenia', emergency: '112', note: 'General Emergency' },
+            { name: 'Australia', emergency: '000', note: 'Police, Fire, Ambulance' },
+            { name: 'Austria', emergency: '112', note: 'General Emergency' },
+            { name: 'Azerbaijan', emergency: '112', note: 'General Emergency' },
+            { name: 'Bahamas', emergency: '911', note: 'General Emergency' },
+            { name: 'Bahrain', emergency: '999', note: 'General Emergency' },
+            { name: 'Bangladesh', emergency: '999', note: 'Police, Fire, Ambulance' },
+            { name: 'Barbados', emergency: '911', note: 'General Emergency' },
+            { name: 'Belarus', emergency: '112', note: 'General Emergency' },
+            { name: 'Belgium', emergency: '112', note: 'General Emergency' },
+            { name: 'Belize', emergency: '911', note: 'General Emergency' },
+            { name: 'Benin', emergency: '112', note: 'General Emergency' },
+            { name: 'Bhutan', emergency: '112', note: 'General Emergency' },
+            { name: 'Bolivia', emergency: '911', note: 'General Emergency' },
+            { name: 'Bosnia', emergency: '112', note: 'General Emergency' },
+            { name: 'Botswana', emergency: '999', note: 'General Emergency' },
+            { name: 'Brazil', emergency: '190', note: 'Police / 192 Ambulance / 193 Fire' },
+            { name: 'Brunei', emergency: '995', note: 'General Emergency' },
+            { name: 'Bulgaria', emergency: '112', note: 'General Emergency' },
+            { name: 'Burkina Faso', emergency: '112', note: 'General Emergency' },
+            { name: 'Burundi', emergency: '112', note: 'General Emergency' },
+            { name: 'Cambodia', emergency: '119', note: 'Police' },
+            { name: 'Cameroon', emergency: '112', note: 'General Emergency' },
+            { name: 'Canada', emergency: '911', note: 'Police, Fire, Ambulance' },
+            { name: 'Cape Verde', emergency: '132', note: 'Police' },
+            { name: 'Central African Republic', emergency: '112', note: 'General Emergency' },
+            { name: 'Chad', emergency: '112', note: 'General Emergency' },
+            { name: 'Chile', emergency: '131', note: 'Ambulance / 133 Police' },
+            { name: 'China', emergency: '110', note: 'Police / 120 Ambulance / 119 Fire' },
+            { name: 'Colombia', emergency: '123', note: 'General Emergency' },
+            { name: 'Comoros', emergency: '112', note: 'General Emergency' },
+            { name: 'Congo', emergency: '112', note: 'General Emergency' },
+            { name: 'Costa Rica', emergency: '911', note: 'General Emergency' },
+            { name: 'Croatia', emergency: '112', note: 'General Emergency' },
+            { name: 'Cuba', emergency: '106', note: 'General Emergency' },
+            { name: 'Cyprus', emergency: '112', note: 'General Emergency' },
+            { name: 'Czech Republic', emergency: '112', note: 'General Emergency' },
+            { name: 'Denmark', emergency: '112', note: 'General Emergency' },
+            { name: 'Djibouti', emergency: '112', note: 'General Emergency' },
+            { name: 'Dominica', emergency: '911', note: 'General Emergency' },
+            { name: 'Dominican Republic', emergency: '911', note: 'General Emergency' },
+            { name: 'Ecuador', emergency: '911', note: 'General Emergency' },
+            { name: 'Egypt', emergency: '122', note: 'Police / 123 Ambulance' },
+            { name: 'El Salvador', emergency: '911', note: 'General Emergency' },
+            { name: 'Equatorial Guinea', emergency: '112', note: 'General Emergency' },
+            { name: 'Eritrea', emergency: '112', note: 'General Emergency' },
+            { name: 'Estonia', emergency: '112', note: 'General Emergency' },
+            { name: 'Eswatini', emergency: '999', note: 'General Emergency' },
+            { name: 'Ethiopia', emergency: '911', note: 'General Emergency' },
+            { name: 'Fiji', emergency: '911', note: 'General Emergency' },
+            { name: 'Finland', emergency: '112', note: 'General Emergency' },
+            { name: 'France', emergency: '112', note: 'General Emergency' },
+            { name: 'Gabon', emergency: '112', note: 'General Emergency' },
+            { name: 'Gambia', emergency: '112', note: 'General Emergency' },
+            { name: 'Georgia', emergency: '112', note: 'General Emergency' },
+            { name: 'Germany', emergency: '112', note: 'General Emergency' },
+            { name: 'Ghana', emergency: '112', note: 'General Emergency' },
+            { name: 'Greece', emergency: '112', note: 'General Emergency' },
+            { name: 'Grenada', emergency: '911', note: 'General Emergency' },
+            { name: 'Guatemala', emergency: '110', note: 'Police' },
+            { name: 'Guinea', emergency: '112', note: 'General Emergency' },
+            { name: 'Guyana', emergency: '911', note: 'General Emergency' },
+            { name: 'Haiti', emergency: '116', note: 'Police' },
+            { name: 'Honduras', emergency: '911', note: 'General Emergency' },
+            { name: 'Hungary', emergency: '112', note: 'General Emergency' },
+            { name: 'Iceland', emergency: '112', note: 'General Emergency' },
+            { name: 'India', emergency: '112', note: 'General Emergency' },
+            { name: 'Indonesia', emergency: '112', note: 'General Emergency' },
+            { name: 'Iran', emergency: '110', note: 'Police / 115 Ambulance' },
+            { name: 'Iraq', emergency: '112', note: 'General Emergency' },
+            { name: 'Ireland', emergency: '112', note: 'General Emergency' },
+            { name: 'Israel', emergency: '112', note: 'General Emergency' },
+            { name: 'Italy', emergency: '112', note: 'General Emergency' },
+            { name: 'Jamaica', emergency: '119', note: 'Police / 110 Ambulance' },
+            { name: 'Japan', emergency: '110', note: 'Police / 119 Ambulance & Fire' },
+            { name: 'Jordan', emergency: '911', note: 'General Emergency' },
+            { name: 'Kazakhstan', emergency: '112', note: 'General Emergency' },
+            { name: 'Kenya', emergency: '112', note: 'General Emergency' },
+            { name: 'Kiribati', emergency: '112', note: 'General Emergency' },
+            { name: 'Kuwait', emergency: '112', note: 'General Emergency' },
+            { name: 'Kyrgyzstan', emergency: '112', note: 'General Emergency' },
+            { name: 'Laos', emergency: '112', note: 'General Emergency' },
+            { name: 'Latvia', emergency: '112', note: 'General Emergency' },
+            { name: 'Lebanon', emergency: '112', note: 'General Emergency' },
+            { name: 'Lesotho', emergency: '112', note: 'General Emergency' },
+            { name: 'Liberia', emergency: '911', note: 'General Emergency' },
+            { name: 'Libya', emergency: '112', note: 'General Emergency' },
+            { name: 'Liechtenstein', emergency: '112', note: 'General Emergency' },
+            { name: 'Lithuania', emergency: '112', note: 'General Emergency' },
+            { name: 'Luxembourg', emergency: '112', note: 'General Emergency' },
+            { name: 'Madagascar', emergency: '112', note: 'General Emergency' },
+            { name: 'Malawi', emergency: '112', note: 'General Emergency' },
+            { name: 'Malaysia', emergency: '999', note: 'General Emergency' },
+            { name: 'Maldives', emergency: '119', note: 'Police' },
+            { name: 'Mali', emergency: '112', note: 'General Emergency' },
+            { name: 'Malta', emergency: '112', note: 'General Emergency' },
+            { name: 'Marshall Islands', emergency: '911', note: 'General Emergency' },
+            { name: 'Mauritania', emergency: '112', note: 'General Emergency' },
+            { name: 'Mauritius', emergency: '999', note: 'General Emergency' },
+            { name: 'Mexico', emergency: '911', note: 'General Emergency' },
+            { name: 'Micronesia', emergency: '911', note: 'General Emergency' },
+            { name: 'Moldova', emergency: '112', note: 'General Emergency' },
+            { name: 'Monaco', emergency: '112', note: 'General Emergency' },
+            { name: 'Mongolia', emergency: '112', note: 'General Emergency' },
+            { name: 'Montenegro', emergency: '112', note: 'General Emergency' },
+            { name: 'Morocco', emergency: '112', note: 'General Emergency' },
+            { name: 'Mozambique', emergency: '112', note: 'General Emergency' },
+            { name: 'Myanmar', emergency: '112', note: 'General Emergency' },
+            { name: 'Namibia', emergency: '112', note: 'General Emergency' },
+            { name: 'Nauru', emergency: '112', note: 'General Emergency' },
+            { name: 'Nepal', emergency: '100', note: 'Police / 101 Fire / 102 Ambulance' },
+            { name: 'Netherlands', emergency: '112', note: 'General Emergency' },
+            { name: 'New Zealand', emergency: '111', note: 'Police, Fire, Ambulance' },
+            { name: 'Nicaragua', emergency: '911', note: 'General Emergency' },
+            { name: 'Niger', emergency: '112', note: 'General Emergency' },
+            { name: 'Nigeria', emergency: '112', note: 'General Emergency' },
+            { name: 'North Korea', emergency: '119', note: 'General Emergency' },
+            { name: 'North Macedonia', emergency: '112', note: 'General Emergency' },
+            { name: 'Norway', emergency: '112', note: 'General Emergency' },
+            { name: 'Oman', emergency: '999', note: 'General Emergency' },
+            { name: 'Pakistan', emergency: '112', note: 'General Emergency' },
+            { name: 'Palau', emergency: '911', note: 'General Emergency' },
+            { name: 'Panama', emergency: '911', note: 'General Emergency' },
+            { name: 'Papua New Guinea', emergency: '112', note: 'General Emergency' },
+            { name: 'Paraguay', emergency: '911', note: 'General Emergency' },
+            { name: 'Peru', emergency: '911', note: 'General Emergency' },
+            { name: 'Philippines', emergency: '911', note: 'General Emergency' },
+            { name: 'Poland', emergency: '112', note: 'General Emergency' },
+            { name: 'Portugal', emergency: '112', note: 'General Emergency' },
+            { name: 'Qatar', emergency: '999', note: 'General Emergency' },
+            { name: 'Romania', emergency: '112', note: 'General Emergency' },
+            { name: 'Russia', emergency: '112', note: 'General Emergency' },
+            { name: 'Rwanda', emergency: '112', note: 'General Emergency' },
+            { name: 'Saint Lucia', emergency: '911', note: 'General Emergency' },
+            { name: 'Samoa', emergency: '112', note: 'General Emergency' },
+            { name: 'San Marino', emergency: '112', note: 'General Emergency' },
+            { name: 'Saudi Arabia', emergency: '911', note: 'General Emergency' },
+            { name: 'Senegal', emergency: '112', note: 'General Emergency' },
+            { name: 'Serbia', emergency: '112', note: 'General Emergency' },
+            { name: 'Seychelles', emergency: '112', note: 'General Emergency' },
+            { name: 'Sierra Leone', emergency: '112', note: 'General Emergency' },
+            { name: 'Singapore', emergency: '999', note: 'Police / 995 Ambulance & Fire' },
+            { name: 'Slovakia', emergency: '112', note: 'General Emergency' },
+            { name: 'Slovenia', emergency: '112', note: 'General Emergency' },
+            { name: 'Solomon Islands', emergency: '911', note: 'General Emergency' },
+            { name: 'Somalia', emergency: '112', note: 'General Emergency' },
+            { name: 'South Africa', emergency: '112', note: 'General Emergency' },
+            { name: 'South Korea', emergency: '112', note: 'Police / 119 Ambulance & Fire' },
+            { name: 'Spain', emergency: '112', note: 'General Emergency' },
+            { name: 'Sri Lanka', emergency: '119', note: 'Police / 110 Ambulance' },
+            { name: 'Sudan', emergency: '112', note: 'General Emergency' },
+            { name: 'Suriname', emergency: '112', note: 'General Emergency' },
+            { name: 'Sweden', emergency: '112', note: 'General Emergency' },
+            { name: 'Switzerland', emergency: '112', note: 'General Emergency' },
+            { name: 'Syria', emergency: '112', note: 'General Emergency' },
+            { name: 'Taiwan', emergency: '110', note: 'Police / 119 Ambulance & Fire' },
+            { name: 'Tajikistan', emergency: '112', note: 'General Emergency' },
+            { name: 'Tanzania', emergency: '112', note: 'General Emergency' },
+            { name: 'Thailand', emergency: '191', note: 'Police / 1669 Ambulance' },
+            { name: 'Togo', emergency: '112', note: 'General Emergency' },
+            { name: 'Tonga', emergency: '911', note: 'General Emergency' },
+            { name: 'Trinidad', emergency: '911', note: 'General Emergency' },
+            { name: 'Tunisia', emergency: '112', note: 'General Emergency' },
+            { name: 'Turkey', emergency: '112', note: 'General Emergency' },
+            { name: 'Turkmenistan', emergency: '112', note: 'General Emergency' },
+            { name: 'Tuvalu', emergency: '112', note: 'General Emergency' },
+            { name: 'Uganda', emergency: '112', note: 'General Emergency' },
+            { name: 'Ukraine', emergency: '112', note: 'General Emergency' },
+            { name: 'United Arab Emirates', emergency: '999', note: 'General Emergency' },
+            { name: 'United Kingdom', emergency: '999', note: 'Police, Fire, Ambulance' },
+            { name: 'United States', emergency: '911', note: 'Police, Fire, Ambulance' },
+            { name: 'Uruguay', emergency: '911', note: 'General Emergency' },
+            { name: 'Uzbekistan', emergency: '112', note: 'General Emergency' },
+            { name: 'Vanuatu', emergency: '112', note: 'General Emergency' },
+            { name: 'Vatican City', emergency: '112', note: 'General Emergency' },
+            { name: 'Venezuela', emergency: '911', note: 'General Emergency' },
+            { name: 'Vietnam', emergency: '113', note: 'Police / 114 Fire / 115 Ambulance' },
+            { name: 'Yemen', emergency: '112', note: 'General Emergency' },
+            { name: 'Zambia', emergency: '112', note: 'General Emergency' },
+            { name: 'Zimbabwe', emergency: '112', note: 'General Emergency' }
         ];
 
         // ============================================
@@ -664,7 +619,7 @@
         }
 
         // ============================================
-        // SEARCH INPUT HANDLER (with debounce)
+        // SEARCH INPUT HANDLER
         // ============================================
         let searchTimeout;
 
@@ -796,14 +751,62 @@
         // ============================================
         // AUTH STATE (for header)
         // ============================================
-        // Simple auth state - just log if user is logged in
         auth.onAuthStateChanged((user) => {
+            const authButtons = document.getElementById('authButtons');
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userGenderBadge = document.getElementById('userGenderBadge');
+            const verificationBadge = document.getElementById('verificationBadge');
+
             if (user) {
-                console.log('👤 User logged in:', user.email);
+                currentUser = user;
+                authButtons.style.display = 'none';
+                userInfo.style.display = 'flex';
+
+                if (user.emailVerified) {
+                    if (verificationBadge) {
+                        verificationBadge.textContent = '✅ Verified';
+                        verificationBadge.className = 'verification-badge verified';
+                    }
+                } else {
+                    if (verificationBadge) {
+                        verificationBadge.textContent = '⏳ Unverified';
+                        verificationBadge.className = 'verification-badge';
+                    }
+                }
+
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            currentUserData = doc.data();
+                            userName.textContent = currentUserData.name || 'Friend';
+                            userGenderBadge.textContent = currentUserData.gender || '';
+                            updateEmergencyBanner();
+                        }
+                    })
+                    .catch((err) => console.error('Error fetching user data:', err));
             } else {
-                console.log('👤 Not logged in');
+                currentUser = null;
+                currentUserData = null;
+                authButtons.style.display = 'flex';
+                userInfo.style.display = 'none';
             }
         });
+
+        function updateEmergencyBanner() {
+            const banner = document.getElementById('emergencyBanner');
+            if (!banner || !currentUserData) return;
+
+            const country = currentUserData.country;
+            const emergency = currentUserData.emergencyNumber || '911';
+
+            banner.innerHTML = `
+                🆘 <strong>Emergency Number for ${country || 'your country'}:</strong>
+                <a href="tel:${emergency}" style="color: #f5d6b3; font-weight: bold; text-decoration: underline;">${emergency}</a>
+                ${country ? `(${country})` : ''}
+            `;
+            banner.style.display = 'block';
+        }
 
         // ============================================
         // INIT
@@ -812,19 +815,13 @@
             // Show default result after a small delay
             setTimeout(showDefaultResult, 300);
 
-            // Set placeholder text based on browser language
-            const lang = navigator.language || 'en';
-            if (lang.startsWith('bn')) {
-                searchInput.placeholder = '🔍 দেশ খুঁজুন (যেমন: বাংলাদেশ, ভারত)';
-            } else if (lang.startsWith('hi')) {
-                searchInput.placeholder = '🔍 देश खोजें (जैसे: भारत, बांग्लादेश)';
-            }
-
             console.log('🆘 Emergency numbers loaded:', countries.length, 'countries');
             console.log('📞 Search for any country to find emergency numbers');
         });
 
         console.log('🆘 Emergency numbers page loaded successfully');
     </script>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
