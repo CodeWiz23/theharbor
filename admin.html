@@ -7,7 +7,7 @@
 
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
         style-src 'self' 'unsafe-inline';
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
@@ -94,6 +94,10 @@
             border-radius: 20px;
             font-size: 0.75rem;
             margin-left: 6px;
+        }
+        .mod-tab.active .count {
+            background: #f5d6b3;
+            color: #1a4a4a;
         }
 
         .mod-item {
@@ -961,10 +965,25 @@
     });
 
     // ============================================
-    // LOAD ADMIN PANEL
+    // LOAD ADMIN PANEL - FIXED
     // ============================================
     function loadAdminPanel() {
         const content = document.getElementById('adminContent');
+        if (!content) return;
+        
+        // Check if user is admin
+        if (!currentUser || !currentUserData || !currentUserData.isAdmin) {
+            content.innerHTML = `
+                <div class="empty-state">
+                    <div class="big-emoji">🚫</div>
+                    <h3>Access Denied</h3>
+                    <p>You need administrator privileges to access this page.</p>
+                    <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
+                </div>
+            `;
+            return;
+        }
+        
         content.innerHTML = `
             <div class="admin-header">
                 <h1>👑 Admin <span>Panel</span></h1>
@@ -993,6 +1012,7 @@
 
     function loadStats() {
         const statsDiv = document.getElementById('adminStats');
+        if (!statsDiv) return;
 
         db.collection('stories').get()
             .then((snapshot) => {
@@ -1039,6 +1059,15 @@
             })
             .catch((err) => {
                 console.error('Error loading stats:', err);
+                statsDiv.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="emoji">⚠️</span>
+                            <div class="number">Error</div>
+                            <div class="label">Could not load stats</div>
+                        </div>
+                    </div>
+                `;
             });
     }
 
@@ -1052,6 +1081,8 @@
 
     function loadModItems(type) {
         const container = document.getElementById('modItems');
+        if (!container) return;
+        
         container.innerHTML = '<div class="loading">⏳ Loading...</div>';
 
         db.collection('stories').get()
