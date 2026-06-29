@@ -3,13 +3,31 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Story — The Harbor</title>
-
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
-
+    <title>Story - The Harbor</title>
+    
+    <!-- CSP should be in the head and properly configured -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://www.gstatic.com/ https://www.example.com/;
+        style-src 'self' https://www.example.com/;
+        img-src 'self' https://www.example.com/ data:;
+        connect-src 'self' https://firestore.googleapis.com/ https://*.firebaseio.com/;
+        frame-src 'none';
+        base-uri 'self';
+        font-src 'self';
+        object-src 'none';
+    " />
+</head>
+<body>
+    <!-- Firebase SDKs - URLs corrected -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Your story content goes here -->
+    
+</body>
+</html>
 
     <link rel="stylesheet" href="css/style.css" />
 
