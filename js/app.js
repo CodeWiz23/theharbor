@@ -29,207 +29,26 @@ let allStoriesCache = [];
 let userStoryHistory = [];
 
 // ============================================
-// COUNTRY DATA (190+ countries)
+// COUNTRY DATA
 // ============================================
 const countries = [
-    { name: 'Afghanistan', emergency: '119' },
-    { name: 'Albania', emergency: '112' },
-    { name: 'Algeria', emergency: '14' },
-    { name: 'Andorra', emergency: '112' },
-    { name: 'Angola', emergency: '113' },
-    { name: 'Argentina', emergency: '911' },
-    { name: 'Armenia', emergency: '112' },
-    { name: 'Australia', emergency: '000' },
-    { name: 'Austria', emergency: '112' },
-    { name: 'Azerbaijan', emergency: '112' },
-    { name: 'Bahamas', emergency: '911' },
-    { name: 'Bahrain', emergency: '999' },
-    { name: 'Bangladesh', emergency: '999' },
-    { name: 'Barbados', emergency: '911' },
-    { name: 'Belarus', emergency: '112' },
-    { name: 'Belgium', emergency: '112' },
-    { name: 'Belize', emergency: '911' },
-    { name: 'Benin', emergency: '112' },
-    { name: 'Bhutan', emergency: '112' },
-    { name: 'Bolivia', emergency: '911' },
-    { name: 'Bosnia and Herzegovina', emergency: '112' },
-    { name: 'Botswana', emergency: '999' },
-    { name: 'Brazil', emergency: '190' },
-    { name: 'Brunei', emergency: '995' },
-    { name: 'Bulgaria', emergency: '112' },
-    { name: 'Burkina Faso', emergency: '112' },
-    { name: 'Burundi', emergency: '112' },
-    { name: 'Cambodia', emergency: '119' },
-    { name: 'Cameroon', emergency: '112' },
-    { name: 'Canada', emergency: '911' },
-    { name: 'Cape Verde', emergency: '132' },
-    { name: 'Central African Republic', emergency: '112' },
-    { name: 'Chad', emergency: '112' },
-    { name: 'Chile', emergency: '131' },
-    { name: 'China', emergency: '110' },
-    { name: 'Colombia', emergency: '123' },
-    { name: 'Comoros', emergency: '112' },
-    { name: 'Congo', emergency: '112' },
-    { name: 'Costa Rica', emergency: '911' },
-    { name: 'Croatia', emergency: '112' },
-    { name: 'Cuba', emergency: '106' },
-    { name: 'Cyprus', emergency: '112' },
-    { name: 'Czech Republic', emergency: '112' },
-    { name: 'Denmark', emergency: '112' },
-    { name: 'Djibouti', emergency: '112' },
-    { name: 'Dominica', emergency: '911' },
-    { name: 'Dominican Republic', emergency: '911' },
-    { name: 'Ecuador', emergency: '911' },
-    { name: 'Egypt', emergency: '122' },
-    { name: 'El Salvador', emergency: '911' },
-    { name: 'Equatorial Guinea', emergency: '112' },
-    { name: 'Eritrea', emergency: '112' },
-    { name: 'Estonia', emergency: '112' },
-    { name: 'Eswatini', emergency: '999' },
-    { name: 'Ethiopia', emergency: '911' },
-    { name: 'Fiji', emergency: '911' },
-    { name: 'Finland', emergency: '112' },
-    { name: 'France', emergency: '112' },
-    { name: 'Gabon', emergency: '112' },
-    { name: 'Gambia', emergency: '112' },
-    { name: 'Georgia', emergency: '112' },
-    { name: 'Germany', emergency: '112' },
-    { name: 'Ghana', emergency: '112' },
-    { name: 'Greece', emergency: '112' },
-    { name: 'Grenada', emergency: '911' },
-    { name: 'Guatemala', emergency: '110' },
-    { name: 'Guinea', emergency: '112' },
-    { name: 'Guyana', emergency: '911' },
-    { name: 'Haiti', emergency: '116' },
-    { name: 'Honduras', emergency: '911' },
-    { name: 'Hungary', emergency: '112' },
-    { name: 'Iceland', emergency: '112' },
-    { name: 'India', emergency: '112' },
-    { name: 'Indonesia', emergency: '112' },
-    { name: 'Iran', emergency: '110' },
-    { name: 'Iraq', emergency: '112' },
-    { name: 'Ireland', emergency: '112' },
-    { name: 'Israel', emergency: '112' },
-    { name: 'Italy', emergency: '112' },
-    { name: 'Jamaica', emergency: '119' },
-    { name: 'Japan', emergency: '110' },
-    { name: 'Jordan', emergency: '911' },
-    { name: 'Kazakhstan', emergency: '112' },
-    { name: 'Kenya', emergency: '112' },
-    { name: 'Kiribati', emergency: '112' },
-    { name: 'Kuwait', emergency: '112' },
-    { name: 'Kyrgyzstan', emergency: '112' },
-    { name: 'Laos', emergency: '112' },
-    { name: 'Latvia', emergency: '112' },
-    { name: 'Lebanon', emergency: '112' },
-    { name: 'Lesotho', emergency: '112' },
-    { name: 'Liberia', emergency: '911' },
-    { name: 'Libya', emergency: '112' },
-    { name: 'Liechtenstein', emergency: '112' },
-    { name: 'Lithuania', emergency: '112' },
-    { name: 'Luxembourg', emergency: '112' },
-    { name: 'Madagascar', emergency: '112' },
-    { name: 'Malawi', emergency: '112' },
-    { name: 'Malaysia', emergency: '999' },
-    { name: 'Maldives', emergency: '119' },
-    { name: 'Mali', emergency: '112' },
-    { name: 'Malta', emergency: '112' },
-    { name: 'Marshall Islands', emergency: '911' },
-    { name: 'Mauritania', emergency: '112' },
-    { name: 'Mauritius', emergency: '999' },
-    { name: 'Mexico', emergency: '911' },
-    { name: 'Micronesia', emergency: '911' },
-    { name: 'Moldova', emergency: '112' },
-    { name: 'Monaco', emergency: '112' },
-    { name: 'Mongolia', emergency: '112' },
-    { name: 'Montenegro', emergency: '112' },
-    { name: 'Morocco', emergency: '112' },
-    { name: 'Mozambique', emergency: '112' },
-    { name: 'Myanmar', emergency: '112' },
-    { name: 'Namibia', emergency: '112' },
-    { name: 'Nauru', emergency: '112' },
-    { name: 'Nepal', emergency: '100' },
-    { name: 'Netherlands', emergency: '112' },
-    { name: 'New Zealand', emergency: '111' },
-    { name: 'Nicaragua', emergency: '911' },
-    { name: 'Niger', emergency: '112' },
-    { name: 'Nigeria', emergency: '112' },
-    { name: 'North Korea', emergency: '119' },
-    { name: 'North Macedonia', emergency: '112' },
-    { name: 'Norway', emergency: '112' },
-    { name: 'Oman', emergency: '999' },
-    { name: 'Pakistan', emergency: '112' },
-    { name: 'Palau', emergency: '911' },
-    { name: 'Panama', emergency: '911' },
-    { name: 'Papua New Guinea', emergency: '112' },
-    { name: 'Paraguay', emergency: '911' },
-    { name: 'Peru', emergency: '911' },
-    { name: 'Philippines', emergency: '911' },
-    { name: 'Poland', emergency: '112' },
-    { name: 'Portugal', emergency: '112' },
-    { name: 'Qatar', emergency: '999' },
-    { name: 'Romania', emergency: '112' },
-    { name: 'Russia', emergency: '112' },
-    { name: 'Rwanda', emergency: '112' },
-    { name: 'Saint Lucia', emergency: '911' },
-    { name: 'Samoa', emergency: '112' },
-    { name: 'San Marino', emergency: '112' },
-    { name: 'Saudi Arabia', emergency: '911' },
-    { name: 'Senegal', emergency: '112' },
-    { name: 'Serbia', emergency: '112' },
-    { name: 'Seychelles', emergency: '112' },
-    { name: 'Sierra Leone', emergency: '112' },
-    { name: 'Singapore', emergency: '999' },
-    { name: 'Slovakia', emergency: '112' },
-    { name: 'Slovenia', emergency: '112' },
-    { name: 'Solomon Islands', emergency: '911' },
-    { name: 'Somalia', emergency: '112' },
-    { name: 'South Africa', emergency: '112' },
-    { name: 'South Korea', emergency: '112' },
-    { name: 'Spain', emergency: '112' },
-    { name: 'Sri Lanka', emergency: '119' },
-    { name: 'Sudan', emergency: '112' },
-    { name: 'Suriname', emergency: '112' },
-    { name: 'Sweden', emergency: '112' },
-    { name: 'Switzerland', emergency: '112' },
-    { name: 'Syria', emergency: '112' },
-    { name: 'Taiwan', emergency: '110' },
-    { name: 'Tajikistan', emergency: '112' },
-    { name: 'Tanzania', emergency: '112' },
-    { name: 'Thailand', emergency: '191' },
-    { name: 'Togo', emergency: '112' },
-    { name: 'Tonga', emergency: '911' },
-    { name: 'Trinidad and Tobago', emergency: '911' },
-    { name: 'Tunisia', emergency: '112' },
-    { name: 'Turkey', emergency: '112' },
-    { name: 'Turkmenistan', emergency: '112' },
-    { name: 'Tuvalu', emergency: '112' },
-    { name: 'Uganda', emergency: '112' },
-    { name: 'Ukraine', emergency: '112' },
-    { name: 'United Arab Emirates', emergency: '999' },
-    { name: 'United Kingdom', emergency: '999' },
     { name: 'United States', emergency: '911' },
-    { name: 'Uruguay', emergency: '911' },
-    { name: 'Uzbekistan', emergency: '112' },
-    { name: 'Vanuatu', emergency: '112' },
-    { name: 'Vatican City', emergency: '112' },
-    { name: 'Venezuela', emergency: '911' },
-    { name: 'Vietnam', emergency: '113' },
-    { name: 'Yemen', emergency: '112' },
-    { name: 'Zambia', emergency: '112' },
-    { name: 'Zimbabwe', emergency: '112' }
+    { name: 'United Kingdom', emergency: '999' },
+    { name: 'Bangladesh', emergency: '999' },
+    { name: 'India', emergency: '112' },
+    { name: 'Canada', emergency: '911' },
+    { name: 'Australia', emergency: '000' },
+    { name: 'Germany', emergency: '112' },
+    { name: 'France', emergency: '112' },
+    { name: 'Italy', emergency: '112' },
+    { name: 'Spain', emergency: '112' },
+    { name: 'Brazil', emergency: '190' },
+    { name: 'Mexico', emergency: '911' }
 ];
 
 // ============================================
-// SECURITY: Input Sanitization
+// SECURITY FUNCTIONS
 // ============================================
-function sanitizeInput(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.textContent;
-}
-
 function escapeHTML(text) {
     if (!text) return '';
     const map = {
@@ -245,9 +64,6 @@ function escapeHTML(text) {
     return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
 }
 
-// ============================================
-// SECURITY: Password Strength
-// ============================================
 function checkPasswordStrength(password) {
     let score = 0;
     if (password.length >= 8) score += 20;
@@ -269,6 +85,33 @@ function checkPasswordStrength(password) {
 }
 
 // ============================================
+// SWITCH CATEGORY - FIXED (ADD THIS FUNCTION)
+// ============================================
+function switchCategory(category) {
+    console.log('🔄 Switching to category:', category);
+    
+    // Update current category
+    currentCategory = category;
+    
+    // Update active tab in UI
+    document.querySelectorAll('.tab').forEach((tab) => {
+        if (tab.dataset.category === category) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+    
+    // Update URL without reloading
+    const url = new URL(window.location);
+    url.searchParams.set('cat', category);
+    window.history.pushState({ category: category }, '', url);
+    
+    // Load stories for this category
+    loadStories();
+}
+
+// ============================================
 // CHECK USERNAME AVAILABILITY
 // ============================================
 async function checkUsernameAvailability(username) {
@@ -285,7 +128,7 @@ async function checkUsernameAvailability(username) {
 }
 
 // ============================================
-// AUTH: Login, Signup, Logout
+// AUTH FUNCTIONS
 // ============================================
 
 function openModal(mode) {
@@ -300,7 +143,6 @@ function openModal(mode) {
 
     if (error) error.textContent = '';
     
-    // Clear ALL fields to prevent autofill
     const fields = ['authEmail', 'authPassword', 'authName', 'authFavorites', 'authCountry'];
     fields.forEach(id => {
         const el = document.getElementById(id);
@@ -422,16 +264,11 @@ function handleAuth() {
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Please wait...';
 
-    const cleanEmail = email.trim();
-    const cleanPassword = password;
-
     if (isLogin) {
-        auth.signInWithEmailAndPassword(cleanEmail, cleanPassword)
+        auth.signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
                 if (!user.emailVerified) {
-                    error.textContent = '⚠️ Please verify your email first. Check your inbox!';
-                    // Show resend verification option
                     error.innerHTML = `
                         ⚠️ Please verify your email first. Check your inbox (and spam folder)!<br>
                         <button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;margin-top:4px;">
@@ -471,13 +308,6 @@ function handleAuth() {
             return;
         }
 
-        if (name.length > 30) {
-            error.textContent = 'Username must be under 30 characters.';
-            submitBtn.disabled = false;
-            submitBtn.textContent = '🚀 Create Account';
-            return;
-        }
-
         if (!country) {
             error.textContent = 'Please select your country.';
             submitBtn.disabled = false;
@@ -493,21 +323,20 @@ function handleAuth() {
                     submitBtn.textContent = '🚀 Create Account';
                     return Promise.reject('Username taken');
                 }
-                return auth.createUserWithEmailAndPassword(cleanEmail, cleanPassword);
+                return auth.createUserWithEmailAndPassword(email, password);
             })
             .then((userCredential) => {
                 const user = userCredential.user;
                 return user.sendEmailVerification().then(() => user);
             })
             .then((user) => {
-                const countryData = countries.find(c => c.name === country);
                 return db.collection('users').doc(user.uid).set({
                     name: name,
-                    email: cleanEmail,
+                    email: email,
                     gender: gender,
                     favorites: favorites || 'Not specified',
                     country: country,
-                    emergencyNumber: countryData?.emergency || '911',
+                    emergencyNumber: '911',
                     emailVerified: false,
                     isAdmin: false,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -519,7 +348,6 @@ function handleAuth() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Create Account';
                 auth.signOut();
-                // Enhanced verification message with spam folder reminder
                 alert(
                     '✅ Verification email sent to ' + email + '!\n\n' +
                     '📧 Please check your inbox and click the verification link.\n\n' +
@@ -540,17 +368,6 @@ function handleAuth() {
     }
 }
 
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        auth.signOut();
-        sessionStorage.removeItem('hasSeenWelcome');
-        window.location.href = 'index.html';
-    }
-}
-
-// ============================================
-// RESEND VERIFICATION
-// ============================================
 function resendVerification() {
     const user = auth.currentUser;
     if (!user) {
@@ -574,9 +391,14 @@ function resendVerification() {
         });
 }
 
-// ============================================
-// POPULATE COUNTRY DATALIST
-// ============================================
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        auth.signOut();
+        sessionStorage.removeItem('hasSeenWelcome');
+        window.location.href = 'index.html';
+    }
+}
+
 function populateCountryDatalist() {
     const datalist = document.getElementById('country-list');
     if (!datalist) return;
@@ -589,7 +411,7 @@ function populateCountryDatalist() {
 }
 
 // ============================================
-// LOAD USER REACTIONS - ADD THIS FUNCTION
+// LOAD USER REACTIONS
 // ============================================
 function loadAllUserReactions() {
     if (!currentUser) return Promise.resolve();
@@ -601,7 +423,7 @@ function loadAllUserReactions() {
         .collection('reactions')
         .get()
         .then((snapshot) => {
-            userReactions = {}; // Reset
+            userReactions = {};
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 userReactions[doc.id] = data.emojis || [];
@@ -617,139 +439,328 @@ function loadAllUserReactions() {
 }
 
 // ============================================
-// AUTH STATE LISTENER - FIXED: Added loadAllUserReactions()
+// CREATE FLOATING EMOJI WITH FIREWORKS
 // ============================================
-
-auth.onAuthStateChanged((user) => {
-    const authButtons = document.getElementById('authButtons');
-    const userInfo = document.getElementById('userInfo');
-    const userName = document.getElementById('userName');
-    const userGenderBadge = document.getElementById('userGenderBadge');
-    const verificationBadge = document.getElementById('verificationBadge');
-
-    if (user) {
-        currentUser = user;
-        if (authButtons) authButtons.style.display = 'none';
-        if (userInfo) userInfo.style.display = 'flex';
-
-        if (user.emailVerified) {
-            if (verificationBadge) {
-                verificationBadge.textContent = '✅ Verified';
-                verificationBadge.className = 'verification-badge verified';
-            }
-        } else {
-            if (verificationBadge) {
-                verificationBadge.textContent = '⏳ Unverified';
-                verificationBadge.className = 'verification-badge';
-            }
-        }
-
-        db.collection('users').doc(user.uid).get()
-            .then((doc) => {
-                if (doc.exists) {
-                    currentUserData = doc.data();
-                    if (userName) userName.textContent = currentUserData.name || 'Friend';
-                    if (userGenderBadge) userGenderBadge.textContent = currentUserData.gender || '';
-                    
-                    if (user.emailVerified && !currentUserData.emailVerified) {
-                        db.collection('users').doc(user.uid).update({ emailVerified: true });
-                    }
-
-                    updateEmergencyBanner();
-
-                    // ⭐ FIX: LOAD USER REACTIONS HERE ⭐
-                    loadAllUserReactions().then(() => {
-                        if (document.getElementById('storiesContainer')) {
-                            loadStories();
-                        }
-                        
-                        if (window.location.pathname.includes('profile.html')) {
-                            loadProfile();
-                        }
-
-                        if (window.location.pathname.includes('admin.html')) {
-                            loadAdminPanel();
-                        }
-                        
-                        if (window.location.pathname.includes('activity.html')) {
-                            loadActivity();
-                        }
-                    });
-                }
-            })
-            .catch((err) => console.error('Error fetching user data:', err));
-    } else {
-        currentUser = null;
-        currentUserData = null;
-        userReactions = {}; // Clear reactions on logout
-        if (authButtons) authButtons.style.display = 'flex';
-        if (userInfo) userInfo.style.display = 'none';
-        
-        const container = document.getElementById('storiesContainer');
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state" style="padding:50px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
-                    <div class="big-emoji">🔒</div>
-                    <h3 style="color:#1a4a4a;">Login Required</h3>
-                    <p style="color:#2d3a3a;">Please log in or join to read and share stories.</p>
-                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                        <button class="btn-primary" onclick="openModal('login')" style="background:#c47a5a;border:none;border-radius:50px;padding:12px 28px;color:white;font-weight:700;cursor:pointer;">🔐 Log In</button>
-                        <button class="btn-secondary" onclick="openModal('signup')" style="background:transparent;border:2px solid #c47a5a;border-radius:50px;padding:12px 28px;color:#c47a5a;font-weight:700;cursor:pointer;">📝 Join</button>
-                    </div>
-                </div>
-            `;
-        }
-    }
-});
-
-// ============================================
-// UPDATE EMERGENCY BANNER
-// ============================================
-
-function updateEmergencyBanner() {
-    const banner = document.getElementById('emergencyBanner');
-    if (!banner || !currentUserData) return;
-
-    const country = currentUserData.country;
-    const emergency = currentUserData.emergencyNumber || '911';
-    
-    banner.innerHTML = `
-        🆘 <strong>Emergency Number for ${country || 'your country'}:</strong> 
-        <a href="tel:${emergency}" style="color: #f5d6b3; font-weight: bold; text-decoration: underline;">${emergency}</a>
-        ${country ? `(${country})` : ''}
+function createFloatingEmoji(emoji, x, y) {
+    const el = document.createElement('div');
+    el.textContent = emoji;
+    el.style.cssText = `
+        position: fixed;
+        font-size: ${2 + Math.random() * 2}rem;
+        pointer-events: none;
+        z-index: 9999;
+        left: ${x + (Math.random() - 0.5) * 200}px;
+        top: ${y + (Math.random() - 0.5) * 100}px;
+        animation: floatUp 1.5s ease-out forwards;
+        opacity: 1;
     `;
-    banner.style.display = 'block';
+    
+    if (!document.getElementById('floatUpStyle')) {
+        const style = document.createElement('style');
+        style.id = 'floatUpStyle';
+        style.textContent = `
+            @keyframes floatUp {
+                0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
+                50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); }
+                100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1600);
+    
+    // 🎆 FIREWORKS EFFECT - shoot fireworks when reaction is added
+    createReactionFireworks(x, y);
 }
 
 // ============================================
-// GENDER RESTRICTION CHECKS
+// REACTION FIREWORKS EFFECT
 // ============================================
-
-function getUserGender() {
-    if (!currentUserData) return null;
-    return currentUserData.gender;
+function createReactionFireworks(cx, cy) {
+    const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24', '#27ae60', '#f39c12'];
+    
+    // Create 3 bursts of fireworks
+    for (let burst = 0; burst < 3; burst++) {
+        setTimeout(() => {
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const count = 15 + Math.floor(Math.random() * 25);
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 150;
+                const size = 4 + Math.random() * 8;
+                
+                particle.style.cssText = `
+                    position: fixed;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${color};
+                    border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+                    pointer-events: none;
+                    z-index: 9998;
+                    left: ${cx + (Math.random() - 0.5) * 40}px;
+                    top: ${cy + (Math.random() - 0.5) * 40}px;
+                    box-shadow: 0 0 10px ${color}80;
+                    animation: fireworkBurst ${0.8 + Math.random() * 0.6}s ease-out forwards;
+                    --tx: ${Math.cos(angle) * distance}px;
+                    --ty: ${Math.sin(angle) * distance}px;
+                `;
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
+            }
+            
+            // Add sparkles
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.style.cssText = `
+                    position: fixed;
+                    width: ${2 + Math.random() * 4}px;
+                    height: ${2 + Math.random() * 4}px;
+                    background: white;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9997;
+                    left: ${cx + (Math.random() - 0.5) * 100}px;
+                    top: ${cy + (Math.random() - 0.5) * 100}px;
+                    animation: sparkleBurst ${1 + Math.random() * 0.5}s ease-out forwards;
+                    box-shadow: 0 0 6px rgba(255,255,255,0.8);
+                `;
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1600);
+            }
+        }, burst * 150);
+    }
 }
 
-function canSeeCategory(category) {
-    const gender = getUserGender();
-    if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') return true;
-    if (category === 'men' && gender === '🧔 Man') return true;
-    if (category === 'women' && gender === '👩 Woman') return true;
-    return false;
+// Add CSS animations for fireworks
+(function addFireworkStyles() {
+    if (!document.getElementById('fireworkStyles')) {
+        const style = document.createElement('style');
+        style.id = 'fireworkStyles';
+        style.textContent = `
+            @keyframes fireworkBurst {
+                0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+                100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+            }
+            @keyframes sparkleBurst {
+                0% { transform: scale(0) rotate(0deg); opacity: 1; }
+                100% { transform: scale(1.5) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+})();
+
+// ============================================
+// ADD REACTION - WITH FIREWORKS
+// ============================================
+function addReaction(storyId, emoji) {
+    if (!currentUser) {
+        alert('Please log in to react.');
+        return;
+    }
+
+    if (!currentUser.emailVerified) {
+        alert('Please verify your email first.');
+        return;
+    }
+
+    // Initialize userReactions[storyId] if it doesn't exist
+    if (!userReactions[storyId]) {
+        userReactions[storyId] = [];
+    }
+
+    const storyRef = db.collection('stories').doc(storyId);
+    const userReactionRef = db.collection('users').doc(currentUser.uid)
+        .collection('reactions').doc(storyId);
+
+    const hasReacted = userReactions[storyId].includes(emoji);
+
+    const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+    
+    // Floating emoji + fireworks
+    createFloatingEmoji(emoji, x, y);
+
+    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+    if (btn) btn.disabled = true;
+
+    db.runTransaction((transaction) => {
+        return transaction.get(storyRef).then((doc) => {
+            if (!doc.exists) {
+                throw new Error('Story not found');
+            }
+            const data = doc.data();
+            const reactions = data.reactions || {};
+            
+            if (hasReacted) {
+                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
+            } else {
+                reactions[emoji] = (reactions[emoji] || 0) + 1;
+                userReactions[storyId].push(emoji);
+            }
+            
+            transaction.update(storyRef, { reactions: reactions });
+            
+            if (userReactions[storyId] && userReactions[storyId].length > 0) {
+                transaction.set(userReactionRef, { 
+                    emojis: userReactions[storyId],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    storyId: storyId
+                });
+            } else {
+                transaction.delete(userReactionRef);
+                delete userReactions[storyId];
+            }
+        });
+    })
+    .then(() => {
+        if (btn) btn.disabled = false;
+        
+        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+        if (countSpan) {
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+        }
+        
+        if (btn) {
+            if (hasReacted) {
+                btn.classList.remove('reacted');
+                const checkmark = btn.querySelector('.checkmark');
+                if (checkmark) checkmark.remove();
+            } else {
+                btn.classList.add('reacted');
+                if (!btn.querySelector('.checkmark')) {
+                    btn.innerHTML += ' <span class="checkmark">✅</span>';
+                }
+            }
+        }
+        
+        if (typeof loadStories === 'function') {
+            loadStories();
+        }
+    })
+    .catch((err) => {
+        console.error('Error toggling reaction:', err);
+        if (btn) btn.disabled = false;
+        let message = 'Could not update reaction. ';
+        if (err.message === 'Story not found') {
+            message += 'The story may have been deleted.';
+        } else {
+            message += 'Please try again.';
+        }
+        alert(message);
+    });
 }
 
-function canPostInCategory(category) {
-    const gender = getUserGender();
-    if (category === 'struggles' || category === 'fun' || category === 'learning') return true;
-    if (category === 'men' && gender === '🧔 Man') return true;
-    if (category === 'women' && gender === '👩 Woman') return true;
-    return false;
+// ============================================
+// TOGGLE REACTION (for story.html) - WITH FIREWORKS
+// ============================================
+function toggleReaction(storyId, emoji) {
+    if (!currentUser) {
+        alert('Please log in to react.');
+        return;
+    }
+
+    if (!currentUser.emailVerified) {
+        alert('Please verify your email first.');
+        return;
+    }
+
+    if (!userReactions[storyId]) {
+        userReactions[storyId] = [];
+    }
+
+    const storyRef = db.collection('stories').doc(storyId);
+    const userReactionRef = db.collection('users').doc(currentUser.uid)
+        .collection('reactions').doc(storyId);
+
+    const hasReacted = userReactions[storyId].includes(emoji);
+
+    const rect = document.getElementById('storyCard')?.getBoundingClientRect();
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+    
+    // Floating emoji + fireworks
+    createFloatingEmoji(emoji, x, y);
+
+    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+    if (btn) btn.disabled = true;
+
+    db.runTransaction((transaction) => {
+        return transaction.get(storyRef).then((doc) => {
+            if (!doc.exists) {
+                throw new Error('Story not found');
+            }
+            const data = doc.data();
+            const reactions = data.reactions || {};
+            
+            if (hasReacted) {
+                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
+            } else {
+                reactions[emoji] = (reactions[emoji] || 0) + 1;
+                userReactions[storyId].push(emoji);
+            }
+            
+            transaction.update(storyRef, { reactions: reactions });
+            
+            if (userReactions[storyId] && userReactions[storyId].length > 0) {
+                transaction.set(userReactionRef, { 
+                    emojis: userReactions[storyId],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    storyId: storyId
+                });
+            } else {
+                transaction.delete(userReactionRef);
+                delete userReactions[storyId];
+            }
+        });
+    })
+    .then(() => {
+        if (btn) btn.disabled = false;
+        
+        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+        if (countSpan) {
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+        }
+        
+        if (btn) {
+            if (hasReacted) {
+                btn.classList.remove('reacted');
+                const checkmark = btn.querySelector('.checkmark');
+                if (checkmark) checkmark.remove();
+            } else {
+                btn.classList.add('reacted');
+                if (!btn.querySelector('.checkmark')) {
+                    btn.innerHTML += ' <span class="checkmark">✅</span>';
+                }
+            }
+        }
+    })
+    .catch((err) => {
+        console.error('Error toggling reaction:', err);
+        if (btn) btn.disabled = false;
+        let message = 'Could not update reaction. ';
+        if (err.message === 'Story not found') {
+            message += 'The story may have been deleted.';
+        } else {
+            message += 'Please try again.';
+        }
+        alert(message);
+    });
 }
 
 // ============================================
 // LOAD STORIES
 // ============================================
-
 function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
@@ -781,12 +792,23 @@ function loadStories() {
         return;
     }
 
-    if (!canSeeCategory(currentCategory) && currentUser) {
+    const gender = currentUserData ? currentUserData.gender : null;
+    if (currentCategory === 'men' && gender !== '🧔 Man') {
         container.innerHTML = `
             <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
                 <div class="big-emoji">🔒</div>
                 <h3>Access Restricted</h3>
-                <p>You don't have permission to view this section.</p>
+                <p>Men's Harbor is only available for men.</p>
+            </div>
+        `;
+        return;
+    }
+    if (currentCategory === 'women' && gender !== '👩 Woman') {
+        container.innerHTML = `
+            <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
+                <div class="big-emoji">🔒</div>
+                <h3>Access Restricted</h3>
+                <p>Women's Harbor is only available for women.</p>
             </div>
         `;
         return;
@@ -807,12 +829,9 @@ function loadStories() {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="big-emoji">🌊</div>
-                        <h3>No stories yet</h3>
+                        <h3>No stories in this category yet</h3>
                         <p>Be the first to share your story!</p>
-                        ${canPostInCategory(currentCategory) ? 
-                            `<a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>` 
-                            : ''
-                        }
+                        <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
                     </div>
                 `;
                 return;
@@ -844,8 +863,8 @@ function loadStories() {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="big-emoji">⚠️</div>
-                    <h3>Oops!</h3>
-                    <p>Could not load stories. Please try again.</p>
+                    <h3>Error Loading Stories</h3>
+                    <p>${err.message}</p>
                     <button class="btn-primary" onclick="loadStories()" style="margin-top:12px;">🔄 Retry</button>
                 </div>
             `;
@@ -855,7 +874,6 @@ function loadStories() {
 // ============================================
 // RENDER STORY CARD
 // ============================================
-
 function renderStoryCard(story) {
     const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
     const categoryNames = {
@@ -906,253 +924,144 @@ function renderStoryCard(story) {
 }
 
 // ============================================
-// CREATE FLOATING EMOJI
+// AUTH STATE LISTENER
 // ============================================
+auth.onAuthStateChanged((user) => {
+    const authButtons = document.getElementById('authButtons');
+    const userInfo = document.getElementById('userInfo');
+    const userName = document.getElementById('userName');
+    const userGenderBadge = document.getElementById('userGenderBadge');
+    const verificationBadge = document.getElementById('verificationBadge');
 
-function createFloatingEmoji(emoji, x, y) {
-    const el = document.createElement('div');
-    el.textContent = emoji;
-    el.style.cssText = `
-        position: fixed;
-        font-size: ${2 + Math.random() * 2}rem;
-        pointer-events: none;
-        z-index: 9999;
-        left: ${x + (Math.random() - 0.5) * 200}px;
-        top: ${y + (Math.random() - 0.5) * 100}px;
-        animation: floatUp 1.5s ease-out forwards;
-        opacity: 1;
+    if (user) {
+        currentUser = user;
+        if (authButtons) authButtons.style.display = 'none';
+        if (userInfo) userInfo.style.display = 'flex';
+
+        if (user.emailVerified) {
+            if (verificationBadge) {
+                verificationBadge.textContent = '✅ Verified';
+                verificationBadge.className = 'verification-badge verified';
+            }
+        } else {
+            if (verificationBadge) {
+                verificationBadge.textContent = '⏳ Unverified';
+                verificationBadge.className = 'verification-badge';
+            }
+        }
+
+        db.collection('users').doc(user.uid).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    if (userName) userName.textContent = currentUserData.name || 'Friend';
+                    if (userGenderBadge) userGenderBadge.textContent = currentUserData.gender || '';
+                    
+                    if (user.emailVerified && !currentUserData.emailVerified) {
+                        db.collection('users').doc(user.uid).update({ emailVerified: true });
+                    }
+
+                    updateEmergencyBanner();
+
+                    loadAllUserReactions().then(() => {
+                        if (document.getElementById('storiesContainer')) {
+                            // Check URL for category param
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const cat = urlParams.get('cat') || 'all';
+                            currentCategory = cat;
+                            
+                            // Update active tab
+                            document.querySelectorAll('.tab').forEach((tab) => {
+                                tab.classList.toggle('active', tab.dataset.category === cat);
+                            });
+                            
+                            loadStories();
+                        }
+                        
+                        if (window.location.pathname.includes('profile.html')) {
+                            loadProfile();
+                        }
+
+                        if (window.location.pathname.includes('admin.html')) {
+                            loadAdminPanel();
+                        }
+                        
+                        if (window.location.pathname.includes('activity.html')) {
+                            loadActivity();
+                        }
+                    });
+                }
+            })
+            .catch((err) => console.error('Error fetching user data:', err));
+    } else {
+        currentUser = null;
+        currentUserData = null;
+        userReactions = {};
+        if (authButtons) authButtons.style.display = 'flex';
+        if (userInfo) userInfo.style.display = 'none';
+        
+        const container = document.getElementById('storiesContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding:50px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
+                    <div class="big-emoji">🔒</div>
+                    <h3 style="color:#1a4a4a;">Login Required</h3>
+                    <p style="color:#2d3a3a;">Please log in or join to read and share stories.</p>
+                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="openModal('login')" style="background:#c47a5a;border:none;border-radius:50px;padding:12px 28px;color:white;font-weight:700;cursor:pointer;">🔐 Log In</button>
+                        <button class="btn-secondary" onclick="openModal('signup')" style="background:transparent;border:2px solid #c47a5a;border-radius:50px;padding:12px 28px;color:#c47a5a;font-weight:700;cursor:pointer;">📝 Join</button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+});
+
+// ============================================
+// UPDATE EMERGENCY BANNER
+// ============================================
+function updateEmergencyBanner() {
+    const banner = document.getElementById('emergencyBanner');
+    if (!banner || !currentUserData) return;
+
+    const country = currentUserData.country;
+    const emergency = currentUserData.emergencyNumber || '911';
+    
+    banner.innerHTML = `
+        🆘 <strong>Emergency Number for ${country || 'your country'}:</strong> 
+        <a href="tel:${emergency}" style="color: #f5d6b3; font-weight: bold; text-decoration: underline;">${emergency}</a>
+        ${country ? `(${country})` : ''}
     `;
-    
-    if (!document.getElementById('floatUpStyle')) {
-        const style = document.createElement('style');
-        style.id = 'floatUpStyle';
-        style.textContent = `
-            @keyframes floatUp {
-                0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
-                50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); }
-                100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1600);
+    banner.style.display = 'block';
 }
 
 // ============================================
-// ADD REACTION - FIXED
+// GENDER RESTRICTION CHECKS
 // ============================================
-function addReaction(storyId, emoji) {
-    if (!currentUser) {
-        alert('Please log in to react.');
-        return;
-    }
-
-    if (!currentUser.emailVerified) {
-        alert('Please verify your email first.');
-        return;
-    }
-
-    // Initialize userReactions[storyId] if it doesn't exist
-    if (!userReactions[storyId]) {
-        userReactions[storyId] = [];
-    }
-
-    const storyRef = db.collection('stories').doc(storyId);
-    const userReactionRef = db.collection('users').doc(currentUser.uid)
-        .collection('reactions').doc(storyId);
-
-    const hasReacted = userReactions[storyId].includes(emoji);
-
-    const rect = document.getElementById('storiesContainer')?.getBoundingClientRect();
-    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
-    const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
-    createFloatingEmoji(emoji, x, y);
-
-    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-    if (btn) btn.disabled = true;
-
-    db.runTransaction((transaction) => {
-        return transaction.get(storyRef).then((doc) => {
-            if (!doc.exists) {
-                throw new Error('Story not found');
-            }
-            const data = doc.data();
-            const reactions = data.reactions || {};
-            
-            if (hasReacted) {
-                // Remove reaction
-                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
-                userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
-            } else {
-                // Add reaction
-                reactions[emoji] = (reactions[emoji] || 0) + 1;
-                userReactions[storyId].push(emoji);
-            }
-            
-            transaction.update(storyRef, { reactions: reactions });
-            
-            // Update or delete the user's reaction document
-            if (userReactions[storyId] && userReactions[storyId].length > 0) {
-                transaction.set(userReactionRef, { 
-                    emojis: userReactions[storyId],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    storyId: storyId
-                });
-            } else {
-                transaction.delete(userReactionRef);
-                // Also remove from userReactions object
-                delete userReactions[storyId];
-            }
-        });
-    })
-    .then(() => {
-        if (btn) btn.disabled = false;
-        
-        // Update the count display
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-        if (countSpan) {
-            const currentCount = parseInt(countSpan.textContent) || 0;
-            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-        }
-        
-        // Update the button appearance
-        if (btn) {
-            if (hasReacted) {
-                btn.classList.remove('reacted');
-                const checkmark = btn.querySelector('.checkmark');
-                if (checkmark) checkmark.remove();
-            } else {
-                btn.classList.add('reacted');
-                if (!btn.querySelector('.checkmark')) {
-                    btn.innerHTML += ' <span class="checkmark">✅</span>';
-                }
-            }
-        }
-        
-        // Refresh stories to keep everything in sync
-        if (typeof loadStories === 'function') {
-            loadStories();
-        }
-    })
-    .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        if (btn) btn.disabled = false;
-        // Show more specific error message
-        let message = 'Could not update reaction. ';
-        if (err.message === 'Story not found') {
-            message += 'The story may have been deleted.';
-        } else {
-            message += 'Please try again.';
-        }
-        alert(message);
-    });
+function getUserGender() {
+    if (!currentUserData) return null;
+    return currentUserData.gender;
 }
 
-// ============================================
-// TOGGLE REACTION (for story.html)
-// ============================================
+function canSeeCategory(category) {
+    const gender = getUserGender();
+    if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') return true;
+    if (category === 'men' && gender === '🧔 Man') return true;
+    if (category === 'women' && gender === '👩 Woman') return true;
+    return false;
+}
 
-function toggleReaction(storyId, emoji) {
-    if (!currentUser) {
-        alert('Please log in to react.');
-        return;
-    }
-
-    if (!currentUser.emailVerified) {
-        alert('Please verify your email first.');
-        return;
-    }
-
-    // Initialize userReactions[storyId] if it doesn't exist
-    if (!userReactions[storyId]) {
-        userReactions[storyId] = [];
-    }
-
-    const storyRef = db.collection('stories').doc(storyId);
-    const userReactionRef = db.collection('users').doc(currentUser.uid)
-        .collection('reactions').doc(storyId);
-
-    const hasReacted = userReactions[storyId].includes(emoji);
-
-    const rect = document.getElementById('storyCard')?.getBoundingClientRect();
-    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
-    const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
-    createFloatingEmoji(emoji, x, y);
-
-    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-    if (btn) btn.disabled = true;
-
-    db.runTransaction((transaction) => {
-        return transaction.get(storyRef).then((doc) => {
-            if (!doc.exists) {
-                throw new Error('Story not found');
-            }
-            const data = doc.data();
-            const reactions = data.reactions || {};
-            
-            if (hasReacted) {
-                reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
-                userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
-            } else {
-                reactions[emoji] = (reactions[emoji] || 0) + 1;
-                userReactions[storyId].push(emoji);
-            }
-            
-            transaction.update(storyRef, { reactions: reactions });
-            
-            if (userReactions[storyId] && userReactions[storyId].length > 0) {
-                transaction.set(userReactionRef, { 
-                    emojis: userReactions[storyId],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    storyId: storyId
-                });
-            } else {
-                transaction.delete(userReactionRef);
-                delete userReactions[storyId];
-            }
-        });
-    })
-    .then(() => {
-        if (btn) btn.disabled = false;
-        
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-        if (countSpan) {
-            const currentCount = parseInt(countSpan.textContent) || 0;
-            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-        }
-        
-        if (btn) {
-            if (hasReacted) {
-                btn.classList.remove('reacted');
-                const checkmark = btn.querySelector('.checkmark');
-                if (checkmark) checkmark.remove();
-            } else {
-                btn.classList.add('reacted');
-                if (!btn.querySelector('.checkmark')) {
-                    btn.innerHTML += ' <span class="checkmark">✅</span>';
-                }
-            }
-        }
-    })
-    .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        if (btn) btn.disabled = false;
-        let message = 'Could not update reaction. ';
-        if (err.message === 'Story not found') {
-            message += 'The story may have been deleted.';
-        } else {
-            message += 'Please try again.';
-        }
-        alert(message);
-    });
+function canPostInCategory(category) {
+    const gender = getUserGender();
+    if (category === 'struggles' || category === 'fun' || category === 'learning') return true;
+    if (category === 'men' && gender === '🧔 Man') return true;
+    if (category === 'women' && gender === '👩 Woman') return true;
+    return false;
 }
 
 // ============================================
 // LOAD USER REACTIONS (for single story)
 // ============================================
-
 function loadUserReactions(storyId) {
     if (!currentUser) return;
     
@@ -1179,9 +1088,8 @@ function loadUserReactions(storyId) {
 }
 
 // ============================================
-// LOAD ACTIVITY - FIXED TO SHOW ALL USER ACTIVITY
+// LOAD ACTIVITY
 // ============================================
-
 function loadActivity() {
     const container = document.getElementById('activityContainer');
     if (!container) return;
@@ -1200,19 +1108,16 @@ function loadActivity() {
 
     container.innerHTML = '<div class="loading">⏳ Loading activity...</div>';
 
-    // Load stories
     const storiesPromise = db.collection('stories')
         .where('userId', '==', currentUser.uid)
         .where('approved', '==', true)
         .get();
 
-    // Load comments
     const commentsPromise = db.collection('comments')
         .where('userId', '==', currentUser.uid)
         .where('approved', '==', true)
         .get();
 
-    // Load reactions from sub-collection
     const reactionsPromise = db.collection('users')
         .doc(currentUser.uid)
         .collection('reactions')
@@ -1225,7 +1130,6 @@ function loadActivity() {
             const reactionsSnapshot = results[2];
             const activities = [];
 
-            // Process stories
             storiesSnapshot.forEach((doc) => {
                 const data = doc.data();
                 data.id = doc.id;
@@ -1236,7 +1140,6 @@ function loadActivity() {
                 activities.push(data);
             });
 
-            // Process comments
             commentsSnapshot.forEach((doc) => {
                 const data = doc.data();
                 data.id = doc.id;
@@ -1247,7 +1150,6 @@ function loadActivity() {
                 activities.push(data);
             });
 
-            // Process reactions - fetch story titles for each reaction
             const reactionPromises = [];
             reactionsSnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -1256,7 +1158,6 @@ function loadActivity() {
                 data.timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
                 data.emojis = data.emojis || [];
                 
-                // Fetch story title for this reaction
                 const storyPromise = db.collection('stories').doc(data.storyId).get()
                     .then((storyDoc) => {
                         if (storyDoc.exists) {
@@ -1277,27 +1178,22 @@ function loadActivity() {
                 reactionPromises.push(storyPromise);
             });
 
-            // Wait for all story titles to load
             return Promise.all(reactionPromises).then((reactionsWithTitles) => {
                 activities.push(...reactionsWithTitles);
                 
-                // Sort by timestamp (newest first)
                 activities.sort((a, b) => {
                     const ta = a.timestamp ? a.timestamp.getTime() : 0;
                     const tb = b.timestamp ? b.timestamp.getTime() : 0;
                     return tb - ta;
                 });
 
-                // Update counts
                 document.getElementById('countAll').textContent = activities.length;
                 document.getElementById('countStories').textContent = storiesSnapshot.size;
                 document.getElementById('countComments').textContent = commentsSnapshot.size;
                 document.getElementById('countReactions').textContent = reactionsSnapshot.size;
 
-                // Store for tab switching
                 window.allActivities = activities;
                 
-                // Render based on current tab
                 const currentTab = document.querySelector('.activity-tab.active')?.dataset.tab || 'all';
                 renderActivities(currentTab);
             });
@@ -1318,7 +1214,6 @@ function loadActivity() {
 // ============================================
 // RENDER ACTIVITIES
 // ============================================
-
 function renderActivities(tab) {
     const container = document.getElementById('activityContainer');
     if (!container) return;
@@ -1363,7 +1258,6 @@ function renderActivities(tab) {
 // ============================================
 // RENDER ACTIVITY ITEM
 // ============================================
-
 function renderActivityItem(item) {
     let icon = '📋';
     let badge = '';
@@ -1399,7 +1293,6 @@ function renderActivityItem(item) {
         storyId = item.storyId;
     }
 
-    // Only show view button if story exists and is approved
     const viewButton = (storyId && item.type !== 'reaction') || (storyId && item.storyApproved !== false) ? 
         `<a href="story.html?id=${storyId}" class="go-link">🔗 View Story</a>` : 
         (item.type === 'reaction' && item.storyApproved === false ? 
@@ -1422,7 +1315,6 @@ function renderActivityItem(item) {
 // ============================================
 // SWITCH ACTIVITY TAB
 // ============================================
-
 function switchTab(tab) {
     document.querySelectorAll('.activity-tab').forEach((t) => {
         t.classList.toggle('active', t.dataset.tab === tab);
@@ -1433,7 +1325,6 @@ function switchTab(tab) {
 // ============================================
 // GO TO STORY
 // ============================================
-
 function goToStory(storyId) {
     if (storyId) {
         window.location.href = 'story.html?id=' + storyId;
@@ -1443,7 +1334,6 @@ function goToStory(storyId) {
 // ============================================
 // SEARCH STORIES
 // ============================================
-
 function searchStories() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
@@ -1532,7 +1422,6 @@ function searchStories() {
 // ============================================
 // SUBMIT STORY
 // ============================================
-
 function submitStory() {
     console.log('📤 Submit story function called');
 
@@ -1663,7 +1552,6 @@ function submitStory() {
 // ============================================
 // LOAD COMMENTS
 // ============================================
-
 function loadComments(storyId) {
     const container = document.getElementById('commentsContainer');
     if (!container) return;
@@ -1876,7 +1764,6 @@ function deleteComment(commentId) {
 // ============================================
 // PROFILE PAGE
 // ============================================
-
 function loadProfile() {
     if (!currentUser) {
         const content = document.getElementById('profileContent');
@@ -2003,7 +1890,6 @@ function loadProfile() {
 // ============================================
 // LOAD SINGLE STORY
 // ============================================
-
 function loadStory() {
     const urlParams = new URLSearchParams(window.location.search);
     const storyId = urlParams.get('id');
@@ -2099,7 +1985,6 @@ function renderFullStory(story) {
 // ============================================
 // ADMIN PANEL
 // ============================================
-
 function loadAdminPanel() {
     const content = document.getElementById('adminContent');
     if (!content) return;
@@ -2159,9 +2044,8 @@ function loadAdminPanel() {
 }
 
 // ============================================
-// EMERGENCY SEARCH (For About page)
+// EMERGENCY SEARCH
 // ============================================
-
 function setupEmergencySearch() {
     const input = document.getElementById('emergencySearch');
     if (!input) return;
@@ -2175,7 +2059,21 @@ function setupEmergencySearch() {
     const emergencyList = document.getElementById('emergency-list');
     if (emergencyList) {
         emergencyList.innerHTML = '';
-        countries.forEach(c => {
+        const emergencyCountries = [
+            { name: 'United States', emergency: '911' },
+            { name: 'United Kingdom', emergency: '999' },
+            { name: 'Bangladesh', emergency: '999' },
+            { name: 'India', emergency: '112' },
+            { name: 'Canada', emergency: '911' },
+            { name: 'Australia', emergency: '000' },
+            { name: 'Germany', emergency: '112' },
+            { name: 'France', emergency: '112' },
+            { name: 'Italy', emergency: '112' },
+            { name: 'Spain', emergency: '112' },
+            { name: 'Brazil', emergency: '190' },
+            { name: 'Mexico', emergency: '911' }
+        ];
+        emergencyCountries.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c.name;
             emergencyList.appendChild(opt);
@@ -2190,9 +2088,24 @@ function setupEmergencySearch() {
             return;
         }
 
-        let found = countries.find(c => c.name.toLowerCase() === query.toLowerCase());
+        const emergencyCountries = [
+            { name: 'United States', emergency: '911' },
+            { name: 'United Kingdom', emergency: '999' },
+            { name: 'Bangladesh', emergency: '999' },
+            { name: 'India', emergency: '112' },
+            { name: 'Canada', emergency: '911' },
+            { name: 'Australia', emergency: '000' },
+            { name: 'Germany', emergency: '112' },
+            { name: 'France', emergency: '112' },
+            { name: 'Italy', emergency: '112' },
+            { name: 'Spain', emergency: '112' },
+            { name: 'Brazil', emergency: '190' },
+            { name: 'Mexico', emergency: '911' }
+        ];
+
+        let found = emergencyCountries.find(c => c.name.toLowerCase() === query.toLowerCase());
         if (!found) {
-            found = countries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
+            found = emergencyCountries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
         }
         if (found) {
             resultCountry.textContent = found.name;
@@ -2207,8 +2120,8 @@ function setupEmergencySearch() {
     });
 
     setTimeout(() => {
-        const defaultCountry = countries.find(c => c.name === 'United States');
-        if (defaultCountry && resultDiv) {
+        const defaultCountry = { name: 'United States', emergency: '911' };
+        if (resultDiv) {
             resultCountry.textContent = defaultCountry.name;
             resultNumber.textContent = defaultCountry.emergency;
             resultNote.textContent = '📞 Emergency Services';
@@ -2220,7 +2133,6 @@ function setupEmergencySearch() {
 // ============================================
 // INIT - DOM READY
 // ============================================
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 DOM Ready — The Harbor (FIXED)');
     
