@@ -7,7 +7,7 @@
 
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
         style-src 'self' 'unsafe-inline';
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
@@ -926,7 +926,8 @@
                         userName.textContent = currentUserData.name || 'Admin';
                         userGenderBadge.textContent = currentUserData.gender || '';
 
-                        if (currentUserData.isAdmin) {
+                        // Admin badge is shown ONLY if isAdmin is true in Firestore
+                        if (currentUserData.isAdmin === true) {
                             adminBadge.style.display = 'inline-block';
                             loadAdminPanel();
                         } else {
@@ -960,7 +961,7 @@
     });
 
     // ============================================
-    // LOAD ADMIN PANEL - FIXED
+    // LOAD ADMIN PANEL
     // ============================================
     function loadAdminPanel() {
         const content = document.getElementById('adminContent');
@@ -993,7 +994,6 @@
     function loadStats() {
         const statsDiv = document.getElementById('adminStats');
 
-        // Get all stories (admin can read all)
         db.collection('stories').get()
             .then((snapshot) => {
                 let flaggedCount = 0;
@@ -1007,7 +1007,6 @@
                     if (data.approved === false) pendingCount++;
                 });
                 
-                // Also get flagged comments
                 return db.collection('comments').get().then((commentSnapshot) => {
                     let flaggedComments = 0;
                     commentSnapshot.forEach((doc) => {
@@ -1051,14 +1050,10 @@
         loadModItems(tab);
     }
 
-    // ============================================
-    // LOAD MODERATION ITEMS - FIXED (No indexes needed)
-    // ============================================
     function loadModItems(type) {
         const container = document.getElementById('modItems');
         container.innerHTML = '<div class="loading">⏳ Loading...</div>';
 
-        // Get ALL stories and filter client-side (no index needed)
         db.collection('stories').get()
             .then((snapshot) => {
                 const items = [];
@@ -1074,7 +1069,6 @@
                     }
                 });
                 
-                // Also get flagged comments for 'flagged' tab
                 if (type === 'flagged') {
                     return db.collection('comments').get().then((commentSnapshot) => {
                         commentSnapshot.forEach((doc) => {
@@ -1102,7 +1096,6 @@
                     return;
                 }
 
-                // Sort by date (newest first)
                 items.sort((a, b) => {
                     const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                     const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
@@ -1218,9 +1211,11 @@
         populateCountryDatalist();
 
         console.log('✅ Admin panel ready');
+        console.log('🔒 Admin status is controlled by Firestore - only users with isAdmin: true can access');
     });
 
-    console.log('👑 Admin panel loaded');
+    console.log('👑 Admin panel loaded - Admin status is controlled by Firestore');
+    console.log('🔒 To set admin: Use Firebase Console > Firestore > users > [your user] > isAdmin: true');
     </script>
 </body>
 </html>
