@@ -895,7 +895,6 @@ function addReaction(storyId, emoji) {
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
     if (btn) btn.disabled = true;
 
-    // Use transaction to ensure data consistency
     db.runTransaction((transaction) => {
         return transaction.get(storyRef).then((doc) => {
             if (!doc.exists) return;
@@ -915,7 +914,6 @@ function addReaction(storyId, emoji) {
             
             transaction.update(storyRef, { reactions: reactions });
             
-            // Save to user's reactions sub-collection for activity log
             if (userReactions[storyId] && userReactions[storyId].length > 0) {
                 transaction.set(userReactionRef, { 
                     emojis: userReactions[storyId],
@@ -923,7 +921,6 @@ function addReaction(storyId, emoji) {
                     storyId: storyId
                 });
             } else {
-                // If no reactions left, delete the document
                 transaction.delete(userReactionRef);
             }
         });
@@ -951,7 +948,9 @@ function addReaction(storyId, emoji) {
         }
         
         // Refresh stories to update counts
-        loadStories();
+        if (typeof loadStories === 'function') {
+            loadStories();
+        }
     })
     .catch((err) => {
         console.error('Error toggling reaction:', err);
@@ -959,7 +958,6 @@ function addReaction(storyId, emoji) {
         alert('Could not update reaction. Please try again.');
     });
 }
-
 // ============================================
 // TOGGLE REACTION (for story.html)
 // ============================================
