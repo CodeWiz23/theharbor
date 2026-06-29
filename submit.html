@@ -88,13 +88,13 @@
             color: #2d3a3a;
         }
         .gender-restriction-notice {
-            background: #e8ddd0;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #1a4a4a;
-            margin: 10px 0;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: #2d3a3a;
+            margin: 12px 0;
             display: none;
+            line-height: 1.7;
         }
         .gender-restriction-notice.warning {
             background: #f5d6b3;
@@ -103,6 +103,10 @@
         .gender-restriction-notice.success {
             background: #d4e8d4;
             border-left: 4px solid #27ae60;
+        }
+        .gender-restriction-notice.info {
+            background: #d4e0f0;
+            border-left: 4px solid #4a7a9e;
         }
         .form-label {
             display: block;
@@ -144,6 +148,41 @@
         .required-star {
             color: #c0392b;
             margin-left: 2px;
+        }
+        .public-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .restricted-badge {
+            display: inline-block;
+            background: #c47a5a;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .category-option-desc {
+            font-size: 0.8rem;
+            color: #7a9e7e;
+            display: block;
+            margin-top: 2px;
+        }
+        .category-option-wrap {
+            padding: 4px 0;
+        }
+        @media (max-width: 600px) {
+            .gender-restriction-notice {
+                font-size: 0.85rem;
+                padding: 12px 14px;
+            }
         }
     </style>
 </head>
@@ -204,15 +243,19 @@
                 <label class="form-label" for="storyCategory">
                     📂 Category <span class="required-star">*</span>
                 </label>
-                <select id="storyCategory">
+                <select id="storyCategory" onchange="checkCategoryRestriction()">
                     <option value="">Select a category...</option>
-                    <option value="men">🧔 Men's Harbor</option>
-                    <option value="women">👩 Women's Harbor</option>
-                    <option value="struggles">🌊 The Storm (Struggles)</option>
-                    <option value="fun">☀️ Sunny Skies (Fun)</option>
-                    <option value="learning">🧭 The Compass (Learning)</option>
+                    <option value="men">🧔 Men's Harbor <span class="restricted-badge">Men Only</span></option>
+                    <option value="women">👩 Women's Harbor <span class="restricted-badge">Women Only</span></option>
+                    <option value="struggles">🌊 The Storm <span class="public-badge">Open to All</span></option>
+                    <option value="fun">☀️ Sunny Skies <span class="public-badge">Open to All</span></option>
+                    <option value="learning">🧭 The Compass <span class="public-badge">Open to All</span></option>
                 </select>
-                <div class="form-hint">Choose the category that best fits your story.</div>
+                <div class="form-hint">
+                    📌 <strong>Men's Harbor</strong> — Men only &bull; 
+                    <strong>Women's Harbor</strong> — Women only &bull; 
+                    <strong>The Storm, Sunny Skies, The Compass</strong> — Open to everyone
+                </div>
 
                 <!-- Story Text -->
                 <label class="form-label" for="storyText">
@@ -317,11 +360,10 @@
                 });
             }
 
-            // Category change listener
-            const categorySelect = document.getElementById('storyCategory');
-            if (categorySelect) {
-                categorySelect.addEventListener('change', checkCategoryRestriction);
-            }
+            // Initial check for category restriction
+            setTimeout(function() {
+                checkCategoryRestriction();
+            }, 500);
         });
 
         // ============================================
@@ -333,59 +375,194 @@
             const notice = document.getElementById('genderRestrictionNotice');
             const message = document.getElementById('restrictionMessage');
 
-            if (!category || !notice || !message) return;
+            if (!category || !notice || !message) {
+                console.error('Category restriction elements not found');
+                return;
+            }
 
             const cat = category.value;
 
             // If no category selected, hide notice
             if (!cat) {
                 notice.style.display = 'none';
+                notice.className = 'gender-restriction-notice';
                 return;
             }
 
             // Check if user is logged in
             if (!currentUser || !currentUserData) {
                 notice.style.display = 'block';
-                message.textContent = '⚠️ Please log in to share your story.';
+                message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
                 notice.className = 'gender-restriction-notice warning';
                 return;
             }
 
             const gender = currentUserData.gender;
 
-            // Check gender restrictions
-            if (cat === 'men' && gender !== '🧔 Man') {
+            // --- PUBLIC CATEGORIES (Everyone can post) ---
+            if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
                 notice.style.display = 'block';
-                message.textContent = '⚠️ This section is for men only. Please select a different category.';
-                notice.className = 'gender-restriction-notice warning';
-            } else if (cat === 'women' && gender !== '👩 Woman') {
-                notice.style.display = 'block';
-                message.textContent = '⚠️ This section is for women only. Please select a different category.';
-                notice.className = 'gender-restriction-notice warning';
-            } else {
-                notice.style.display = 'none';
+                message.innerHTML = '✅ This category is <strong>open to everyone</strong>. You can post here!';
+                notice.className = 'gender-restriction-notice success';
+                return;
             }
-        }
 
-        // ============================================
-        // OVERRIDE SUBMIT STORY (to fix any issues)
-        // ============================================
-
-        // This ensures the submit function works even if app.js loads after
-        // We're using the one from app.js, but this is a backup
-        function submitStory() {
-            if (typeof window.submitStory === 'function') {
-                // Use the one from app.js
-                window.submitStory();
-            } else {
-                // Fallback - call the global function
-                if (typeof submitStoryGlobal !== 'undefined') {
-                    submitStoryGlobal();
+            // --- MEN'S HARBOR (Men only) ---
+            if (cat === 'men') {
+                if (gender === '🧔 Man') {
+                    notice.style.display = 'block';
+                    message.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You are a man, so you can post here.';
+                    notice.className = 'gender-restriction-notice success';
                 } else {
-                    alert('Please wait for the page to fully load and try again.');
+                    notice.style.display = 'block';
+                    message.innerHTML = `
+                        ⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>
+                        📌 You can post in:
+                        <br>🌊 <strong>The Storm</strong> — Share your struggles
+                        <br>☀️ <strong>Sunny Skies</strong> — Share joy and fun
+                        <br>🧭 <strong>The Compass</strong> — Share learning and advice
+                    `;
+                    notice.className = 'gender-restriction-notice warning';
                 }
+                return;
             }
+
+            // --- WOMEN'S HARBOR (Women only) ---
+            if (cat === 'women') {
+                if (gender === '👩 Woman') {
+                    notice.style.display = 'block';
+                    message.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You are a woman, so you can post here.';
+                    notice.className = 'gender-restriction-notice success';
+                } else {
+                    notice.style.display = 'block';
+                    message.innerHTML = `
+                        ⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>
+                        📌 You can post in:
+                        <br>🌊 <strong>The Storm</strong> — Share your struggles
+                        <br>☀️ <strong>Sunny Skies</strong> — Share joy and fun
+                        <br>🧭 <strong>The Compass</strong> — Share learning and advice
+                    `;
+                    notice.className = 'gender-restriction-notice warning';
+                }
+                return;
+            }
+
+            // Fallback
+            notice.style.display = 'none';
         }
+
+        // ============================================
+        // SUBMIT STORY
+        // ============================================
+
+        function submitStory() {
+            if (!currentUser) {
+                alert('Please log in to share your story.');
+                return;
+            }
+
+            const titleInput = document.getElementById('storyTitle');
+            const textInput = document.getElementById('storyText');
+            const categorySelect = document.getElementById('storyCategory');
+            const anonymousCheck = document.getElementById('storyAnonymous');
+            const error = document.getElementById('submitError');
+
+            if (!titleInput || !textInput || !categorySelect || !error) {
+                console.error('Form elements not found');
+                return;
+            }
+
+            const title = titleInput.value.trim();
+            const text = textInput.value.trim();
+            const category = categorySelect.value;
+            const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
+
+            error.textContent = '';
+
+            // --- VALIDATION ---
+            if (!title || title.length < 3) {
+                error.textContent = '📌 Title must be at least 3 characters.';
+                return;
+            }
+            if (title.length > 100) {
+                error.textContent = '📌 Title must be under 100 characters.';
+                return;
+            }
+            if (!text || text.length < 10) {
+                error.textContent = '📖 Story must be at least 10 characters.';
+                return;
+            }
+            if (text.length > 5000) {
+                error.textContent = '📖 Story must be under 5000 characters.';
+                return;
+            }
+            if (!category) {
+                error.textContent = '📂 Please select a category.';
+                return;
+            }
+
+            // --- GENDER RESTRICTION CHECK (Post) ---
+            const gender = currentUserData.gender;
+
+            // Check Men's Harbor
+            if (category === 'men' && gender !== '🧔 Man') {
+                error.textContent = '⚠️ Men\'s Harbor is for men only. Please select a different category.';
+                return;
+            }
+
+            // Check Women's Harbor
+            if (category === 'women' && gender !== '👩 Woman') {
+                error.textContent = '⚠️ Women\'s Harbor is for women only. Please select a different category.';
+                return;
+            }
+
+            // --- SUBMIT ---
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Posting...';
+            }
+
+            db.collection('stories').add({
+                title: title,
+                text: text,
+                category: category,
+                userId: currentUser.uid,
+                authorName: currentUserData.name || 'Someone',
+                isAnonymous: isAnonymous,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                reactions: {},
+                commentCount: 0
+            })
+            .then(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '✅ Posted!';
+                }
+                alert('✅ Your story has been shared with the community!');
+                window.location.href = 'index.html';
+            })
+            .catch((err) => {
+                error.textContent = '❌ ' + err.message;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📤 Post Story';
+                }
+            });
+        }
+
+        // ============================================
+        // CATEGORY CHANGE LISTENER
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('storyCategory');
+            if (categorySelect) {
+                categorySelect.addEventListener('change', checkCategoryRestriction);
+            }
+        });
+
+        console.log('📝 Submit page loaded with gender restrictions');
     </script>
 
     <!-- Main App JS -->
