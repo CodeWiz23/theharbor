@@ -12,15 +12,9 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
-    <!-- Strong autofill prevention -->
-    <meta name="autofill" content="off" />
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -167,6 +161,10 @@
             padding: 24px;
             border-radius: 16px;
             border: 1px solid #d4c8b8;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 16px; }
         }
     </style>
 </head>
@@ -316,211 +314,537 @@
     </div>
 
     <script>
-        // ============================================
-        // COUNTRY DATA
-        // ============================================
-        const countries = [
-            { name: 'Afghanistan', emergency: '119' }, { name: 'Albania', emergency: '112' },
-            { name: 'Algeria', emergency: '14' }, { name: 'Andorra', emergency: '112' },
-            { name: 'Angola', emergency: '113' }, { name: 'Argentina', emergency: '911' },
-            { name: 'Armenia', emergency: '112' }, { name: 'Australia', emergency: '000' },
-            { name: 'Austria', emergency: '112' }, { name: 'Azerbaijan', emergency: '112' },
-            { name: 'Bahamas', emergency: '911' }, { name: 'Bahrain', emergency: '999' },
-            { name: 'Bangladesh', emergency: '999' }, { name: 'Barbados', emergency: '911' },
-            { name: 'Belarus', emergency: '112' }, { name: 'Belgium', emergency: '112' },
-            { name: 'Belize', emergency: '911' }, { name: 'Benin', emergency: '112' },
-            { name: 'Bhutan', emergency: '112' }, { name: 'Bolivia', emergency: '911' },
-            { name: 'Bosnia', emergency: '112' }, { name: 'Botswana', emergency: '999' },
-            { name: 'Brazil', emergency: '190' }, { name: 'Brunei', emergency: '995' },
-            { name: 'Bulgaria', emergency: '112' }, { name: 'Burkina Faso', emergency: '112' },
-            { name: 'Burundi', emergency: '112' }, { name: 'Cambodia', emergency: '119' },
-            { name: 'Cameroon', emergency: '112' }, { name: 'Canada', emergency: '911' },
-            { name: 'Cape Verde', emergency: '132' }, { name: 'Central African Republic', emergency: '112' },
-            { name: 'Chad', emergency: '112' }, { name: 'Chile', emergency: '131' },
-            { name: 'China', emergency: '110' }, { name: 'Colombia', emergency: '123' },
-            { name: 'Comoros', emergency: '112' }, { name: 'Congo', emergency: '112' },
-            { name: 'Costa Rica', emergency: '911' }, { name: 'Croatia', emergency: '112' },
-            { name: 'Cuba', emergency: '106' }, { name: 'Cyprus', emergency: '112' },
-            { name: 'Czech Republic', emergency: '112' }, { name: 'Denmark', emergency: '112' },
-            { name: 'Djibouti', emergency: '112' }, { name: 'Dominica', emergency: '911' },
-            { name: 'Dominican Republic', emergency: '911' }, { name: 'Ecuador', emergency: '911' },
-            { name: 'Egypt', emergency: '122' }, { name: 'El Salvador', emergency: '911' },
-            { name: 'Equatorial Guinea', emergency: '112' }, { name: 'Eritrea', emergency: '112' },
-            { name: 'Estonia', emergency: '112' }, { name: 'Eswatini', emergency: '999' },
-            { name: 'Ethiopia', emergency: '911' }, { name: 'Fiji', emergency: '911' },
-            { name: 'Finland', emergency: '112' }, { name: 'France', emergency: '112' },
-            { name: 'Gabon', emergency: '112' }, { name: 'Gambia', emergency: '112' },
-            { name: 'Georgia', emergency: '112' }, { name: 'Germany', emergency: '112' },
-            { name: 'Ghana', emergency: '112' }, { name: 'Greece', emergency: '112' },
-            { name: 'Grenada', emergency: '911' }, { name: 'Guatemala', emergency: '110' },
-            { name: 'Guinea', emergency: '112' }, { name: 'Guyana', emergency: '911' },
-            { name: 'Haiti', emergency: '116' }, { name: 'Honduras', emergency: '911' },
-            { name: 'Hungary', emergency: '112' }, { name: 'Iceland', emergency: '112' },
-            { name: 'India', emergency: '112' }, { name: 'Indonesia', emergency: '112' },
-            { name: 'Iran', emergency: '110' }, { name: 'Iraq', emergency: '112' },
-            { name: 'Ireland', emergency: '112' }, { name: 'Israel', emergency: '112' },
-            { name: 'Italy', emergency: '112' }, { name: 'Jamaica', emergency: '119' },
-            { name: 'Japan', emergency: '110' }, { name: 'Jordan', emergency: '911' },
-            { name: 'Kazakhstan', emergency: '112' }, { name: 'Kenya', emergency: '112' },
-            { name: 'Kiribati', emergency: '112' }, { name: 'Kuwait', emergency: '112' },
-            { name: 'Kyrgyzstan', emergency: '112' }, { name: 'Laos', emergency: '112' },
-            { name: 'Latvia', emergency: '112' }, { name: 'Lebanon', emergency: '112' },
-            { name: 'Lesotho', emergency: '112' }, { name: 'Liberia', emergency: '911' },
-            { name: 'Libya', emergency: '112' }, { name: 'Liechtenstein', emergency: '112' },
-            { name: 'Lithuania', emergency: '112' }, { name: 'Luxembourg', emergency: '112' },
-            { name: 'Madagascar', emergency: '112' }, { name: 'Malawi', emergency: '112' },
-            { name: 'Malaysia', emergency: '999' }, { name: 'Maldives', emergency: '119' },
-            { name: 'Mali', emergency: '112' }, { name: 'Malta', emergency: '112' },
-            { name: 'Marshall Islands', emergency: '911' }, { name: 'Mauritania', emergency: '112' },
-            { name: 'Mauritius', emergency: '999' }, { name: 'Mexico', emergency: '911' },
-            { name: 'Micronesia', emergency: '911' }, { name: 'Moldova', emergency: '112' },
-            { name: 'Monaco', emergency: '112' }, { name: 'Mongolia', emergency: '112' },
-            { name: 'Montenegro', emergency: '112' }, { name: 'Morocco', emergency: '112' },
-            { name: 'Mozambique', emergency: '112' }, { name: 'Myanmar', emergency: '112' },
-            { name: 'Namibia', emergency: '112' }, { name: 'Nauru', emergency: '112' },
-            { name: 'Nepal', emergency: '100' }, { name: 'Netherlands', emergency: '112' },
-            { name: 'New Zealand', emergency: '111' }, { name: 'Nicaragua', emergency: '911' },
-            { name: 'Niger', emergency: '112' }, { name: 'Nigeria', emergency: '112' },
-            { name: 'North Korea', emergency: '119' }, { name: 'North Macedonia', emergency: '112' },
-            { name: 'Norway', emergency: '112' }, { name: 'Oman', emergency: '999' },
-            { name: 'Pakistan', emergency: '112' }, { name: 'Palau', emergency: '911' },
-            { name: 'Panama', emergency: '911' }, { name: 'Papua New Guinea', emergency: '112' },
-            { name: 'Paraguay', emergency: '911' }, { name: 'Peru', emergency: '911' },
-            { name: 'Philippines', emergency: '911' }, { name: 'Poland', emergency: '112' },
-            { name: 'Portugal', emergency: '112' }, { name: 'Qatar', emergency: '999' },
-            { name: 'Romania', emergency: '112' }, { name: 'Russia', emergency: '112' },
-            { name: 'Rwanda', emergency: '112' }, { name: 'Saint Lucia', emergency: '911' },
-            { name: 'Samoa', emergency: '112' }, { name: 'San Marino', emergency: '112' },
-            { name: 'Saudi Arabia', emergency: '911' }, { name: 'Senegal', emergency: '112' },
-            { name: 'Serbia', emergency: '112' }, { name: 'Seychelles', emergency: '112' },
-            { name: 'Sierra Leone', emergency: '112' }, { name: 'Singapore', emergency: '999' },
-            { name: 'Slovakia', emergency: '112' }, { name: 'Slovenia', emergency: '112' },
-            { name: 'Solomon Islands', emergency: '911' }, { name: 'Somalia', emergency: '112' },
-            { name: 'South Africa', emergency: '112' }, { name: 'South Korea', emergency: '112' },
-            { name: 'Spain', emergency: '112' }, { name: 'Sri Lanka', emergency: '119' },
-            { name: 'Sudan', emergency: '112' }, { name: 'Suriname', emergency: '112' },
-            { name: 'Sweden', emergency: '112' }, { name: 'Switzerland', emergency: '112' },
-            { name: 'Syria', emergency: '112' }, { name: 'Taiwan', emergency: '110' },
-            { name: 'Tajikistan', emergency: '112' }, { name: 'Tanzania', emergency: '112' },
-            { name: 'Thailand', emergency: '191' }, { name: 'Togo', emergency: '112' },
-            { name: 'Tonga', emergency: '911' }, { name: 'Trinidad', emergency: '911' },
-            { name: 'Tunisia', emergency: '112' }, { name: 'Turkey', emergency: '112' },
-            { name: 'Turkmenistan', emergency: '112' }, { name: 'Tuvalu', emergency: '112' },
-            { name: 'Uganda', emergency: '112' }, { name: 'Ukraine', emergency: '112' },
-            { name: 'United Arab Emirates', emergency: '999' }, { name: 'United Kingdom', emergency: '999' },
-            { name: 'United States', emergency: '911' }, { name: 'Uruguay', emergency: '911' },
-            { name: 'Uzbekistan', emergency: '112' }, { name: 'Vanuatu', emergency: '112' },
-            { name: 'Vatican City', emergency: '112' }, { name: 'Venezuela', emergency: '911' },
-            { name: 'Vietnam', emergency: '113' }, { name: 'Yemen', emergency: '112' },
-            { name: 'Zambia', emergency: '112' }, { name: 'Zimbabwe', emergency: '112' }
-        ];
+    // ============================================
+    // FIREBASE CONFIG
+    // ============================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+        authDomain: "the-harbor-community.firebaseapp.com",
+        projectId: "the-harbor-community",
+        storageBucket: "the-harbor-community.firebasestorage.app",
+        messagingSenderId: "634248505303",
+        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        // Populate country datalist
-        function populateCountryDatalist() {
-            const datalist = document.getElementById('country-list');
-            if (!datalist) return;
-            datalist.innerHTML = '';
-            countries.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.name;
-                datalist.appendChild(option);
-            });
+    let currentUser = null;
+    let currentUserData = null;
+
+    // ============================================
+    // COUNTRY DATA
+    // ============================================
+    const countries = [
+        { name: 'United States', emergency: '911' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'India', emergency: '112' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Mexico', emergency: '911' }
+    ];
+
+    function populateCountryDatalist() {
+        const datalist = document.getElementById('country-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        countries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
+        });
+    }
+
+    // ============================================
+    // AUTH FUNCTIONS
+    // ============================================
+    function sanitizeInput(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
+    }
+
+    function checkPasswordStrength(password) {
+        let score = 0;
+        if (password.length >= 8) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[a-z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+        let strength = 'weak', color = '#c0392b';
+        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
+        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
+        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
+        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
+        else { strength = 'very-weak'; color = '#c0392b'; }
+        return { score, strength, color };
+    }
+
+    function checkUsernameAvailability(username) {
+        if (!username || username.length < 2) return Promise.resolve(false);
+        return db.collection('users').where('name', '==', username).get().then(s => s.empty);
+    }
+
+    function openModal(mode) {
+        const modal = document.getElementById('authModal');
+        if (!modal) return;
+        const title = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const signupFields = document.getElementById('signupFields');
+        const switchLink = document.getElementById('authSwitch');
+        const error = document.getElementById('authError');
+        if (error) error.textContent = '';
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        document.getElementById('authFavorites').value = '';
+        document.getElementById('authCountry').value = '';
+        document.getElementById('passwordStrength').innerHTML = '';
+        document.getElementById('usernameStatus').innerHTML = '';
+        if (mode === 'login') {
+            title.textContent = '🔐 Welcome Back';
+            submitBtn.textContent = '🚀 Log In';
+            signupFields.style.display = 'none';
+            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.dataset.mode = 'signup';
+        } else {
+            title.textContent = '📝 Join The Harbor';
+            submitBtn.textContent = '🚀 Create Account';
+            signupFields.style.display = 'block';
+            populateCountryDatalist();
+            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.dataset.mode = 'login';
         }
+        modal.style.display = 'flex';
+    }
 
-        // ============================================
-        // CHECK CATEGORY RESTRICTION
-        // ============================================
+    function closeModal() {
+        document.getElementById('authModal').style.display = 'none';
+    }
 
-        function checkCategoryRestriction() {
-            const category = document.getElementById('storyCategory');
+    function toggleAuthMode() {
+        const switchLink = document.getElementById('authSwitch');
+        if (!switchLink) return;
+        const mode = switchLink.dataset.mode;
+        closeModal();
+        setTimeout(() => openModal(mode), 200);
+    }
+
+    function handleAuth() {
+        const emailInput = document.getElementById('authEmail');
+        const passwordInput = document.getElementById('authPassword');
+        const error = document.getElementById('authError');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        error.textContent = '';
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            error.textContent = 'Please enter a valid email address.';
+            return;
+        }
+        if (!password || password.length < 6) {
+            error.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+        const isLogin = submitBtn.textContent.includes('Log In');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Please wait...';
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (!user.emailVerified) {
+                        error.textContent = '⚠️ Please verify your email first.';
+                        auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        return;
+                    }
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                });
+        } else {
+            const nameInput = document.getElementById('authName');
+            const genderSelect = document.getElementById('authGender');
+            const favoritesInput = document.getElementById('authFavorites');
+            const countryInput = document.getElementById('authCountry');
+            const name = nameInput ? nameInput.value.trim() : '';
+            const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+            const favorites = favoritesInput ? favoritesInput.value.trim() : '';
+            const country = countryInput ? countryInput.value.trim() : '';
+            if (!name || name.length < 2) {
+                error.textContent = 'Please enter a username (minimum 2 characters).';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            if (!country) {
+                error.textContent = 'Please select your country.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            checkUsernameAvailability(name)
+                .then((available) => {
+                    if (!available) {
+                        error.textContent = '❌ Username is already taken.';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                        return Promise.reject('Username taken');
+                    }
+                    return auth.createUserWithEmailAndPassword(email, password);
+                })
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return user.sendEmailVerification().then(() => user);
+                })
+                .then((user) => {
+                    const countryData = countries.find(c => c.name === country);
+                    return db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        gender: gender,
+                        favorites: favorites || 'Not specified',
+                        country: country,
+                        emergencyNumber: countryData?.emergency || '911',
+                        emailVerified: false,
+                        isAdmin: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    auth.signOut();
+                    alert('✅ Verification email sent! Please check your inbox.');
+                })
+                .catch((err) => {
+                    if (err !== 'Username taken') {
+                        error.textContent = err.message;
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                });
+        }
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userGenderBadge = document.getElementById('userGenderBadge');
+        const verificationBadge = document.getElementById('verificationBadge');
+
+        if (user) {
+            currentUser = user;
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+
+            if (user.emailVerified) {
+                verificationBadge.textContent = '✅ Verified';
+                verificationBadge.className = 'verification-badge verified';
+            } else {
+                verificationBadge.textContent = '⏳ Unverified';
+                verificationBadge.className = 'verification-badge';
+            }
+
+            db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        userName.textContent = currentUserData.name || 'Friend';
+                        userGenderBadge.textContent = currentUserData.gender || '';
+                        checkCategoryRestriction();
+                    }
+                })
+                .catch((err) => console.error('Error fetching user data:', err));
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
             const notice = document.getElementById('genderRestrictionNotice');
             const message = document.getElementById('restrictionMessage');
-            if (!category || !notice || !message) return;
-            const cat = category.value;
-            if (!cat) { notice.style.display = 'none'; return; }
-            if (!currentUser || !currentUserData) {
+            if (notice && message) {
                 notice.style.display = 'block';
                 message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
                 notice.className = 'gender-restriction-notice warning';
-                return;
             }
-            if (!currentUser.emailVerified) {
+        }
+    });
+
+    // ============================================
+    // CHECK CATEGORY RESTRICTION
+    // ============================================
+    function checkCategoryRestriction() {
+        const category = document.getElementById('storyCategory');
+        const notice = document.getElementById('genderRestrictionNotice');
+        const message = document.getElementById('restrictionMessage');
+        if (!category || !notice || !message) return;
+        const cat = category.value;
+        if (!cat) { notice.style.display = 'none'; return; }
+        if (!currentUser || !currentUserData) {
+            notice.style.display = 'block';
+            message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
+            notice.className = 'gender-restriction-notice warning';
+            return;
+        }
+        if (!currentUser.emailVerified) {
+            notice.style.display = 'block';
+            message.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting.';
+            notice.className = 'gender-restriction-notice warning';
+            return;
+        }
+        const gender = currentUserData.gender;
+        if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
+            notice.style.display = 'block';
+            message.innerHTML = '✅ Open to everyone. You can post here!';
+            notice.className = 'gender-restriction-notice success';
+            return;
+        }
+        if (cat === 'men') {
+            if (gender === '🧔 Man') {
                 notice.style.display = 'block';
-                message.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting.';
-                notice.className = 'gender-restriction-notice warning';
-                return;
-            }
-            const gender = currentUserData.gender;
-            if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
-                notice.style.display = 'block';
-                message.innerHTML = '✅ Open to everyone. You can post here!';
+                message.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You can post here.';
                 notice.className = 'gender-restriction-notice success';
-                return;
+            } else {
+                notice.style.display = 'block';
+                message.innerHTML = `⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
+                notice.className = 'gender-restriction-notice warning';
             }
-            if (cat === 'men') {
-                if (gender === '🧔 Man') {
-                    notice.style.display = 'block';
-                    message.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You can post here.';
-                    notice.className = 'gender-restriction-notice success';
-                } else {
-                    notice.style.display = 'block';
-                    message.innerHTML =
-                        `⚠️ <strong>Men's Harbor</strong> is for <strong>Men only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
-                    notice.className = 'gender-restriction-notice warning';
-                }
-                return;
+            return;
+        }
+        if (cat === 'women') {
+            if (gender === '👩 Woman') {
+                notice.style.display = 'block';
+                message.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You can post here.';
+                notice.className = 'gender-restriction-notice success';
+            } else {
+                notice.style.display = 'block';
+                message.innerHTML = `⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
+                notice.className = 'gender-restriction-notice warning';
             }
-            if (cat === 'women') {
-                if (gender === '👩 Woman') {
-                    notice.style.display = 'block';
-                    message.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You can post here.';
-                    notice.className = 'gender-restriction-notice success';
-                } else {
-                    notice.style.display = 'block';
-                    message.innerHTML =
-                        `⚠️ <strong>Women's Harbor</strong> is for <strong>Women only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass`;
-                    notice.className = 'gender-restriction-notice warning';
-                }
-                return;
-            }
-            notice.style.display = 'none';
+            return;
+        }
+        notice.style.display = 'none';
+    }
+
+    // ============================================
+    // SUBMIT STORY
+    // ============================================
+    function submitStory() {
+        console.log('📤 Submit story function called');
+        if (!currentUser) {
+            alert('⚠️ Please log in to share your story.');
+            return;
+        }
+        if (!currentUser.emailVerified) {
+            alert('⚠️ Please verify your email first.');
+            return;
         }
 
-        // ============================================
-        // DOM READY
-        // ============================================
+        const titleInput = document.getElementById('storyTitle');
+        const textInput = document.getElementById('storyText');
+        const categorySelect = document.getElementById('storyCategory');
+        const anonymousCheck = document.getElementById('storyAnonymous');
+        const errorDiv = document.getElementById('submitError');
+        const successDiv = document.getElementById('submitSuccess');
+        const submitBtn = document.getElementById('submitBtn');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            populateCountryDatalist();
+        if (errorDiv) errorDiv.textContent = '';
+        if (successDiv) successDiv.textContent = '';
 
-            const titleInput = document.getElementById('storyTitle');
-            const textInput = document.getElementById('storyText');
-            const titleCount = document.getElementById('titleCount');
-            const textCount = document.getElementById('textCount');
-            const categorySelect = document.getElementById('storyCategory');
+        const title = titleInput ? titleInput.value.trim() : '';
+        const text = textInput ? textInput.value.trim() : '';
+        const category = categorySelect ? categorySelect.value : '';
+        const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
 
-            if (titleInput && titleCount) {
-                titleInput.addEventListener('input', function() {
-                    titleCount.textContent = this.value.length;
-                });
-                titleInput.addEventListener('focus', function() {
-                    if (this.value.includes('@')) {
-                        this.value = '';
-                        titleCount.textContent = '0';
-                    }
-                });
+        if (!title || title.length < 3) {
+            if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
+            return;
+        }
+        if (title.length > 100) {
+            if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.';
+            return;
+        }
+        if (!text || text.length < 10) {
+            if (errorDiv) errorDiv.textContent = '📖 Story must be at least 10 characters.';
+            return;
+        }
+        if (text.length > 5000) {
+            if (errorDiv) errorDiv.textContent = '📖 Story must be under 5000 characters.';
+            return;
+        }
+        if (!category) {
+            if (errorDiv) errorDiv.textContent = '📂 Please select a category.';
+            return;
+        }
+
+        const gender = currentUserData ? currentUserData.gender : null;
+        if (category === 'men' && gender !== '🧔 Man') {
+            if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.';
+            return;
+        }
+        if (category === 'women' && gender !== '👩 Woman') {
+            if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only.';
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Posting...';
+        }
+
+        const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
+        const containsInappropriate = inappropriateWords.some(word =>
+            text.toLowerCase().includes(word) || title.toLowerCase().includes(word)
+        );
+
+        db.collection('stories').add({
+            title: title,
+            text: text,
+            category: category,
+            userId: currentUser.uid,
+            authorName: currentUserData ? currentUserData.name : 'Someone',
+            isAnonymous: isAnonymous,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            reactions: {},
+            commentCount: 0,
+            approved: !containsInappropriate,
+            flagged: containsInappropriate,
+            flagReason: containsInappropriate ? 'Inappropriate content detected' : ''
+        })
+        .then((docRef) => {
+            console.log('✅ Story saved! ID:', docRef.id);
+            if (containsInappropriate) {
+                if (successDiv) {
+                    successDiv.textContent = '⚠️ Your story has been sent for review. It will be published after moderation.';
+                    successDiv.style.color = '#f39c12';
+                }
+            } else {
+                if (successDiv) {
+                    successDiv.textContent = '✅ Your story has been shared with the community!';
+                }
             }
-            if (textInput && textCount) {
-                textInput.addEventListener('input', function() {
-                    textCount.textContent = this.value.length;
-                });
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Posted!';
             }
-            if (categorySelect) {
-                categorySelect.addEventListener('change', checkCategoryRestriction);
-            }
+            if (titleInput) titleInput.value = '';
+            if (textInput) textInput.value = '';
+            if (categorySelect) categorySelect.value = '';
+            if (anonymousCheck) anonymousCheck.checked = false;
+            document.getElementById('titleCount').textContent = '0';
+            document.getElementById('textCount').textContent = '0';
 
-            console.log('✅ Submit page ready');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        })
+        .catch((err) => {
+            console.error('❌ Error saving story:', err);
+            if (errorDiv) {
+                errorDiv.textContent = '❌ Error: ' + err.message;
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Post Story';
+            }
         });
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        populateCountryDatalist();
+
+        const titleInput = document.getElementById('storyTitle');
+        const textInput = document.getElementById('storyText');
+        const titleCount = document.getElementById('titleCount');
+        const textCount = document.getElementById('textCount');
+        const categorySelect = document.getElementById('storyCategory');
+
+        if (titleInput && titleCount) {
+            titleInput.addEventListener('input', function() {
+                titleCount.textContent = this.value.length;
+            });
+            titleInput.addEventListener('focus', function() {
+                if (this.value.includes('@')) {
+                    this.value = '';
+                    titleCount.textContent = '0';
+                }
+            });
+        }
+        if (textInput && textCount) {
+            textInput.addEventListener('input', function() {
+                textCount.textContent = this.value.length;
+            });
+        }
+        if (categorySelect) {
+            categorySelect.addEventListener('change', checkCategoryRestriction);
+        }
+
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.getElementById('authPassword').addEventListener('input', function() {
+            const pwd = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (!strengthDiv) return;
+            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+            const result = checkPasswordStrength(pwd);
+            strengthDiv.innerHTML = `
+                <div style="margin-top:6px;font-size:0.85rem;">
+                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                </div>
+            `;
+        });
+
+        document.getElementById('authName').addEventListener('input', checkUsernameOnType);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const modal = document.getElementById('authModal');
+                if (modal && modal.style.display === 'flex') handleAuth();
+            }
+        });
+
+        window.submitStory = submitStory;
+        console.log('✅ Submit page ready');
+    });
+
+    console.log('📝 Submit page loaded successfully');
     </script>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
