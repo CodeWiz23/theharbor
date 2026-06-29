@@ -1,1 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suggestions — The Harbor</title>
 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .suggestion-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .suggestion-form textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            background: #f5f0eb;
+            transition: 0.3s;
+        }
+        .suggestion-form textarea:focus {
+            outline: none;
+            border-color: #1a4a4a;
+            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
+        }
+        .suggestion-form input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #f5f0eb;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .suggestion-form input[type="text"]:focus {
+            outline: none;
+            border-color: #1a4a4a;
+            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
+        }
+        .suggestion-form .char-count {
+            font-size: 0.8rem;
+            color: #7a9e7e;
+            text-align: right;
+            margin-top: 4px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3a3a;
+            margin-top: 16px;
+            margin-bottom: 4px;
+        }
+        .form-label:first-of-type {
+            margin-top: 0;
+        }
+        .btn-submit-suggestion {
+            width: 100%;
+            padding: 14px;
+            background: #1a4a4a;
+            color: #f5f0eb;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .btn-submit-suggestion:hover {
+            background: #c47a5a;
+            transform: translateY(-2px);
+        }
+        .btn-submit-suggestion:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .suggestion-card {
+            background: #f5f0eb;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #d4c8b8;
+            margin-bottom: 12px;
+            transition: 0.3s;
+        }
+        .suggestion-card:hover {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .suggestion-card .title {
+            font-weight: 600;
+            color: #1a4a4a;
+            font-size: 1.05rem;
+        }
+        .suggestion-card .meta {
+            font-size: 0.85rem;
+            color: #7a9e7e;
+            margin-top: 2px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .suggestion-card .content {
+            font-size: 0.95rem;
+            color: #2d3a3a;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+        .suggestion-card .status {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-pending { background: #f5d6b3; color: #1a4a4a; }
+        .status-approved { background: #d4e8d4; color: #27ae60; }
+        .status-rejected { background: #f5d6d6; color: #c0392b; }
+        .upvote-btn {
+            background: #e8ddd0;
+            border: 1px solid #d4c8b8;
+            border-radius: 30px;
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .upvote-btn:hover {
+            background: #d4c8b8;
+            transform: scale(1.03);
+        }
+        .upvote-btn .count {
+            font-weight: 600;
+            color: #7a9e7e;
+            margin-left: 4px;
+        }
+        .upvote-btn.voted {
+            background: #d4e8d4;
+            border-color: #27ae60;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7a9e7e;
+        }
+        .empty-state .big-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            color: #1a4a4a;
+        }
+        .card {
+            background: #f5f0eb;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #d4c8b8;
+        }
+        .error-msg {
+            color: #c0392b;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .success-msg {
+            color: #27ae60;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .header {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f5d6b3;
+            text-decoration: none;
+        }
+        .logo span {
+            font-weight: 300;
+            color: #d4c8b8;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-nav {
+            background: transparent;
+            border: 1px solid #f5d6b3;
+            border-radius: 50px;
+            padding: 6px 16px;
+            color: #f5d6b3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-nav:hover {
+            background: #f5d6b3;
+            color: #1a4a4a;
+        }
+        .btn-login, .btn-signup, .btn-logout {
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-login {
+            background: transparent;
+            border: 1px solid #7a9e7e;
+            color: #7a9e7e;
+        }
+        .btn-login:hover {
+            background: #7a9e7e;
+            color: white;
+        }
+        .btn-signup {
+            background: #c47a5a;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #a8654a;
+        }
+        .btn-logout {
+            background: #c0392b;
+            color: white;
+        }
+        .btn-logout:hover {
+            background: #a93226;
+        }
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #userName {
+            font-weight: 600;
+            color: #f5d6b3;
+        }
+        #userGenderBadge {
+            background: #2d3a3a;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: #c0392b;
+            color: white;
+        }
+        .verification-badge.verified {
+            background: #27ae60;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .footer {
+            background: #1a4a4a;
+            color: #d4c8b8;
+            padding: 30px 5% 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .footer-links a {
+            color: #f5d6b3;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        .btn-primary {
+            background: #c47a5a;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: #a8654a;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #c47a5a;
+            border-radius: 50px;
+            padding: 10px 24px;
+            color: #c47a5a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: #c47a5a;
+            color: white;
+        }
+        .loading {
+            text-align: center;
+            color: #7a9e7e;
+            padding: 40px 0;
+            font-size: 1.1rem;
+        }
+        #emergencyBanner {
+            background: #c0392b;
+            color: white;
+            padding: 10px 5%;
+            text-align: center;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 16px; }
+            .suggestion-form textarea { min-height: 100px; }
+            .header { padding: 10px 4%; }
+            .logo { font-size: 1.2rem; }
+            .header-right { gap: 6px; }
+            .btn-nav, .btn-login, .btn-signup, .btn-logout { font-size: 0.8rem; padding: 4px 10px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
+        </div>
+        <div class="header-right">
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-nav" style="background:#c47a5a;color:white;">💡 Suggest</a>
+            <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <div id="authButtons">
+                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+            <div id="userInfo">
+                <span id="userName">Friend</span>
+                <span id="userGenderBadge"></span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div id="emergencyBanner"></div>
+
+    <div class="container">
+        <div class="suggestion-form">
+            <h1 style="font-weight:300;color:#1a4a4a;margin-bottom:4px;">💡 Community Suggestions</h1>
+            <p style="color:#7a9e7e;margin-bottom:24px;">Share your ideas to make The Harbor better. Everyone can see and vote!</p>
+
+            <div class="card">
+                <div id="suggestionNotice" style="display:none;padding:12px 16px;border-radius:8px;margin-bottom:12px;background:#f5d6b3;border-left:4px solid #c47a5a;">
+                    ⚠️ <span id="suggestionMessage">Please log in to suggest.</span>
+                </div>
+
+                <label class="form-label" for="suggestionTitle">📌 Title <span class="required-star">*</span></label>
+                <input type="text" id="suggestionTitle" placeholder="Summarize your idea..." maxlength="100" />
+                <div class="char-count"><span id="titleCount">0</span>/100</div>
+
+                <label class="form-label" for="suggestionText">💡 Your Suggestion <span class="required-star">*</span></label>
+                <textarea id="suggestionText" placeholder="Describe your idea in detail... (minimum 10 characters)" maxlength="2000"></textarea>
+                <div class="char-count"><span id="textCount">0</span>/2000</div>
+
+                <div id="suggestionError" class="error-msg"></div>
+                <div id="suggestionSuccess" class="success-msg"></div>
+
+                <button class="btn-submit-suggestion" id="suggestBtn" onclick="submitSuggestion()">💡 Submit Suggestion</button>
+            </div>
+
+            <div style="margin-top:30px;">
+                <h3 style="color:#1a4a4a;margin-bottom:16px;">📋 All Suggestions</h3>
+                <div id="suggestionsContainer">
+                    <div class="loading">⏳ Loading suggestions...</div>
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="suggest.html">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
+            © 2026 The Harbor — All Rights Reserved.<br>
+            Built with 💚 for the community. Unauthorized reproduction or distribution is prohibited.
+        </div>
+    </footer>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+            <div class="warning-box" id="genderWarning">
+                <span class="icon">⚠️</span>
+                <span id="genderWarningText">Your gender determines which sections you can see.</span>
+            </div>
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+            <div id="signupFields" style="display:none;">
+                <label for="authName">Username</label>
+                <input type="text" id="authName" placeholder="Choose a unique username" />
+                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
+                <label for="authGender">Gender</label>
+                <select id="authGender" onchange="updateGenderWarning()">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
+                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
+                </div>
+                <label for="authCountry">Country</label>
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <datalist id="country-list"></datalist>
+                <label for="authFavorites">Favorite things</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <div class="checkbox-group" style="margin-top:14px;">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <label for="termsCheckbox" style="font-weight:600;cursor:pointer;color:#2d3a3a;">
+                        I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms of Service</a> and 
+                        <a href="privacy.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:#c0392b;">*</span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
+            <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
