@@ -65,6 +65,7 @@
             font-weight: 700;
             letter-spacing: -0.5px;
             color: #c47a5a;
+            text-decoration: none;
         }
 
         .header-left .logo span {
@@ -87,6 +88,8 @@
             cursor: pointer;
             font-size: 0.9rem;
             transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-login {
@@ -114,6 +117,16 @@
         }
         .btn-logout:hover {
             background: #a93226;
+        }
+
+        .btn-nav {
+            background: transparent;
+            color: #f5d6b3;
+            border: 1px solid #f5d6b3;
+        }
+        .btn-nav:hover {
+            background: #f5d6b3;
+            color: #1a4a4a;
         }
 
         #userInfo {
@@ -196,6 +209,41 @@
             opacity: 0.8;
             margin-top: 8px;
         }
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .hero-actions .btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .hero-actions .btn-primary-hero {
+            background: #c47a5a;
+            color: white;
+        }
+        .hero-actions .btn-primary-hero:hover {
+            background: #a86545;
+            transform: scale(1.02);
+        }
+        .hero-actions .btn-secondary-hero {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        .hero-actions .btn-secondary-hero:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
 
         /* --- SEARCH --- */
         .search-bar {
@@ -250,10 +298,6 @@
         }
         .tab.hidden {
             display: none;
-        }
-        .tab.restricted {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         /* --- STORIES CONTAINER --- */
@@ -340,10 +384,6 @@
             font-weight: 600;
             color: #7a9e7e;
         }
-        .emoji-btn.reacted {
-            background: #c47a5a20;
-            border: 1px solid #c47a5a;
-        }
 
         .comment-link {
             color: #c47a5a;
@@ -396,6 +436,8 @@
             cursor: pointer;
             transition: 0.3s;
             font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-primary:hover {
             background: #a86545;
@@ -411,6 +453,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-secondary:hover {
             background: #c47a5a;
@@ -503,9 +547,6 @@
         .warning-box.show {
             display: block;
         }
-        .warning-box .icon {
-            margin-right: 8px;
-        }
 
         .btn-modal {
             width: 100%;
@@ -575,7 +616,7 @@
             background: #1a4a4a;
             color: #a8c4a8;
             text-align: center;
-            padding: 20px;
+            padding: 24px 20px;
             font-size: 0.85rem;
             margin-top: auto;
         }
@@ -585,6 +626,20 @@
         }
         .footer a:hover {
             text-decoration: underline;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .footer-links a {
+            color: #c47a5a;
+            font-weight: 500;
+        }
+        .footer-links a:hover {
+            color: #f5d6b3;
         }
 
         /* --- RESPONSIVE --- */
@@ -596,6 +651,7 @@
             }
             .header-right {
                 justify-content: center;
+                flex-wrap: wrap;
             }
             .hero h1 {
                 font-size: 2rem;
@@ -618,6 +674,15 @@
                 padding: 8px 12px;
                 top: 60px;
             }
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            .hero-actions .btn {
+                width: 100%;
+                max-width: 280px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -627,9 +692,13 @@
     ============================================ -->
     <header class="header">
         <div class="header-left">
-            <div class="logo">⚓ <span>The</span> Harbor</div>
+            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
+            <!-- Navigation Links -->
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+
             <!-- Auth Buttons (visible when logged out) -->
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
@@ -664,6 +733,10 @@
     <section class="hero">
         <h1>⚓ Welcome to <span>The Harbor</span></h1>
         <p>A safe place to share, heal, and grow — together.</p>
+        <div class="hero-actions">
+            <a href="submit.html" class="btn btn-primary-hero">📝 Share Your Story</a>
+            <a href="about.html" class="btn btn-secondary-hero">🌿 Learn More</a>
+        </div>
     </section>
 
     <!-- ============================================
@@ -753,9 +826,18 @@
     FOOTER
     ============================================ -->
     <footer class="footer">
-        ⚓ The Harbor — A community for sharing, healing, and growing. &nbsp;|&nbsp;
-        <a href="#" onclick="return false;">Privacy</a> &middot;
-        <a href="#" onclick="return false;">Guidelines</a>
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+            <a href="#" onclick="return false;">Privacy</a>
+            <a href="#" onclick="return false;">Guidelines</a>
+        </div>
+        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
+            &copy; 2026 The Harbor — Built with 💚 for the community
+        </div>
     </footer>
 
     <!-- ============================================
@@ -898,7 +980,6 @@
         let currentUser = null;
         let currentUserData = null;
         let currentCategory = 'all';
-        let userReactions = {};
 
         // ============================================
         // SECURITY: Input Sanitization
@@ -1031,13 +1112,16 @@
             if (!genderSelect || !warning || !text) return;
             const gender = genderSelect.value;
             if (gender === '🧔 Man') {
-                text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections. Women\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
+                text.innerHTML =
+                    '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections. Women\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
                 warning.classList.add('show');
             } else if (gender === '👩 Woman') {
-                text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections. Men\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
+                text.innerHTML =
+                    '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections. Men\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
                 warning.classList.add('show');
             } else {
-                text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>. Men\'s and Women\'s Harbors are restricted based on gender.';
+                text.innerHTML =
+                    '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>. Men\'s and Women\'s Harbors are restricted based on gender.';
                 warning.classList.add('show');
             }
         }
@@ -1233,14 +1317,12 @@
                                 db.collection('users').doc(user.uid).update({ emailVerified: true });
                             }
 
-                            // Show welcome fireworks if not shown yet
                             const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
                             if (user.emailVerified && !hasSeenWelcome) {
                                 sessionStorage.setItem('hasSeenWelcome', 'true');
                                 setTimeout(showWelcomeFireworks, 500);
                             }
 
-                            // Update UI
                             updateCategoryTabs();
                             updateEmergencyBanner();
                             loadStories();
@@ -1253,7 +1335,6 @@
                 if (authButtons) authButtons.style.display = 'flex';
                 if (userInfo) userInfo.style.display = 'none';
 
-                // Reset tabs
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.classList.remove('hidden');
                 });
@@ -1528,7 +1609,6 @@
             document.querySelectorAll('.tab').forEach((tab) => {
                 tab.classList.toggle('active', tab.dataset.category === category);
             });
-            // Update URL without reload
             const url = new URL(window.location);
             url.searchParams.set('cat', category);
             window.history.pushState({}, '', url);
@@ -1597,7 +1677,6 @@
         // WELCOME FIREWORKS
         // ============================================
         function showWelcomeFireworks() {
-            // Check if already shown
             if (sessionStorage.getItem('welcomeShown') === 'true') return;
             sessionStorage.setItem('welcomeShown', 'true');
 
@@ -1633,7 +1712,6 @@
             `;
             document.body.appendChild(overlay);
 
-            // Confetti
             const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24'];
             for (let i = 0; i < 80; i++) {
                 const el = document.createElement('div');
@@ -1650,7 +1728,6 @@
                 setTimeout(() => el.remove(), 5000);
             }
 
-            // Auto-remove after 8 seconds
             setTimeout(() => {
                 if (overlay.parentNode) {
                     overlay.style.animation = 'fadeOut 0.5s ease forwards';
@@ -1665,7 +1742,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 DOM Ready — The Harbor');
 
-            // Modal close on outside click
             const modal = document.getElementById('authModal');
             if (modal) {
                 modal.addEventListener('click', function(e) {
@@ -1673,7 +1749,6 @@
                 });
             }
 
-            // Password strength
             const passwordInput = document.getElementById('authPassword');
             if (passwordInput) {
                 passwordInput.addEventListener('input', function() {
@@ -1693,19 +1768,16 @@
                 });
             }
 
-            // Username availability
             const nameInput = document.getElementById('authName');
             if (nameInput) {
                 nameInput.addEventListener('input', checkUsernameOnType);
             }
 
-            // Gender warning on signup
             const genderSelect = document.getElementById('authGender');
             if (genderSelect) {
                 genderSelect.addEventListener('change', updateGenderWarning);
             }
 
-            // Enter key for auth
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const modal = document.getElementById('authModal');
@@ -1715,7 +1787,6 @@
                 }
             });
 
-            // Set initial category from URL
             const urlParams = new URLSearchParams(window.location.search);
             const cat = urlParams.get('cat');
             if (cat) {
@@ -1725,7 +1796,6 @@
                 });
             }
 
-            // Listen for popstate (back/forward)
             window.addEventListener('popstate', function() {
                 const params = new URLSearchParams(window.location.search);
                 const cat = params.get('cat');
@@ -1738,7 +1808,6 @@
                 }
             });
 
-            // If not logged in, show initial stories (guest view)
             if (!currentUser) {
                 loadStories();
             }
@@ -1748,7 +1817,6 @@
 
         console.log('⚓ The Harbor app loaded');
         console.log('📚 Firebase connected:', firebase.app().name);
-        console.log('🛡️ Security: XSS, CSRF, SQLi, XXE, OS injection protection');
     </script>
 </body>
 </html>
