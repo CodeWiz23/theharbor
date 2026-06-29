@@ -667,126 +667,152 @@ body {
 
 /* ---- Responsive - FIXED for Mobile ---- */
 @media (max-width: 600px) {
-    /* Header - stays in one row */
+    /* ===== HEADER - FIXED ===== */
     .header {
         flex-direction: row !important;
         align-items: center !important;
-        padding: 8px 10px !important;
+        padding: 6px 8px !important;
         gap: 4px !important;
         flex-wrap: wrap !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
     }
 
     .header-left .logo {
-        font-size: 1rem !important;
+        font-size: 0.9rem !important;
         white-space: nowrap !important;
     }
 
     .header-right {
         justify-content: flex-end !important;
         flex-wrap: wrap !important;
-        gap: 4px !important;
+        gap: 3px !important;
     }
 
     .header-right .btn-nav,
     .header-right .btn-login,
     .header-right .btn-signup,
     .header-right .btn-logout {
-        font-size: 0.65rem !important;
-        padding: 3px 8px !important;
-        border-radius: 20px !important;
+        font-size: 0.6rem !important;
+        padding: 2px 6px !important;
+        border-radius: 16px !important;
     }
 
     #userInfo {
-        gap: 3px !important;
+        gap: 2px !important;
         flex-wrap: wrap !important;
         justify-content: flex-end !important;
     }
 
     #userName {
-        font-size: 0.7rem !important;
+        font-size: 0.65rem !important;
     }
 
-    /* Modal - scrollable and visible */
+    /* ===== MODAL - FIXED ===== */
+    .modal {
+        align-items: flex-start !important;
+        padding-top: 60px !important;
+    }
+
     .modal-content {
-        padding: 16px 14px !important;
-        max-height: 95vh !important;
-        margin: 8px !important;
+        padding: 14px 12px !important;
+        max-height: 80vh !important;
+        margin: 0 8px !important;
         overflow-y: auto !important;
         border-radius: 16px !important;
         width: 95% !important;
+        position: relative !important;
+        top: 0 !important;
     }
     
     .modal-content h2 {
-        font-size: 1.2rem !important;
-        margin-bottom: 8px !important;
+        font-size: 1.1rem !important;
+        margin-bottom: 6px !important;
     }
     
     .modal-content label {
-        font-size: 13px !important;
-        margin-top: 8px !important;
+        font-size: 12px !important;
+        margin-top: 6px !important;
     }
     
     .modal-content input,
     .modal-content select {
         font-size: 14px !important;
-        padding: 8px 10px !important;
+        padding: 6px 8px !important;
     }
     
     .modal-content .btn-modal {
-        padding: 10px !important;
-        font-size: 14px !important;
-        margin-top: 12px !important;
+        padding: 8px !important;
+        font-size: 13px !important;
+        margin-top: 10px !important;
     }
     
     #signupFields {
-        margin-top: 4px !important;
+        margin-top: 2px !important;
     }
     
     .modal-close {
-        font-size: 1.4rem !important;
-        top: 6px !important;
-        right: 12px !important;
+        font-size: 1.2rem !important;
+        top: 4px !important;
+        right: 10px !important;
     }
 
-    /* Story cards */
+    .warning-box {
+        font-size: 0.8rem !important;
+        padding: 8px 10px !important;
+    }
+
+    /* ===== STORY CARDS ===== */
     .story-card {
-        padding: 12px !important;
+        padding: 10px !important;
     }
 
-    /* Tabs */
+    /* ===== TABS ===== */
     .tabs {
-        gap: 4px !important;
+        gap: 3px !important;
         justify-content: center !important;
-        padding-bottom: 8px !important;
+        padding-bottom: 6px !important;
     }
 
     .tab {
-        padding: 4px 10px !important;
-        font-size: 0.7rem !important;
+        padding: 3px 8px !important;
+        font-size: 0.65rem !important;
     }
 
-    /* Container */
+    /* ===== CONTAINER ===== */
     .container {
-        padding: 8px !important;
+        padding: 6px !important;
     }
 
     .card {
-        padding: 12px !important;
+        padding: 10px !important;
     }
 
-    /* Footer */
+    /* ===== FOOTER ===== */
     .footer-links {
-        gap: 8px !important;
+        gap: 6px !important;
         flex-wrap: wrap !important;
         justify-content: center !important;
     }
     
     .footer-links a {
-        font-size: 0.75rem !important;
+        font-size: 0.7rem !important;
     }
     
     .footer {
-        padding: 16px 12px !important;
-        font-size: 0.75rem !important;
+        padding: 12px 8px !important;
+        font-size: 0.7rem !important;
+    }
+
+    /* ===== EMOJI BUTTONS ===== */
+    .emoji-btn {
+        padding: 2px 8px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .story-actions {
+        gap: 4px !important;
+        flex-wrap: wrap !important;
     }
 }
