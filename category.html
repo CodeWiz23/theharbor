@@ -128,6 +128,21 @@
         .category-description strong {
             color: #1a4a4a;
         }
+        .restriction-note {
+            background: #f5d6b3;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c47a5a;
+            color: #2d3a3a;
+            display: none;
+        }
+        .restriction-note.show {
+            display: block;
+        }
+        .restriction-note .icon {
+            font-size: 1.2rem;
+        }
         .no-stories-msg {
             text-align: center;
             padding: 60px 20px;
@@ -235,6 +250,20 @@
             padding: 40px 0;
             font-size: 1.1rem;
         }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7a9e7e;
+        }
+        .empty-state .big-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            color: #1a4a4a;
+            margin-bottom: 6px;
+        }
 
         @media (max-width: 600px) {
             .filter-bar {
@@ -300,6 +329,12 @@
         <div class="category-description" id="categoryDescriptionBox">
             <strong>📌 About this category:</strong>
             <span id="categoryInfoText">Browse through all stories shared by our community members.</span>
+        </div>
+
+        <!-- Restriction Note -->
+        <div class="restriction-note" id="restrictionNote">
+            <span class="icon">⚠️</span>
+            <span id="restrictionNoteText">This section is for men only.</span>
         </div>
 
         <!-- Filter Bar -->
@@ -388,39 +423,105 @@
                 icon: '📖',
                 title: 'All Stories',
                 description: 'Explore all stories shared by the community.',
-                info: 'Browse through all stories shared by our community members. Every story matters.'
+                info: 'Browse through all stories shared by our community members. Every story matters.',
+                restriction: null,
+                isPublic: true
             },
             'men': {
                 icon: '🧔',
                 title: 'Men\'s Harbor',
                 description: 'A dedicated space for men to share and support each other.',
-                info: 'A safe space for men to share their experiences, challenges, and victories. This section is for men only.'
+                info: 'A safe space for men to share their experiences, challenges, and victories. This section is for men only.',
+                restriction: '🧔 Men only',
+                isPublic: false
             },
             'women': {
                 icon: '👩',
                 title: 'Women\'s Harbor',
                 description: 'A dedicated space for women to share and support each other.',
-                info: 'A safe space for women to share their experiences, challenges, and victories. This section is for women only.'
+                info: 'A safe space for women to share their experiences, challenges, and victories. This section is for women only.',
+                restriction: '👩 Women only',
+                isPublic: false
             },
             'struggles': {
                 icon: '🌊',
                 title: 'The Storm',
                 description: 'For sharing struggles, depression, and difficult times.',
-                info: 'A compassionate space for sharing difficult experiences. You are not alone in your struggles.'
+                info: 'A compassionate space for sharing difficult experiences. You are not alone in your struggles. Open to everyone.',
+                restriction: null,
+                isPublic: true
             },
             'fun': {
                 icon: '☀️',
                 title: 'Sunny Skies',
                 description: 'For sharing joy, fun moments, and positivity.',
-                info: 'A bright space for sharing joy, laughter, and positive moments. Let\'s celebrate life together.'
+                info: 'A bright space for sharing joy, laughter, and positive moments. Let\'s celebrate life together. Open to everyone.',
+                restriction: null,
+                isPublic: true
             },
             'learning': {
                 icon: '🧭',
                 title: 'The Compass',
                 description: 'For learning, growth, and practical advice.',
-                info: 'A space for sharing knowledge, practical advice, and life lessons. Learn and grow with the community.'
+                info: 'A space for sharing knowledge, practical advice, and life lessons. Learn and grow with the community. Open to everyone.',
+                restriction: null,
+                isPublic: true
             }
         };
+
+        // ============================================
+        // GENDER RESTRICTION FUNCTIONS
+        // ============================================
+
+        function canReadCategory(category) {
+            if (!currentUser || !currentUserData) {
+                // Not logged in - can only read public categories
+                return category === 'struggles' || category === 'fun' || category === 'learning' || category === 'all';
+            }
+
+            const gender = currentUserData.gender;
+
+            // Public categories (everyone can read)
+            if (category === 'struggles' || category === 'fun' || category === 'learning' || category === 'all') {
+                return true;
+            }
+
+            // Men's section - only men can read
+            if (category === 'men' && gender === '🧔 Man') {
+                return true;
+            }
+
+            // Women's section - only women can read
+            if (category === 'women' && gender === '👩 Woman') {
+                return true;
+            }
+
+            return false;
+        }
+
+        function getRestrictionMessage(category) {
+            if (!currentUser || !currentUserData) {
+                return '🔒 Please log in to access this section.';
+            }
+
+            const gender = currentUserData.gender;
+
+            if (category === 'men' && gender !== '🧔 Man') {
+                return `⚠️ The <strong>Men's Harbor</strong> section is for <strong>Men only</strong>.<br>You can read and post in:
+                    <br>🌊 <strong>The Storm</strong> (Struggles)
+                    <br>☀️ <strong>Sunny Skies</strong> (Fun)
+                    <br>🧭 <strong>The Compass</strong> (Learning)`;
+            }
+
+            if (category === 'women' && gender !== '👩 Woman') {
+                return `⚠️ The <strong>Women's Harbor</strong> section is for <strong>Women only</strong>.<br>You can read and post in:
+                    <br>🌊 <strong>The Storm</strong> (Struggles)
+                    <br>☀️ <strong>Sunny Skies</strong> (Fun)
+                    <br>🧭 <strong>The Compass</strong> (Learning)`;
+            }
+
+            return null;
+        }
 
         // ============================================
         // LOAD CATEGORY STORIES
@@ -430,26 +531,45 @@
             const container = document.getElementById('storiesContainer');
             if (!container) return;
 
-            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
+            // Check if user can read this category
+            if (!canReadCategory(currentCategory)) {
+                const msg = getRestrictionMessage(currentCategory) || 'You do not have permission to view this section.';
+                
+                container.innerHTML = `
+                    <div class="empty-state" style="padding:40px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
+                        <div class="big-emoji">🔒</div>
+                        <h3 style="color:#1a4a4a;">Access Restricted</h3>
+                        <p style="color:#2d3a3a;line-height:1.8;">${msg}</p>
+                        <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                            <a href="category.html?cat=struggles" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🌊 The Storm</a>
+                            <a href="category.html?cat=fun" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">☀️ Sunny Skies</a>
+                            <a href="category.html?cat=learning" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🧭 The Compass</a>
+                        </div>
+                    </div>
+                `;
 
-            // Get category from URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('cat') || 'all';
-            currentCategory = cat;
-
-            // Update header
-            updateCategoryHeader(cat);
-
-            // Update filter dropdown
-            const filterSelect = document.getElementById('filterCategory');
-            if (filterSelect) {
-                filterSelect.value = cat;
+                // Show restriction note
+                const note = document.getElementById('restrictionNote');
+                const noteText = document.getElementById('restrictionNoteText');
+                if (note && noteText) {
+                    note.className = 'restriction-note show';
+                    noteText.innerHTML = msg;
+                }
+                return;
             }
+
+            // Hide restriction note if user can read
+            const note = document.getElementById('restrictionNote');
+            if (note) {
+                note.className = 'restriction-note';
+            }
+
+            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
 
             let query = db.collection('stories');
 
-            if (cat !== 'all') {
-                query = query.where('category', '==', cat);
+            if (currentCategory !== 'all') {
+                query = query.where('category', '==', currentCategory);
             }
 
             query.orderBy('createdAt', 'desc')
@@ -458,8 +578,8 @@
                 .then((snapshot) => {
                     if (snapshot.empty) {
                         container.innerHTML = `
-                            <div class="no-stories-msg">
-                                <span class="big-emoji">📭</span>
+                            <div class="empty-state">
+                                <div class="big-emoji">📭</div>
                                 <h3>No stories in this category yet</h3>
                                 <p>Be the first to share your story!</p>
                                 <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
@@ -478,14 +598,12 @@
 
                     allStories = stories;
                     document.getElementById('storyCount').textContent = `${stories.length} stories`;
-
-                    // Apply sorting
                     applySort();
                 })
                 .catch((err) => {
                     console.error('Error loading stories:', err);
                     container.innerHTML = `
-                        <div class="no-stories-msg">
+                        <div class="empty-state">
                             <span class="big-emoji">⚠️</span>
                             <h3>Oops! Something went wrong</h3>
                             <p>${err.message}</p>
@@ -516,7 +634,6 @@
             const filterSelect = document.getElementById('filterCategory');
             const cat = filterSelect ? filterSelect.value : 'all';
 
-            // Update URL with new category
             const url = new URL(window.location);
             url.searchParams.set('cat', cat);
             window.history.pushState({}, '', url);
@@ -533,7 +650,6 @@
         function setSort(sortType) {
             currentSort = sortType;
 
-            // Update button styles
             document.querySelectorAll('.sort-options button').forEach((btn) => {
                 btn.classList.toggle('active', btn.dataset.sort === sortType);
             });
@@ -577,7 +693,7 @@
 
             if (stories.length === 0) {
                 container.innerHTML = `
-                    <div class="no-stories-msg">
+                    <div class="empty-state">
                         <span class="big-emoji">📭</span>
                         <h3>No stories match your filters</h3>
                         <p>Try changing your filters or category.</p>
@@ -695,10 +811,24 @@
         // ============================================
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Load stories when page loads
+            // Get category from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('cat') || 'all';
+            currentCategory = cat;
+
+            // Update filter dropdown
+            const filterSelect = document.getElementById('filterCategory');
+            if (filterSelect) {
+                filterSelect.value = cat;
+            }
+
+            // Update header
+            updateCategoryHeader(cat);
+            
+            // Load stories
             loadCategoryStories();
 
-            // Listen for category changes from URL
+            // Listen for URL changes
             window.addEventListener('popstate', function() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const cat = urlParams.get('cat') || 'all';
@@ -712,7 +842,7 @@
             });
         });
 
-        console.log('📂 Category page loaded');
+        console.log('📂 Category page loaded with gender restrictions');
     </script>
 
     <!-- Main App JS -->
