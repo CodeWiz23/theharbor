@@ -152,6 +152,17 @@
             border-radius: 20px;
             font-size: 0.8rem;
         }
+        .verification-badge {
+            background: #f39c12;
+            color: white;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .verification-badge.verified {
+            background: #27ae60;
+        }
         .hero {
             text-align: center;
             padding: 40px 20px;
@@ -253,10 +264,6 @@
         }
         .tab.hidden {
             display: none;
-        }
-        .tab.restricted {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
         .tab .lock-icon {
             font-size: 0.7rem;
@@ -419,6 +426,10 @@
         .modal-content .btn-modal:hover {
             background: #c47a5a;
         }
+        .modal-content .btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .switch-link {
             text-align: center;
             margin-top: 16px;
@@ -436,6 +447,12 @@
             margin-top: 10px;
             text-align: center;
         }
+        .success-msg {
+            color: #27ae60;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
         .warning-box {
             background: #f5d6b3;
             padding: 12px 16px;
@@ -445,6 +462,7 @@
             font-size: 0.9rem;
             color: #2d3a3a;
             display: none;
+            line-height: 1.7;
         }
         .warning-box.show {
             display: block;
@@ -486,12 +504,26 @@
             border-left: 4px solid #c47a5a;
             margin: 12px 0 20px 0;
             display: none;
+            line-height: 1.7;
         }
         .gender-restriction-banner.show {
             display: block;
         }
         .gender-restriction-banner .icon {
             font-size: 1.2rem;
+        }
+        .resend-verification {
+            background: none;
+            border: none;
+            color: #1a4a4a;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .resend-verification:hover {
+            color: #c47a5a;
         }
         @media (max-width: 600px) {
             .header {
@@ -546,6 +578,7 @@
         <div class="user-info" id="userInfo">
             👤 Welcome, <span class="user-name" id="userName">—</span>
             <span class="user-gender-badge" id="userGenderBadge"></span>
+            <span class="verification-badge" id="verificationBadge">⏳ Pending Verification</span>
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
 
@@ -588,7 +621,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure
+            ⚓ The Harbor &mdash; built with 💚 for the community &bull; 🔒 Secure &bull; 📧 Email verification required
         </footer>
     </div>
 
@@ -637,6 +670,7 @@
             </div>
 
             <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
@@ -667,6 +701,7 @@
         let currentUser = null;
         let currentUserData = null;
         let currentCategory = 'all';
+        let isResendingVerification = false;
 
         // ============================================
         // GENDER RESTRICTION FUNCTIONS
@@ -688,39 +723,32 @@
         function canSeeCategory(category) {
             const gender = getUserGender();
 
-            // Public categories - everyone can see
             if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') {
                 return true;
             }
 
-            // Men's Harbor - only men
             if (category === 'men' && gender === '🧔 Man') {
                 return true;
             }
 
-            // Women's Harbor - only women
             if (category === 'women' && gender === '👩 Woman') {
                 return true;
             }
 
-            // Non-binary or prefer not to say - only public categories
             return false;
         }
 
         function canPostInCategory(category) {
             const gender = getUserGender();
 
-            // Public categories - everyone can post
             if (category === 'struggles' || category === 'fun' || category === 'learning') {
                 return true;
             }
 
-            // Men's Harbor - only men
             if (category === 'men' && gender === '🧔 Man') {
                 return true;
             }
 
-            // Women's Harbor - only women
             if (category === 'women' && gender === '👩 Woman') {
                 return true;
             }
@@ -735,14 +763,12 @@
             tabs.forEach(tab => {
                 const category = tab.dataset.category;
 
-                // Always show "All" and public categories
                 if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') {
                     tab.classList.remove('hidden');
                     tab.classList.remove('restricted');
                     return;
                 }
 
-                // Men's Harbor
                 if (category === 'men') {
                     if (gender === '🧔 Man') {
                         tab.classList.remove('hidden');
@@ -753,7 +779,6 @@
                     return;
                 }
 
-                // Women's Harbor
                 if (category === 'women') {
                     if (gender === '👩 Woman') {
                         tab.classList.remove('hidden');
@@ -765,7 +790,6 @@
                 }
             });
 
-            // Update restriction banner
             updateRestrictionBanner();
         }
 
@@ -830,11 +854,12 @@
             const signupFields = document.getElementById('signupFields');
             const switchLink = document.getElementById('authSwitch');
             const error = document.getElementById('authError');
+            const success = document.getElementById('authSuccess');
             const warning = document.getElementById('genderWarning');
 
             if (error) error.textContent = '';
+            if (success) success.textContent = '';
 
-            // Clear fields
             document.getElementById('authEmail').value = '';
             document.getElementById('authPassword').value = '';
             document.getElementById('authName').value = '';
@@ -852,7 +877,6 @@
                 title.textContent = '📝 Join The Harbor';
                 submitBtn.textContent = '🚀 Create Account';
                 signupFields.style.display = 'block';
-                // Show gender warning for signup
                 setTimeout(updateGenderWarning, 100);
                 switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
                 switchLink.dataset.mode = 'login';
@@ -877,19 +901,22 @@
             const emailInput = document.getElementById('authEmail');
             const passwordInput = document.getElementById('authPassword');
             const error = document.getElementById('authError');
+            const success = document.getElementById('authSuccess');
             const submitBtn = document.getElementById('authSubmitBtn');
 
             const email = emailInput.value.trim();
             const password = passwordInput.value;
 
-            error.textContent = '';
+            if (error) error.textContent = '';
+            if (success) success.textContent = '';
 
-            if (!email || !email.includes('@')) {
-                error.textContent = 'Please enter a valid email address.';
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                if (error) error.textContent = 'Please enter a valid email address.';
                 return;
             }
+
             if (!password || password.length < 6) {
-                error.textContent = 'Password must be at least 6 characters.';
+                if (error) error.textContent = 'Password must be at least 6 characters.';
                 return;
             }
 
@@ -899,18 +926,52 @@
             submitBtn.textContent = '⏳ Please wait...';
 
             if (isLogin) {
+                // ============================================
+                // LOGIN
+                // ============================================
                 auth.signInWithEmailAndPassword(email, password)
-                    .then(() => {
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+
+                        // Check if email is verified
+                        if (!user.emailVerified) {
+                            error.textContent = '⚠️ Please verify your email before logging in. Check your inbox!';
+                            auth.signOut();
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '🚀 Log In';
+                            
+                            // Show resend option
+                            success.innerHTML = `
+                                Didn't get the email? 
+                                <button class="resend-verification" onclick="resendVerification()">
+                                    Resend verification
+                                </button>
+                            `;
+                            return;
+                        }
+
                         closeModal();
                         submitBtn.disabled = false;
                         submitBtn.textContent = '🚀 Log In';
+                        alert('✅ Welcome back to The Harbor!');
                     })
                     .catch((err) => {
-                        error.textContent = err.message;
+                        if (err.code === 'auth/user-not-found') {
+                            error.textContent = 'No account found with this email. Please sign up first.';
+                        } else if (err.code === 'auth/wrong-password') {
+                            error.textContent = 'Incorrect password. Please try again.';
+                        } else if (err.code === 'auth/too-many-requests') {
+                            error.textContent = 'Too many failed attempts. Please try again later.';
+                        } else {
+                            error.textContent = err.message;
+                        }
                         submitBtn.disabled = false;
                         submitBtn.textContent = '🚀 Log In';
                     });
             } else {
+                // ============================================
+                // SIGNUP
+                // ============================================
                 const name = document.getElementById('authName').value.trim();
                 const gender = document.getElementById('authGender').value;
                 const favorites = document.getElementById('authFavorites').value.trim();
@@ -922,14 +983,39 @@
                     return;
                 }
 
+                if (name.length > 50) {
+                    error.textContent = 'Name must be under 50 characters.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+
+                // Check for disposable email domains (optional)
+                const emailDomain = email.split('@')[1];
+                const disposableDomains = ['tempmail.com', 'guerrillamail.com', '10minutemail.com', 'throwaway.com'];
+                if (disposableDomains.some(domain => emailDomain && emailDomain.includes(domain))) {
+                    error.textContent = 'Please use a permanent email address.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
                         const user = userCredential.user;
+                        // Send email verification
+                        return user.sendEmailVerification().then(() => {
+                            return user;
+                        });
+                    })
+                    .then((user) => {
+                        // Save user data to Firestore
                         return db.collection('users').doc(user.uid).set({
                             name: name,
                             email: email,
                             gender: gender,
                             favorites: favorites || 'Not specified',
+                            emailVerified: false,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                             lastActive: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -938,14 +1024,52 @@
                         closeModal();
                         submitBtn.disabled = false;
                         submitBtn.textContent = '🚀 Create Account';
-                        alert('✅ Welcome to The Harbor! Your account has been created.\n\n📌 Remember: Your gender determines which sections you can see.');
+
+                        // Sign out until they verify
+                        auth.signOut();
+
+                        alert('✅ Verification email sent to ' + email + '!\n\n📌 Please check your inbox and click the verification link.\n\nAfter verifying, log in to access The Harbor.');
                     })
                     .catch((err) => {
-                        error.textContent = err.message;
+                        if (err.code === 'auth/email-already-in-use') {
+                            error.textContent = 'This email is already registered. Please log in instead.';
+                        } else {
+                            error.textContent = err.message;
+                        }
                         submitBtn.disabled = false;
                         submitBtn.textContent = '🚀 Create Account';
                     });
             }
+        }
+
+        function resendVerification() {
+            if (isResendingVerification) return;
+            isResendingVerification = true;
+
+            const error = document.getElementById('authError');
+            const success = document.getElementById('authSuccess');
+            
+            if (error) error.textContent = '';
+            if (success) success.textContent = '⏳ Sending...';
+
+            const user = auth.currentUser;
+            if (!user) {
+                if (error) error.textContent = 'Please log in first.';
+                isResendingVerification = false;
+                return;
+            }
+
+            user.sendEmailVerification()
+                .then(() => {
+                    if (success) {
+                        success.textContent = '✅ Verification email resent! Check your inbox.';
+                    }
+                    isResendingVerification = false;
+                })
+                .catch((err) => {
+                    if (error) error.textContent = err.message;
+                    isResendingVerification = false;
+                });
         }
 
         function logout() {
@@ -971,15 +1095,22 @@
 
             let strength = 'Weak';
             let color = '#c0392b';
-            if (pwd.length >= 12) { strength = 'Strong';
-                color = '#27ae60'; } else if (pwd.length >= 8) { strength = 'Medium';
-                color = '#f39c12'; }
+            if (pwd.length >= 12) {
+                strength = 'Strong';
+                color = '#27ae60';
+            } else if (pwd.length >= 8) {
+                strength = 'Medium';
+                color = '#f39c12';
+            }
 
             strengthDiv.innerHTML = `
-                    <div style="margin-top:6px;font-size:0.85rem;">
-                        Password Strength: <span style="color:${color};font-weight:700;">${strength}</span>
+                <div style="margin-top:6px;font-size:0.85rem;">
+                    Password Strength: <span style="color:${color};font-weight:700;">${strength}</span>
+                    <div style="width:100%;height:4px;background:#e8ddd0;border-radius:4px;margin-top:4px;">
+                        <div style="width:${pwd.length > 12 ? 100 : (pwd.length / 12 * 100)}%;height:100%;background:${color};border-radius:4px;"></div>
                     </div>
-                `;
+                </div>
+            `;
         }
 
         // ============================================
@@ -993,12 +1124,22 @@
             const userInfo = document.getElementById('userInfo');
             const userName = document.getElementById('userName');
             const userGenderBadge = document.getElementById('userGenderBadge');
+            const verificationBadge = document.getElementById('verificationBadge');
             const submitBtn = document.getElementById('submitStoryBtn');
 
             if (user) {
                 currentUser = user;
                 authButtons.style.display = 'none';
                 userInfo.style.display = 'flex';
+
+                // Show verification status
+                if (user.emailVerified) {
+                    verificationBadge.textContent = '✅ Verified';
+                    verificationBadge.className = 'verification-badge verified';
+                } else {
+                    verificationBadge.textContent = '⏳ Unverified';
+                    verificationBadge.className = 'verification-badge';
+                }
 
                 db.collection('users').doc(user.uid).get()
                     .then((doc) => {
@@ -1007,15 +1148,14 @@
                             userName.textContent = currentUserData.name || 'Friend';
                             userGenderBadge.textContent = currentUserData.gender || '';
 
-                            // Update UI based on gender
-                            updateCategoryTabs();
-
-                            // Update submit button visibility
-                            if (submitBtn) {
-                                submitBtn.style.display = 'inline-block';
+                            // Update verification status in Firestore if needed
+                            if (user.emailVerified && !currentUserData.emailVerified) {
+                                db.collection('users').doc(user.uid).update({
+                                    emailVerified: true
+                                });
                             }
 
-                            // Load stories
+                            updateCategoryTabs();
                             loadStories();
                         }
                     })
@@ -1028,7 +1168,6 @@
                 authButtons.style.display = 'flex';
                 userInfo.style.display = 'none';
 
-                // Show all tabs for non-logged in users (but they can't post)
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.classList.remove('hidden');
                     tab.classList.remove('restricted');
@@ -1036,19 +1175,18 @@
 
                 document.getElementById('genderRestrictionBanner').classList.remove('show');
 
-                if (submitBtn) {
-                    submitBtn.style.display = 'inline-block';
-                }
-
                 const container = document.getElementById('storiesContainer');
                 if (container) {
                     container.innerHTML = `
-                            <div class="empty-state">
-                                <div class="big-emoji">⚓</div>
-                                <h3>Welcome to The Harbor</h3>
-                                <p>Log in or join to read and share stories.</p>
-                            </div>
-                        `;
+                        <div class="empty-state">
+                            <div class="big-emoji">⚓</div>
+                            <h3>Welcome to The Harbor</h3>
+                            <p>Log in or join to read and share stories.</p>
+                            <p style="font-size:0.85rem;color:#7a9e7e;margin-top:8px;">
+                                📧 Email verification required for new accounts.
+                            </p>
+                        </div>
+                    `;
                 }
             }
         });
@@ -1061,8 +1199,26 @@
             const container = document.getElementById('storiesContainer');
             if (!container) return;
 
+            // Check if user is verified
+            if (currentUser && !currentUser.emailVerified) {
+                container.innerHTML = `
+                    <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
+                        <div class="big-emoji">📧</div>
+                        <h3>Email Not Verified</h3>
+                        <p style="color:#2d3a3a;">Please check your email and click the verification link.</p>
+                        <button class="btn-primary" onclick="resendVerification()" style="margin-top:12px;font-size:0.9rem;padding:10px 24px;">
+                            🔄 Resend Verification Email
+                        </button>
+                        <button class="btn-secondary" onclick="logout()" style="margin-top:10px;font-size:0.9rem;padding:10px 24px;">
+                            Logout
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
             // Check if user can view this category
-            if (!canSeeCategory(currentCategory)) {
+            if (!canSeeCategory(currentCategory) && currentUser) {
                 const gender = getUserGender();
                 let message = '🔒 You do not have permission to view this section.';
 
@@ -1075,17 +1231,17 @@
                 }
 
                 container.innerHTML = `
-                        <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
-                            <div class="big-emoji">🔒</div>
-                            <h3>Access Restricted</h3>
-                            <p style="color:#2d3a3a;line-height:1.8;">${message}</p>
-                            <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                                <a href="?cat=struggles" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🌊 The Storm</a>
-                                <a href="?cat=fun" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">☀️ Sunny Skies</a>
-                                <a href="?cat=learning" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🧭 The Compass</a>
-                            </div>
+                    <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
+                        <div class="big-emoji">🔒</div>
+                        <h3>Access Restricted</h3>
+                        <p style="color:#2d3a3a;line-height:1.8;">${message}</p>
+                        <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                            <a href="?cat=struggles" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🌊 The Storm</a>
+                            <a href="?cat=fun" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">☀️ Sunny Skies</a>
+                            <a href="?cat=learning" class="btn-primary" style="text-decoration:none;display:inline-block;padding:10px 24px;font-size:0.9rem;">🧭 The Compass</a>
                         </div>
-                    `;
+                    </div>
+                `;
                 return;
             }
 
@@ -1103,17 +1259,17 @@
                 .then((snapshot) => {
                     if (snapshot.empty) {
                         container.innerHTML = `
-                                <div class="empty-state">
-                                    <div class="big-emoji">🌊</div>
-                                    <h3>No stories yet</h3>
-                                    <p>Be the first to share your story!</p>
-                                    ${canPostInCategory(currentCategory) ? 
-                                        `<a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>` 
-                                        : 
-                                        `<p style="font-size:0.85rem;color:#7a9e7e;">You can share in The Storm, Sunny Skies, or The Compass.</p>`
-                                    }
-                                </div>
-                            `;
+                            <div class="empty-state">
+                                <div class="big-emoji">🌊</div>
+                                <h3>No stories yet</h3>
+                                <p>Be the first to share your story!</p>
+                                ${canPostInCategory(currentCategory) ? 
+                                    `<a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>` 
+                                    : 
+                                    `<p style="font-size:0.85rem;color:#7a9e7e;">You can share in The Storm, Sunny Skies, or The Compass.</p>`
+                                }
+                            </div>
+                        `;
                         return;
                     }
 
@@ -1129,12 +1285,12 @@
                 .catch((err) => {
                     console.error('Error loading stories:', err);
                     container.innerHTML = `
-                            <div class="empty-state">
-                                <div class="big-emoji">⚠️</div>
-                                <h3>Oops!</h3>
-                                <p>Could not load stories. Please try again.</p>
-                            </div>
-                        `;
+                        <div class="empty-state">
+                            <div class="big-emoji">⚠️</div>
+                            <h3>Oops!</h3>
+                            <p>Could not load stories. Please try again.</p>
+                        </div>
+                    `;
                 });
         }
 
@@ -1160,30 +1316,30 @@
             emojis.forEach((emoji) => {
                 const count = reactions[emoji] || 0;
                 reactionButtons += `
-                        <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
-                            ${emoji} <span class="count">${count}</span>
-                        </button>
-                    `;
+                    <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
+                        ${emoji} <span class="count">${count}</span>
+                    </button>
+                `;
             });
 
             const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
             const excerpt = story.text.length > 200 ? escapeHTML(story.text.substring(0, 200)) + '...' : escapeHTML(story.text);
 
             return `
-                    <div class="story-card" data-story-id="${story.id}">
-                        <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
-                        <div class="story-meta">
-                            <span>✍️ ${author}</span>
-                            <span class="category-badge">${categoryDisplay}</span>
-                            <span>📅 ${time}</span>
-                        </div>
-                        <div class="story-text">${excerpt}</div>
-                        <div class="story-actions">
-                            ${reactionButtons}
-                            <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
-                        </div>
+                <div class="story-card" data-story-id="${story.id}">
+                    <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
+                    <div class="story-meta">
+                        <span>✍️ ${author}</span>
+                        <span class="category-badge">${categoryDisplay}</span>
+                        <span>📅 ${time}</span>
                     </div>
-                `;
+                    <div class="story-text">${excerpt}</div>
+                    <div class="story-actions">
+                        ${reactionButtons}
+                        <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
+                    </div>
+                </div>
+            `;
         }
 
         // ============================================
@@ -1193,6 +1349,11 @@
         function addReaction(storyId, emoji) {
             if (!currentUser) {
                 alert('Please log in to react.');
+                return;
+            }
+
+            if (!currentUser.emailVerified) {
+                alert('Please verify your email first. Check your inbox!');
                 return;
             }
 
@@ -1224,7 +1385,6 @@
             console.log('🔄 Switching to category:', category);
             currentCategory = category;
 
-            // Check if user can see this category
             if (!canSeeCategory(category) && currentUser) {
                 const gender = getUserGender();
                 let msg = 'You do not have permission to view this section.';
@@ -1236,7 +1396,6 @@
                     msg = 'You can only view public sections.';
                 }
                 alert('🔒 ' + msg);
-                // Revert to previous category
                 const currentTab = document.querySelector('.tab.active');
                 if (currentTab) {
                     currentCategory = currentTab.dataset.category;
@@ -1275,12 +1434,12 @@
                 .then((snapshot) => {
                     if (snapshot.empty) {
                         container.innerHTML = `
-                                <div class="empty-state">
-                                    <div class="big-emoji">🔍</div>
-                                    <h3>No stories found</h3>
-                                    <p>Try different keywords.</p>
-                                </div>
-                            `;
+                            <div class="empty-state">
+                                <div class="big-emoji">🔍</div>
+                                <h3>No stories found</h3>
+                                <p>Try different keywords.</p>
+                            </div>
+                        `;
                         return;
                     }
 
@@ -1290,7 +1449,6 @@
                         story.id = doc.id;
                         const searchText = (story.title + ' ' + story.text + ' ' + story.authorName).toLowerCase();
                         if (searchText.includes(query)) {
-                            // Only show stories user can see
                             if (canSeeCategory(story.category)) {
                                 matched.push(story);
                             }
@@ -1299,12 +1457,12 @@
 
                     if (matched.length === 0) {
                         container.innerHTML = `
-                                <div class="empty-state">
-                                    <div class="big-emoji">🔍</div>
-                                    <h3>No stories match "${escapeHTML(query)}"</h3>
-                                    <p>Try different keywords.</p>
-                                </div>
-                            `;
+                            <div class="empty-state">
+                                <div class="big-emoji">🔍</div>
+                                <h3>No stories match "${escapeHTML(query)}"</h3>
+                                <p>Try different keywords.</p>
+                            </div>
+                        `;
                         return;
                     }
 
@@ -1378,6 +1536,7 @@
 
         console.log('⚓ The Harbor app loaded successfully!');
         console.log('📚 Firebase connected:', firebase.app().name);
+        console.log('📧 Email verification:', 'Enabled');
     </script>
 </body>
 </html>
