@@ -122,6 +122,22 @@
         .category-description strong {
             color: #1a4a4a;
         }
+        .activity-link {
+            display: inline-block;
+            margin-bottom: 16px;
+            padding: 10px 24px;
+            background: #c47a5a;
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            margin-left: 12px;
+        }
+        .activity-link:hover {
+            background: #a86545;
+            transform: translateY(-2px);
+        }
 
         @media (max-width: 600px) {
             .category-header h1 {
@@ -166,12 +182,17 @@
 
     <!-- Main Content -->
     <div class="container">
-        <a href="index.html" class="back-link">← Back to All Stories</a>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <div>
+                <a href="activity.html" class="activity-link">📊 My Activity</a>
+            </div>
+        </div>
 
         <div class="category-header" id="categoryHeader">
             <span class="big-icon" id="categoryIcon">📖</span>
             <h1><span id="categoryTitle">All Stories</span></h1>
-            <p id="categoryDescription">Explore all stories shared by the community.</p>
+            <p id="categoryDescription">Browse through all stories shared by our community members.</p>
             <span class="story-count" id="storyCount">0 stories</span>
         </div>
 
@@ -183,7 +204,8 @@
         <div class="filter-bar">
             <label for="filterCategory">📂 Filter:</label>
             <select id="filterCategory" onchange="applyFilters()">
-                <option value="all">All Categories</option>
+                <option value="all">All Stories</option>
+                <option value="my-stories">📝 My Stories</option>
                 <option value="men">🧔 Men's Harbor</option>
                 <option value="women">👩 Women's Harbor</option>
                 <option value="struggles">🌊 The Storm</option>
@@ -211,6 +233,7 @@
             <a href="submit.html">📝 Share Story</a>
             <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
+            <a href="activity.html">📊 Activity</a>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
             &copy; 2026 The Harbor — Built with 💚 for the community
@@ -271,463 +294,447 @@
     </div>
 
     <script>
-        // ============================================
-        // COUNTRY DATA
-        // ============================================
-        const countries = [
-            { name: 'United States', emergency: '911' },
-            { name: 'United Kingdom', emergency: '999' },
-            { name: 'Bangladesh', emergency: '999' },
-            { name: 'India', emergency: '112' },
-            { name: 'Canada', emergency: '911' },
-            { name: 'Australia', emergency: '000' },
-            { name: 'Germany', emergency: '112' },
-            { name: 'France', emergency: '112' },
-            { name: 'Italy', emergency: '112' },
-            { name: 'Spain', emergency: '112' },
-            { name: 'Brazil', emergency: '190' },
-            { name: 'Mexico', emergency: '911' }
-        ];
+    // ============================================
+    // COUNTRY DATA
+    // ============================================
+    const countries = [
+        { name: 'United States', emergency: '911' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'India', emergency: '112' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Mexico', emergency: '911' }
+    ];
 
-        // Populate country datalist
-        function populateCountryDatalist() {
-            const datalist = document.getElementById('country-list');
-            if (!datalist) return;
-            datalist.innerHTML = '';
-            countries.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.name;
-                datalist.appendChild(option);
-            });
+    function populateCountryDatalist() {
+        const datalist = document.getElementById('country-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        countries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
+        });
+    }
+    populateCountryDatalist();
+
+    // ============================================
+    // CATEGORY METADATA
+    // ============================================
+    const categoryMeta = {
+        'all': {
+            icon: '📖',
+            title: 'All Stories',
+            description: 'Browse through all stories shared by our community members.',
+            info: 'Every story shared by our community members.'
+        },
+        'my-stories': {
+            icon: '📝',
+            title: 'My Stories',
+            description: 'All the stories you have shared.',
+            info: 'Your personal collection of stories you have shared with the community.'
+        },
+        'men': {
+            icon: '🧔',
+            title: 'Men\'s Harbor',
+            description: 'A dedicated space for men to share and support each other.',
+            info: 'A safe space for men to share their experiences, challenges, and victories.'
+        },
+        'women': {
+            icon: '👩',
+            title: 'Women\'s Harbor',
+            description: 'A dedicated space for women to share and support each other.',
+            info: 'A safe space for women to share their experiences, challenges, and victories.'
+        },
+        'struggles': {
+            icon: '🌊',
+            title: 'The Storm',
+            description: 'For sharing struggles, depression, and difficult times.',
+            info: 'A compassionate space for sharing difficult experiences. Open to everyone.'
+        },
+        'fun': {
+            icon: '☀️',
+            title: 'Sunny Skies',
+            description: 'For sharing joy, fun moments, and positivity.',
+            info: 'A bright space for sharing joy and positive moments. Open to everyone.'
+        },
+        'learning': {
+            icon: '🧭',
+            title: 'The Compass',
+            description: 'For learning, growth, and practical advice.',
+            info: 'A space for sharing knowledge and life lessons. Open to everyone.'
         }
-        populateCountryDatalist();
+    };
 
-        // ============================================
-        // CATEGORY METADATA
-        // ============================================
-        const categoryMeta = {
-            'all': {
-                icon: '📖',
-                title: 'All Stories',
-                description: 'Explore all stories shared by the community.',
-                info: 'Browse through all stories shared by our community members.'
-            },
-            'men': {
-                icon: '🧔',
-                title: 'Men\'s Harbor',
-                description: 'A dedicated space for men to share and support each other.',
-                info: 'A safe space for men to share their experiences, challenges, and victories.'
-            },
-            'women': {
-                icon: '👩',
-                title: 'Women\'s Harbor',
-                description: 'A dedicated space for women to share and support each other.',
-                info: 'A safe space for women to share their experiences, challenges, and victories.'
-            },
-            'struggles': {
-                icon: '🌊',
-                title: 'The Storm',
-                description: 'For sharing struggles, depression, and difficult times.',
-                info: 'A compassionate space for sharing difficult experiences. Open to everyone.'
-            },
-            'fun': {
-                icon: '☀️',
-                title: 'Sunny Skies',
-                description: 'For sharing joy, fun moments, and positivity.',
-                info: 'A bright space for sharing joy and positive moments. Open to everyone.'
-            },
-            'learning': {
-                icon: '🧭',
-                title: 'The Compass',
-                description: 'For learning, growth, and practical advice.',
-                info: 'A space for sharing knowledge and life lessons. Open to everyone.'
-            }
-        };
+    // ============================================
+    // GLOBAL STATE
+    // ============================================
+    let currentCategory = 'all';
+    let currentSort = 'newest';
+    let allStories = [];
 
-        // ============================================
-        // GLOBAL STATE
-        // ============================================
-        let currentCategory = 'all';
-        let currentSort = 'newest';
-        let allStories = [];
+    // ============================================
+    // LOAD CATEGORY STORIES
+    // ============================================
+    function loadCategoryStories() {
+        const container = document.getElementById('storiesContainer');
+        if (!container) return;
 
-        // ============================================
-        // LOAD CATEGORY STORIES
-        // ============================================
-        function loadCategoryStories() {
-            const container = document.getElementById('storiesContainer');
-            if (!container) return;
+        // Get category from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const cat = urlParams.get('cat') || 'all';
+        currentCategory = cat;
 
-            // Get category from URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('cat') || 'all';
-            currentCategory = cat;
+        // Update filter dropdown
+        const filterSelect = document.getElementById('filterCategory');
+        if (filterSelect) {
+            filterSelect.value = cat;
+        }
 
-            // Update filter dropdown
-            const filterSelect = document.getElementById('filterCategory');
-            if (filterSelect) {
-                filterSelect.value = cat;
-            }
+        // Update header
+        updateCategoryHeader(cat);
 
-            // Update header
-            updateCategoryHeader(cat);
-
-            // Check if user is logged in (from global app.js)
-            if (typeof currentUser === 'undefined' || !currentUser) {
-                container.innerHTML = `
-                    <div class="empty-state" style="padding:40px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
-                        <div class="big-emoji">🔒</div>
-                        <h3 style="color:#1a4a4a;">Login Required</h3>
-                        <p style="color:#2d3a3a;">Please log in or join to view stories in this category.</p>
-                        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                            <button class="btn-primary" onclick="openModal('login')" style="background:#c47a5a;border:none;border-radius:50px;padding:12px 28px;color:white;font-weight:700;cursor:pointer;">🔐 Log In</button>
-                            <button class="btn-secondary" onclick="openModal('signup')" style="background:transparent;border:2px solid #c47a5a;border-radius:50px;padding:12px 28px;color:#c47a5a;font-weight:700;cursor:pointer;">📝 Join</button>
-                        </div>
+        // Check if user is logged in
+        if (typeof currentUser === 'undefined' || !currentUser) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding:40px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
+                    <div class="big-emoji">🔒</div>
+                    <h3 style="color:#1a4a4a;">Login Required</h3>
+                    <p style="color:#2d3a3a;">Please log in or join to view stories in this category.</p>
+                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="openModal('login')" style="background:#c47a5a;border:none;border-radius:50px;padding:12px 28px;color:white;font-weight:700;cursor:pointer;">🔐 Log In</button>
+                        <button class="btn-secondary" onclick="openModal('signup')" style="background:transparent;border:2px solid #c47a5a;border-radius:50px;padding:12px 28px;color:#c47a5a;font-weight:700;cursor:pointer;">📝 Join</button>
                     </div>
-                `;
-                document.getElementById('storyCount').textContent = '0 stories';
-                return;
-            }
+                </div>
+            `;
+            document.getElementById('storyCount').textContent = '0 stories';
+            return;
+        }
 
-            // Check if user can read this category (from app.js)
-            if (typeof canSeeCategory !== 'undefined' && !canSeeCategory(cat)) {
-                container.innerHTML = `
-                    <div class="empty-state" style="padding:40px 20px;background:#f5d6b3;border-radius:16px;border-left:4px solid #c47a5a;">
-                        <div class="big-emoji">🔒</div>
-                        <h3 style="color:#1a4a4a;">Access Restricted</h3>
-                        <p style="color:#2d3a3a;">You don't have permission to view this section.</p>
-                    </div>
-                `;
-                document.getElementById('storyCount').textContent = '0 stories';
-                return;
-            }
+        container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
 
-            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
+        let query = db.collection('stories').where('approved', '==', true);
 
-            let query = db.collection('stories').where('approved', '==', true);
+        // Handle "my-stories" - show user's own stories
+        if (cat === 'my-stories') {
+            query = query.where('userId', '==', currentUser.uid);
+        } else if (cat !== 'all') {
+            query = query.where('category', '==', cat);
+        }
 
-            if (cat !== 'all') {
-                query = query.where('category', '==', cat);
-            }
+        // If "all" - show all stories (no filter)
+        // If "my-stories" - filtered by userId
 
-            query.get()
-                .then((snapshot) => {
-                    if (snapshot.empty) {
-                        container.innerHTML = `
-                            <div class="empty-state">
-                                <div class="big-emoji">📭</div>
-                                <h3>No stories in this category yet</h3>
-                                <p>Be the first to share your story!</p>
-                                <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
-                            </div>
-                        `;
-                        document.getElementById('storyCount').textContent = '0 stories';
-                        return;
-                    }
-
-                    let stories = [];
-                    snapshot.forEach((doc) => {
-                        const s = doc.data();
-                        s.id = doc.id;
-                        stories.push(s);
-                    });
-
-                    // Sort by createdAt (newest first)
-                    stories.sort((a, b) => {
-                        const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                        const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-                        return timeB - timeA;
-                    });
-
-                    allStories = stories;
-                    document.getElementById('storyCount').textContent = `${stories.length} stories`;
-                    applySort();
-                })
-                .catch((err) => {
-                    console.error('Error loading stories:', err);
+        query.get()
+            .then((snapshot) => {
+                if (snapshot.empty) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <span class="big-emoji">⚠️</span>
-                            <h3>Oops! Something went wrong</h3>
-                            <p>${err.message}</p>
-                            <button class="btn-primary" onclick="loadCategoryStories()" style="margin-top:12px;">🔄 Try Again</button>
+                            <div class="big-emoji">📭</div>
+                            <h3>No stories in this category yet</h3>
+                            <p>Be the first to share your story!</p>
+                            <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
                         </div>
                     `;
+                    document.getElementById('storyCount').textContent = '0 stories';
+                    return;
+                }
+
+                let stories = [];
+                snapshot.forEach((doc) => {
+                    const s = doc.data();
+                    s.id = doc.id;
+                    stories.push(s);
                 });
-        }
 
-        // ============================================
-        // UPDATE CATEGORY HEADER
-        // ============================================
-        function updateCategoryHeader(cat) {
-            const meta = categoryMeta[cat] || categoryMeta['all'];
-
-            document.getElementById('categoryIcon').textContent = meta.icon;
-            document.getElementById('categoryTitle').textContent = meta.title;
-            document.getElementById('categoryDescription').textContent = meta.description;
-            document.getElementById('categoryInfoText').textContent = meta.info;
-
-            document.title = `${meta.title} — The Harbor`;
-        }
-
-        // ============================================
-        // APPLY FILTERS
-        // ============================================
-        function applyFilters() {
-            const filterSelect = document.getElementById('filterCategory');
-            const cat = filterSelect ? filterSelect.value : 'all';
-
-            const url = new URL(window.location);
-            url.searchParams.set('cat', cat);
-            window.history.pushState({}, '', url);
-
-            currentCategory = cat;
-            updateCategoryHeader(cat);
-            loadCategoryStories();
-        }
-
-        // ============================================
-        // SET SORT
-        // ============================================
-        function setSort(sortType) {
-            currentSort = sortType;
-
-            document.querySelectorAll('.sort-options button').forEach((btn) => {
-                btn.classList.toggle('active', btn.dataset.sort === sortType);
-            });
-
-            applySort();
-        }
-
-        // ============================================
-        // APPLY SORT
-        // ============================================
-        function applySort() {
-            let sorted = [...allStories];
-
-            if (currentSort === 'newest') {
-                sorted.sort((a, b) => {
+                // Sort by createdAt (newest first)
+                stories.sort((a, b) => {
                     const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                     const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
                     return timeB - timeA;
                 });
-            } else if (currentSort === 'oldest') {
-                sorted.sort((a, b) => {
-                    const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-                    const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-                    return timeA - timeB;
-                });
-            } else if (currentSort === 'popular') {
-                sorted.sort((a, b) => {
-                    const totalA = Object.values(a.reactions || {}).reduce((sum, val) => sum + val, 0);
-                    const totalB = Object.values(b.reactions || {}).reduce((sum, val) => sum + val, 0);
-                    return totalB - totalA;
-                });
-            }
 
-            renderStories(sorted);
-        }
-
-        // ============================================
-        // RENDER STORIES
-        // ============================================
-        function renderStories(stories) {
-            const container = document.getElementById('storiesContainer');
-            if (!container) return;
-
-            if (stories.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <span class="big-emoji">📭</span>
-                        <h3>No stories match your filters</h3>
-                        <p>Try changing your filters or category.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            stories.forEach((story) => {
-                html += renderStoryCard(story);
-            });
-            container.innerHTML = html;
-        }
-
-        // ============================================
-        // RENDER STORY CARD
-        // ============================================
-        function renderStoryCard(story) {
-            const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
-            const categoryNames = {
-                'men': '🧔 Men\'s Harbor',
-                'women': '👩 Women\'s Harbor',
-                'struggles': '🌊 The Storm',
-                'fun': '☀️ Sunny Skies',
-                'learning': '🧭 The Compass'
-            };
-            const categoryDisplay = categoryNames[story.category] || story.category;
-
-            const reactions = story.reactions || {};
-            const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-
-            let reactionButtons = '';
-            emojis.forEach((emoji) => {
-                const count = reactions[emoji] || 0;
-                reactionButtons += `
-                    <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
-                        ${emoji} <span class="count">${count}</span>
-                    </button>
-                `;
-            });
-
-            const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
-            const storyText = story.text || '';
-            const excerpt = storyText.length > 200 ? escapeHTML(storyText.substring(0, 200)) + '...' : escapeHTML(storyText);
-
-            return `
-                <div class="story-card" data-story-id="${story.id}">
-                    <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
-                    <div class="story-meta">
-                        <span>✍️ ${author}</span>
-                        <span class="category-badge">${categoryDisplay}</span>
-                        <span>📅 ${time}</span>
-                    </div>
-                    <div class="story-text">${excerpt}</div>
-                    <div class="story-actions">
-                        ${reactionButtons}
-                        <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ============================================
-        // ADD REACTION
-        // ============================================
-        function addReaction(storyId, emoji) {
-            if (typeof currentUser === 'undefined' || !currentUser) {
-                alert('Please log in to react.');
-                return;
-            }
-
-            const storyRef = db.collection('stories').doc(storyId);
-
-            db.runTransaction((transaction) => {
-                return transaction.get(storyRef).then((doc) => {
-                    if (!doc.exists) return;
-                    const data = doc.data();
-                    const reactions = data.reactions || {};
-                    reactions[emoji] = (reactions[emoji] || 0) + 1;
-                    transaction.update(storyRef, { reactions: reactions });
-                });
-            })
-            .then(() => {
-                loadCategoryStories();
+                allStories = stories;
+                document.getElementById('storyCount').textContent = `${stories.length} stories`;
+                applySort();
             })
             .catch((err) => {
-                console.error('Error adding reaction:', err);
-                alert('Could not add reaction. Please try again.');
+                console.error('Error loading stories:', err);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="big-emoji">⚠️</span>
+                        <h3>Oops! Something went wrong</h3>
+                        <p>${err.message}</p>
+                        <button class="btn-primary" onclick="loadCategoryStories()" style="margin-top:12px;">🔄 Try Again</button>
+                    </div>
+                `;
             });
-        }
+    }
 
-        // ============================================
-        // UTILITY
-        // ============================================
-        function escapeHTML(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;',
-                '/': '&#x2F;',
-                '`': '&#x60;',
-                '=': '&#x3D;'
-            };
-            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-        }
+    // ============================================
+    // UPDATE CATEGORY HEADER
+    // ============================================
+    function updateCategoryHeader(cat) {
+        const meta = categoryMeta[cat] || categoryMeta['all'];
 
-        // ============================================
-        // INIT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get category from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('cat') || 'all';
-            currentCategory = cat;
+        document.getElementById('categoryIcon').textContent = meta.icon;
+        document.getElementById('categoryTitle').textContent = meta.title;
+        document.getElementById('categoryDescription').textContent = meta.description;
+        document.getElementById('categoryInfoText').textContent = meta.info;
 
-            // Update filter dropdown
-            const filterSelect = document.getElementById('filterCategory');
-            if (filterSelect) {
-                filterSelect.value = cat;
-            }
+        document.title = `${meta.title} — The Harbor`;
+    }
 
-            // Update header
-            updateCategoryHeader(cat);
+    // ============================================
+    // APPLY FILTERS
+    // ============================================
+    function applyFilters() {
+        const filterSelect = document.getElementById('filterCategory');
+        const cat = filterSelect ? filterSelect.value : 'all';
 
-            // Load stories
-            loadCategoryStories();
+        const url = new URL(window.location);
+        url.searchParams.set('cat', cat);
+        window.history.pushState({}, '', url);
 
-            // Listen for URL changes (back/forward buttons)
-            window.addEventListener('popstate', function() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const cat = urlParams.get('cat') || 'all';
-                const filterSelect = document.getElementById('filterCategory');
-                if (filterSelect) {
-                    filterSelect.value = cat;
-                }
-                currentCategory = cat;
-                updateCategoryHeader(cat);
-                loadCategoryStories();
-            });
+        currentCategory = cat;
+        updateCategoryHeader(cat);
+        loadCategoryStories();
+    }
 
-            // Modal close on outside click
-            const modal = document.getElementById('authModal');
-            if (modal) {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) closeModal();
-                });
-            }
+    // ============================================
+    // SET SORT
+    // ============================================
+    function setSort(sortType) {
+        currentSort = sortType;
 
-            // Password strength
-            const passwordInput = document.getElementById('authPassword');
-            if (passwordInput) {
-                passwordInput.addEventListener('input', function() {
-                    const pwd = this.value;
-                    const strengthDiv = document.getElementById('passwordStrength');
-                    if (!strengthDiv) return;
-                    if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-                    const result = checkPasswordStrength(pwd);
-                    strengthDiv.innerHTML = `
-                        <div style="margin-top:6px;font-size:0.85rem;">
-                            Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                        </div>
-                    `;
-                });
-            }
-
-            // Username availability
-            const nameInput = document.getElementById('authName');
-            if (nameInput) {
-                nameInput.addEventListener('input', checkUsernameOnType);
-            }
-
-            // Enter key for auth
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const modal = document.getElementById('authModal');
-                    if (modal && modal.style.display === 'flex') handleAuth();
-                }
-            });
-
-            // Populate country datalist
-            populateCountryDatalist();
-
-            console.log('✅ Category page ready');
+        document.querySelectorAll('.sort-options button').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.sort === sortType);
         });
 
-        console.log('📂 Category page loaded successfully');
+        applySort();
+    }
+
+    // ============================================
+    // APPLY SORT
+    // ============================================
+    function applySort() {
+        let sorted = [...allStories];
+
+        if (currentSort === 'newest') {
+            sorted.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                return timeB - timeA;
+            });
+        } else if (currentSort === 'oldest') {
+            sorted.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                return timeA - timeB;
+            });
+        } else if (currentSort === 'popular') {
+            sorted.sort((a, b) => {
+                const totalA = Object.values(a.reactions || {}).reduce((sum, val) => sum + val, 0);
+                const totalB = Object.values(b.reactions || {}).reduce((sum, val) => sum + val, 0);
+                return totalB - totalA;
+            });
+        }
+
+        renderStories(sorted);
+    }
+
+    // ============================================
+    // RENDER STORIES
+    // ============================================
+    function renderStories(stories) {
+        const container = document.getElementById('storiesContainer');
+        if (!container) return;
+
+        if (stories.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <span class="big-emoji">📭</span>
+                    <h3>No stories match your filters</h3>
+                    <p>Try changing your filters or category.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        stories.forEach((story) => {
+            html += renderStoryCard(story);
+        });
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // RENDER STORY CARD
+    // ============================================
+    function renderStoryCard(story) {
+        const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+        const categoryNames = {
+            'men': '🧔 Men\'s Harbor',
+            'women': '👩 Women\'s Harbor',
+            'struggles': '🌊 The Storm',
+            'fun': '☀️ Sunny Skies',
+            'learning': '🧭 The Compass'
+        };
+        const categoryDisplay = categoryNames[story.category] || story.category;
+
+        const reactions = story.reactions || {};
+        const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+
+        let reactionButtons = '';
+        emojis.forEach((emoji) => {
+            const count = reactions[emoji] || 0;
+            reactionButtons += `
+                <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
+                    ${emoji} <span class="count">${count}</span>
+                </button>
+            `;
+        });
+
+        const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+        const storyText = story.text || '';
+        const excerpt = storyText.length > 200 ? escapeHTML(storyText.substring(0, 200)) + '...' : escapeHTML(storyText);
+
+        return `
+            <div class="story-card" data-story-id="${story.id}">
+                <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
+                <div class="story-meta">
+                    <span>✍️ ${author}</span>
+                    <span class="category-badge">${categoryDisplay}</span>
+                    <span>📅 ${time}</span>
+                    ${currentUser && story.userId === currentUser.uid ? '<span style="color:#c47a5a;">👤 Your Story</span>' : ''}
+                </div>
+                <div class="story-text">${excerpt}</div>
+                <div class="story-actions">
+                    ${reactionButtons}
+                    <a class="comment-link" href="story.html?id=${story.id}">💬 ${story.commentCount || 0} comments</a>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============================================
+    // ADD REACTION
+    // ============================================
+    function addReaction(storyId, emoji) {
+        if (typeof currentUser === 'undefined' || !currentUser) {
+            alert('Please log in to react.');
+            return;
+        }
+
+        const storyRef = db.collection('stories').doc(storyId);
+
+        db.runTransaction((transaction) => {
+            return transaction.get(storyRef).then((doc) => {
+                if (!doc.exists) return;
+                const data = doc.data();
+                const reactions = data.reactions || {};
+                reactions[emoji] = (reactions[emoji] || 0) + 1;
+                transaction.update(storyRef, { reactions: reactions });
+            });
+        })
+        .then(() => {
+            loadCategoryStories();
+        })
+        .catch((err) => {
+            console.error('Error adding reaction:', err);
+            alert('Could not add reaction. Please try again.');
+        });
+    }
+
+    // ============================================
+    // UTILITY
+    // ============================================
+    function escapeHTML(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cat = urlParams.get('cat') || 'all';
+        currentCategory = cat;
+
+        const filterSelect = document.getElementById('filterCategory');
+        if (filterSelect) filterSelect.value = cat;
+
+        updateCategoryHeader(cat);
+        loadCategoryStories();
+
+        window.addEventListener('popstate', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('cat') || 'all';
+            const filterSelect = document.getElementById('filterCategory');
+            if (filterSelect) filterSelect.value = cat;
+            currentCategory = cat;
+            updateCategoryHeader(cat);
+            loadCategoryStories();
+        });
+
+        const modal = document.getElementById('authModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        }
+
+        const passwordInput = document.getElementById('authPassword');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const pwd = this.value;
+                const strengthDiv = document.getElementById('passwordStrength');
+                if (!strengthDiv) return;
+                if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+                const result = checkPasswordStrength(pwd);
+                strengthDiv.innerHTML = `
+                    <div style="margin-top:6px;font-size:0.85rem;">
+                        Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                    </div>
+                `;
+            });
+        }
+
+        const nameInput = document.getElementById('authName');
+        if (nameInput) {
+            nameInput.addEventListener('input', checkUsernameOnType);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const modal = document.getElementById('authModal');
+                if (modal && modal.style.display === 'flex') handleAuth();
+            }
+        });
+
+        populateCountryDatalist();
+
+        console.log('✅ Category page ready');
+    });
+
+    console.log('📂 Category page loaded successfully');
     </script>
 
     <script src="js/app.js"></script>
