@@ -12,8 +12,20 @@
         connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
     ">
 
+    <!-- Firebase SDKs (for user auth) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
+    </script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f5efe6;
@@ -22,8 +34,17 @@
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .container { max-width: 800px; margin: 0 auto; }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        /* Crisis Banner */
         .crisis-banner {
             background: #1a4a4a;
             color: #f5f0eb;
@@ -34,7 +55,12 @@
             margin-bottom: 24px;
             border-left: 5px solid #c47a5a;
         }
-        .crisis-banner a { color: #e8ddd0; font-weight: bold; }
+        .crisis-banner a {
+            color: #e8ddd0;
+            font-weight: bold;
+        }
+
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -50,10 +76,26 @@
             gap: 10px;
             text-decoration: none;
         }
-        .logo-icon { font-size: 2.2rem; }
-        .logo-text { font-size: 1.8rem; font-weight: 300; color: #1a4a4a; }
-        .logo-text span { font-weight: 700; color: #c47a5a; }
-        .logo-sub { font-size: 0.75rem; color: #7a9e7e; font-style: italic; display: block; margin-top: -4px; }
+        .logo-icon {
+            font-size: 2.2rem;
+        }
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: #1a4a4a;
+        }
+        .logo-text span {
+            font-weight: 700;
+            color: #c47a5a;
+        }
+        .logo-sub {
+            font-size: 0.75rem;
+            color: #7a9e7e;
+            font-style: italic;
+            display: block;
+            margin-top: -4px;
+        }
+
         .btn-secondary {
             background: #e8ddd0;
             color: #1a4a4a;
@@ -67,16 +109,16 @@
             display: inline-block;
             transition: 0.3s;
         }
-        .btn-secondary:hover { background: #1a4a4a; color: #f5f0eb; }
-        .footer {
-            text-align: center;
-            color: #a8a09a;
-            font-size: 0.8rem;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #d4c8b8;
+        .btn-secondary:hover {
+            background: #1a4a4a;
+            color: #f5f0eb;
         }
-        .search-container { margin: 20px 0; position: relative; }
+
+        /* Search Container */
+        .search-container {
+            margin: 20px 0;
+            position: relative;
+        }
         .search-container input {
             width: 100%;
             padding: 16px 20px;
@@ -95,6 +137,8 @@
         .search-container input::placeholder {
             color: #a8a09a;
         }
+
+        /* Dropdown */
         .dropdown {
             position: absolute;
             top: 100%;
@@ -108,9 +152,11 @@
             display: none;
             z-index: 100;
             margin-top: 4px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
-        .dropdown.show { display: block; }
+        .dropdown.show {
+            display: block;
+        }
         .dropdown-item {
             padding: 12px 20px;
             cursor: pointer;
@@ -120,10 +166,22 @@
             align-items: center;
             transition: 0.2s;
         }
-        .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: #e8ddd0; }
-        .dropdown-item .country { font-weight: 600; color: #1a4a4a; }
-        .dropdown-item .emergency { color: #c47a5a; font-weight: 700; }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item:hover {
+            background: #e8ddd0;
+        }
+        .dropdown-item .country {
+            font-weight: 600;
+            color: #1a4a4a;
+        }
+        .dropdown-item .emergency {
+            color: #c47a5a;
+            font-weight: 700;
+        }
+
+        /* Result Card */
         .result-card {
             background: #f5f0eb;
             padding: 30px;
@@ -132,6 +190,17 @@
             text-align: center;
             margin-top: 20px;
             display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .result-card .number {
             font-size: 4rem;
@@ -161,8 +230,15 @@
             text-decoration: none;
             transition: 0.3s;
         }
-        .result-card .call-btn:hover { background: #c47a5a; transform: scale(1.02); }
-        .result-card .call-btn:active { transform: scale(0.98); }
+        .result-card .call-btn:hover {
+            background: #c47a5a;
+            transform: scale(1.02);
+        }
+        .result-card .call-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* No Result */
         .no-result {
             text-align: center;
             padding: 30px;
@@ -173,7 +249,13 @@
             border: 1px solid #d4c8b8;
             margin-top: 20px;
         }
-        .no-result .big-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+        .no-result .big-emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Quick Grid */
         .quick-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -191,30 +273,75 @@
             text-align: center;
             font-family: inherit;
         }
-        .quick-btn:hover { background: #d4c8b8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-        .quick-btn:active { transform: translateY(0); }
-        .quick-btn .num { display: block; font-size: 1.3rem; color: #1a4a4a; font-weight: 700; }
-        .quick-btn .name { font-size: 0.85rem; color: #7a9e7e; margin-top: 2px; }
+        .quick-btn:hover {
+            background: #d4c8b8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+        .quick-btn:active {
+            transform: translateY(0);
+        }
+        .quick-btn .num {
+            display: block;
+            font-size: 1.3rem;
+            color: #1a4a4a;
+            font-weight: 700;
+        }
+        .quick-btn .name {
+            font-size: 0.85rem;
+            color: #7a9e7e;
+            margin-top: 2px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #a8a09a;
+            font-size: 0.8rem;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c8b8;
+        }
+
+        /* Responsive */
         @media (max-width: 600px) {
-            .header { flex-direction: column; align-items: stretch; gap: 12px; }
-            .logo-text { font-size: 1.4rem; }
-            .result-card .number { font-size: 3rem; }
-            .quick-grid { grid-template-columns: 1fr 1fr; }
-            .result-card { padding: 20px; }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .logo-text {
+                font-size: 1.4rem;
+            }
+            .result-card .number {
+                font-size: 3rem;
+            }
+            .quick-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .result-card {
+                padding: 20px;
+            }
+            .btn-secondary {
+                text-align: center;
+            }
         }
         @media (max-width: 400px) {
-            .quick-grid { grid-template-columns: 1fr; }
-            .btn-secondary { text-align: center; }
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- Crisis Banner -->
         <div class="crisis-banner">
             🆘 <strong>Global Emergency Numbers</strong> — Find help anywhere in the world
         </div>
 
+        <!-- Header -->
         <header class="header">
             <a href="index.html" class="logo">
                 <span class="logo-icon">⚓</span>
@@ -226,11 +353,13 @@
             <a href="index.html" class="btn-secondary">← Back</a>
         </header>
 
+        <!-- Search -->
         <div class="search-container">
             <input type="text" id="countrySearch" placeholder="🔍 Search for a country (e.g., Bangladesh, UK, USA)" autocomplete="off" />
             <div class="dropdown" id="dropdown"></div>
         </div>
 
+        <!-- Quick Buttons -->
         <div class="quick-grid">
             <button class="quick-btn" onclick="searchCountry('United States')">
                 <span class="num">911</span>
@@ -258,6 +387,7 @@
             </button>
         </div>
 
+        <!-- Result -->
         <div id="resultCard" class="result-card">
             <div class="country-name" id="resultCountry">United States</div>
             <div class="number" id="resultNumber">911</div>
@@ -265,12 +395,14 @@
             <a href="tel:911" id="callBtn" class="call-btn">📞 Call Now</a>
         </div>
 
+        <!-- No Result -->
         <div id="noResult" class="no-result">
             <span class="big-emoji">🔍</span>
             ❌ No emergency number found for this country.<br />
             <span style="font-size:0.9rem;color:#7a9e7e;">Please check your spelling or try another country.</span>
         </div>
 
+        <!-- Footer -->
         <footer class="footer">
             ⚓ The Harbor &mdash; Emergency Numbers &bull; 🔒 Secure
         </footer>
@@ -278,7 +410,21 @@
 
     <script>
         // ============================================
-        // COUNTRY DATA
+        // FIREBASE CONFIG (for auth)
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+            authDomain: "the-harbor-community.firebaseapp.com",
+            projectId: "the-harbor-community",
+            storageBucket: "the-harbor-community.firebasestorage.app",
+            messagingSenderId: "634248505303",
+            appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // ============================================
+        // COUNTRY DATA (190+ countries)
         // ============================================
         const countries = [
             { code: 'AF', name: 'Afghanistan', emergency: '119', note: 'Police' },
@@ -487,11 +633,19 @@
             const result = countries.find(c => c.name.toLowerCase() === name.toLowerCase());
             if (result) {
                 showResult(result);
+                dropdown.classList.remove('show');
             } else {
-                resultCard.style.display = 'none';
-                noResult.style.display = 'block';
+                // Try partial match
+                const partial = countries.filter(c => c.name.toLowerCase().includes(name.toLowerCase()));
+                if (partial.length > 0) {
+                    showResult(partial[0]);
+                    dropdown.classList.remove('show');
+                } else {
+                    resultCard.style.display = 'none';
+                    noResult.style.display = 'block';
+                    dropdown.classList.remove('show');
+                }
             }
-            dropdown.classList.remove('show');
         }
 
         function showResult(result) {
@@ -499,55 +653,61 @@
             const numberEl = document.getElementById('resultNumber');
             const noteEl = document.getElementById('resultNote');
             const callBtn = document.getElementById('callBtn');
-            
+
             if (countryEl) countryEl.textContent = result.name;
             if (numberEl) numberEl.textContent = result.emergency;
             if (noteEl) noteEl.textContent = '📞 ' + result.note;
             if (callBtn) callBtn.href = 'tel:' + result.emergency;
-            
+
             resultCard.style.display = 'block';
             noResult.style.display = 'none';
         }
 
         // ============================================
-        // SEARCH INPUT HANDLER
+        // SEARCH INPUT HANDLER (with debounce)
         // ============================================
+        let searchTimeout;
+
         searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
             const query = this.value.toLowerCase().trim();
-            
+
             if (!query) {
                 dropdown.classList.remove('show');
-                resultCard.style.display = 'none';
-                noResult.style.display = 'none';
+                // Show default result when cleared
+                const defaultCountry = countries.find(c => c.name === 'United States');
+                if (defaultCountry) showResult(defaultCountry);
                 return;
             }
 
-            const matches = countries.filter(c => c.name.toLowerCase().includes(query));
-            
-            if (matches.length > 0) {
-                dropdown.innerHTML = '';
-                matches.slice(0, 10).forEach(c => {
-                    const div = document.createElement('div');
-                    div.className = 'dropdown-item';
-                    div.innerHTML = `
-                        <span class="country">${c.name}</span>
-                        <span class="emergency">${c.emergency}</span>
-                    `;
-                    div.onclick = function() {
-                        searchInput.value = c.name;
-                        showResult(c);
-                        dropdown.classList.remove('show');
-                    };
-                    dropdown.appendChild(div);
-                });
-                dropdown.classList.add('show');
-                resultCard.style.display = 'none';
-                noResult.style.display = 'none';
-            } else {
-                dropdown.classList.remove('show');
-                resultCard.style.display = 'none';
-                noResult.style.display = 'block';
-            }
+            searchTimeout = setTimeout(() => {
+                const matches = countries.filter(c => c.name.toLowerCase().includes(query));
+
+                if (matches.length > 0) {
+                    dropdown.innerHTML = '';
+                    matches.slice(0, 10).forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'dropdown-item';
+                        div.innerHTML = `
+                            <span class="country">${c.name}</span>
+                            <span class="emergency">${c.emergency}</span>
+                        `;
+                        div.onclick = function() {
+                            searchInput.value = c.name;
+                            showResult(c);
+                            dropdown.classList.remove('show');
+                        };
+                        dropdown.appendChild(div);
+                    });
+                    dropdown.classList.add('show');
+                    resultCard.style.display = 'none';
+                    noResult.style.display = 'none';
+                } else {
+                    dropdown.classList.remove('show');
+                    resultCard.style.display = 'none';
+                    noResult.style.display = 'block';
+                }
+            }, 200);
         });
 
         // ============================================
@@ -566,25 +726,62 @@
             if (e.key === 'Enter') {
                 const query = this.value.trim();
                 if (query) {
-                    const result = countries.find(c => c.name.toLowerCase() === query.toLowerCase());
+                    // Try exact match first
+                    let result = countries.find(c => c.name.toLowerCase() === query.toLowerCase());
                     if (result) {
                         showResult(result);
                         dropdown.classList.remove('show');
+                        return;
+                    }
+                    // Try partial match
+                    const partial = countries.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
+                    if (partial.length > 0) {
+                        showResult(partial[0]);
+                        dropdown.classList.remove('show');
                     } else {
-                        // Try partial match
-                        const partial = countries.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
-                        if (partial.length > 0) {
-                            showResult(partial[0]);
-                            dropdown.classList.remove('show');
-                        } else {
-                            resultCard.style.display = 'none';
-                            noResult.style.display = 'block';
-                            dropdown.classList.remove('show');
-                        }
+                        resultCard.style.display = 'none';
+                        noResult.style.display = 'block';
+                        dropdown.classList.remove('show');
                     }
                 }
             }
+            // Escape key to close dropdown
+            if (e.key === 'Escape') {
+                dropdown.classList.remove('show');
+            }
         });
+
+        // ============================================
+        // KEYBOARD NAVIGATION (Arrow keys)
+        // ============================================
+        let selectedIndex = -1;
+
+        searchInput.addEventListener('keydown', function(e) {
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                highlightItem(items, selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                highlightItem(items, selectedIndex);
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                items[selectedIndex].click();
+            }
+        });
+
+        function highlightItem(items, index) {
+            items.forEach((item, i) => {
+                item.style.background = i === index ? '#d4c8b8' : '';
+            });
+            if (index >= 0 && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
 
         // ============================================
         // SHOW DEFAULT RESULT
@@ -592,20 +789,21 @@
         function showDefaultResult() {
             const defaultCountry = countries.find(c => c.name === 'United States');
             if (defaultCountry) {
-                const countryEl = document.getElementById('resultCountry');
-                const numberEl = document.getElementById('resultNumber');
-                const noteEl = document.getElementById('resultNote');
-                const callBtn = document.getElementById('callBtn');
-                
-                if (countryEl) countryEl.textContent = defaultCountry.name;
-                if (numberEl) numberEl.textContent = defaultCountry.emergency;
-                if (noteEl) noteEl.textContent = '📞 ' + defaultCountry.note;
-                if (callBtn) callBtn.href = 'tel:' + defaultCountry.emergency;
-                
-                resultCard.style.display = 'block';
-                noResult.style.display = 'none';
+                showResult(defaultCountry);
             }
         }
+
+        // ============================================
+        // AUTH STATE (for header)
+        // ============================================
+        // Simple auth state - just log if user is logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('👤 User logged in:', user.email);
+            } else {
+                console.log('👤 Not logged in');
+            }
+        });
 
         // ============================================
         // INIT
@@ -613,7 +811,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Show default result after a small delay
             setTimeout(showDefaultResult, 300);
-            
+
+            // Set placeholder text based on browser language
+            const lang = navigator.language || 'en';
+            if (lang.startsWith('bn')) {
+                searchInput.placeholder = '🔍 দেশ খুঁজুন (যেমন: বাংলাদেশ, ভারত)';
+            } else if (lang.startsWith('hi')) {
+                searchInput.placeholder = '🔍 देश खोजें (जैसे: भारत, बांग्लादेश)';
+            }
+
             console.log('🆘 Emergency numbers loaded:', countries.length, 'countries');
             console.log('📞 Search for any country to find emergency numbers');
         });
