@@ -5,19 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Story — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
-    ">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -60,6 +52,60 @@
             margin-top: 20px;
             padding-top: 20px;
             border-top: 2px solid #d4c8b8;
+        }
+
+        .emoji-btn {
+            background: #e8ddd0;
+            border: 1px solid #d4c8b8;
+            border-radius: 30px;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .emoji-btn:hover {
+            background: #d4c8b8;
+            transform: scale(1.08);
+        }
+        .emoji-btn:active {
+            transform: scale(0.9);
+        }
+        .emoji-btn .count {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #7a9e7e;
+            margin-left: 6px;
+        }
+        .emoji-btn .checkmark {
+            color: #27ae60;
+            font-size: 0.8rem;
+            margin-left: 4px;
+        }
+        .emoji-btn.reacted {
+            background: #d4e8d4;
+            border-color: #27ae60;
+        }
+        .emoji-btn.reacted .count {
+            color: #27ae60;
+        }
+        .emoji-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .floating-emoji {
+            position: fixed;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 1.5s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
+            50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); }
+            100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
         }
 
         .comment-section {
@@ -113,19 +159,6 @@
             align-items: center;
         }
 
-        .floating-emoji {
-            position: fixed;
-            font-size: 3rem;
-            pointer-events: none;
-            z-index: 9999;
-            animation: floatUp 1.5s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
-            50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); }
-            100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
-        }
-
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -173,6 +206,46 @@
             border-radius: 16px;
             border: 1px solid #d4c8b8;
         }
+
+        .btn-primary {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: #c47a5a;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e8ddd0;
+            color: #1a4a4a;
+            padding: 10px 28px;
+            border: 2px solid #1a4a4a;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: #1a4a4a;
+            color: #f5f0eb;
+        }
+
+        @media (max-width: 600px) {
+            .story-full { padding: 16px; }
+            .emoji-btn { padding: 4px 10px; font-size: 1rem; }
+        }
     </style>
 </head>
 
@@ -185,6 +258,8 @@
         <div class="header-right">
             <a href="about.html" class="btn btn-nav">🌿 About</a>
             <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <a href="category.html" class="btn btn-nav">📂 Categories</a>
+            <a href="activity.html" class="btn btn-nav">📊 Activity</a>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -247,6 +322,8 @@
             <a href="submit.html">📝 Share Story</a>
             <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
+            <a href="category.html">📂 Categories</a>
+            <a href="activity.html">📊 Activity</a>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
             &copy; 2026 The Harbor — Built with 💚 for the community
@@ -307,71 +384,745 @@
     </div>
 
     <script>
-        // ============================================
-        // COUNTRY DATA
-        // ============================================
-        const countries = [
-            { name: 'United States', emergency: '911' },
-            { name: 'United Kingdom', emergency: '999' },
-            { name: 'Bangladesh', emergency: '999' },
-            { name: 'India', emergency: '112' },
-            { name: 'Canada', emergency: '911' },
-            { name: 'Australia', emergency: '000' },
-            { name: 'Germany', emergency: '112' },
-            { name: 'France', emergency: '112' },
-            { name: 'Italy', emergency: '112' },
-            { name: 'Spain', emergency: '112' },
-            { name: 'Brazil', emergency: '190' },
-            { name: 'Mexico', emergency: '911' }
-        ];
+    // ============================================
+    // FIREBASE CONFIG
+    // ============================================
+    var firebaseConfig = {
+        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+        authDomain: "the-harbor-community.firebaseapp.com",
+        projectId: "the-harbor-community",
+        storageBucket: "the-harbor-community.firebasestorage.app",
+        messagingSenderId: "634248505303",
+        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
 
-        // Populate country datalist
-        function populateCountryDatalist() {
-            const datalist = document.getElementById('country-list');
-            if (!datalist) return;
-            datalist.innerHTML = '';
-            countries.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.name;
-                datalist.appendChild(option);
+    var currentUser = null;
+    var currentUserData = null;
+    var userReactions = {};
+
+    // ============================================
+    // COUNTRY DATA
+    // ============================================
+    var countries = [
+        { name: 'United States', emergency: '911' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'India', emergency: '112' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Mexico', emergency: '911' }
+    ];
+
+    function populateCountryDatalist() {
+        var datalist = document.getElementById('country-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        countries.forEach(function(c) {
+            var option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
+        });
+    }
+    populateCountryDatalist();
+
+    // ============================================
+    // SECURITY FUNCTIONS
+    // ============================================
+    function sanitizeInput(text) {
+        if (!text) return '';
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
+    }
+
+    function escapeHTML(text) {
+        if (!text) return '';
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    }
+
+    function checkPasswordStrength(password) {
+        var score = 0;
+        if (password.length >= 8) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[a-z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+        var common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+        if (!common.some(function(pwd) { return password.toLowerCase().includes(pwd); })) score += 10;
+        var strength = 'weak', color = '#c0392b';
+        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
+        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
+        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
+        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
+        else { strength = 'very-weak'; color = '#c0392b'; }
+        return { score: score, strength: strength, color: color };
+    }
+
+    function checkUsernameAvailability(username) {
+        if (!username || username.length < 2) return Promise.resolve(false);
+        return db.collection('users').where('name', '==', username).get().then(function(s) { return s.empty; });
+    }
+
+    function checkUsernameOnType() {
+        var nameInput = document.getElementById('authName');
+        var statusDiv = document.getElementById('usernameStatus');
+        if (!nameInput || !statusDiv) return;
+        var username = nameInput.value.trim();
+        if (username.length < 2) { statusDiv.innerHTML = ''; return; }
+        checkUsernameAvailability(username).then(function(available) {
+            statusDiv.innerHTML = available ?
+                '<span style="color:#27ae60;">✅ Username available!</span>' :
+                '<span style="color:#c0392b;">❌ Username taken</span>';
+        });
+    }
+
+    function updateGenderWarning() {
+        var genderSelect = document.getElementById('authGender');
+        var warning = document.getElementById('genderWarning');
+        var text = document.getElementById('genderWarningText');
+        if (!genderSelect) return;
+        var gender = genderSelect.value;
+        if (gender === '🧔 Man') {
+            text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
+            warning.classList.add('show');
+        } else if (gender === '👩 Woman') {
+            text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
+            warning.classList.add('show');
+        } else {
+            text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
+            warning.classList.add('show');
+        }
+    }
+
+    function openModal(mode) {
+        var modal = document.getElementById('authModal');
+        if (!modal) return;
+        var title = document.getElementById('modalTitle');
+        var submitBtn = document.getElementById('authSubmitBtn');
+        var signupFields = document.getElementById('signupFields');
+        var switchLink = document.getElementById('authSwitch');
+        var error = document.getElementById('authError');
+        if (error) error.textContent = '';
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        document.getElementById('authFavorites').value = '';
+        document.getElementById('authCountry').value = '';
+        document.getElementById('passwordStrength').innerHTML = '';
+        document.getElementById('usernameStatus').innerHTML = '';
+        if (mode === 'login') {
+            title.textContent = '🔐 Welcome Back';
+            submitBtn.textContent = '🚀 Log In';
+            signupFields.style.display = 'none';
+            switchLink.innerHTML = 'Don\'t have an account? <strong>Sign Up</strong>';
+            switchLink.dataset.mode = 'signup';
+        } else {
+            title.textContent = '📝 Join The Harbor';
+            submitBtn.textContent = '🚀 Create Account';
+            signupFields.style.display = 'block';
+            populateCountryDatalist();
+            switchLink.innerHTML = 'Already have an account? <strong>Log In</strong>';
+            switchLink.dataset.mode = 'login';
+        }
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').style.display = 'none';
+    }
+
+    function toggleAuthMode() {
+        var switchLink = document.getElementById('authSwitch');
+        if (!switchLink) return;
+        var mode = switchLink.dataset.mode;
+        closeModal();
+        setTimeout(function() { openModal(mode); }, 200);
+    }
+
+    function handleAuth() {
+        var emailInput = document.getElementById('authEmail');
+        var passwordInput = document.getElementById('authPassword');
+        var error = document.getElementById('authError');
+        var submitBtn = document.getElementById('authSubmitBtn');
+        var email = emailInput.value.trim();
+        var password = passwordInput.value;
+        error.textContent = '';
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            error.textContent = 'Please enter a valid email address.';
+            return;
+        }
+        if (!password || password.length < 6) {
+            error.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+        var isLogin = submitBtn.textContent.includes('Log In');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Please wait...';
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then(function(userCredential) {
+                    var user = userCredential.user;
+                    if (!user.emailVerified) {
+                        error.textContent = '⚠️ Please verify your email first.';
+                        auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        return;
+                    }
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                })
+                .catch(function(err) {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                });
+        } else {
+            var nameInput = document.getElementById('authName');
+            var genderSelect = document.getElementById('authGender');
+            var favoritesInput = document.getElementById('authFavorites');
+            var countryInput = document.getElementById('authCountry');
+            var name = nameInput ? nameInput.value.trim() : '';
+            var gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+            var favorites = favoritesInput ? favoritesInput.value.trim() : '';
+            var country = countryInput ? countryInput.value.trim() : '';
+            if (!name || name.length < 2) {
+                error.textContent = 'Please enter a username (minimum 2 characters).';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            if (!country) {
+                error.textContent = 'Please select your country.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            checkUsernameAvailability(name)
+                .then(function(available) {
+                    if (!available) {
+                        error.textContent = '❌ Username is already taken.';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                        return Promise.reject('Username taken');
+                    }
+                    return auth.createUserWithEmailAndPassword(email, password);
+                })
+                .then(function(userCredential) {
+                    var user = userCredential.user;
+                    return user.sendEmailVerification().then(function() { return user; });
+                })
+                .then(function(user) {
+                    var countryData = countries.find(function(c) { return c.name === country; });
+                    return db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        gender: gender,
+                        favorites: favorites || 'Not specified',
+                        country: country,
+                        emergencyNumber: countryData ? countryData.emergency : '911',
+                        emailVerified: false,
+                        isAdmin: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(function() {
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    auth.signOut();
+                    alert('✅ Verification email sent! Please check your inbox.');
+                })
+                .catch(function(err) {
+                    if (err !== 'Username taken') {
+                        error.textContent = err.message;
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                });
+        }
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged(function(user) {
+        var authButtons = document.getElementById('authButtons');
+        var userInfo = document.getElementById('userInfo');
+        var userName = document.getElementById('userName');
+        var userGenderBadge = document.getElementById('userGenderBadge');
+        var verificationBadge = document.getElementById('verificationBadge');
+
+        if (user) {
+            currentUser = user;
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+
+            if (user.emailVerified) {
+                verificationBadge.textContent = '✅ Verified';
+                verificationBadge.className = 'verification-badge verified';
+            } else {
+                verificationBadge.textContent = '⏳ Unverified';
+                verificationBadge.className = 'verification-badge';
+            }
+
+            db.collection('users').doc(user.uid).get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        userName.textContent = currentUserData.name || 'Friend';
+                        userGenderBadge.textContent = currentUserData.gender || '';
+                        // Load user reactions
+                        loadUserReactions();
+                        // Load story if on story page
+                        if (window.location.pathname.includes('story.html')) {
+                            loadStory();
+                        }
+                    }
+                })
+                .catch(function(err) { console.error('Error fetching user data:', err); });
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
+        }
+    });
+
+    // ============================================
+    // FLOATING EMOJI
+    // ============================================
+    function createFloatingEmoji(emoji, x, y) {
+        var el = document.createElement('div');
+        el.className = 'floating-emoji';
+        el.textContent = emoji;
+        var offsetX = (Math.random() - 0.5) * 200;
+        var offsetY = (Math.random() - 0.5) * 100;
+        el.style.left = (x + offsetX) + 'px';
+        el.style.top = (y + offsetY) + 'px';
+        el.style.fontSize = (2 + Math.random() * 2) + 'rem';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 1600);
+    }
+
+    // ============================================
+    // LOAD STORY
+    // ============================================
+    function loadStory() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var storyId = urlParams.get('id');
+        var content = document.getElementById('storyContent');
+        if (!content) return;
+        if (!storyId) {
+            content.innerHTML = '<div class="empty-state"><h3>No story selected</h3><a href="index.html">Go back home</a></div>';
+            return;
+        }
+        content.innerHTML = '<div class="loading">⏳ Loading story...</div>';
+        db.collection('stories').doc(storyId).get()
+            .then(function(doc) {
+                if (!doc.exists) {
+                    content.innerHTML = '<div class="empty-state"><h3>Story not found</h3><a href="index.html">Go back home</a></div>';
+                    return;
+                }
+                var story = doc.data();
+                story.id = doc.id;
+                content.innerHTML = renderFullStory(story);
+                loadComments(storyId);
+            })
+            .catch(function(err) {
+                content.innerHTML = '<div class="empty-state"><h3>Error loading story</h3><p>' + err.message + '</p></div>';
+            });
+    }
+
+    function renderFullStory(story) {
+        var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+        var categoryNames = {
+            'men': '🧔 Men\'s Harbor',
+            'women': '👩 Women\'s Harbor',
+            'struggles': '🌊 The Storm',
+            'fun': '☀️ Sunny Skies',
+            'learning': '🧭 The Compass'
+        };
+        var categoryDisplay = categoryNames[story.category] || story.category;
+        var time = story.createdAt ? story.createdAt.toDate().toLocaleString() : 'Recently';
+        var reactions = story.reactions || {};
+        var emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+
+        var hasReacted = userReactions[story.id] || [];
+
+        var reactionButtons = '';
+        emojis.forEach(function(emoji) {
+            var count = reactions[emoji] || 0;
+            var reacted = hasReacted.includes(emoji);
+            reactionButtons += `
+                <button class="emoji-btn ${reacted ? 'reacted' : ''}" 
+                        id="reaction-${story.id}-${emoji}" 
+                        onclick="toggleReaction('${story.id}', '${emoji}')">
+                    ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
+                    ${reacted ? '<span class="checkmark">✅</span>' : ''}
+                </button>
+            `;
+        });
+
+        return `
+            <div class="story-full" id="storyCard">
+                <div class="title">${escapeHTML(story.title)}</div>
+                <div class="meta">
+                    <span>✍️ ${author}</span>
+                    <span class="category-badge">${categoryDisplay}</span>
+                    <span>📅 ${time}</span>
+                    ${story.flagged ? '<span style="color:#f39c12;">⚠️ Content Warning</span>' : ''}
+                </div>
+                <div class="content">${escapeHTML(story.text || '')}</div>
+                <div class="actions">
+                    ${reactionButtons}
+                </div>
+            </div>
+        `;
+    }
+
+    // ============================================
+    // TOGGLE REACTION (Add/Remove - No Spam)
+    // ============================================
+    function toggleReaction(storyId, emoji) {
+        if (!currentUser) {
+            alert('Please log in to react.');
+            return;
+        }
+
+        if (!currentUser.emailVerified) {
+            alert('Please verify your email first.');
+            return;
+        }
+
+        var storyRef = db.collection('stories').doc(storyId);
+        var userReactionRef = db.collection('users').doc(currentUser.uid)
+            .collection('reactions').doc(storyId);
+
+        var hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
+
+        // Floating emoji
+        var rect = document.getElementById('storyCard')?.getBoundingClientRect();
+        var x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+        var y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+        createFloatingEmoji(emoji, x, y);
+
+        // Disable button temporarily to prevent spam
+        var btn = document.getElementById('reaction-' + storyId + '-' + emoji);
+        if (btn) btn.disabled = true;
+
+        db.runTransaction(function(transaction) {
+            return transaction.get(storyRef).then(function(doc) {
+                if (!doc.exists) return;
+                var data = doc.data();
+                var reactions = data.reactions || {};
+
+                if (hasReacted) {
+                    // REMOVE reaction
+                    reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                    if (userReactions[storyId]) {
+                        userReactions[storyId] = userReactions[storyId].filter(function(e) { return e !== emoji; });
+                    }
+                } else {
+                    // ADD reaction
+                    reactions[emoji] = (reactions[emoji] || 0) + 1;
+                    if (!userReactions[storyId]) userReactions[storyId] = [];
+                    userReactions[storyId].push(emoji);
+                }
+
+                transaction.update(storyRef, { reactions: reactions });
+                transaction.set(userReactionRef, { emojis: userReactions[storyId] || [] });
+            });
+        })
+        .then(function() {
+            if (btn) btn.disabled = false;
+
+            // Update UI instantly
+            var countSpan = document.getElementById('count-' + storyId + '-' + emoji);
+            if (countSpan) {
+                var currentCount = parseInt(countSpan.textContent) || 0;
+                countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+            }
+
+            if (btn) {
+                if (hasReacted) {
+                    btn.classList.remove('reacted');
+                    var checkmark = btn.querySelector('.checkmark');
+                    if (checkmark) checkmark.remove();
+                } else {
+                    btn.classList.add('reacted');
+                    if (!btn.querySelector('.checkmark')) {
+                        btn.innerHTML += ' <span class="checkmark">✅</span>';
+                    }
+                }
+            }
+        })
+        .catch(function(err) {
+            console.error('Error toggling reaction:', err);
+            if (btn) btn.disabled = false;
+            alert('Could not update reaction. Please try again.');
+        });
+    }
+
+    // ============================================
+    // LOAD USER REACTIONS
+    // ============================================
+    function loadUserReactions() {
+        if (!currentUser) return;
+
+        db.collection('users').doc(currentUser.uid)
+            .collection('reactions').get()
+            .then(function(snapshot) {
+                snapshot.forEach(function(doc) {
+                    userReactions[doc.id] = doc.data().emojis || [];
+                });
+            })
+            .catch(function(err) {
+                console.error('Error loading user reactions:', err);
+            });
+    }
+
+    // ============================================
+    // LOAD COMMENTS
+    // ============================================
+    function loadComments(storyId) {
+        var container = document.getElementById('commentsContainer');
+        if (!container) return;
+
+        container.innerHTML = '<div class="loading">⏳ Loading comments...</div>';
+
+        db.collection('comments')
+            .where('storyId', '==', storyId)
+            .where('approved', '==', true)
+            .get()
+            .then(function(snapshot) {
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state" style="padding:20px;"><p style="color:#7a9e7e;">No comments yet.</p></div>';
+                    return;
+                }
+
+                var comments = [];
+                snapshot.forEach(function(doc) {
+                    var c = doc.data();
+                    c.id = doc.id;
+                    comments.push(c);
+                });
+
+                comments.sort(function(a, b) {
+                    var ta = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                    var tb = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                    return tb - ta;
+                });
+
+                var html = '<h3 style="margin-bottom:16px;">💬 Comments</h3>';
+                comments.forEach(function(c) {
+                    html += renderComment(c);
+                });
+                container.innerHTML = html;
+            })
+            .catch(function(err) {
+                container.innerHTML = '<div class="empty-state"><p>Error loading comments</p><button class="btn-primary" onclick="loadComments(\'' + storyId + '\')" style="margin-top:10px;">🔄 Retry</button></div>';
+            });
+    }
+
+    function renderComment(comment) {
+        var author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
+        var time = comment.createdAt ? comment.createdAt.toDate().toLocaleString() : 'Recently';
+        var likes = comment.likes || 0;
+        var isOwner = currentUser && comment.userId === currentUser.uid;
+
+        return `
+            <div class="comment" id="comment-${comment.id}">
+                <div class="meta">
+                    <span>✍️ ${author}</span>
+                    <span>📅 ${time}</span>
+                </div>
+                <div class="text">${escapeHTML(comment.text)}</div>
+                <div class="actions">
+                    <button class="emoji-btn" onclick="likeComment('${comment.id}')" style="padding:2px 12px;font-size:0.85rem;">
+                        👍 <span class="count">${likes}</span>
+                    </button>
+                    ${isOwner ? '<button onclick="deleteComment(\'' + comment.id + '\')" style="background:#c0392b;color:white;border:none;border-radius:20px;padding:2px 14px;cursor:pointer;font-size:0.75rem;">Delete</button>' : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    function postComment() {
+        if (!currentUser) {
+            alert('Please log in to comment.');
+            return;
+        }
+        if (!currentUser.emailVerified) {
+            alert('Please verify your email first.');
+            return;
+        }
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var storyId = urlParams.get('id');
+        var textInput = document.getElementById('commentText');
+        var anonymousCheck = document.getElementById('commentAnonymous');
+        var error = document.getElementById('commentError');
+
+        if (!textInput || !error) return;
+
+        var text = sanitizeInput(textInput.value.trim());
+        var isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
+
+        error.textContent = '';
+
+        if (!text || text.length < 1) {
+            error.textContent = 'Please write a comment.';
+            return;
+        }
+        if (text.length > 1000) {
+            error.textContent = 'Comment must be under 1000 characters.';
+            return;
+        }
+
+        var inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
+        var containsInappropriate = inappropriateWords.some(function(word) {
+            return text.toLowerCase().includes(word);
+        });
+
+        var submitBtn = document.getElementById('commentSubmitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Posting...';
+        }
+
+        db.collection('comments').add({
+            storyId: storyId,
+            text: text,
+            userId: currentUser.uid,
+            authorName: currentUserData ? currentUserData.name : 'Someone',
+            isAnonymous: isAnonymous,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            likes: 0,
+            approved: !containsInappropriate,
+            flagged: containsInappropriate
+        })
+        .then(function() {
+            db.collection('stories').doc(storyId).update({
+                commentCount: firebase.firestore.FieldValue.increment(1)
+            });
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💬 Post Comment';
+            }
+            if (textInput) textInput.value = '';
+            document.getElementById('commentCount').textContent = '0';
+            if (containsInappropriate) alert('⚠️ Comment sent for review.');
+            loadComments(storyId);
+        })
+        .catch(function(err) {
+            error.textContent = err.message;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💬 Post Comment';
+            }
+        });
+    }
+
+    function likeComment(commentId) {
+        if (!currentUser) {
+            alert('Please log in.');
+            return;
+        }
+
+        db.collection('comments').doc(commentId).update({
+            likes: firebase.firestore.FieldValue.increment(1)
+        })
+        .then(function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            loadComments(urlParams.get('id'));
+        })
+        .catch(function(err) {
+            console.error('Error liking comment:', err);
+        });
+    }
+
+    function deleteComment(commentId) {
+        if (!confirm('Delete this comment?')) return;
+
+        db.collection('comments').doc(commentId).delete()
+            .then(function() {
+                var urlParams = new URLSearchParams(window.location.search);
+                loadComments(urlParams.get('id'));
+            })
+            .catch(function(err) {
+                console.error('Error deleting comment:', err);
+                alert('Could not delete comment.');
+            });
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        var commentText = document.getElementById('commentText');
+        var commentCount = document.getElementById('commentCount');
+        if (commentText && commentCount) {
+            commentText.addEventListener('input', function() {
+                commentCount.textContent = this.value.length;
             });
         }
+
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.getElementById('authPassword').addEventListener('input', function() {
+            var pwd = this.value;
+            var strengthDiv = document.getElementById('passwordStrength');
+            if (!strengthDiv) return;
+            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+            var result = checkPasswordStrength(pwd);
+            strengthDiv.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:' + result.color + ';font-weight:700;">' + result.strength + '</span></div>';
+        });
+
+        document.getElementById('authName').addEventListener('input', checkUsernameOnType);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                var modal = document.getElementById('authModal');
+                if (modal && modal.style.display === 'flex') handleAuth();
+            }
+        });
+
         populateCountryDatalist();
 
-        // ============================================
-        // AUTH FUNCTIONS (Local copy for safety)
-        // ============================================
-        function sanitizeInput(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.textContent;
-        }
+        console.log('✅ Story page ready');
+    });
 
-        function escapeHTML(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;',
-                '/': '&#x2F;',
-                '`': '&#x60;',
-                '=': '&#x3D;'
-            };
-            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-        }
-
-        // ============================================
-        // LOAD STORY (from app.js)
-        // ============================================
-        // This function will be called from app.js
-        // We just need to ensure the page loads
-
-        console.log('📖 Story page loaded');
+    console.log('📖 Story page loaded with toggle reactions + floating emojis');
     </script>
-
-    <script src="js/app.js"></script>
 </body>
 </html>
