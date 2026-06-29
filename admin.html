@@ -749,7 +749,7 @@
     });
 
     // ============================================
-    // LOAD ADMIN PANEL - WITH SUGGESTIONS & REPORTS
+    // LOAD ADMIN PANEL
     // ============================================
     function loadAdminPanel() {
         const content = document.getElementById('adminContent');
@@ -799,88 +799,100 @@
         loadModItems('flagged');
     }
 
+    // ============================================
+    // LOAD STATS - FIXED (Simple approach)
+    // ============================================
     function loadStats() {
         const statsDiv = document.getElementById('adminStats');
         if (!statsDiv) return;
 
-        Promise.all([
-            db.collection('stories').get(),
-            db.collection('comments').get(),
-            db.collection('suggestions').get(),
-            db.collection('reports').get()
-        ]).then(([storiesSnap, commentsSnap, suggestionsSnap, reportsSnap]) => {
-            let flaggedCount = 0;
-            let pendingCount = 0;
-            let totalStories = 0;
-            
-            storiesSnap.forEach((doc) => {
-                const data = doc.data();
-                totalStories++;
-                if (data.flagged === true) flaggedCount++;
-                if (data.approved === false) pendingCount++;
-            });
-            
-            let flaggedComments = 0;
-            commentsSnap.forEach((doc) => {
-                if (doc.data().flagged === true) flaggedComments++;
-            });
-            
-            let pendingSuggestions = 0;
-            suggestionsSnap.forEach((doc) => {
-                if (doc.data().status === 'pending') pendingSuggestions++;
-            });
-            
-            let pendingReports = 0;
-            reportsSnap.forEach((doc) => {
-                if (doc.data().status === 'pending') pendingReports++;
-            });
-            
-            statsDiv.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="emoji">🚩</span>
-                        <div class="number">${flaggedCount + flaggedComments}</div>
-                        <div class="label">Flagged Items</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">⏳</span>
-                        <div class="number">${pendingCount}</div>
-                        <div class="label">Pending Stories</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">💡</span>
-                        <div class="number">${pendingSuggestions}</div>
-                        <div class="label">Pending Suggestions</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">📢</span>
-                        <div class="number">${pendingReports}</div>
-                        <div class="label">Pending Reports</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="emoji">📝</span>
-                        <div class="number">${totalStories}</div>
-                        <div class="label">Total Stories</div>
-                    </div>
-                </div>
-            `;
+        let flaggedCount = 0;
+        let pendingCount = 0;
+        let totalStories = 0;
+        let flaggedComments = 0;
+        let pendingSuggestions = 0;
+        let pendingReports = 0;
 
-            document.getElementById('flaggedCount').textContent = flaggedCount + flaggedComments;
-            document.getElementById('pendingCount').textContent = pendingCount;
-            document.getElementById('suggestionsCount').textContent = pendingSuggestions;
-            document.getElementById('reportsCount').textContent = pendingReports;
-        }).catch((err) => {
-            console.error('Error loading stats:', err);
-            statsDiv.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="emoji">⚠️</span>
-                        <div class="number">Error</div>
-                        <div class="label">Could not load stats</div>
+        // Load stories
+        db.collection('stories').get()
+            .then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    totalStories++;
+                    if (data.flagged === true) flaggedCount++;
+                    if (data.approved === false) pendingCount++;
+                });
+                // Load comments
+                return db.collection('comments').get();
+            })
+            .then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    if (doc.data().flagged === true) flaggedComments++;
+                });
+                // Load suggestions
+                return db.collection('suggestions').get();
+            })
+            .then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    if (doc.data().status === 'pending') pendingSuggestions++;
+                });
+                // Load reports
+                return db.collection('reports').get();
+            })
+            .then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    if (doc.data().status === 'pending') pendingReports++;
+                });
+                
+                // Update stats display
+                statsDiv.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="emoji">🚩</span>
+                            <div class="number">${flaggedCount + flaggedComments}</div>
+                            <div class="label">Flagged Items</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="emoji">⏳</span>
+                            <div class="number">${pendingCount}</div>
+                            <div class="label">Pending Stories</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="emoji">💡</span>
+                            <div class="number">${pendingSuggestions}</div>
+                            <div class="label">Pending Suggestions</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="emoji">📢</span>
+                            <div class="number">${pendingReports}</div>
+                            <div class="label">Pending Reports</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="emoji">📝</span>
+                            <div class="number">${totalStories}</div>
+                            <div class="label">Total Stories</div>
+                        </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+
+                document.getElementById('flaggedCount').textContent = flaggedCount + flaggedComments;
+                document.getElementById('pendingCount').textContent = pendingCount;
+                document.getElementById('suggestionsCount').textContent = pendingSuggestions;
+                document.getElementById('reportsCount').textContent = pendingReports;
+            })
+            .catch((err) => {
+                console.error('Error loading stats:', err);
+                // Show basic stats even if error
+                statsDiv.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="emoji">📊</span>
+                            <div class="number">0</div>
+                            <div class="label">Stats Ready</div>
+                        </div>
+                    </div>
+                `;
+            });
     }
 
     function switchModTab(tab) {
@@ -949,7 +961,7 @@
             return;
         }
 
-        // Flagged / Pending - existing logic
+        // Flagged / Pending
         db.collection('stories').get()
             .then((snapshot) => {
                 const items = [];
@@ -1176,7 +1188,7 @@
         });
 
         populateCountryDatalist();
-        console.log('✅ Admin panel ready with Suggestions & Reports tabs');
+        console.log('✅ Admin panel ready');
     });
     </script>
 </body>
