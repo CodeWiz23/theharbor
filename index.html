@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Harbor — Share & Heal</title>
 
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://www.gstatic.com https://*.firebaseio.com;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
+        frame-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
@@ -13,605 +26,111 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+
     <style>
-        /* ============================================
-                   GLOBAL STYLES
-                   ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Nunito', Arial, sans-serif;
-            background: #f5efe6;
-            color: #2d3a3a;
-            padding: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* ============================================
-                   CRISIS BANNER
-                   ============================================ */
-        .crisis-banner {
-            background: #2d5a4c;
-            color: #f5efe6;
-            padding: 12px 18px;
-            border-radius: 12px;
+        /* Additional homepage-specific styles */
+        .hero {
             text-align: center;
-            font-size: 13px;
-            margin-bottom: 24px;
-            border-left: 5px solid #e8b88a;
-        }
-
-        .crisis-banner a {
-            color: #f5d6b3;
-            font-weight: bold;
-            text-decoration: underline;
-        }
-
-        /* ============================================
-                   HEADER
-                   ============================================ */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #c4d4c2;
-            margin-bottom: 20px;
-        }
-
-        .logo h1 {
-            font-size: 2rem;
-            font-weight: 300;
-            color: #2d5a4c;
-        }
-
-        .logo h1 span {
-            font-weight: 700;
-            color: #8b7a6b;
-        }
-
-        .logo .tagline {
-            font-size: 0.85rem;
-            color: #8baa8f;
-            font-style: italic;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .auth-buttons button {
-            padding: 8px 22px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 0.95rem;
-        }
-
-        .btn-login {
-            background: #c4d4c2;
-            color: #2d3a3a;
-        }
-
-        .btn-login:hover {
-            background: #8baa8f;
-            transform: scale(1.02);
-        }
-
-        .btn-signup {
-            background: #2d5a4c;
-            color: #f5efe6;
-        }
-
-        .btn-signup:hover {
-            background: #1f4036;
-            transform: scale(1.02);
-        }
-
-        .btn-logout {
-            background: #e8b88a;
-            color: #2d3a3a;
-        }
-
-        .btn-logout:hover {
-            background: #d49a6a;
-        }
-
-        /* ============================================
-                   USER INFO BAR
-                   ============================================ */
-        .user-info {
-            background: #e8f0e6;
-            padding: 10px 18px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 0.95rem;
-            border: 1px solid #c4d4c2;
-        }
-
-        .user-info .user-name {
-            font-weight: 700;
-            color: #2d5a4c;
-        }
-
-        .online-count {
-            background: #2d5a4c;
-            color: #f5efe6;
-            padding: 2px 12px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
             border-radius: 20px;
-            font-size: 0.75rem;
-            margin-left: 10px;
+            color: #f5f0eb;
+            margin-bottom: 30px;
         }
-
-        /* ============================================
-                   SEARCH BAR
-                   ============================================ */
-        .search-container {
-            margin-bottom: 20px;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 12px 20px;
-            border: 2px solid #c4d4c2;
-            border-radius: 30px;
-            font-size: 1rem;
-            background: #faf8f5;
-            transition: 0.3s;
-        }
-
-        .search-container input:focus {
-            outline: none;
-            border-color: #2d5a4c;
-            box-shadow: 0 0 0 3px rgba(45, 90, 76, 0.15);
-        }
-
-        .search-container input::placeholder {
-            color: #a8a09a;
-        }
-
-        /* ============================================
-                   CATEGORY TABS
-                   ============================================ */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #c4d4c2;
-            padding-bottom: 12px;
-        }
-
-        .tab {
-            background: #e8f0e6;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #2d3a3a;
-            transition: 0.3s;
-        }
-
-        .tab:hover {
-            background: #c4d4c2;
-        }
-
-        .tab.active {
-            background: #2d5a4c;
-            color: #f5efe6;
-        }
-
-        .tab .emoji {
-            margin-right: 6px;
-        }
-
-        /* ============================================
-                   SUBMIT STORY BUTTON
-                   ============================================ */
-        .submit-area {
-            text-align: center;
-            margin: 20px 0 30px;
-        }
-
-        .btn-submit {
-            background: #2d5a4c;
-            color: #f5efe6;
-            padding: 14px 40px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-submit:hover {
-            background: #1f4036;
-            transform: scale(1.02);
-        }
-
-        /* ============================================
-                   STORY CARDS
-                   ============================================ */
-        #storiesContainer {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .story-card {
-            background: #faf8f5;
-            padding: 20px 24px;
-            border-radius: 16px;
-            border: 1px solid #e3ddd2;
-            transition: 0.3s;
-        }
-
-        .story-card:hover {
-            box-shadow: 0 4px 16px rgba(45, 90, 76, 0.08);
-        }
-
-        .story-card .story-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #2d5a4c;
-            margin-bottom: 6px;
-        }
-
-        .story-card .story-meta {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            font-size: 0.8rem;
-            color: #8baa8f;
-            margin-bottom: 10px;
-        }
-
-        .story-card .story-meta .category-badge {
-            background: #e8f0e6;
-            padding: 2px 12px;
-            border-radius: 20px;
-            color: #2d5a4c;
-            font-weight: 600;
-        }
-
-        .story-card .story-text {
-            font-size: 1rem;
-            color: #2d3a3a;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            line-height: 1.7;
-        }
-
-        .story-card .story-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid #e3ddd2;
-        }
-
-        .emoji-btn {
-            background: #e8f0e6;
-            border: 1px solid #c4d4c2;
-            border-radius: 30px;
-            padding: 4px 14px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-
-        .emoji-btn:hover {
-            background: #c4d4c2;
-            transform: scale(1.05);
-        }
-
-        .emoji-btn:active {
-            transform: scale(0.93);
-        }
-
-        .emoji-btn .count {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #5a4f44;
-            margin-left: 4px;
-        }
-
-        .story-card .comment-link {
-            color: #8baa8f;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .story-card .comment-link:hover {
-            color: #2d5a4c;
-        }
-
-        /* ============================================
-                   LOADING / EMPTY STATE
-                   ============================================ */
-        .loading {
-            text-align: center;
-            color: #8baa8f;
-            padding: 40px 0;
-            font-size: 1.1rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #8baa8f;
-        }
-
-        .empty-state .big-emoji {
-            font-size: 3rem;
-        }
-
-        /* ============================================
-                   MODAL (Login / Signup)
-                   ============================================ */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-
-        .modal-content {
-            background: #faf8f5;
-            padding: 30px;
-            border-radius: 24px;
-            max-width: 420px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid #e3ddd2;
-        }
-
-        .modal-content .modal-close {
-            float: right;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: #a8a09a;
-            transition: 0.3s;
-        }
-
-        .modal-content .modal-close:hover {
-            color: #2d3a3a;
-        }
-
-        .modal-content h2 {
+        .hero h1 {
+            font-size: 2.8rem;
             font-weight: 300;
-            color: #2d5a4c;
-            margin-bottom: 20px;
-            font-size: 1.6rem;
         }
-
-        .modal-content label {
+        .hero h1 span {
+            color: #e8ddd0;
+            font-weight: 700;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        .hero .emoji-big {
+            font-size: 3.5rem;
             display: block;
-            font-weight: 600;
-            color: #2d3a3a;
-            margin-top: 14px;
-            font-size: 0.9rem;
-        }
-
-        .modal-content input,
-        .modal-content select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #c4d4c2;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-top: 4px;
-            background: #ffffff;
-            font-family: inherit;
-            transition: 0.3s;
-        }
-
-        .modal-content input:focus,
-        .modal-content select:focus {
-            outline: none;
-            border-color: #2d5a4c;
-        }
-
-        .modal-content .btn-modal {
-            width: 100%;
-            padding: 14px;
-            background: #2d5a4c;
-            color: #f5efe6;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 18px;
-            transition: 0.3s;
-        }
-
-        .modal-content .btn-modal:hover {
-            background: #1f4036;
-        }
-
-        .modal-content .switch-link {
-            text-align: center;
-            margin-top: 16px;
-            color: #8baa8f;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .modal-content .switch-link:hover {
-            color: #2d5a4c;
-            text-decoration: underline;
-        }
-
-        .modal-content .error-msg {
-            color: #c0392b;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        /* ============================================
-                   FOOTER
-                   ============================================ */
-        .footer {
-            text-align: center;
-            color: #a8a09a;
-            font-size: 0.8rem;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #c4d4c2;
-        }
-
-        /* ============================================
-                   RESPONSIVE
-                   ============================================ */
-        @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-            .auth-buttons {
-                justify-content: center;
-            }
-            .logo h1 {
-                font-size: 1.6rem;
-                text-align: center;
-            }
-            .logo .tagline {
-                text-align: center;
-            }
-            .tabs {
-                justify-content: center;
-            }
-            .tab {
-                font-size: 0.8rem;
-                padding: 6px 14px;
-            }
-            .story-card {
-                padding: 16px;
-            }
-            .modal-content {
-                padding: 20px;
-            }
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
 <body>
-    <!-- ============================================
-    CRISIS BANNER
-    ============================================ -->
-    <div class="crisis-banner">
-        ⚠️ <strong>Peer support only.</strong> Not a crisis line.
-        If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
-        or your local emergency number.
-    </div>
-
-    <!-- ============================================
-    HEADER
-    ============================================ -->
-    <header class="header">
-        <div class="logo">
-            <h1>⚓ The <span>Harbor</span></h1>
-            <div class="tagline">A safe place to share, heal, and grow</div>
+    <div class="container">
+        <!-- Crisis Banner -->
+        <div class="crisis-banner">
+            ⚠️ <strong>Peer support only.</strong> Not a crisis line.
+            If you're in danger, call <a href="https://988lifeline.org/" target="_blank">988 (US)</a>
+            or your local emergency number.
         </div>
-        <div class="auth-buttons" id="authButtons">
-            <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
+
+        <!-- Header -->
+        <header class="header">
+            <a href="index.html" class="logo" style="text-decoration:none;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="logo-icon">⚓</span>
+                    <div>
+                        <span class="logo-text">The <span>Harbor</span></span>
+                        <span class="logo-sub">A safe place to share, heal, and grow</span>
+                    </div>
+                </div>
+            </a>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+        </header>
+
+        <!-- User Info -->
+        <div class="user-info" id="userInfo">
+            👤 Welcome, <span class="user-name" id="userName">—</span>
+            <span id="userGenderDisplay"></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
-    </header>
 
-    <!-- ============================================
-    USER INFO BAR
-    ============================================ -->
-    <div class="user-info" id="userInfo">
-        👤 Welcome, <span class="user-name" id="userName">—</span>
-        <span id="userGenderDisplay"></span>
-        <span class="online-count" id="onlineCount">● 0 online</span>
-        <button class="btn-logout" onclick="logout()">Logout</button>
+        <!-- Hero -->
+        <div class="hero">
+            <span class="emoji-big">⚓</span>
+            <h1>Welcome to The <span>Harbor</span></h1>
+            <p>A safe space to share your story, find support, and discover hope.</p>
+            <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="submit.html" class="btn-primary" style="text-decoration:none;display:inline-block;">📝 Share Your Story</a>
+                <a href="about.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">🌿 About Us</a>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Search stories... (e.g., anxiety, grief, hope)" onkeyup="searchStories()" />
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="tabs" id="categoryTabs">
+            <button class="tab active" data-category="all" onclick="switchCategory('all')">📖 All</button>
+            <button class="tab" data-category="men" onclick="switchCategory('men')">🧔 Men's Harbor</button>
+            <button class="tab" data-category="women" onclick="switchCategory('women')">👩 Women's Harbor</button>
+            <button class="tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm</button>
+            <button class="tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies</button>
+            <button class="tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass</button>
+        </div>
+
+        <!-- Stories -->
+        <div id="storiesContainer">
+            <div class="loading">⏳ Loading stories...</div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            ⚓ The Harbor &mdash; built with 💚 for the community &bull; No ads &bull; No tracking &bull; 🔒 Secure
+        </footer>
     </div>
 
-    <!-- ============================================
-    SEARCH BAR
-    ============================================ -->
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="🔍 Search stories... (e.g., anxiety, grief, hope)" onkeyup="searchStories()" />
-    </div>
-
-    <!-- ============================================
-    CATEGORY TABS
-    ============================================ -->
-    <div class="tabs" id="categoryTabs">
-        <button class="tab active" data-category="all" onclick="switchCategory('all')">
-            📖 All
-        </button>
-        <button class="tab" data-category="men" onclick="switchCategory('men')">
-            🧔 Men's Harbor
-        </button>
-        <button class="tab" data-category="women" onclick="switchCategory('women')">
-            👩 Women's Harbor
-        </button>
-        <button class="tab" data-category="struggles" onclick="switchCategory('struggles')">
-            🌊 The Storm
-        </button>
-        <button class="tab" data-category="fun" onclick="switchCategory('fun')">
-            ☀️ Sunny Skies
-        </button>
-        <button class="tab" data-category="learning" onclick="switchCategory('learning')">
-            🧭 The Compass
-        </button>
-    </div>
-
-    <!-- ============================================
-    SUBMIT STORY BUTTON
-    ============================================ -->
-    <div class="submit-area">
-        <button class="btn-submit" onclick="openSubmitStory()">📝 Share Your Story</button>
-    </div>
-
-    <!-- ============================================
-    STORIES CONTAINER
-    ============================================ -->
-    <div id="storiesContainer">
-        <div class="loading">⏳ Loading stories...</div>
-    </div>
-
-    <!-- ============================================
-    FOOTER
-    ============================================ -->
-    <footer class="footer">
-        ⚓ The Harbor &mdash; built with 💚 for the community &bull; No ads &bull; No tracking
-    </footer>
-
-    <!-- ============================================
-    MODAL (Login / Signup)
-    ============================================ -->
+    <!-- Auth Modal -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -622,8 +141,9 @@
 
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+            <div id="passwordChecks"></div>
 
-            <!-- Signup Extra Fields -->
             <div id="signupFields" style="display:none;">
                 <label for="authName">What should we call you?</label>
                 <input type="text" id="authName" placeholder="Your name or nickname" />
@@ -650,482 +170,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-    JAVASCRIPT — All the app logic lives here
-    ============================================ -->
-    <script>
-        // ============================================
-        // 🔥 FIREBASE CONFIG — PASTE YOURS HERE!
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
-            authDomain:  "the-harbor-community.firebaseapp.com",
-            projectId: "the-harbor-community",
-            storageBucket: "the-harbor-community.firebasestorage.app",
-            messagingSenderId: "634248505303",
-            appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ============================================
-        // GLOBAL STATE
-        // ============================================
-        let currentUser = null;
-        let currentUserData = null;
-        let currentCategory = 'all';
-        let allStories = [];
-
-        // ============================================
-        // AUTH: Login, Signup, Logout
-        // ============================================
-
-        function openModal(mode) {
-            const modal = document.getElementById('authModal');
-            const title = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const signupFields = document.getElementById('signupFields');
-            const switchLink = document.getElementById('authSwitch');
-            const error = document.getElementById('authError');
-
-            error.textContent = '';
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-            document.getElementById('authName').value = '';
-            document.getElementById('authFavorites').value = '';
-
-            if (mode === 'login') {
-                title.textContent = '🔐 Welcome Back';
-                submitBtn.textContent = '🚀 Log In';
-                signupFields.style.display = 'none';
-                switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
-                switchLink.dataset.mode = 'signup';
-            } else {
-                title.textContent = '📝 Join The Harbor';
-                submitBtn.textContent = '🚀 Create Account';
-                signupFields.style.display = 'block';
-                switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
-                switchLink.dataset.mode = 'login';
-            }
-
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
-        function toggleAuthMode() {
-            const switchLink = document.getElementById('authSwitch');
-            const mode = switchLink.dataset.mode;
-            closeModal();
-            setTimeout(() => openModal(mode), 200);
-        }
-
-        function handleAuth() {
-            const email = document.getElementById('authEmail').value.trim();
-            const password = document.getElementById('authPassword').value;
-            const error = document.getElementById('authError');
-            const submitBtn = document.getElementById('authSubmitBtn');
-
-            error.textContent = '';
-
-            if (!email || !password) {
-                error.textContent = 'Please fill in all fields.';
-                return;
-            }
-
-            if (password.length < 6) {
-                error.textContent = 'Password must be at least 6 characters.';
-                return;
-            }
-
-            const isLogin = document.getElementById('authSubmitBtn').textContent.includes('Log In');
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Please wait...';
-
-            if (isLogin) {
-                // LOGIN
-                auth.signInWithEmailAndPassword(email, password)
-                    .then(() => {
-                        closeModal();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                    })
-                    .catch((err) => {
-                        error.textContent = err.message;
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                    });
-            } else {
-                // SIGNUP
-                const name = document.getElementById('authName').value.trim();
-                const gender = document.getElementById('authGender').value;
-                const favorites = document.getElementById('authFavorites').value.trim();
-
-                if (!name) {
-                    error.textContent = 'Please enter your name.';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    return;
-                }
-
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        // Save user profile to Firestore
-                        return db.collection('users').doc(user.uid).set({
-                            name: name,
-                            email: email,
-                            gender: gender,
-                            favorites: favorites || 'Not specified',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    })
-                    .then(() => {
-                        closeModal();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                    })
-                    .catch((err) => {
-                        error.textContent = err.message;
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                    });
-            }
-        }
-
-        function logout() {
-            auth.signOut();
-        }
-
-        // ============================================
-        // AUTH STATE LISTENER
-        // ============================================
-
-        auth.onAuthStateChanged((user) => {
-            const authButtons = document.getElementById('authButtons');
-            const userInfo = document.getElementById('userInfo');
-            const userName = document.getElementById('userName');
-            const userGenderDisplay = document.getElementById('userGenderDisplay');
-
-            if (user) {
-                currentUser = user;
-                authButtons.style.display = 'none';
-                userInfo.style.display = 'block';
-
-                // Fetch user data
-                db.collection('users').doc(user.uid).get()
-                    .then((doc) => {
-                        if (doc.exists) {
-                            currentUserData = doc.data();
-                            userName.textContent = currentUserData.name || 'Friend';
-                            userGenderDisplay.textContent = currentUserData.gender || '';
-                            // Update online status
-                            db.collection('users').doc(user.uid).update({
-                                lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }
-                    })
-                    .catch((err) => {
-                        console.error('Error fetching user data:', err);
-                    });
-
-                // Load stories
-                loadStories();
-            } else {
-                currentUser = null;
-                currentUserData = null;
-                authButtons.style.display = 'flex';
-                userInfo.style.display = 'none';
-                // Show login prompt in stories
-                document.getElementById('storiesContainer').innerHTML = `
-                            <div class="empty-state">
-                                <div class="big-emoji">⚓</div>
-                                <h3>Welcome to The Harbor</h3>
-                                <p>Log in or join to read and share stories.</p>
-                            </div>
-                        `;
-            }
-        });
-
-        // ============================================
-        // LOAD STORIES FROM FIRESTORE
-        // ============================================
-
-        function loadStories() {
-            const container = document.getElementById('storiesContainer');
-            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
-
-            let query = db.collection('stories')
-                .orderBy('createdAt', 'desc')
-                .limit(50);
-
-            if (currentCategory !== 'all') {
-                query = query.where('category', '==', currentCategory);
-            }
-
-            query.get()
-                .then((snapshot) => {
-                    if (snapshot.empty) {
-                        container.innerHTML = `
-                                    <div class="empty-state">
-                                        <div class="big-emoji">🌊</div>
-                                        <h3>No stories yet</h3>
-                                        <p>Be the first to share your story!</p>
-                                    </div>
-                                `;
-                        return;
-                    }
-
-                    let html = '';
-                    snapshot.forEach((doc) => {
-                        const story = doc.data();
-                        story.id = doc.id;
-                        html += renderStoryCard(story);
-                    });
-
-                    container.innerHTML = html;
-                })
-                .catch((err) => {
-                    console.error('Error loading stories:', err);
-                    container.innerHTML = `
-                                <div class="empty-state">
-                                    <div class="big-emoji">⚠️</div>
-                                    <h3>Oops!</h3>
-                                    <p>Could not load stories. Please try again.</p>
-                                </div>
-                            `;
-                });
-        }
-
-        // ============================================
-        // RENDER A SINGLE STORY CARD
-        // ============================================
-
-        function renderStoryCard(story) {
-            const author = story.isAnonymous ? '🕊️ Anonymous' : story.authorName || 'Someone';
-            const categoryNames = {
-                'men': '🧔 Men\'s Harbor',
-                'women': '👩 Women\'s Harbor',
-                'struggles': '🌊 The Storm',
-                'fun': '☀️ Sunny Skies',
-                'learning': '🧭 The Compass'
-            };
-            const categoryDisplay = categoryNames[story.category] || story.category;
-
-            const reactions = story.reactions || {};
-            const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-
-            let reactionButtons = '';
-            emojis.forEach((emoji) => {
-                const count = reactions[emoji] || 0;
-                reactionButtons += `
-                            <button class="emoji-btn" onclick="addReaction('${story.id}', '${emoji}')">
-                                ${emoji} <span class="count">${count}</span>
-                            </button>
-                        `;
-            });
-
-            const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
-            const excerpt = story.text.length > 200 ? story.text.substring(0, 200) + '...' : story.text;
-
-            return `
-                        <div class="story-card" data-story-id="${story.id}">
-                            <div class="story-title">${story.title || 'Untitled'}</div>
-                            <div class="story-meta">
-                                <span>✍️ ${author}</span>
-                                <span class="category-badge">${categoryDisplay}</span>
-                                <span>📅 ${time}</span>
-                            </div>
-                            <div class="story-text">${escapeHTML(excerpt)}</div>
-                            <div class="story-actions">
-                                ${reactionButtons}
-                                <a class="comment-link" onclick="viewStory('${story.id}')">💬 ${story.commentCount || 0} comments</a>
-                            </div>
-                        </div>
-                    `;
-        }
-
-        // ============================================
-        // EMOJI REACTIONS
-        // ============================================
-
-        function addReaction(storyId, emoji) {
-            if (!currentUser) {
-                alert('Please log in to react.');
-                return;
-            }
-
-            const storyRef = db.collection('stories').doc(storyId);
-
-            db.runTransaction((transaction) => {
-                return transaction.get(storyRef).then((doc) => {
-                    if (!doc.exists) return;
-                    const data = doc.data();
-                    const reactions = data.reactions || {};
-                    reactions[emoji] = (reactions[emoji] || 0) + 1;
-                    transaction.update(storyRef, { reactions: reactions });
-                });
-            })
-                .then(() => {
-                    // Reload stories to show updated counts
-                    loadStories();
-                })
-                .catch((err) => {
-                    console.error('Error adding reaction:', err);
-                    alert('Could not add reaction. Please try again.');
-                });
-        }
-
-        // ============================================
-        // CATEGORY SWITCHING
-        // ============================================
-
-        function switchCategory(category) {
-            currentCategory = category;
-            document.querySelectorAll('.tab').forEach((tab) => {
-                tab.classList.toggle('active', tab.dataset.category === category);
-            });
-            loadStories();
-        }
-
-        // ============================================
-        // SEARCH STORIES
-        // ============================================
-
-        function searchStories() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            if (!query) {
-                loadStories();
-                return;
-            }
-
-            const container = document.getElementById('storiesContainer');
-            container.innerHTML = '<div class="loading">⏳ Searching...</div>';
-
-            db.collection('stories')
-                .orderBy('createdAt', 'desc')
-                .limit(100)
-                .get()
-                .then((snapshot) => {
-                    if (snapshot.empty) {
-                        container.innerHTML = `
-                                    <div class="empty-state">
-                                        <div class="big-emoji">🔍</div>
-                                        <h3>No stories found</h3>
-                                        <p>Try different keywords.</p>
-                                    </div>
-                                `;
-                        return;
-                    }
-
-                    let matched = [];
-                    snapshot.forEach((doc) => {
-                        const story = doc.data();
-                        story.id = doc.id;
-                        const searchText = (story.title + ' ' + story.text + ' ' + story.authorName).toLowerCase();
-                        if (searchText.includes(query)) {
-                            matched.push(story);
-                        }
-                    });
-
-                    if (matched.length === 0) {
-                        container.innerHTML = `
-                                    <div class="empty-state">
-                                        <div class="big-emoji">🔍</div>
-                                        <h3>No stories match "${query}"</h3>
-                                        <p>Try different keywords.</p>
-                                    </div>
-                                `;
-                        return;
-                    }
-
-                    let html = '';
-                    matched.forEach((story) => {
-                        html += renderStoryCard(story);
-                    });
-                    container.innerHTML = html;
-                })
-                .catch((err) => {
-                    console.error('Search error:', err);
-                    loadStories();
-                });
-        }
-
-        // ============================================
-        // VIEW FULL STORY (placeholder for now)
-        // ============================================
-
-        function viewStory(storyId) {
-            alert('📖 Full story view coming soon! For now, you can see the preview.');
-            // We'll build this in the next phase
-        }
-
-        // ============================================
-        // OPEN SUBMIT STORY (placeholder for now)
-        // ============================================
-
-        function openSubmitStory() {
-            if (!currentUser) {
-                alert('Please log in to share your story.');
-                return;
-            }
-            alert('📝 Story submission form coming soon!');
-            // We'll build this in the next phase
-        }
-
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-
-        function escapeHTML(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
-
-        // ============================================
-        // ONLINE USERS COUNT (placeholder for now)
-        // ============================================
-
-        // We'll implement this in a later phase
-        // For now, show a static count
-
-        // ============================================
-        // CLOSE MODAL ON CLICK OUTSIDE
-        // ============================================
-
-        document.getElementById('authModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // ============================================
-        // KEYBOARD SHORTCUT: Enter to submit auth
-        // ============================================
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && document.getElementById('authModal').style.display === 'flex') {
-                handleAuth();
-            }
-        });
-
-        console.log('⚓ The Harbor is ready!');
-        console.log('📚 Firebase connected:', firebase.app().name);
-        console.log('👤 Auth state:', currentUser ? 'Logged in' : 'Not logged in');
-    </script>
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
 </body>
 </html>
