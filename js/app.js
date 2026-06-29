@@ -93,20 +93,16 @@ function getUserGender() {
 function canSeeCategory(category) {
     const gender = getUserGender();
     
-    // Admin can see everything
     if (currentUserData?.isAdmin === true) return true;
     
-    // Everyone can see these
     if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') {
         return true;
     }
     
-    // Men's Harbor - only men
     if (category === 'men') {
         return gender === '🧔 Man';
     }
     
-    // Women's Harbor - only women
     if (category === 'women') {
         return gender === '👩 Woman';
     }
@@ -151,12 +147,11 @@ async function checkUsernameAvailability(username) {
 }
 
 // ============================================
-// SWITCH CATEGORY - FIXED WITH GENDER CHECK
+// SWITCH CATEGORY
 // ============================================
 function switchCategory(category) {
     console.log('🔄 Switching to category:', category);
     
-    // Check permission
     if (!canSeeCategory(category)) {
         alert('⚠️ You don\'t have permission to view this category.');
         return;
@@ -402,7 +397,6 @@ function handleAuth() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Create Account';
                 auth.signOut();
-                // ✅ SHOW VERIFICATION MESSAGE WITH SPAM FOLDER REMINDER
                 alert(
                     '✅ Verification email sent to ' + email + '!\n\n' +
                     '📧 Please check your inbox and click the verification link.\n\n' +
@@ -466,6 +460,22 @@ function populateCountryDatalist() {
 }
 
 // ============================================
+// UPDATE ADMIN LINK VISIBILITY - ADD THIS FUNCTION
+// ============================================
+function updateAdminLink() {
+    const adminLink = document.getElementById('adminNavLink');
+    const adminBadge = document.getElementById('adminBadge');
+    
+    if (currentUser && currentUserData && currentUserData.isAdmin === true) {
+        if (adminLink) adminLink.style.display = 'inline-block';
+        if (adminBadge) adminBadge.style.display = 'inline-block';
+    } else {
+        if (adminLink) adminLink.style.display = 'none';
+        if (adminBadge) adminBadge.style.display = 'none';
+    }
+}
+
+// ============================================
 // LOAD USER REACTIONS
 // ============================================
 function loadAllUserReactions() {
@@ -494,7 +504,7 @@ function loadAllUserReactions() {
 }
 
 // ============================================
-// REACTION ANIMATION - FIXED
+// REACTION ANIMATION
 // ============================================
 (function addAnimationStyles() {
     if (!document.getElementById('animationStyles')) {
@@ -601,7 +611,7 @@ function createReactionFireworks(cx, cy) {
 }
 
 // ============================================
-// ADD REACTION - WITH ANIMATION
+// ADD REACTION - FIXED (NO TRANSACTION)
 // ============================================
 function addReaction(storyId, emoji) {
     if (!currentUser) {
@@ -634,11 +644,13 @@ function addReaction(storyId, emoji) {
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
     if (btn) btn.disabled = true;
 
-    db.runTransaction((transaction) => {
-        return transaction.get(storyRef).then((doc) => {
+    // Get current story data
+    storyRef.get()
+        .then((doc) => {
             if (!doc.exists) {
                 throw new Error('Story not found');
             }
+            
             const data = doc.data();
             const reactions = data.reactions || {};
             
@@ -650,57 +662,58 @@ function addReaction(storyId, emoji) {
                 userReactions[storyId].push(emoji);
             }
             
-            transaction.update(storyRef, { reactions: reactions });
-            
+            return storyRef.update({ reactions: reactions });
+        })
+        .then(() => {
             if (userReactions[storyId] && userReactions[storyId].length > 0) {
-                transaction.set(userReactionRef, { 
+                return userReactionRef.set({ 
                     emojis: userReactions[storyId],
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     storyId: storyId
-                });
+                }, { merge: true });
             } else {
-                transaction.delete(userReactionRef);
-                delete userReactions[storyId];
+                return userReactionRef.delete().catch(() => {});
             }
-        });
-    })
-    .then(() => {
-        if (btn) btn.disabled = false;
-        
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-        if (countSpan) {
-            const currentCount = parseInt(countSpan.textContent) || 0;
-            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-        }
-        
-        if (btn) {
-            if (hasReacted) {
-                btn.classList.remove('reacted');
-                const checkmark = btn.querySelector('.checkmark');
-                if (checkmark) checkmark.remove();
-            } else {
-                btn.classList.add('reacted');
-                if (!btn.querySelector('.checkmark')) {
-                    btn.innerHTML += ' <span class="checkmark">✅</span>';
+        })
+        .then(() => {
+            if (btn) btn.disabled = false;
+            
+            const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+            if (countSpan) {
+                const currentCount = parseInt(countSpan.textContent) || 0;
+                countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+            }
+            
+            if (btn) {
+                if (hasReacted) {
+                    btn.classList.remove('reacted');
+                    const checkmark = btn.querySelector('.checkmark');
+                    if (checkmark) checkmark.remove();
+                } else {
+                    btn.classList.add('reacted');
+                    if (!btn.querySelector('.checkmark')) {
+                        btn.innerHTML += ' <span class="checkmark">✅</span>';
+                    }
                 }
             }
-        }
-        
-        if (typeof loadStories === 'function') {
-            loadStories();
-        }
-    })
-    .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        if (btn) btn.disabled = false;
-        let message = 'Could not update reaction. ';
-        if (err.message === 'Story not found') {
-            message += 'The story may have been deleted.';
-        } else {
-            message += 'Please try again.';
-        }
-        alert(message);
-    });
+            
+            if (typeof loadStories === 'function') {
+                loadStories();
+            }
+        })
+        .catch((err) => {
+            console.error('Error toggling reaction:', err);
+            if (btn) btn.disabled = false;
+            let message = 'Could not update reaction. ';
+            if (err.message === 'Story not found') {
+                message += 'The story may have been deleted.';
+            } else if (err.message.includes('permission')) {
+                message += 'Permission denied. Please refresh and try again.';
+            } else {
+                message += 'Please try again.';
+            }
+            alert(message);
+        });
 }
 
 // ============================================
@@ -736,11 +749,12 @@ function toggleReaction(storyId, emoji) {
     const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
     if (btn) btn.disabled = true;
 
-    db.runTransaction((transaction) => {
-        return transaction.get(storyRef).then((doc) => {
+    storyRef.get()
+        .then((doc) => {
             if (!doc.exists) {
                 throw new Error('Story not found');
             }
+            
             const data = doc.data();
             const reactions = data.reactions || {};
             
@@ -752,57 +766,58 @@ function toggleReaction(storyId, emoji) {
                 userReactions[storyId].push(emoji);
             }
             
-            transaction.update(storyRef, { reactions: reactions });
-            
+            return storyRef.update({ reactions: reactions });
+        })
+        .then(() => {
             if (userReactions[storyId] && userReactions[storyId].length > 0) {
-                transaction.set(userReactionRef, { 
+                return userReactionRef.set({ 
                     emojis: userReactions[storyId],
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     storyId: storyId
-                });
+                }, { merge: true });
             } else {
-                transaction.delete(userReactionRef);
-                delete userReactions[storyId];
+                return userReactionRef.delete().catch(() => {});
             }
-        });
-    })
-    .then(() => {
-        if (btn) btn.disabled = false;
-        
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-        if (countSpan) {
-            const currentCount = parseInt(countSpan.textContent) || 0;
-            countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-        }
-        
-        if (btn) {
-            if (hasReacted) {
-                btn.classList.remove('reacted');
-                const checkmark = btn.querySelector('.checkmark');
-                if (checkmark) checkmark.remove();
-            } else {
-                btn.classList.add('reacted');
-                if (!btn.querySelector('.checkmark')) {
-                    btn.innerHTML += ' <span class="checkmark">✅</span>';
+        })
+        .then(() => {
+            if (btn) btn.disabled = false;
+            
+            const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+            if (countSpan) {
+                const currentCount = parseInt(countSpan.textContent) || 0;
+                countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+            }
+            
+            if (btn) {
+                if (hasReacted) {
+                    btn.classList.remove('reacted');
+                    const checkmark = btn.querySelector('.checkmark');
+                    if (checkmark) checkmark.remove();
+                } else {
+                    btn.classList.add('reacted');
+                    if (!btn.querySelector('.checkmark')) {
+                        btn.innerHTML += ' <span class="checkmark">✅</span>';
+                    }
                 }
             }
-        }
-    })
-    .catch((err) => {
-        console.error('Error toggling reaction:', err);
-        if (btn) btn.disabled = false;
-        let message = 'Could not update reaction. ';
-        if (err.message === 'Story not found') {
-            message += 'The story may have been deleted.';
-        } else {
-            message += 'Please try again.';
-        }
-        alert(message);
-    });
+        })
+        .catch((err) => {
+            console.error('Error toggling reaction:', err);
+            if (btn) btn.disabled = false;
+            let message = 'Could not update reaction. ';
+            if (err.message === 'Story not found') {
+                message += 'The story may have been deleted.';
+            } else if (err.message.includes('permission')) {
+                message += 'Permission denied. Please refresh and try again.';
+            } else {
+                message += 'Please try again.';
+            }
+            alert(message);
+        });
 }
 
 // ============================================
-// LOAD STORIES - FIXED WITH GENDER CHECK
+// LOAD STORIES
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
@@ -835,7 +850,6 @@ function loadStories() {
         return;
     }
 
-    // Check gender permission
     if (!canSeeCategory(currentCategory)) {
         container.innerHTML = `
             <div class="empty-state" style="background:#f5d6b3;border-radius:16px;padding:30px;border-left:4px solid #c47a5a;">
@@ -963,7 +977,7 @@ function renderStoryCard(story) {
 }
 
 // ============================================
-// AUTH STATE LISTENER
+// AUTH STATE LISTENER - FIXED WITH ADMIN LINK
 // ============================================
 auth.onAuthStateChanged((user) => {
     const authButtons = document.getElementById('authButtons');
@@ -1001,9 +1015,11 @@ auth.onAuthStateChanged((user) => {
                     }
 
                     updateEmergencyBanner();
+                    
+                    // ⭐ UPDATE ADMIN LINK VISIBILITY
+                    updateAdminLink();
 
                     loadAllUserReactions().then(() => {
-                        // Update category tabs based on gender
                         updateCategoryTabs();
                         
                         if (document.getElementById('storiesContainer')) {
@@ -1011,10 +1027,8 @@ auth.onAuthStateChanged((user) => {
                             const cat = urlParams.get('cat') || 'all';
                             currentCategory = cat;
                             
-                            // Check if user can see this category
                             if (!canSeeCategory(cat)) {
                                 currentCategory = 'all';
-                                // Update URL
                                 const url = new URL(window.location);
                                 url.searchParams.set('cat', 'all');
                                 window.history.pushState({}, '', url);
@@ -1048,6 +1062,12 @@ auth.onAuthStateChanged((user) => {
         userReactions = {};
         if (authButtons) authButtons.style.display = 'flex';
         if (userInfo) userInfo.style.display = 'none';
+        
+        // ⭐ HIDE ADMIN LINK ON LOGOUT
+        const adminLink = document.getElementById('adminNavLink');
+        const adminBadge = document.getElementById('adminBadge');
+        if (adminLink) adminLink.style.display = 'none';
+        if (adminBadge) adminBadge.style.display = 'none';
         
         const container = document.getElementById('storiesContainer');
         if (container) {
