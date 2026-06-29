@@ -46,9 +46,11 @@
             font-weight: 600;
             color: #2d3a3a;
             transition: 0.3s;
+            font-size: 0.95rem;
         }
         .activity-tab:hover {
             background: #d4c8b8;
+            transform: translateY(-2px);
         }
         .activity-tab.active {
             background: #1a4a4a;
@@ -61,6 +63,10 @@
             border-radius: 20px;
             font-size: 0.75rem;
             margin-left: 6px;
+        }
+        .activity-tab.active .count {
+            background: #f5d6b3;
+            color: #1a4a4a;
         }
 
         .activity-item {
@@ -77,8 +83,9 @@
             flex-wrap: wrap;
         }
         .activity-item:hover {
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             transform: translateX(4px);
+            border-color: #c47a5a;
         }
         .activity-item .icon {
             font-size: 1.8rem;
@@ -87,11 +94,16 @@
         }
         .activity-item .content {
             flex: 1;
+            min-width: 200px;
         }
         .activity-item .content .title {
             font-weight: 600;
             color: #1a4a4a;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         .activity-item .content .meta {
             font-size: 0.85rem;
@@ -102,12 +114,14 @@
             font-size: 0.9rem;
             color: #2d3a3a;
             margin-top: 4px;
+            line-height: 1.5;
         }
         .activity-item .badge {
             padding: 2px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 600;
+            display: inline-block;
         }
         .badge-reaction {
             background: #f5d6b3;
@@ -130,10 +144,16 @@
             border: 1px solid #c47a5a;
             border-radius: 20px;
             transition: 0.3s;
+            white-space: nowrap;
         }
         .activity-item .go-link:hover {
             background: #c47a5a;
             color: white;
+        }
+        .activity-item .go-link.disabled {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
         }
 
         .empty-state {
@@ -142,18 +162,334 @@
             color: #7a9e7e;
         }
         .empty-state .big-emoji {
-            font-size: 3rem;
+            font-size: 3.5rem;
             display: block;
             margin-bottom: 12px;
         }
         .empty-state h3 {
             color: #1a4a4a;
+            margin-bottom: 8px;
+        }
+        .empty-state p {
+            color: #7a9e7e;
         }
 
         .loading {
             text-align: center;
             color: #7a9e7e;
             padding: 40px 0;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background: #c47a5a;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: #a8654a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(196, 122, 90, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #c47a5a;
+            border-radius: 50px;
+            padding: 10px 24px;
+            color: #c47a5a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: #c47a5a;
+            color: white;
+        }
+
+        /* Header styles */
+        .header {
+            background: #1a4a4a;
+            color: #f5f0eb;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f5d6b3;
+            text-decoration: none;
+        }
+        .logo span {
+            font-weight: 300;
+            color: #d4c8b8;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-nav {
+            background: transparent;
+            border: 1px solid #f5d6b3;
+            border-radius: 50px;
+            padding: 6px 16px;
+            color: #f5d6b3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-nav:hover {
+            background: #f5d6b3;
+            color: #1a4a4a;
+        }
+        .btn-login, .btn-signup, .btn-logout {
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-login {
+            background: transparent;
+            border: 1px solid #7a9e7e;
+            color: #7a9e7e;
+        }
+        .btn-login:hover {
+            background: #7a9e7e;
+            color: white;
+        }
+        .btn-signup {
+            background: #c47a5a;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #a8654a;
+        }
+        .btn-logout {
+            background: #c0392b;
+            color: white;
+        }
+        .btn-logout:hover {
+            background: #a93226;
+        }
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #userName {
+            font-weight: 600;
+            color: #f5d6b3;
+        }
+        #userGenderBadge {
+            background: #2d3a3a;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: #c0392b;
+            color: white;
+        }
+        .verification-badge.verified {
+            background: #27ae60;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a4a4a;
+            color: #d4c8b8;
+            padding: 30px 5% 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .footer-links a {
+            color: #f5d6b3;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #f5f0eb;
+            padding: 30px 40px;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #7a9e7e;
+            transition: 0.3s;
+        }
+        .modal-close:hover {
+            color: #1a4a4a;
+        }
+        .modal-content label {
+            display: block;
+            margin-top: 14px;
+            font-weight: 600;
+            color: #1a4a4a;
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #d4c8b8;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 4px;
+            background: white;
+            transition: 0.3s;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: #c47a5a;
+            outline: none;
+        }
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            margin-top: 18px;
+            background: #1a4a4a;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-modal:hover {
+            background: #2d5a5a;
+        }
+        .btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .switch-link {
+            text-align: center;
+            margin-top: 14px;
+            color: #7a9e7e;
+            cursor: pointer;
+        }
+        .switch-link strong {
+            color: #c47a5a;
+        }
+        .switch-link:hover strong {
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #c0392b;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .success-msg {
+            color: #27ae60;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .warning-box {
+            background: #f5d6b3;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: none;
+            font-size: 0.9rem;
+        }
+        .warning-box.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #signupFields {
+            display: none;
+        }
+        #passwordStrength {
+            margin-top: 4px;
+        }
+        #usernameStatus {
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Emergency Banner */
+        #emergencyBanner {
+            background: #c0392b;
+            color: white;
+            padding: 10px 5%;
+            text-align: center;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 5% 40px;
         }
 
         @media (max-width: 600px) {
@@ -163,6 +499,26 @@
             }
             .activity-item .go-link {
                 align-self: flex-start;
+            }
+            .header {
+                padding: 12px 4%;
+            }
+            .logo {
+                font-size: 1.2rem;
+            }
+            .header-right {
+                gap: 6px;
+            }
+            .btn-nav, .btn-login, .btn-signup, .btn-logout {
+                font-size: 0.8rem;
+                padding: 4px 12px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .activity-tab {
+                padding: 6px 16px;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -290,542 +646,7 @@
         </div>
     </div>
 
-    <script>
-    // ============================================
-    // FIREBASE CONFIG
-    // ============================================
-    var firebaseConfig = {
-        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
-        authDomain: "the-harbor-community.firebaseapp.com",
-        projectId: "the-harbor-community",
-        storageBucket: "the-harbor-community.firebasestorage.app",
-        messagingSenderId: "634248505303",
-        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
-    };
-    firebase.initializeApp(firebaseConfig);
-    var auth = firebase.auth();
-    var db = firebase.firestore();
-
-    var currentUser = null;
-    var currentUserData = null;
-    var currentTab = 'all';
-    var allActivities = [];
-
-    // ============================================
-    // COUNTRY DATA
-    // ============================================
-    var countries = [
-        { name: 'United States', emergency: '911' },
-        { name: 'United Kingdom', emergency: '999' },
-        { name: 'Bangladesh', emergency: '999' },
-        { name: 'India', emergency: '112' },
-        { name: 'Canada', emergency: '911' },
-        { name: 'Australia', emergency: '000' },
-        { name: 'Germany', emergency: '112' },
-        { name: 'France', emergency: '112' },
-        { name: 'Italy', emergency: '112' },
-        { name: 'Spain', emergency: '112' },
-        { name: 'Brazil', emergency: '190' },
-        { name: 'Mexico', emergency: '911' }
-    ];
-
-    function populateCountryDatalist() {
-        var datalist = document.getElementById('country-list');
-        if (!datalist) return;
-        datalist.innerHTML = '';
-        countries.forEach(function(c) {
-            var option = document.createElement('option');
-            option.value = c.name;
-            datalist.appendChild(option);
-        });
-    }
-    populateCountryDatalist();
-
-    // ============================================
-    // SECURITY FUNCTIONS
-    // ============================================
-    function escapeHTML(text) {
-        if (!text) return '';
-        var map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;'
-        };
-        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-    }
-
-    function checkPasswordStrength(password) {
-        var score = 0;
-        if (password.length >= 8) score += 20;
-        if (/[A-Z]/.test(password)) score += 20;
-        if (/[a-z]/.test(password)) score += 20;
-        if (/[0-9]/.test(password)) score += 20;
-        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
-        var common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
-        if (!common.some(function(pwd) { return password.toLowerCase().includes(pwd); })) score += 10;
-        var strength = 'weak', color = '#c0392b';
-        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
-        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
-        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
-        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
-        else { strength = 'very-weak'; color = '#c0392b'; }
-        return { score: score, strength: strength, color: color };
-    }
-
-    function checkUsernameAvailability(username) {
-        if (!username || username.length < 2) return Promise.resolve(false);
-        return db.collection('users').where('name', '==', username).get().then(function(s) { return s.empty; });
-    }
-
-    function checkUsernameOnType() {
-        var nameInput = document.getElementById('authName');
-        var statusDiv = document.getElementById('usernameStatus');
-        if (!nameInput || !statusDiv) return;
-        var username = nameInput.value.trim();
-        if (username.length < 2) { statusDiv.innerHTML = ''; return; }
-        checkUsernameAvailability(username).then(function(available) {
-            statusDiv.innerHTML = available ?
-                '<span style="color:#27ae60;">✅ Username available!</span>' :
-                '<span style="color:#c0392b;">❌ Username taken</span>';
-        });
-    }
-
-    function openModal(mode) {
-        var modal = document.getElementById('authModal');
-        if (!modal) return;
-        var title = document.getElementById('modalTitle');
-        var submitBtn = document.getElementById('authSubmitBtn');
-        var signupFields = document.getElementById('signupFields');
-        var switchLink = document.getElementById('authSwitch');
-        var error = document.getElementById('authError');
-        if (error) error.textContent = '';
-        document.getElementById('authEmail').value = '';
-        document.getElementById('authPassword').value = '';
-        document.getElementById('authName').value = '';
-        document.getElementById('authFavorites').value = '';
-        document.getElementById('authCountry').value = '';
-        document.getElementById('passwordStrength').innerHTML = '';
-        document.getElementById('usernameStatus').innerHTML = '';
-        if (mode === 'login') {
-            title.textContent = '🔐 Welcome Back';
-            submitBtn.textContent = '🚀 Log In';
-            signupFields.style.display = 'none';
-            switchLink.innerHTML = 'Don\'t have an account? <strong>Sign Up</strong>';
-            switchLink.dataset.mode = 'signup';
-        } else {
-            title.textContent = '📝 Join The Harbor';
-            submitBtn.textContent = '🚀 Create Account';
-            signupFields.style.display = 'block';
-            populateCountryDatalist();
-            switchLink.innerHTML = 'Already have an account? <strong>Log In</strong>';
-            switchLink.dataset.mode = 'login';
-        }
-        modal.style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('authModal').style.display = 'none';
-    }
-
-    function toggleAuthMode() {
-        var switchLink = document.getElementById('authSwitch');
-        if (!switchLink) return;
-        var mode = switchLink.dataset.mode;
-        closeModal();
-        setTimeout(function() { openModal(mode); }, 200);
-    }
-
-    function updateGenderWarning() {
-        var genderSelect = document.getElementById('authGender');
-        var warning = document.getElementById('genderWarning');
-        var text = document.getElementById('genderWarningText');
-        if (!genderSelect) return;
-        var gender = genderSelect.value;
-        if (gender === '🧔 Man') {
-            text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
-            warning.classList.add('show');
-        } else if (gender === '👩 Woman') {
-            text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
-            warning.classList.add('show');
-        } else {
-            text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
-            warning.classList.add('show');
-        }
-    }
-
-    function handleAuth() {
-        var emailInput = document.getElementById('authEmail');
-        var passwordInput = document.getElementById('authPassword');
-        var error = document.getElementById('authError');
-        var submitBtn = document.getElementById('authSubmitBtn');
-        var email = emailInput.value.trim();
-        var password = passwordInput.value;
-        error.textContent = '';
-        if (!email || !email.includes('@') || !email.includes('.')) {
-            error.textContent = 'Please enter a valid email address.';
-            return;
-        }
-        if (!password || password.length < 6) {
-            error.textContent = 'Password must be at least 6 characters.';
-            return;
-        }
-        var isLogin = submitBtn.textContent.includes('Log In');
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Please wait...';
-        if (isLogin) {
-            auth.signInWithEmailAndPassword(email, password)
-                .then(function(userCredential) {
-                    var user = userCredential.user;
-                    if (!user.emailVerified) {
-                        error.textContent = '⚠️ Please verify your email first.';
-                        auth.signOut();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                        return;
-                    }
-                    closeModal();
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Log In';
-                })
-                .catch(function(err) {
-                    error.textContent = err.message;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Log In';
-                });
-        } else {
-            var nameInput = document.getElementById('authName');
-            var genderSelect = document.getElementById('authGender');
-            var favoritesInput = document.getElementById('authFavorites');
-            var countryInput = document.getElementById('authCountry');
-            var name = nameInput ? nameInput.value.trim() : '';
-            var gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
-            var favorites = favoritesInput ? favoritesInput.value.trim() : '';
-            var country = countryInput ? countryInput.value.trim() : '';
-            if (!name || name.length < 2) {
-                error.textContent = 'Please enter a username (minimum 2 characters).';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Create Account';
-                return;
-            }
-            if (!country) {
-                error.textContent = 'Please select your country.';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Create Account';
-                return;
-            }
-            checkUsernameAvailability(name)
-                .then(function(available) {
-                    if (!available) {
-                        error.textContent = '❌ Username is already taken.';
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                        return Promise.reject('Username taken');
-                    }
-                    return auth.createUserWithEmailAndPassword(email, password);
-                })
-                .then(function(userCredential) {
-                    var user = userCredential.user;
-                    return user.sendEmailVerification().then(function() { return user; });
-                })
-                .then(function(user) {
-                    var countryData = countries.find(function(c) { return c.name === country; });
-                    return db.collection('users').doc(user.uid).set({
-                        name: name,
-                        email: email,
-                        gender: gender,
-                        favorites: favorites || 'Not specified',
-                        country: country,
-                        emergencyNumber: countryData ? countryData.emergency : '911',
-                        emailVerified: false,
-                        isAdmin: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                })
-                .then(function() {
-                    closeModal();
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    auth.signOut();
-                    alert('✅ Verification email sent! Please check your inbox.');
-                })
-                .catch(function(err) {
-                    if (err !== 'Username taken') {
-                        error.textContent = err.message;
-                    }
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                });
-        }
-    }
-
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            auth.signOut();
-            window.location.href = 'index.html';
-        }
-    }
-
-    // ============================================
-    // AUTH STATE LISTENER
-    // ============================================
-    auth.onAuthStateChanged(function(user) {
-        var authButtons = document.getElementById('authButtons');
-        var userInfo = document.getElementById('userInfo');
-        var userName = document.getElementById('userName');
-        var userGenderBadge = document.getElementById('userGenderBadge');
-        var verificationBadge = document.getElementById('verificationBadge');
-
-        if (user) {
-            currentUser = user;
-            authButtons.style.display = 'none';
-            userInfo.style.display = 'flex';
-
-            if (user.emailVerified) {
-                verificationBadge.textContent = '✅ Verified';
-                verificationBadge.className = 'verification-badge verified';
-            } else {
-                verificationBadge.textContent = '⏳ Unverified';
-                verificationBadge.className = 'verification-badge';
-            }
-
-            db.collection('users').doc(user.uid).get()
-                .then(function(doc) {
-                    if (doc.exists) {
-                        currentUserData = doc.data();
-                        userName.textContent = currentUserData.name || 'Friend';
-                        userGenderBadge.textContent = currentUserData.gender || '';
-                        loadActivity();
-                    }
-                })
-                .catch(function(err) { console.error('Error fetching user data:', err); });
-        } else {
-            currentUser = null;
-            currentUserData = null;
-            authButtons.style.display = 'flex';
-            userInfo.style.display = 'none';
-            document.getElementById('activityContainer').innerHTML = '<div class="empty-state"><div class="big-emoji">🔐</div><h3>Please Log In</h3><p>You need to be logged in to view your activity.</p><button class="btn-primary" onclick="openModal(\'login\')" style="margin-top:12px;">Log In</button></div>';
-        }
-    });
-
-    // ============================================
-    // LOAD ACTIVITY — FIXED (Includes Reactions)
-    // ============================================
-    function loadActivity() {
-        var container = document.getElementById('activityContainer');
-        container.innerHTML = '<div class="loading">⏳ Loading activity...</div>';
-
-        if (!currentUser) {
-            container.innerHTML = '<div class="empty-state"><div class="big-emoji">🔐</div><h3>Please Log In</h3><p>You need to be logged in to view your activity.</p></div>';
-            return;
-        }
-
-        // Load stories
-        var storiesPromise = db.collection('stories')
-            .where('userId', '==', currentUser.uid)
-            .where('approved', '==', true)
-            .get();
-
-        // Load comments
-        var commentsPromise = db.collection('comments')
-            .where('userId', '==', currentUser.uid)
-            .where('approved', '==', true)
-            .get();
-
-        // Load reactions from sub-collection
-        var reactionsPromise = db.collection('users')
-            .doc(currentUser.uid)
-            .collection('reactions')
-            .get();
-
-        Promise.all([storiesPromise, commentsPromise, reactionsPromise])
-            .then(function(results) {
-                var storiesSnapshot = results[0];
-                var commentsSnapshot = results[1];
-                var reactionsSnapshot = results[2];
-                var activities = [];
-
-                // Process stories
-                storiesSnapshot.forEach(function(doc) {
-                    var data = doc.data();
-                    data.id = doc.id;
-                    data.type = 'story';
-                    data.timestamp = data.createdAt ? data.createdAt.toDate() : new Date();
-                    activities.push(data);
-                });
-
-                // Process comments
-                commentsSnapshot.forEach(function(doc) {
-                    var data = doc.data();
-                    data.id = doc.id;
-                    data.type = 'comment';
-                    data.timestamp = data.createdAt ? data.createdAt.toDate() : new Date();
-                    activities.push(data);
-                });
-
-                // Process reactions
-                reactionsSnapshot.forEach(function(doc) {
-                    var data = doc.data();
-                    data.storyId = doc.id;
-                    data.type = 'reaction';
-                    data.timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
-                    activities.push(data);
-                });
-
-                // Sort by timestamp (newest first)
-                activities.sort(function(a, b) {
-                    var ta = a.timestamp ? a.timestamp.getTime() : 0;
-                    var tb = b.timestamp ? b.timestamp.getTime() : 0;
-                    return tb - ta;
-                });
-
-                allActivities = activities;
-
-                document.getElementById('countAll').textContent = activities.length;
-                document.getElementById('countStories').textContent = storiesSnapshot.size;
-                document.getElementById('countComments').textContent = commentsSnapshot.size;
-                document.getElementById('countReactions').textContent = reactionsSnapshot.size;
-
-                renderActivities(currentTab);
-            })
-            .catch(function(err) {
-                console.error('Error loading activity:', err);
-                container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error Loading Activity</h3><p>' + err.message + '</p><button class="btn-primary" onclick="loadActivity()" style="margin-top:12px;">🔄 Retry</button></div>';
-            });
-    }
-
-    // ============================================
-    // SWITCH TAB
-    // ============================================
-    function switchTab(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.activity-tab').forEach(function(t) {
-            t.classList.toggle('active', t.dataset.tab === tab);
-        });
-        renderActivities(tab);
-    }
-
-    // ============================================
-    // RENDER ACTIVITIES
-    // ============================================
-    function renderActivities(tab) {
-        var container = document.getElementById('activityContainer');
-
-        var filtered = allActivities;
-
-        if (tab === 'stories') {
-            filtered = allActivities.filter(function(a) { return a.type === 'story'; });
-        } else if (tab === 'comments') {
-            filtered = allActivities.filter(function(a) { return a.type === 'comment'; });
-        } else if (tab === 'reactions') {
-            filtered = allActivities.filter(function(a) { return a.type === 'reaction'; });
-        }
-
-        if (filtered.length === 0) {
-            var messages = {
-                'all': 'No activity yet. Start sharing your stories!',
-                'stories': 'You haven\'t shared any stories yet.',
-                'comments': 'You haven\'t commented on any stories yet.',
-                'reactions': 'You haven\'t reacted to any stories yet.'
-            };
-            container.innerHTML = '<div class="empty-state"><div class="big-emoji">📭</div><h3>No Activity</h3><p>' + (messages[tab] || 'No activity found.') + '</p><a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a></div>';
-            return;
-        }
-
-        var html = '';
-        filtered.forEach(function(item) {
-            html += renderActivityItem(item);
-        });
-        container.innerHTML = html;
-    }
-
-    // ============================================
-    // RENDER ACTIVITY ITEM
-    // ============================================
-    function renderActivityItem(item) {
-        var icon = '📋';
-        var badge = '';
-        var title = '';
-        var meta = '';
-        var excerpt = '';
-        var storyId = '';
-
-        var time = item.timestamp ? item.timestamp.toLocaleString() : 'Recently';
-
-        if (item.type === 'story') {
-            icon = '📝';
-            badge = '<span class="badge badge-story">Story</span>';
-            title = escapeHTML(item.title || 'Untitled');
-            meta = '✍️ Published on ' + time;
-            excerpt = escapeHTML((item.text || '').substring(0, 120)) + (item.text && item.text.length > 120 ? '...' : '');
-            storyId = item.id;
-        } else if (item.type === 'comment') {
-            icon = '💬';
-            badge = '<span class="badge badge-comment">Comment</span>';
-            title = 'Commented on a story';
-            meta = '💬 Posted on ' + time;
-            excerpt = escapeHTML((item.text || '').substring(0, 120)) + (item.text && item.text.length > 120 ? '...' : '');
-            storyId = item.storyId;
-        } else if (item.type === 'reaction') {
-            icon = '❤️';
-            badge = '<span class="badge badge-reaction">Reaction</span>';
-            var emojis = item.emojis || [];
-            title = 'Reacted to a story';
-            meta = '❤️ ' + emojis.join(' ') + ' · ' + time;
-            excerpt = 'You reacted to this story with ' + emojis.length + ' emoji' + (emojis.length > 1 ? 's' : '');
-            storyId = item.storyId;
-        }
-
-        return '<div class="activity-item" onclick="goToStory(\'' + storyId + '\')"><div class="icon">' + icon + '</div><div class="content"><div class="title">' + title + ' ' + badge + '</div><div class="meta">' + meta + '</div><div class="excerpt">' + excerpt + '</div></div><a href="story.html?id=' + storyId + '" class="go-link">🔗 View Story</a></div>';
-    }
-
-    // ============================================
-    // GO TO STORY
-    // ============================================
-    function goToStory(storyId) {
-        if (storyId) {
-            window.location.href = 'story.html?id=' + storyId;
-        }
-    }
-
-    // ============================================
-    // INIT
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('authModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-
-        document.getElementById('authPassword').addEventListener('input', function() {
-            var pwd = this.value;
-            var strengthDiv = document.getElementById('passwordStrength');
-            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-            var result = checkPasswordStrength(pwd);
-            strengthDiv.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:' + result.color + ';font-weight:700;">' + result.strength + '</span></div>';
-        });
-
-        document.getElementById('authName').addEventListener('input', checkUsernameOnType);
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                var modal = document.getElementById('authModal');
-                if (modal && modal.style.display === 'flex') handleAuth();
-            }
-        });
-
-        populateCountryDatalist();
-
-        console.log('✅ Activity page ready');
-    });
-
-    console.log('📊 Activity page loaded');
-    </script>
-
+    <!-- Include the fixed app.js -->
     <script src="js/app.js"></script>
 </body>
 </html>
