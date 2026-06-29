@@ -1,1 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — The Harbor</title>
 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .legal-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        .legal-section h1 {
+            font-weight: 300;
+            color: #1a4a4a;
+            font-size: 2.2rem;
+            margin-bottom: 4px;
+        }
+        .legal-section .subtitle {
+            color: #7a9e7e;
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+        .legal-section h2 {
+            color: #1a4a4a;
+            font-size: 1.3rem;
+            margin-top: 28px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #d4c8b8;
+        }
+        .legal-section h2:first-of-type {
+            margin-top: 0;
+        }
+        .legal-section p {
+            color: #2d3a3a;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .legal-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .legal-section ul li {
+            padding: 8px 0;
+            color: #2d3a3a;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border-bottom: 1px solid #f0ebe6;
+        }
+        .legal-section ul li:last-child {
+            border-bottom: none;
+        }
+        .legal-section ul li .icon {
+            font-size: 1.2rem;
+            min-width: 30px;
+            margin-top: 2px;
+        }
+        .legal-section .last-updated {
+            background: #e8f0e6;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: #1a4a4a;
+            font-size: 0.9rem;
+            margin: 20px 0;
+        }
+        .card {
+            background: #f5f0eb;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #d4c8b8;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #c47a5a;
+            border-radius: 50px;
+            padding: 10px 24px;
+            color: #c47a5a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: #c47a5a;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 16px; }
+            .legal-section h1 { font-size: 1.6rem; }
+            .legal-section h2 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
+        </div>
+        <div class="header-right">
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+            <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <div id="authButtons">
+                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+            <div id="userInfo">
+                <span id="userName">Friend</span>
+                <span id="userGenderBadge"></span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div id="emergencyBanner"></div>
+
+    <div class="container">
+        <div class="legal-section">
+            <div class="card">
+                <h1>🔒 Privacy Policy</h1>
+                <p class="subtitle">Your privacy matters to us. Here's how we protect it.</p>
+
+                <div class="last-updated">
+                    📅 Last Updated: June 29, 2026
+                </div>
+
+                <h2>1. Information We Collect</h2>
+                <p>We collect the following information to provide and improve our services:</p>
+                <ul>
+                    <li>
+                        <span class="icon">📧</span>
+                        <div><strong>Email Address</strong> — Used for account creation, login, and important notifications.</div>
+                    </li>
+                    <li>
+                        <span class="icon">👤</span>
+                        <div><strong>Username</strong> — Your chosen display name that appears on your stories and comments.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🧑</span>
+                        <div><strong>Gender</strong> — Used to determine which gender-specific sections you can access (Men's Harbor / Women's Harbor).</div>
+                    </li>
+                    <li>
+                        <span class="icon">📍</span>
+                        <div><strong>Country</strong> — Used to display the correct emergency number for your location.</div>
+                    </li>
+                    <li>
+                        <span class="icon">❤️</span>
+                        <div><strong>Favorite Things</strong> — Optional information you choose to share about your interests.</div>
+                    </li>
+                    <li>
+                        <span class="icon">📝</span>
+                        <div><strong>Stories & Comments</strong> — Content you voluntarily share with the community.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🔄</span>
+                        <div><strong>Reactions</strong> — Emoji reactions you add to stories.</div>
+                    </li>
+                </ul>
+
+                <h2>2. How We Use Your Information</h2>
+                <ul>
+                    <li>
+                        <span class="icon">⚡</span>
+                        <div><strong>To provide services</strong> — Allow you to share stories, comment, and interact with the community.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🛡️</span>
+                        <div><strong>For safety</strong> — Moderate content and prevent abuse of our platform.</div>
+                    </li>
+                    <li>
+                        <span class="icon">📊</span>
+                        <div><strong>For analytics</strong> — Understand how our community grows and improve user experience.</div>
+                    </li>
+                    <li>
+                        <span class="icon">📧</span>
+                        <div><strong>For communication</strong> — Send important updates, verification emails, and moderation notices.</div>
+                    </li>
+                </ul>
+
+                <h2>3. Data Security</h2>
+                <ul>
+                    <li>
+                        <span class="icon">🔐</span>
+                        <div><strong>Encryption</strong> — All data is encrypted in transit using HTTPS and at rest using Firebase's security.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🛡️</span>
+                        <div><strong>Authentication</strong> — We use Firebase Authentication with secure password hashing.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🔒</span>
+                        <div><strong>Access Control</strong> — Only you can access your account. Admins cannot read private messages or personal data.</div>
+                    </li>
+                    <li>
+                        <span class="icon">📵</span>
+                        <div><strong>No Data Selling</strong> — We never sell, rent, or share your personal data with third parties.</div>
+                    </li>
+                </ul>
+
+                <h2>4. Your Rights</h2>
+                <ul>
+                    <li>
+                        <span class="icon">👁️</span>
+                        <div><strong>Access</strong> — You can view your profile and all your activity at any time.</div>
+                    </li>
+                    <li>
+                        <span class="icon">✏️</span>
+                        <div><strong>Edit</strong> — You can update your profile information anytime.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🗑️</span>
+                        <div><strong>Delete</strong> — You can delete your stories and comments. For account deletion, contact us.</div>
+                    </li>
+                    <li>
+                        <span class="icon">📤</span>
+                        <div><strong>Data Export</strong> — You can request a copy of your data by contacting us.</div>
+                    </li>
+                </ul>
+
+                <h2>5. Cookies & Tracking</h2>
+                <ul>
+                    <li>
+                        <span class="icon">🍪</span>
+                        <div><strong>Essential Cookies</strong> — We use minimal cookies for authentication and session management.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🚫</span>
+                        <div><strong>No Tracking</strong> — We do not use third-party tracking or analytics that follow you across websites.</div>
+                    </li>
+                    <li>
+                        <span class="icon">📊</span>
+                        <div><strong>Internal Analytics</strong> — We use Firebase Analytics to understand usage patterns.</div>
+                    </li>
+                </ul>
+
+                <h2>6. Third-Party Services</h2>
+                <ul>
+                    <li>
+                        <span class="icon">🔥</span>
+                        <div><strong>Firebase</strong> — We use Firebase (Google) for authentication, database, and hosting. Their privacy policy applies.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🔗</span>
+                        <div><strong>External Links</strong> — We may link to external resources. We are not responsible for their privacy practices.</div>
+                    </li>
+                </ul>
+
+                <h2>7. Children's Privacy</h2>
+                <ul>
+                    <li>
+                        <span class="icon">🧒</span>
+                        <div><strong>Age Restriction</strong> — The Harbor is not intended for children under 13. We do not knowingly collect data from children.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🛡️</span>
+                        <div><strong>Parental Consent</strong> — If you are a parent and believe your child has provided us with data, please contact us.</div>
+                    </li>
+                </ul>
+
+                <h2>8. Contact Us</h2>
+                <ul>
+                    <li>
+                        <span class="icon">📧</span>
+                        <div><strong>Email</strong> — theharbor.community@gmail.com</div>
+                    </li>
+                    <li>
+                        <span class="icon">🐛</span>
+                        <div><strong>Report Issues</strong> — Use the "Report" button on any post or comment to report privacy concerns.</div>
+                    </li>
+                </ul>
+
+                <div style="margin-top:30px;padding-top:20px;border-top:2px solid #d4c8b8;text-align:center;">
+                    <p style="color:#7a9e7e;font-size:0.85rem;">
+                        © 2026 The Harbor — All Rights Reserved.
+                    </p>
+                    <div style="margin-top:10px;">
+                        <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="suggest.html">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
+            © 2026 The Harbor — All Rights Reserved.<br>
+            Built with 💚 for the community. Unauthorized reproduction or distribution is prohibited.
+        </div>
+    </footer>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+            <div class="warning-box" id="genderWarning">
+                <span class="icon">⚠️</span>
+                <span id="genderWarningText">Your gender determines which sections you can see.</span>
+            </div>
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+            <div id="signupFields" style="display:none;">
+                <label for="authName">Username</label>
+                <input type="text" id="authName" placeholder="Choose a unique username" />
+                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
+                <label for="authGender">Gender</label>
+                <select id="authGender" onchange="updateGenderWarning()">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
+                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
+                </div>
+                <label for="authCountry">Country</label>
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <datalist id="country-list"></datalist>
+                <label for="authFavorites">Favorite things</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <div class="checkbox-group" style="margin-top:14px;">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <label for="termsCheckbox" style="font-weight:600;cursor:pointer;color:#2d3a3a;">
+                        I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms of Service</a> and 
+                        <a href="privacy.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:#c0392b;">*</span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
+            <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
