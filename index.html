@@ -216,7 +216,7 @@
     </div>
 
     <!-- ============================================
-    AUTH MODAL
+    AUTH MODAL - WITH TERMS CHECKBOX (Fix #6)
     ============================================ -->
     <div class="modal" id="authModal">
         <div class="modal-content">
@@ -257,6 +257,16 @@
 
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+
+                <!-- ⭐ FIX #6: TERMS & PRIVACY CHECKBOX -->
+                <div class="checkbox-group" style="margin-top:14px;">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <label for="termsCheckbox" style="font-weight:600;cursor:pointer;color:#2d3a3a;">
+                        I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms of Service</a> and 
+                        <a href="privacy.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:#c0392b;">*</span>
+                    </label>
+                </div>
             </div>
 
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
