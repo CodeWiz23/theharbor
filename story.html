@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* Story-specific styles */
         .story-full {
             background: #f5f0eb;
             padding: 30px;
@@ -245,6 +244,7 @@
         @media (max-width: 600px) {
             .story-full { padding: 16px; }
             .emoji-btn { padding: 4px 10px; font-size: 1rem; }
+            .comment-section textarea { min-height: 60px; }
         }
     </style>
 </head>
@@ -699,9 +699,7 @@
                         currentUserData = doc.data();
                         userName.textContent = currentUserData.name || 'Friend';
                         userGenderBadge.textContent = currentUserData.gender || '';
-                        // Load user reactions
                         loadUserReactions();
-                        // Load story if on story page
                         if (window.location.pathname.includes('story.html')) {
                             loadStory();
                         }
@@ -782,8 +780,8 @@
             var count = reactions[emoji] || 0;
             var reacted = hasReacted.includes(emoji);
             reactionButtons += `
-                <button class="emoji-btn ${reacted ? 'reacted' : ''}" 
-                        id="reaction-${story.id}-${emoji}" 
+                <button class="emoji-btn ${reacted ? 'reacted' : ''}"
+                        id="reaction-${story.id}-${emoji}"
                         onclick="toggleReaction('${story.id}', '${emoji}')">
                     ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
                     ${reacted ? '<span class="checkmark">✅</span>' : ''}
@@ -809,7 +807,7 @@
     }
 
     // ============================================
-    // TOGGLE REACTION (Add/Remove - No Spam)
+    // TOGGLE REACTION
     // ============================================
     function toggleReaction(storyId, emoji) {
         if (!currentUser) {
@@ -828,13 +826,11 @@
 
         var hasReacted = userReactions[storyId] && userReactions[storyId].includes(emoji);
 
-        // Floating emoji
         var rect = document.getElementById('storyCard')?.getBoundingClientRect();
         var x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
         var y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
         createFloatingEmoji(emoji, x, y);
 
-        // Disable button temporarily to prevent spam
         var btn = document.getElementById('reaction-' + storyId + '-' + emoji);
         if (btn) btn.disabled = true;
 
@@ -845,13 +841,11 @@
                 var reactions = data.reactions || {};
 
                 if (hasReacted) {
-                    // REMOVE reaction
                     reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
                     if (userReactions[storyId]) {
                         userReactions[storyId] = userReactions[storyId].filter(function(e) { return e !== emoji; });
                     }
                 } else {
-                    // ADD reaction
                     reactions[emoji] = (reactions[emoji] || 0) + 1;
                     if (!userReactions[storyId]) userReactions[storyId] = [];
                     userReactions[storyId].push(emoji);
@@ -864,7 +858,6 @@
         .then(function() {
             if (btn) btn.disabled = false;
 
-            // Update UI instantly
             var countSpan = document.getElementById('count-' + storyId + '-' + emoji);
             if (countSpan) {
                 var currentCount = parseInt(countSpan.textContent) || 0;
