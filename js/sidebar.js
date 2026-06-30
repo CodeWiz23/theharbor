@@ -1,533 +1,366 @@
 // ============================================
-// SIDEBAR CONTROLS - DARK MODE PERSISTENT FIX
+// SIDEBAR — COMPLETE FIXED
 // ============================================
 
-let isSidebarOpen = false;
-let sidebarOverlay = null;
-let sidebarPanel = null;
-
-// ============================================
-// DARK MODE MANAGEMENT - FULLY PERSISTENT
-// ============================================
-
-// Get current theme (from localStorage or system)
-function getCurrentTheme() {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') {
-        return saved;
-    }
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-    }
-    return 'light';
-}
-
-// Apply theme to document
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
+function toggleSidebar() {
+    const overlay = document.getElementById('sidebarOverlay');
+    if (overlay) {
+        overlay.classList.toggle('active');
     } else {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
+        // If sidebar doesn't exist, create it
+        createSidebar();
     }
-    
-    // Update button text if visible
-    const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) {
-        themeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-    }
-    
-    console.log(`✅ Theme applied: ${theme}`);
 }
 
-// Toggle theme
-function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = html.getAttribute('data-theme') === 'dark';
-    const newTheme = isDark ? 'light' : 'dark';
-    
-    applyTheme(newTheme);
-    
-    // Update sidebar data
-    if (typeof updateSidebarData === 'function') {
-        updateSidebarData();
+function closeSidebar() {
+    const overlay = document.getElementById('sidebarOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
     }
-    
-    console.log(`✅ Theme toggled to: ${newTheme}`);
 }
 
-// ============================================
-// CREATE SIDEBAR HTML
-// ============================================
 function createSidebar() {
+    // Check if sidebar already exists
     if (document.getElementById('sidebarOverlay')) return;
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const sidebarHTML = `
+        <div id="sidebarOverlay" class="sidebar-overlay">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>⚙️ Settings</h2>
+                    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+                </div>
+                <div class="sidebar-content">
+                    <!-- Profile Section -->
+                    <div class="sidebar-section">
+                        <h3>👤 Profile</h3>
+                        <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
+                        <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
+                        <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Change Language</button>
+                        <button class="sidebar-btn" id="privacyToggleBtn" onclick="toggleProfilePrivacy()">
+                            🔒 Make Private
+                        </button>
+                    </div>
 
-    const overlay = document.createElement('div');
-    overlay.id = 'sidebarOverlay';
-    overlay.className = 'sidebar-overlay';
-    overlay.innerHTML = `
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>⚙️ Settings</h2>
-                <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-            </div>
-            <div class="sidebar-content">
-                <div class="sidebar-section">
-                    <h3>👤 Profile</h3>
-                    <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
-                    <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
-                    <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Change Language</button>
-                    <button class="sidebar-btn" id="privacyToggleBtn" onclick="toggleProfilePrivacy()">🔒 Make Private</button>
-                </div>
-                <div class="sidebar-section">
-                    <h3>🎨 Appearance</h3>
-                    <button class="sidebar-btn" id="themeToggleBtn" onclick="toggleTheme()">
-                        ${currentTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
-                    </button>
-                </div>
-                <div class="sidebar-section">
-                    <h3>💰 Harbor Gold</h3>
-                    <div class="gold-balance">Balance: <span id="sidebarGoldBalance">0</span> 🪙</div>
-                    <button class="sidebar-btn" onclick="viewGoldHistory()">📊 Transaction History</button>
-                </div>
-                <div class="sidebar-section">
-                    <h3>📊 My Stats</h3>
-                    <div class="stat-item">📝 Stories: <span id="sidebarStoryCount">0</span></div>
-                    <div class="stat-item">👥 Followers: <span id="sidebarFollowerCount">0</span></div>
-                    <div class="stat-item">👤 Following: <span id="sidebarFollowingCount">0</span></div>
-                    <div class="stat-item">🪙 Gold Received: <span id="sidebarGoldReceived">0</span></div>
-                    <div class="stat-item">❤️ Likes Received: <span id="sidebarLikesReceived">0</span></div>
-                </div>
-                <div class="sidebar-section sidebar-logout">
-                    <button class="sidebar-btn btn-danger" onclick="logout()">🚪 Logout</button>
+                    <!-- Appearance Section -->
+                    <div class="sidebar-section">
+                        <h3>🎨 Appearance</h3>
+                        <button class="sidebar-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                            🌙 Dark Mode
+                        </button>
+                    </div>
+
+                    <!-- Gold Section -->
+                    <div class="sidebar-section">
+                        <h3>💰 Harbor Gold</h3>
+                        <div class="gold-balance">
+                            Balance: <span id="sidebarGoldBalance">0</span> 🪙
+                        </div>
+                        <button class="sidebar-btn" onclick="viewGoldHistory()">📊 Transaction History</button>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div class="sidebar-section">
+                        <h3>📊 My Stats</h3>
+                        <div class="stat-item">📝 Stories: <span id="sidebarStoryCount">0</span></div>
+                        <div class="stat-item">👥 Followers: <span id="sidebarFollowerCount">0</span></div>
+                        <div class="stat-item">👤 Following: <span id="sidebarFollowingCount">0</span></div>
+                        <div class="stat-item">🪙 Gold Received: <span id="sidebarGoldReceived">0</span></div>
+                        <div class="stat-item">❤️ Likes Received: <span id="sidebarLikesReceived">0</span></div>
+                    </div>
+
+                    <!-- Logout -->
+                    <div class="sidebar-section sidebar-logout">
+                        <button class="sidebar-btn btn-danger" onclick="logout()">🚪 Logout</button>
+                    </div>
                 </div>
             </div>
         </div>
     `;
 
-    document.body.appendChild(overlay);
-    sidebarOverlay = overlay;
-    sidebarPanel = overlay.querySelector('.sidebar');
+    document.body.insertAdjacentHTML('beforeend', sidebarHTML);
 
-    overlay.addEventListener('click', function(e) {
-        if (e.target === this) closeSidebar();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isSidebarOpen) {
-            closeSidebar();
-        }
-    });
-
-    addSidebarStyles();
-    console.log('✅ Sidebar created');
-}
-
-// ============================================
-// SIDEBAR STYLES
-// ============================================
-function addSidebarStyles() {
-    if (document.getElementById('sidebarStyles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'sidebarStyles';
-    style.textContent = `
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            justify-content: flex-end;
-            backdrop-filter: blur(4px);
-        }
-        .sidebar-overlay.active { display: flex; }
-        .sidebar {
-            width: 25%;
-            min-width: 280px;
-            max-width: 420px;
-            height: 100%;
-            background: var(--sidebar-bg, #ffffff);
-            box-shadow: -8px 0 32px rgba(0,0,0,0.15);
-            overflow-y: auto;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-header {
-            padding: 20px 24px;
-            border-bottom: 2px solid var(--sidebar-border, #e2e8f0);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--sidebar-header-bg, #1a4a4a);
-            color: var(--sidebar-header-text, white);
-            flex-shrink: 0;
-        }
-        .sidebar-header h2 {
-            font-weight: 300;
-            font-size: 1.4rem;
-            margin: 0;
-            color: var(--sidebar-header-text, white);
-        }
-        .sidebar-close {
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: var(--sidebar-header-text, white);
-            transition: 0.3s;
-            padding: 4px 8px;
-            border-radius: 8px;
-        }
-        .sidebar-close:hover {
-            background: rgba(255,255,255,0.1);
-            transform: rotate(90deg);
-        }
-        .sidebar-content { padding: 16px 20px; flex: 1; overflow-y: auto; }
-        .sidebar-section {
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--sidebar-border, #e8ddd0);
-        }
-        .sidebar-section:last-child { border-bottom: none; margin-bottom: 0; }
-        .sidebar-section h3 {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--sidebar-text-secondary, #7a9e7e);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .sidebar-btn {
-            display: block;
-            width: 100%;
-            padding: 10px 14px;
-            margin-bottom: 6px;
-            background: var(--sidebar-btn-bg, #f0f4f8);
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--sidebar-text, #1a4a4a);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-        }
-        .sidebar-btn:hover {
-            background: var(--sidebar-btn-hover, #e2e8f0);
-            transform: translateX(4px);
-        }
-        .sidebar-btn.btn-danger {
-            background: #dc2626;
-            color: white;
-            text-align: center;
-            font-weight: 600;
-        }
-        .sidebar-btn.btn-danger:hover { background: #b91c1c; }
-        .gold-balance {
-            background: var(--sidebar-gold-bg, #fef3c7);
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--sidebar-text, #1a4a4a);
-            font-size: 1.1rem;
-        }
-        .gold-balance span { font-size: 1.3rem; color: #c47a5a; }
-        .stat-item { padding: 4px 0; font-size: 0.9rem; color: var(--sidebar-text, #2d3a3a); }
-        .stat-item span { font-weight: 600; color: var(--sidebar-text-bold, #1a4a4a); }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 80%; min-width: 0; max-width: 100%; }
-        }
-        @media (max-width: 480px) {
-            .sidebar { width: 100%; }
-            .sidebar-header h2 { font-size: 1.2rem; }
-            .sidebar-btn { padding: 8px 12px; font-size: 0.85rem; }
-        }
-
-        [data-theme="dark"] .sidebar { background: #161b22; }
-        [data-theme="dark"] .sidebar-header { background: #0d1117; border-bottom-color: #2d3548; }
-        [data-theme="dark"] .sidebar-header h2 { color: #e8edf5; }
-        [data-theme="dark"] .sidebar-close { color: #9aa3b8; }
-        [data-theme="dark"] .sidebar-section { border-bottom-color: #2d3548; }
-        [data-theme="dark"] .sidebar-section h3 { color: #9aa3b8; }
-        [data-theme="dark"] .sidebar-btn { background: #2d3548; color: #e8edf5; }
-        [data-theme="dark"] .sidebar-btn:hover { background: #3d4558; }
-        [data-theme="dark"] .gold-balance { background: #1a4a4a; color: #e8edf5; }
-        [data-theme="dark"] .gold-balance span { color: #f5d6b3; }
-        [data-theme="dark"] .stat-item { color: #9aa3b8; }
-        [data-theme="dark"] .stat-item span { color: #e8edf5; }
-    `;
-    document.head.appendChild(style);
-}
-
-// ============================================
-// OPEN / CLOSE SIDEBAR
-// ============================================
-function openSidebar() {
-    if (!currentUser) {
-        alert('Please log in to access settings.');
-        return;
+    // Add styles if not present
+    if (!document.getElementById('sidebarStyles')) {
+        const styles = document.createElement('style');
+        styles.id = 'sidebarStyles';
+        styles.textContent = `
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 9999;
+                justify-content: flex-end;
+                animation: fadeIn 0.3s ease;
+            }
+            .sidebar-overlay.active {
+                display: flex;
+            }
+            .sidebar {
+                background: var(--bg-card, #ffffff);
+                width: 320px;
+                max-width: 90%;
+                height: 100%;
+                overflow-y: auto;
+                box-shadow: -4px 0 32px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+                padding: 20px;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .sidebar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-bottom: 16px;
+                border-bottom: 2px solid var(--border-color, #e2e8f0);
+                margin-bottom: 16px;
+            }
+            .sidebar-header h2 {
+                color: var(--text-primary, #1a1a2e);
+                margin: 0;
+                font-size: 1.4rem;
+            }
+            .sidebar-close {
+                background: none;
+                border: none;
+                font-size: 1.8rem;
+                cursor: pointer;
+                color: var(--text-muted, #718096);
+                padding: 0 8px;
+            }
+            .sidebar-close:hover {
+                color: var(--text-primary, #1a1a2e);
+            }
+            .sidebar-section {
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid var(--border-color, #e2e8f0);
+            }
+            .sidebar-section:last-child {
+                border-bottom: none;
+            }
+            .sidebar-section h3 {
+                color: var(--text-secondary, #4a5568);
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                margin-bottom: 8px;
+            }
+            .sidebar-btn {
+                display: block;
+                width: 100%;
+                padding: 10px 14px;
+                background: var(--bg-secondary, #f0f4f8);
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                color: var(--text-secondary, #4a5568);
+                text-align: left;
+                margin-bottom: 4px;
+            }
+            .sidebar-btn:hover {
+                background: var(--border-color, #e2e8f0);
+                transform: translateX(4px);
+            }
+            .sidebar-btn.btn-danger {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+            .sidebar-btn.btn-danger:hover {
+                background: #fecaca;
+            }
+            .gold-balance {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--text-primary, #1a1a2e);
+                padding: 8px 0;
+            }
+            .stat-item {
+                padding: 4px 0;
+                font-size: 0.9rem;
+                color: var(--text-secondary, #4a5568);
+            }
+            .stat-item span {
+                font-weight: 600;
+                color: var(--text-primary, #1a1a2e);
+            }
+            .sidebar-logout {
+                margin-top: 20px;
+                padding-top: 16px;
+                border-top: 2px solid var(--border-color, #e2e8f0);
+            }
+        `;
+        document.head.appendChild(styles);
     }
-    if (!sidebarOverlay) createSidebar();
-    if (!sidebarOverlay) return;
+
+    // Update sidebar with user data
     updateSidebarData();
-    sidebarOverlay.classList.add('active');
-    isSidebarOpen = true;
-    document.body.style.overflow = 'hidden';
 }
 
-function closeSidebar() {
-    if (sidebarOverlay) {
-        sidebarOverlay.classList.remove('active');
-        isSidebarOpen = false;
-        document.body.style.overflow = '';
-    }
-}
-
-function toggleSidebar() {
-    if (isSidebarOpen) { closeSidebar(); } else { openSidebar(); }
-}
-
-// ============================================
-// APPLY GUEST RESTRICTIONS
-// ============================================
-function applySidebarGuestRestrictions() {
-    const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
-    const sidebarBtn = document.querySelector('.btn-settings');
-    if (sidebarBtn) {
-        sidebarBtn.style.display = isLoggedIn ? '' : 'none';
-    }
-}
-
-// ============================================
-// UPDATE SIDEBAR DATA
-// ============================================
 function updateSidebarData() {
-    if (!currentUser || !currentUserData) {
-        console.warn('Cannot update sidebar: User not logged in');
-        return;
-    }
+    if (!currentUserData) return;
 
     const goldBalance = document.getElementById('sidebarGoldBalance');
-    if (goldBalance) { goldBalance.textContent = currentUserData.goldBalance || 0; }
-
     const storyCount = document.getElementById('sidebarStoryCount');
-    if (storyCount) { storyCount.textContent = currentUserData.storyCount || 0; }
-
     const followerCount = document.getElementById('sidebarFollowerCount');
-    if (followerCount) { followerCount.textContent = currentUserData.followers ? currentUserData.followers.length : 0; }
-
     const followingCount = document.getElementById('sidebarFollowingCount');
-    if (followingCount) { followingCount.textContent = currentUserData.following ? currentUserData.following.length : 0; }
-
     const goldReceived = document.getElementById('sidebarGoldReceived');
-    if (goldReceived) { goldReceived.textContent = currentUserData.goldReceived || 0; }
-
     const likesReceived = document.getElementById('sidebarLikesReceived');
-    if (likesReceived) { likesReceived.textContent = currentUserData.likesReceived || 0; }
 
+    if (goldBalance) goldBalance.textContent = currentUserData.goldBalance || 0;
+    if (storyCount) storyCount.textContent = currentUserData.storyCount || 0;
+    if (followerCount) followerCount.textContent = (currentUserData.followers || []).length;
+    if (followingCount) followingCount.textContent = (currentUserData.following || []).length;
+    if (goldReceived) goldReceived.textContent = currentUserData.goldReceived || 0;
+    if (likesReceived) likesReceived.textContent = currentUserData.likesReceived || 0;
+
+    // Privacy toggle
     const privacyBtn = document.getElementById('privacyToggleBtn');
     if (privacyBtn) {
-        privacyBtn.textContent = currentUserData.isPublic !== false ? '🔒 Make Private' : '🌍 Make Public';
+        privacyBtn.textContent = currentUserData.isPublic ? '🔒 Make Private' : '🌍 Make Public';
     }
 
+    // Theme toggle
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        themeBtn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+        const theme = document.documentElement.getAttribute('data-theme');
+        themeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
     }
 }
 
-// ============================================
-// TOGGLE PROFILE PRIVACY
-// ============================================
 function toggleProfilePrivacy() {
     if (!currentUser) {
         alert('Please log in.');
         return;
     }
-    if (!currentUserData) {
-        alert('Loading user data...');
-        return;
-    }
 
-    const newPrivacy = currentUserData.isPublic === false ? true : false;
-
+    const newPrivacy = !currentUserData?.isPublic;
     db.collection('users').doc(currentUser.uid).update({
         isPublic: newPrivacy
     }).then(() => {
-        currentUserData.isPublic = newPrivacy;
+        if (currentUserData) currentUserData.isPublic = newPrivacy;
         updateSidebarData();
-        const privacyBadge = document.querySelector('.privacy-badge');
-        if (privacyBadge) {
-            privacyBadge.textContent = newPrivacy ? '🌍 Public Profile' : '🔒 Private Profile';
-            privacyBadge.className = `privacy-badge ${newPrivacy ? 'public' : 'private'}`;
-        }
-        alert(newPrivacy ? '✅ Profile is now Public' : '🔒 Profile is now Private');
+        alert(`Profile is now ${newPrivacy ? 'Public' : 'Private'}.`);
     }).catch((err) => {
         alert('❌ Error: ' + err.message);
     });
 }
 
-// ============================================
-// SETTINGS MODALS
-// ============================================
 function openSettingsModal(type) {
-    if (!currentUser) {
-        alert('Please log in.');
-        return;
-    }
-    if (!currentUserData) {
-        alert('Loading user data...');
-        return;
-    }
-
+    closeSidebar();
     if (type === 'name') {
-        const newName = prompt('Enter new username:', currentUserData.name || '');
+        const newName = prompt('Enter new username:', currentUserData?.name || '');
         if (newName && newName.trim().length >= 2) {
-            db.collection('users').where('name', '==', newName.trim()).get()
-                .then((snapshot) => {
-                    if (!snapshot.empty && snapshot.docs[0].id !== currentUser.uid) {
-                        alert('❌ Username is already taken. Please choose another.');
-                        return;
-                    }
-                    return db.collection('users').doc(currentUser.uid).update({ name: newName.trim() });
-                })
-                .then(() => {
-                    if (!currentUserData) return;
-                    currentUserData.name = newName.trim();
-                    const userNameEl = document.getElementById('userName');
-                    if (userNameEl) userNameEl.textContent = newName.trim();
-                    updateSidebarData();
-                    alert('✅ Username updated!');
-                })
-                .catch((err) => { alert('❌ Error: ' + err.message); });
+            db.collection('users').doc(currentUser.uid).update({
+                name: newName.trim()
+            }).then(() => {
+                if (currentUserData) currentUserData.name = newName.trim();
+                document.getElementById('userName').textContent = newName.trim();
+                alert('✅ Username updated!');
+                updateSidebarData();
+            }).catch((err) => {
+                alert('❌ Error: ' + err.message);
+            });
         }
     } else if (type === 'password') {
-        const currentPwd = prompt('Enter current password:');
-        if (!currentPwd) return;
-        const newPwd = prompt('Enter new password (min 6 characters):');
-        if (!newPwd || newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
-        const confirmPwd = prompt('Confirm new password:');
-        if (newPwd !== confirmPwd) { alert('Passwords do not match.'); return; }
-        const user = auth.currentUser;
-        if (!user) { alert('Please log in again.'); return; }
-        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPwd);
-        user.reauthenticateWithCredential(credential)
-            .then(() => user.updatePassword(newPwd))
-            .then(() => alert('✅ Password updated successfully!'))
+        const currentPassword = prompt('Enter current password:');
+        if (!currentPassword) return;
+        const newPassword = prompt('Enter new password (min 6 characters):');
+        if (!newPassword || newPassword.length < 6) {
+            alert('Password must be at least 6 characters.');
+            return;
+        }
+        const confirmPassword = prompt('Confirm new password:');
+        if (newPassword !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+
+        const credential = firebase.auth.EmailAuthProvider.credential(
+            currentUser.email,
+            currentPassword
+        );
+        currentUser.reauthenticateWithCredential(credential)
+            .then(() => {
+                return currentUser.updatePassword(newPassword);
+            })
+            .then(() => {
+                alert('✅ Password updated successfully!');
+            })
             .catch((err) => {
-                if (err.code === 'auth/wrong-password') {
-                    alert('❌ Current password is incorrect.');
-                } else {
-                    alert('❌ Error: ' + err.message);
-                }
+                alert('❌ Error: ' + err.message);
             });
     } else if (type === 'language') {
-        const lang = prompt('Select language (en/es/fr):', currentUserData.language || 'en');
+        const lang = prompt('Select language (en, es, fr):', 'en');
         if (lang && ['en', 'es', 'fr'].includes(lang)) {
-            db.collection('users').doc(currentUser.uid).update({ language: lang })
-                .then(() => {
-                    currentUserData.language = lang;
-                    localStorage.setItem('language', lang);
-                    alert('✅ Language updated to ' + lang + '!');
-                })
-                .catch((err) => { alert('❌ Error: ' + err.message); });
+            db.collection('users').doc(currentUser.uid).update({
+                language: lang
+            }).then(() => {
+                localStorage.setItem('language', lang);
+                alert('✅ Language updated!');
+                location.reload();
+            }).catch((err) => {
+                alert('❌ Error: ' + err.message);
+            });
         } else if (lang) {
             alert('Invalid language. Use: en, es, fr');
         }
     }
 }
 
-// ============================================
-// VIEW GOLD HISTORY
-// ============================================
 function viewGoldHistory() {
+    closeSidebar();
     if (!currentUser) {
         alert('Please log in.');
         return;
     }
-    if (!currentUserData) {
-        alert('Loading user data...');
-        return;
-    }
-    alert(
-        '💰 Gold History\n\n' +
-        '━━━━━━━━━━━━━━━━━━━━━\n' +
-        'Current Balance: ' + (currentUserData.goldBalance || 0) + ' 🪙\n' +
-        'Total Received: ' + (currentUserData.goldReceived || 0) + ' 🪙\n' +
-        'Total Given: ' + (currentUserData.goldGiven || 0) + ' 🪙\n' +
-        '━━━━━━━━━━━━━━━━━━━━━\n\n' +
-        '📊 Full transaction history coming soon!'
-    );
+
+    db.collection('goldTransactions')
+        .where('fromUid', '==', currentUser.uid)
+        .get()
+        .then((snapshot) => {
+            if (snapshot.empty) {
+                alert('📊 No gold transactions yet.');
+                return;
+            }
+            let message = '📊 Gold Transaction History:\n\n';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const time = data.createdAt ? data.createdAt.toDate().toLocaleString() : 'Recently';
+                message += `💰 ${data.amount} 🪙 → ${data.toName} (${time})\n`;
+                if (data.message) message += `   💬 ${data.message}\n`;
+            });
+            alert(message);
+        })
+        .catch((err) => {
+            alert('❌ Error: ' + err.message);
+        });
 }
 
-// ============================================
-// INIT SIDEBAR ON PAGE LOAD
-// ============================================
+// Update sidebar data when user data changes
 document.addEventListener('DOMContentLoaded', function() {
-    // The theme is already applied by the script in <head>
-    // Just create sidebar
-    createSidebar();
-
-    const headerRight = document.querySelector('.header-right');
-    if (headerRight && !document.querySelector('.btn-settings')) {
-        const settingsBtn = document.createElement('button');
-        settingsBtn.className = 'btn btn-settings';
-        settingsBtn.innerHTML = '⚙️';
-        settingsBtn.title = 'Settings';
-        settingsBtn.onclick = toggleSidebar;
-        settingsBtn.style.fontSize = '1.4rem';
-        settingsBtn.style.padding = '4px 10px';
-        settingsBtn.style.background = 'transparent';
-        settingsBtn.style.border = 'none';
-        settingsBtn.style.cursor = 'pointer';
-        settingsBtn.style.color = 'var(--text-secondary, #4a5568)';
-        settingsBtn.style.transition = 'transform 0.3s ease, background 0.2s ease';
-        settingsBtn.style.borderRadius = '8px';
-
-        const authButtons = document.getElementById('authButtons');
-        if (authButtons) {
-            headerRight.insertBefore(settingsBtn, authButtons);
-        } else {
-            headerRight.appendChild(settingsBtn);
-        }
-    }
-
-    if (typeof currentUser !== 'undefined') {
-        applySidebarGuestRestrictions();
-    }
-
+    // Listen for auth changes to update sidebar
     if (typeof auth !== 'undefined') {
         auth.onAuthStateChanged(function(user) {
-            setTimeout(applySidebarGuestRestrictions, 200);
+            if (user) {
+                setTimeout(updateSidebarData, 500);
+            }
         });
     }
-
-    console.log('✅ Sidebar initialized');
 });
 
-// ============================================
-// GLOBAL EXPOSURE
-// ============================================
-window.toggleSidebar = toggleSidebar;
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
-window.toggleTheme = toggleTheme;
-window.toggleProfilePrivacy = toggleProfilePrivacy;
-window.openSettingsModal = openSettingsModal;
-window.viewGoldHistory = viewGoldHistory;
-window.applyTheme = applyTheme;
-window.getCurrentTheme = getCurrentTheme;
-
-console.log('📂 Sidebar module loaded successfully');
+console.log('✅ Sidebar loaded');
