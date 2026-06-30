@@ -413,6 +413,14 @@
         .btn-primary {
             background: #1a4a4a;
             color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-primary:hover {
             background: #2d6a6a;
@@ -422,7 +430,14 @@
         .btn-secondary {
             background: transparent;
             color: #1a4a4a;
+            padding: 0.5rem 1.5rem;
             border: 2px solid #1a4a4a;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-secondary:hover {
             background: #1a4a4a;
@@ -433,6 +448,14 @@
         .btn-danger {
             background: #dc2626;
             color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-danger:hover {
             background: #b91c1c;
@@ -442,7 +465,14 @@
         .btn-report {
             background: #fef3c7;
             color: #92400e;
+            padding: 0.5rem 1.5rem;
             border: 1px solid #fde68a;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-report:hover {
             background: #fde68a;
@@ -893,18 +923,18 @@
 
 <body>
 
-    <!-- ===== HEADER - Consistent with other pages ===== -->
+    <!-- ===== HEADER ===== -->
     <header class="header">
         <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
         <div class="header-right">
-            <!-- FEED BUTTON - Only visible when logged in -->
+            <!-- FEED BUTTON -->
             <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
 
-            <!-- About - Always visible -->
+            <!-- About -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
 
-            <!-- Guest Restricted Elements - Only visible when logged in -->
+            <!-- Guest Restricted Elements -->
             <div class="guest-restricted guest-hidden">
                 <a href="submit.html" class="btn btn-nav">📝 Share</a>
                 <a href="profile.html" class="btn btn-nav" style="background:#1a4a4a;color:white;">👤 Profile</a>
@@ -913,16 +943,16 @@
                 <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
 
-            <!-- Settings Gear - Only visible when logged in -->
+            <!-- Settings Gear -->
             <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
 
-            <!-- Auth Buttons - Only visible when NOT logged in -->
+            <!-- Auth Buttons -->
             <div id="authButtons" class="logged-in-hidden">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
 
-            <!-- User Info - Only visible when logged in -->
+            <!-- User Info -->
             <div id="userInfo" class="guest-hidden">
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge"></span>
@@ -1262,7 +1292,7 @@
                     selectedAvatar = userData.avatar || '👤';
                     selectedBorder = userData.border || 'default';
 
-                    // CRITICAL FIX: Check if private and not self
+                    // Check if private and not self
                     if (userData.isPublic === false && auth.currentUser?.uid !== uid) {
                         const following = currentUserData?.following?.includes(uid) || false;
                         container.innerHTML = `
@@ -1338,7 +1368,7 @@
             const gender = userData.gender || '';
             const isAdmin = userData.isAdmin || false;
             const isPrivate = userData.isPublic === false;
-            // CRITICAL FIX: Use document ID comparison, not userData.uid
+            // CRITICAL FIX: Use document ID comparison
             const isSelf = auth.currentUser?.uid === userData.uid;
             const following = isFollowing(userData.uid);
 
@@ -1805,9 +1835,9 @@
                         return user.sendEmailVerification().then(() => user);
                     })
                     .then((user) => {
-                        // CRITICAL FIX: Add uid field to user document
+                        // CRITICAL FIX: Add uid field
                         return db.collection('users').doc(user.uid).set({
-                            uid: user.uid,  // ← CRITICAL FIX
+                            uid: user.uid,
                             name: name,
                             email: email,
                             gender: '🙅 Prefer not to say',
@@ -1898,7 +1928,7 @@
                         } else {
                             // Create user document with uid field
                             db.collection('users').doc(user.uid).set({
-                                uid: user.uid,  // ← CRITICAL FIX
+                                uid: user.uid,
                                 name: user.displayName || 'Friend',
                                 email: user.email,
                                 gender: '🙅 Prefer not to say',
