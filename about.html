@@ -320,6 +320,27 @@
             .values-grid { grid-template-columns: repeat(2, 1fr); }
             .quick-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* ===== GUEST RESTRICTIONS ===== */
+        .guest-hidden {
+            display: none !important;
+        }
+        .logged-in-hidden {
+            display: none !important;
+        }
+
+        /* ===== CATEGORY INFO TOOLTIP FIX ===== */
+        .category-info-wrapper {
+            position: relative;
+            z-index: 9999;
+        }
+        .category-info-trigger {
+            position: relative;
+            z-index: 9999;
+        }
+        .category-info-tooltip {
+            z-index: 99999 !important;
+        }
     </style>
 </head>
 
@@ -330,21 +351,32 @@
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
+            <!-- FEED - Only visible when logged in -->
+            <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
+
+            <!-- About - Always visible -->
             <a href="about.html" class="btn btn-nav" style="background:var(--primary);color:white;">🌿 About</a>
-            <div class="guest-restricted">
+
+            <!-- Guest Restricted Elements - Only visible when logged in -->
+            <div class="guest-restricted guest-hidden">
                 <a href="submit.html" class="btn btn-nav">📝 Share</a>
                 <a href="profile.html" class="btn btn-nav">👤 Profile</a>
                 <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
                 <a href="activity.html" class="btn btn-nav">📊 Activity</a>
                 <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
-            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
-            <div id="authButtons">
+
+            <!-- Settings Gear - Only visible when logged in -->
+            <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
+
+            <!-- Auth Buttons - Only visible when NOT logged in -->
+            <div id="authButtons" class="logged-in-hidden">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
-            <div id="userInfo">
+
+            <!-- User Info - Only visible when logged in -->
+            <div id="userInfo" class="guest-hidden">
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
@@ -636,12 +668,12 @@
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html">📊 Activity</a>
+            <a href="activity.html" class="guest-hidden">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
+            <a href="submit.html" class="guest-hidden">📝 Share Story</a>
+            <a href="profile.html" class="guest-hidden">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
+            <a href="suggest.html" class="guest-hidden">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
@@ -742,7 +774,6 @@
         if (result) {
             showEmergencyResult(result);
         } else {
-            // Try partial match
             const partial = emergencyCountries.filter(c => c.name.toLowerCase().includes(name.toLowerCase()));
             if (partial.length > 0) {
                 showEmergencyResult(partial[0]);
@@ -782,11 +813,9 @@
                 return;
             }
 
-            // Try exact match
             let result = emergencyCountries.find(c => c.name.toLowerCase() === query.toLowerCase());
 
             if (!result) {
-                // Try partial match
                 result = emergencyCountries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
             }
 
@@ -798,7 +827,6 @@
             }
         });
 
-        // Show default result
         setTimeout(() => {
             const defaultResult = emergencyCountries.find(c => c.name === 'United States');
             if (defaultResult) {
@@ -808,11 +836,48 @@
     }
 
     // ============================================
+    // APPLY GUEST RESTRICTIONS
+    // ============================================
+    function applyGuestRestrictions() {
+        const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
+        const guestElements = document.querySelectorAll('.guest-hidden');
+        const loggedInElements = document.querySelectorAll('.logged-in-hidden');
+
+        guestElements.forEach(function(el) {
+            if (isLoggedIn) {
+                el.style.display = '';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+
+        loggedInElements.forEach(function(el) {
+            if (isLoggedIn) {
+                el.style.display = 'none';
+            } else {
+                el.style.display = '';
+            }
+        });
+    }
+
+    // ============================================
     // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         populateEmergencyDatalist();
         setupEmergencySearch();
+
+        // Apply guest restrictions
+        if (typeof currentUser !== 'undefined') {
+            applyGuestRestrictions();
+        }
+
+        // Watch for auth changes
+        if (typeof auth !== 'undefined') {
+            auth.onAuthStateChanged(function(user) {
+                setTimeout(applyGuestRestrictions, 200);
+            });
+        }
 
         // Modal close on outside click
         document.getElementById('authModal')?.addEventListener('click', function(e) {
