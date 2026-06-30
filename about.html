@@ -5,224 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;
-    ">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
-    <!-- Google Analytics -->
-    <script src="js/analytics.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="js/analytics.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
         .about-section {
-            padding: 20px 0;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-lg) 0;
         }
-        .about-section h2 {
-            color: #1a4a4a;
-            margin-top: 28px;
-            margin-bottom: 10px;
-            font-size: 1.4rem;
+
+        .about-header {
+            text-align: center;
+            padding: var(--space-xl) 0 var(--space-lg);
         }
-        .about-section h2:first-of-type {
+        .about-header .big-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: var(--space-sm);
+        }
+        .about-header h1 {
+            font-weight: 300;
+            color: var(--text-primary);
+            font-size: 2.4rem;
+        }
+        .about-header h1 span {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .about-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: var(--space-xs);
+        }
+
+        .about-card {
+            background: var(--bg-card);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+        }
+        .about-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .about-card h2 {
+            color: var(--text-primary);
             margin-top: 0;
+            margin-bottom: var(--space-md);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
         }
-        .about-section p {
-            color: #2d3a3a;
+
+        .about-card p {
+            color: var(--text-secondary);
             line-height: 1.8;
         }
-        .about-section ul {
+
+        .about-card ul {
             list-style: none;
             padding: 0;
         }
-        .about-section ul li {
-            padding: 10px 0;
-            border-bottom: 1px solid #e8ddd0;
-            color: #2d3a3a;
+        .about-card ul li {
+            padding: var(--space-sm) 0;
+            color: var(--text-secondary);
             display: flex;
-            align-items: center;
-            gap: 10px;
+            align-items: flex-start;
+            gap: var(--space-md);
+            border-bottom: 1px solid var(--border-light);
         }
-        .about-section ul li:last-child {
+        .about-card ul li:last-child {
             border-bottom: none;
         }
-        .about-section ul li .icon {
+        .about-card ul li .icon {
             font-size: 1.2rem;
             min-width: 30px;
+            margin-top: 2px;
         }
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 12px;
+        .about-card ul li strong {
+            color: var(--text-primary);
         }
-        .resource-card {
-            background: #f5f0eb;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #d4c8b8;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .resource-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(26, 74, 74, 0.1);
-        }
-        .resource-card a {
-            color: #1a4a4a;
-            font-weight: 600;
-            text-decoration: none;
+        .about-card ul li .desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
             display: block;
-            margin-top: 6px;
         }
-        .resource-card a:hover {
-            color: #c47a5a;
-            text-decoration: underline;
+
+        .mission-quote {
+            background: var(--bg-secondary);
+            padding: var(--space-lg) var(--space-xl);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--secondary);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin: var(--space-md) 0;
         }
-        .resource-card .emoji {
-            font-size: 2.4rem;
-            display: block;
-            margin-bottom: 6px;
+        .mission-quote strong {
+            color: var(--primary);
+            font-style: normal;
         }
-        .resource-card .desc {
-            font-size: 0.8rem;
-            color: #7a9e7e;
-            margin-top: 4px;
-        }
+
         .values-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
         }
         .value-item {
-            background: #f5f0eb;
-            padding: 16px;
-            border-radius: 12px;
+            background: var(--bg-secondary);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
             text-align: center;
-            border: 1px solid #d4c8b8;
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-fast);
+        }
+        .value-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-sm);
+            border-color: var(--primary-light);
         }
         .value-item .emoji {
             font-size: 2rem;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: var(--space-xs);
         }
         .value-item .label {
             font-weight: 600;
-            color: #1a4a4a;
+            color: var(--text-primary);
             font-size: 0.9rem;
         }
-        .mission-quote {
-            background: #e8f0e6;
-            padding: 24px 30px;
-            border-radius: 16px;
-            border-left: 6px solid #1a4a4a;
-            margin: 16px 0 24px 0;
-            font-style: italic;
-            font-size: 1.1rem;
-            color: #2d3a3a;
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
         }
-        .mission-quote strong {
-            color: #1a4a4a;
-            font-style: normal;
+        .resource-card {
+            background: var(--bg-secondary);
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-sm);
+            border-color: var(--primary-light);
+        }
+        .resource-card .emoji {
+            font-size: 2.4rem;
+            display: block;
+            margin-bottom: var(--space-xs);
+        }
+        .resource-card a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            display: block;
+            margin-top: var(--space-xs);
+        }
+        .resource-card a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        .resource-card .desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: var(--space-xs);
         }
 
+        /* Emergency Search */
         .emergency-search {
-            margin: 16px 0;
             position: relative;
+            margin: var(--space-md) 0;
         }
         .emergency-search input {
             width: 100%;
-            padding: 14px 20px;
-            border: 2px solid #d4c8b8;
-            border-radius: 30px;
+            padding: var(--space-md) var(--space-lg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-full);
             font-size: 1rem;
-            background: #f5f0eb;
-            transition: 0.3s;
-            autocomplete: off;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all var(--transition-fast);
         }
         .emergency-search input:focus {
             outline: none;
-            border-color: #1a4a4a;
-            box-shadow: 0 0 0 4px rgba(26, 74, 74, 0.12);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
         }
+        .emergency-search input::placeholder {
+            color: var(--text-muted);
+        }
+
         .emergency-result {
-            background: #f5f0eb;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #d4c8b8;
-            margin-top: 12px;
+            background: var(--bg-secondary);
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-top: var(--space-md);
             display: none;
             animation: fadeIn 0.3s ease;
+            text-align: center;
         }
+        .emergency-result .country-name {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        .emergency-result .number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: var(--space-xs) 0;
+        }
+        .emergency-result .note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .emergency-result .call-btn {
+            display: inline-block;
+            margin-top: var(--space-md);
+            padding: var(--space-sm) var(--space-xl);
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+        .emergency-result .call-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.02);
+            box-shadow: var(--shadow-md);
+        }
+
+        .no-result {
+            color: var(--danger);
+            font-size: 0.95rem;
+            margin-top: var(--space-md);
+            display: none;
+            text-align: center;
+            padding: var(--space-md);
+            background: #fee2e2;
+            border-radius: var(--radius-md);
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--space-sm);
+            margin: var(--space-md) 0;
+        }
+        .quick-btn {
+            padding: var(--space-sm);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            text-align: center;
+            font-family: var(--font-family);
+            color: var(--text-secondary);
+        }
+        .quick-btn:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .quick-btn .num {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .quick-btn .name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .emergency-result .country-name {
-            font-size: 1.1rem;
-            color: #2d3a3a;
-        }
-        .emergency-result .number {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #1a4a4a;
-        }
-        .emergency-result .note {
-            font-size: 0.9rem;
-            color: #7a9e7e;
-            margin-top: 4px;
-        }
-        .no-result {
-            color: #c0392b;
-            font-size: 0.95rem;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .card {
-            background: #f5f0eb;
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid #d4c8b8;
-        }
 
         @media (max-width: 600px) {
-            .resources-grid {
-                grid-template-columns: 1fr;
-            }
-            .values-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .mission-quote {
-                padding: 16px 18px;
-                font-size: 1rem;
-            }
+            .about-card { padding: var(--space-lg); }
+            .about-header h1 { font-size: 1.8rem; }
+            .values-grid { grid-template-columns: repeat(3, 1fr); }
+            .resources-grid { grid-template-columns: 1fr; }
+            .quick-grid { grid-template-columns: repeat(3, 1fr); }
+            .emergency-result .number { font-size: 2.2rem; }
+        }
+        @media (max-width: 400px) {
+            .values-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 
 <body>
-    <!-- Header -->
+    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
-            <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <a href="submit.html" class="btn btn-nav">📝 Share</a>
-            <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
+            <a href="about.html" class="btn btn-nav" style="background:var(--primary);color:white;">🌿 About</a>
+            <div class="guest-restricted">
+                <a href="submit.html" class="btn btn-nav">📝 Share</a>
+                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            </div>
+            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -236,76 +353,78 @@
         </div>
     </header>
 
-    <!-- Emergency Banner -->
+    <!-- ===== EMERGENCY BANNER ===== -->
     <div id="emergencyBanner"></div>
 
-    <!-- Main Content -->
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="container">
         <div class="about-section">
-            <div style="text-align:center;padding:20px 0 10px 0;">
-                <span style="font-size:4rem;">⚓</span>
-                <h1 style="font-weight:300;color:#1a4a4a;font-size:2.4rem;margin-top:4px;">About The Harbor</h1>
-                <p style="color:#7a9e7e;font-size:1.1rem;">A safe space for every story.</p>
+
+            <!-- Header -->
+            <div class="about-header">
+                <span class="big-icon">⚓</span>
+                <h1>About <span>The Harbor</span></h1>
+                <p>A safe space for every story.</p>
             </div>
 
             <!-- Mission -->
-            <div class="card">
+            <div class="about-card">
                 <h2>🌿 Our Mission</h2>
                 <div class="mission-quote">
                     "The Harbor is a compassionate online community where people can share their struggles,
                     find support, and discover hope. We believe that <strong>every story matters</strong> and that
                     no one should have to face their challenges alone."
                 </div>
-                <p style="margin-top:8px;">
+                <p style="margin-top:var(--space-sm);">
                     Whether you're navigating a difficult time, celebrating a victory, or just looking for a
                     place to belong — you are welcome here.
                 </p>
             </div>
 
-            <!-- What We Offer -->
-            <div class="card" style="margin-top:20px;">
+            <!-- Categories -->
+            <div class="about-card">
                 <h2>⚓ What We Offer</h2>
                 <ul>
                     <li>
                         <span class="icon">🧔</span>
                         <div>
                             <strong>Men's Harbor</strong>
-                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">A dedicated space for men to share and support each other</span>
+                            <span class="desc">A dedicated space for men to share and support each other</span>
                         </div>
                     </li>
                     <li>
                         <span class="icon">👩</span>
                         <div>
                             <strong>Women's Harbor</strong>
-                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">A dedicated space for women to share and support each other</span>
+                            <span class="desc">A dedicated space for women to share and support each other</span>
                         </div>
                     </li>
                     <li>
                         <span class="icon">🌊</span>
                         <div>
                             <strong>The Storm</strong>
-                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">For sharing struggles, depression, and difficult times</span>
+                            <span class="desc">For sharing struggles, depression, and difficult times</span>
                         </div>
                     </li>
                     <li>
                         <span class="icon">☀️</span>
                         <div>
                             <strong>Sunny Skies</strong>
-                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">For sharing joy, fun moments, and positivity</span>
+                            <span class="desc">For sharing joy, fun moments, and positivity</span>
                         </div>
                     </li>
                     <li>
                         <span class="icon">🧭</span>
                         <div>
                             <strong>The Compass</strong>
-                            <span style="color:#7a9e7e;font-size:0.9rem;display:block;">For learning, growth, and practical advice</span>
+                            <span class="desc">For learning, growth, and practical advice</span>
                         </div>
                     </li>
                 </ul>
             </div>
 
-            <!-- Our Values -->
-            <div class="card" style="margin-top:20px;">
+            <!-- Values -->
+            <div class="about-card">
                 <h2>💚 Our Values</h2>
                 <div class="values-grid">
                     <div class="value-item">
@@ -331,8 +450,8 @@
                 </div>
             </div>
 
-            <!-- Community Guidelines -->
-            <div class="card" style="margin-top:20px;">
+            <!-- Guidelines -->
+            <div class="about-card">
                 <h2>🛡️ Community Guidelines</h2>
                 <ul>
                     <li>
@@ -362,12 +481,40 @@
                 </ul>
             </div>
 
-            <!-- Emergency Numbers with Search -->
-            <div class="card" style="margin-top:20px;">
+            <!-- Emergency Numbers -->
+            <div class="about-card">
                 <h2>🆘 Emergency Numbers</h2>
-                <p style="margin-bottom:12px;color:#7a9e7e;">
+                <p style="color:var(--text-muted);margin-bottom:var(--space-md);">
                     Search for emergency numbers in any country. You are not alone.
                 </p>
+
+                <div class="quick-grid">
+                    <button class="quick-btn" onclick="searchCountry('United States')">
+                        <span class="num">911</span>
+                        <span class="name">🇺🇸 USA</span>
+                    </button>
+                    <button class="quick-btn" onclick="searchCountry('United Kingdom')">
+                        <span class="num">999</span>
+                        <span class="name">🇬🇧 UK</span>
+                    </button>
+                    <button class="quick-btn" onclick="searchCountry('Bangladesh')">
+                        <span class="num">999</span>
+                        <span class="name">🇧🇩 Bangladesh</span>
+                    </button>
+                    <button class="quick-btn" onclick="searchCountry('India')">
+                        <span class="num">112</span>
+                        <span class="name">🇮🇳 India</span>
+                    </button>
+                    <button class="quick-btn" onclick="searchCountry('Canada')">
+                        <span class="num">911</span>
+                        <span class="name">🇨🇦 Canada</span>
+                    </button>
+                    <button class="quick-btn" onclick="searchCountry('Australia')">
+                        <span class="num">000</span>
+                        <span class="name">🇦🇺 Australia</span>
+                    </button>
+                </div>
+
                 <div class="emergency-search">
                     <input type="text" id="emergencySearch" list="emergency-list" placeholder="🔍 Type a country name..." autocomplete="off" />
                     <datalist id="emergency-list"></datalist>
@@ -377,17 +524,20 @@
                     <div class="country-name" id="resultCountry">United States</div>
                     <div class="number" id="resultNumber">911</div>
                     <div class="note" id="resultNote">📞 Police, Fire, Ambulance</div>
+                    <a href="tel:911" id="callBtn" class="call-btn">📞 Call Now</a>
                 </div>
+
                 <div id="noResult" class="no-result">
                     ❌ No emergency number found for this country. Please check your spelling or try a different country name.
                 </div>
-                <div style="margin-top:16px;font-size:0.85rem;color:#7a9e7e;">
-                    <strong>💡 Tip:</strong> Try "Bangladesh", "India", "United Kingdom", "Australia", "Canada", or "Germany".
+
+                <div style="margin-top:var(--space-md);font-size:0.85rem;color:var(--text-muted);">
+                    💡 <strong>Tip:</strong> Try "Bangladesh", "India", "United Kingdom", "Australia", "Canada", or "Germany".
                 </div>
             </div>
 
             <!-- Privacy & Security -->
-            <div class="card" style="margin-top:20px;">
+            <div class="about-card">
                 <h2>🔒 Privacy & Security</h2>
                 <ul>
                     <li>
@@ -414,37 +564,20 @@
             </div>
 
             <!-- Back to Home -->
-            <div style="text-align:center;margin-top:30px;">
-                <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;">⚓ Return to The Harbor</a>
+            <div style="text-align:center;margin-top:var(--space-xl);">
+                <a href="index.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;">⚓ Return to The Harbor</a>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
-        <div class="footer-links">
-            <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
-            <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
-            <a href="privacy.html">🔒 Privacy</a>
-            <a href="terms.html">📜 Terms</a>
-        </div>
-        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
-            &copy; 2026 The Harbor — Built with 💚 for the community
-        </div>
-    </footer>
-
-    <!-- Auth Modal -->
+    <!-- ===== AUTH MODAL ===== -->
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
 
             <div class="warning-box" id="genderWarning">
-                <span class="icon">⚠️</span>
+                <span>⚠️</span>
                 <span id="genderWarningText">Your gender determines which sections you can see.</span>
             </div>
 
@@ -467,7 +600,7 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
                     📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
                 </div>
 
@@ -477,6 +610,15 @@
 
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <label for="termsCheckbox">
+                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
+                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:var(--danger);">*</span>
+                    </label>
+                </div>
             </div>
 
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
@@ -490,692 +632,224 @@
         </div>
     </div>
 
-    <script>
-        // ============================================
-        // COUNTRY DATA (Full list)
-        // ============================================
-        const countries = [
-            { name: 'Afghanistan', emergency: '119' },
-            { name: 'Albania', emergency: '112' },
-            { name: 'Algeria', emergency: '14' },
-            { name: 'Andorra', emergency: '112' },
-            { name: 'Angola', emergency: '113' },
-            { name: 'Argentina', emergency: '911' },
-            { name: 'Armenia', emergency: '112' },
-            { name: 'Australia', emergency: '000' },
-            { name: 'Austria', emergency: '112' },
-            { name: 'Azerbaijan', emergency: '112' },
-            { name: 'Bahamas', emergency: '911' },
-            { name: 'Bahrain', emergency: '999' },
-            { name: 'Bangladesh', emergency: '999' },
-            { name: 'Barbados', emergency: '911' },
-            { name: 'Belarus', emergency: '112' },
-            { name: 'Belgium', emergency: '112' },
-            { name: 'Belize', emergency: '911' },
-            { name: 'Benin', emergency: '112' },
-            { name: 'Bhutan', emergency: '112' },
-            { name: 'Bolivia', emergency: '911' },
-            { name: 'Bosnia and Herzegovina', emergency: '112' },
-            { name: 'Botswana', emergency: '999' },
-            { name: 'Brazil', emergency: '190' },
-            { name: 'Brunei', emergency: '995' },
-            { name: 'Bulgaria', emergency: '112' },
-            { name: 'Burkina Faso', emergency: '112' },
-            { name: 'Burundi', emergency: '112' },
-            { name: 'Cambodia', emergency: '119' },
-            { name: 'Cameroon', emergency: '112' },
-            { name: 'Canada', emergency: '911' },
-            { name: 'Cape Verde', emergency: '132' },
-            { name: 'Central African Republic', emergency: '112' },
-            { name: 'Chad', emergency: '112' },
-            { name: 'Chile', emergency: '131' },
-            { name: 'China', emergency: '110' },
-            { name: 'Colombia', emergency: '123' },
-            { name: 'Comoros', emergency: '112' },
-            { name: 'Congo', emergency: '112' },
-            { name: 'Costa Rica', emergency: '911' },
-            { name: 'Croatia', emergency: '112' },
-            { name: 'Cuba', emergency: '106' },
-            { name: 'Cyprus', emergency: '112' },
-            { name: 'Czech Republic', emergency: '112' },
-            { name: 'Denmark', emergency: '112' },
-            { name: 'Djibouti', emergency: '112' },
-            { name: 'Dominica', emergency: '911' },
-            { name: 'Dominican Republic', emergency: '911' },
-            { name: 'Ecuador', emergency: '911' },
-            { name: 'Egypt', emergency: '122' },
-            { name: 'El Salvador', emergency: '911' },
-            { name: 'Equatorial Guinea', emergency: '112' },
-            { name: 'Eritrea', emergency: '112' },
-            { name: 'Estonia', emergency: '112' },
-            { name: 'Eswatini', emergency: '999' },
-            { name: 'Ethiopia', emergency: '911' },
-            { name: 'Fiji', emergency: '911' },
-            { name: 'Finland', emergency: '112' },
-            { name: 'France', emergency: '112' },
-            { name: 'Gabon', emergency: '112' },
-            { name: 'Gambia', emergency: '112' },
-            { name: 'Georgia', emergency: '112' },
-            { name: 'Germany', emergency: '112' },
-            { name: 'Ghana', emergency: '112' },
-            { name: 'Greece', emergency: '112' },
-            { name: 'Grenada', emergency: '911' },
-            { name: 'Guatemala', emergency: '110' },
-            { name: 'Guinea', emergency: '112' },
-            { name: 'Guyana', emergency: '911' },
-            { name: 'Haiti', emergency: '116' },
-            { name: 'Honduras', emergency: '911' },
-            { name: 'Hungary', emergency: '112' },
-            { name: 'Iceland', emergency: '112' },
-            { name: 'India', emergency: '112' },
-            { name: 'Indonesia', emergency: '112' },
-            { name: 'Iran', emergency: '110' },
-            { name: 'Iraq', emergency: '112' },
-            { name: 'Ireland', emergency: '112' },
-            { name: 'Israel', emergency: '112' },
-            { name: 'Italy', emergency: '112' },
-            { name: 'Jamaica', emergency: '119' },
-            { name: 'Japan', emergency: '110' },
-            { name: 'Jordan', emergency: '911' },
-            { name: 'Kazakhstan', emergency: '112' },
-            { name: 'Kenya', emergency: '112' },
-            { name: 'Kiribati', emergency: '112' },
-            { name: 'Kuwait', emergency: '112' },
-            { name: 'Kyrgyzstan', emergency: '112' },
-            { name: 'Laos', emergency: '112' },
-            { name: 'Latvia', emergency: '112' },
-            { name: 'Lebanon', emergency: '112' },
-            { name: 'Lesotho', emergency: '112' },
-            { name: 'Liberia', emergency: '911' },
-            { name: 'Libya', emergency: '112' },
-            { name: 'Liechtenstein', emergency: '112' },
-            { name: 'Lithuania', emergency: '112' },
-            { name: 'Luxembourg', emergency: '112' },
-            { name: 'Madagascar', emergency: '112' },
-            { name: 'Malawi', emergency: '112' },
-            { name: 'Malaysia', emergency: '999' },
-            { name: 'Maldives', emergency: '119' },
-            { name: 'Mali', emergency: '112' },
-            { name: 'Malta', emergency: '112' },
-            { name: 'Marshall Islands', emergency: '911' },
-            { name: 'Mauritania', emergency: '112' },
-            { name: 'Mauritius', emergency: '999' },
-            { name: 'Mexico', emergency: '911' },
-            { name: 'Micronesia', emergency: '911' },
-            { name: 'Moldova', emergency: '112' },
-            { name: 'Monaco', emergency: '112' },
-            { name: 'Mongolia', emergency: '112' },
-            { name: 'Montenegro', emergency: '112' },
-            { name: 'Morocco', emergency: '112' },
-            { name: 'Mozambique', emergency: '112' },
-            { name: 'Myanmar', emergency: '112' },
-            { name: 'Namibia', emergency: '112' },
-            { name: 'Nauru', emergency: '112' },
-            { name: 'Nepal', emergency: '100' },
-            { name: 'Netherlands', emergency: '112' },
-            { name: 'New Zealand', emergency: '111' },
-            { name: 'Nicaragua', emergency: '911' },
-            { name: 'Niger', emergency: '112' },
-            { name: 'Nigeria', emergency: '112' },
-            { name: 'North Korea', emergency: '119' },
-            { name: 'North Macedonia', emergency: '112' },
-            { name: 'Norway', emergency: '112' },
-            { name: 'Oman', emergency: '999' },
-            { name: 'Pakistan', emergency: '112' },
-            { name: 'Palau', emergency: '911' },
-            { name: 'Panama', emergency: '911' },
-            { name: 'Papua New Guinea', emergency: '112' },
-            { name: 'Paraguay', emergency: '911' },
-            { name: 'Peru', emergency: '911' },
-            { name: 'Philippines', emergency: '911' },
-            { name: 'Poland', emergency: '112' },
-            { name: 'Portugal', emergency: '112' },
-            { name: 'Qatar', emergency: '999' },
-            { name: 'Romania', emergency: '112' },
-            { name: 'Russia', emergency: '112' },
-            { name: 'Rwanda', emergency: '112' },
-            { name: 'Saint Lucia', emergency: '911' },
-            { name: 'Samoa', emergency: '112' },
-            { name: 'San Marino', emergency: '112' },
-            { name: 'Saudi Arabia', emergency: '911' },
-            { name: 'Senegal', emergency: '112' },
-            { name: 'Serbia', emergency: '112' },
-            { name: 'Seychelles', emergency: '112' },
-            { name: 'Sierra Leone', emergency: '112' },
-            { name: 'Singapore', emergency: '999' },
-            { name: 'Slovakia', emergency: '112' },
-            { name: 'Slovenia', emergency: '112' },
-            { name: 'Solomon Islands', emergency: '911' },
-            { name: 'Somalia', emergency: '112' },
-            { name: 'South Africa', emergency: '112' },
-            { name: 'South Korea', emergency: '112' },
-            { name: 'Spain', emergency: '112' },
-            { name: 'Sri Lanka', emergency: '119' },
-            { name: 'Sudan', emergency: '112' },
-            { name: 'Suriname', emergency: '112' },
-            { name: 'Sweden', emergency: '112' },
-            { name: 'Switzerland', emergency: '112' },
-            { name: 'Syria', emergency: '112' },
-            { name: 'Taiwan', emergency: '110' },
-            { name: 'Tajikistan', emergency: '112' },
-            { name: 'Tanzania', emergency: '112' },
-            { name: 'Thailand', emergency: '191' },
-            { name: 'Togo', emergency: '112' },
-            { name: 'Tonga', emergency: '911' },
-            { name: 'Trinidad and Tobago', emergency: '911' },
-            { name: 'Tunisia', emergency: '112' },
-            { name: 'Turkey', emergency: '112' },
-            { name: 'Turkmenistan', emergency: '112' },
-            { name: 'Tuvalu', emergency: '112' },
-            { name: 'Uganda', emergency: '112' },
-            { name: 'Ukraine', emergency: '112' },
-            { name: 'United Arab Emirates', emergency: '999' },
-            { name: 'United Kingdom', emergency: '999' },
-            { name: 'United States', emergency: '911' },
-            { name: 'Uruguay', emergency: '911' },
-            { name: 'Uzbekistan', emergency: '112' },
-            { name: 'Vanuatu', emergency: '112' },
-            { name: 'Vatican City', emergency: '112' },
-            { name: 'Venezuela', emergency: '911' },
-            { name: 'Vietnam', emergency: '113' },
-            { name: 'Yemen', emergency: '112' },
-            { name: 'Zambia', emergency: '112' },
-            { name: 'Zimbabwe', emergency: '112' }
-        ];
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="activity.html">📊 Activity</a>
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+            <a href="suggest.html">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div class="footer-copy">
+            © 2026 The Harbor — All Rights Reserved.<br>
+            Built with 💚 for the community.
+        </div>
+    </footer>
 
-        // Populate datalists
-        function populateDatalists() {
-            // Emergency search datalist
-            const emergencyList = document.getElementById('emergency-list');
-            if (emergencyList) {
-                emergencyList.innerHTML = '';
-                countries.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c.name;
-                    emergencyList.appendChild(opt);
-                });
-            }
-
-            // Country datalist for signup
-            const countryList = document.getElementById('country-list');
-            if (countryList) {
-                countryList.innerHTML = '';
-                countries.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c.name;
-                    countryList.appendChild(opt);
-                });
-            }
-        }
-
-        // ============================================
-        // EMERGENCY SEARCH LOGIC
-        // ============================================
-        function setupEmergencySearch() {
-            const input = document.getElementById('emergencySearch');
-            const resultDiv = document.getElementById('emergencyResult');
-            const noResult = document.getElementById('noResult');
-            const resultCountry = document.getElementById('resultCountry');
-            const resultNumber = document.getElementById('resultNumber');
-            const resultNote = document.getElementById('resultNote');
-
-            if (!input) return;
-
-            input.addEventListener('input', function() {
-                const query = this.value.trim();
-                if (!query) {
-                    resultDiv.style.display = 'none';
-                    noResult.style.display = 'none';
-                    return;
-                }
-
-                // Try exact match first
-                let found = countries.find(c => c.name.toLowerCase() === query.toLowerCase());
-                if (!found) {
-                    // Try partial match (first match)
-                    found = countries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
-                }
-                if (found) {
-                    resultCountry.textContent = found.name;
-                    resultNumber.textContent = found.emergency;
-                    resultNote.textContent = '📞 Emergency Services';
-                    resultDiv.style.display = 'block';
-                    noResult.style.display = 'none';
-                } else {
-                    resultDiv.style.display = 'none';
-                    noResult.style.display = 'block';
-                }
-            });
-
-            // Show default result after page load
-            setTimeout(() => {
-                const defaultCountry = countries.find(c => c.name === 'United States');
-                if (defaultCountry && resultDiv) {
-                    resultCountry.textContent = defaultCountry.name;
-                    resultNumber.textContent = defaultCountry.emergency;
-                    resultNote.textContent = '📞 Emergency Services';
-                    resultDiv.style.display = 'block';
-                }
-            }, 500);
-        }
-
-        // ============================================
-        // AUTH FUNCTIONS (Local copy for safety)
-        // ============================================
-        function sanitizeInput(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.textContent;
-        }
-
-        function escapeHTML(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;',
-                '/': '&#x2F;',
-                '`': '&#x60;',
-                '=': '&#x3D;'
-            };
-            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-        }
-
-        function checkPasswordStrength(password) {
-            let score = 0;
-            if (password.length >= 8) score += 20;
-            if (/[A-Z]/.test(password)) score += 20;
-            if (/[a-z]/.test(password)) score += 20;
-            if (/[0-9]/.test(password)) score += 20;
-            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
-            const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
-            if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-            let strength = 'weak',
-                color = '#c0392b';
-            if (score >= 90) { strength = 'very-strong';
-                color = '#27ae60'; } else if (score >= 70) { strength = 'strong';
-                color = '#2ecc71'; } else if (score >= 50) { strength = 'medium';
-                color = '#f39c12'; } else if (score >= 30) { strength = 'weak';
-                color = '#e67e22'; } else { strength = 'very-weak';
-                color = '#c0392b'; }
-            return { score, strength, color };
-        }
-
-        function checkUsernameAvailability(username) {
-            if (!username || username.length < 2) return Promise.resolve(false);
-            return db.collection('users').where('name', '==', username).get().then(s => s.empty);
-        }
-
-        async function checkUsernameOnType() {
-            const nameInput = document.getElementById('authName');
-            const statusDiv = document.getElementById('usernameStatus');
-            if (!nameInput || !statusDiv) return;
-            const username = nameInput.value.trim();
-            if (username.length < 2) { statusDiv.innerHTML = ''; return; }
-            const available = await checkUsernameAvailability(username);
-            statusDiv.innerHTML = available ?
-                `<span style="color:#27ae60;">✅ Username available!</span>` :
-                `<span style="color:#c0392b;">❌ Username taken</span>`;
-        }
-
-        function openModal(mode) {
-            const modal = document.getElementById('authModal');
-            if (!modal) return;
-            const title = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const signupFields = document.getElementById('signupFields');
-            const switchLink = document.getElementById('authSwitch');
-            const error = document.getElementById('authError');
-            const success = document.getElementById('authSuccess');
-            const warning = document.getElementById('genderWarning');
-
-            if (error) error.textContent = '';
-            if (success) success.textContent = '';
-
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-            document.getElementById('authName').value = '';
-            document.getElementById('authFavorites').value = '';
-            document.getElementById('authCountry').value = '';
-            document.getElementById('passwordStrength').innerHTML = '';
-            document.getElementById('usernameStatus').innerHTML = '';
-
-            if (mode === 'login') {
-                title.textContent = '🔐 Welcome Back';
-                submitBtn.textContent = '🚀 Log In';
-                signupFields.style.display = 'none';
-                if (warning) warning.classList.remove('show');
-                switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
-                switchLink.dataset.mode = 'signup';
-            } else {
-                title.textContent = '📝 Join The Harbor';
-                submitBtn.textContent = '🚀 Create Account';
-                signupFields.style.display = 'block';
-                populateDatalists();
-                setTimeout(updateGenderWarning, 100);
-                switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
-                switchLink.dataset.mode = 'login';
-            }
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
-        function toggleAuthMode() {
-            const switchLink = document.getElementById('authSwitch');
-            if (!switchLink) return;
-            const mode = switchLink.dataset.mode;
-            closeModal();
-            setTimeout(() => openModal(mode), 200);
-        }
-
-        function updateGenderWarning() {
-            const genderSelect = document.getElementById('authGender');
-            const warning = document.getElementById('genderWarning');
-            const text = document.getElementById('genderWarningText');
-            if (!genderSelect) return;
-            const gender = genderSelect.value;
-            if (gender === '🧔 Man') {
-                text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections. Women\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
-                warning.classList.add('show');
-            } else if (gender === '👩 Woman') {
-                text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections. Men\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
-                warning.classList.add('show');
-            } else {
-                text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>. Men\'s and Women\'s Harbors are restricted based on gender.';
-                warning.classList.add('show');
-            }
-        }
-
-        function handleAuth() {
-            const emailInput = document.getElementById('authEmail');
-            const passwordInput = document.getElementById('authPassword');
-            const error = document.getElementById('authError');
-            const success = document.getElementById('authSuccess');
-            const submitBtn = document.getElementById('authSubmitBtn');
-
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            if (error) error.textContent = '';
-            if (success) success.textContent = '';
-
-            if (!email || !email.includes('@') || !email.includes('.')) {
-                if (error) error.textContent = 'Please enter a valid email address.';
-                return;
-            }
-            if (!password || password.length < 6) {
-                if (error) error.textContent = 'Password must be at least 6 characters.';
-                return;
-            }
-
-            const isLogin = submitBtn.textContent.includes('Log In');
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Please wait...';
-
-            if (isLogin) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        if (!user.emailVerified) {
-                            error.textContent = '⚠️ Please verify your email before logging in. Check your inbox!';
-                            auth.signOut();
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = '🚀 Log In';
-                            success.innerHTML =
-                                `Didn't get the email? <button class="resend-verification" onclick="resendVerification()">Resend verification</button>`;
-                            return;
-                        }
-                        closeModal();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                        if (typeof showWelcomeFireworks === 'function') showWelcomeFireworks();
-                    })
-                    .catch((err) => {
-                        if (err.code === 'auth/user-not-found') {
-                            error.textContent = 'No account found. Please sign up first.';
-                        } else if (err.code === 'auth/wrong-password') {
-                            error.textContent = 'Incorrect password. Please try again.';
-                        } else {
-                            error.textContent = err.message;
-                        }
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                    });
-            } else {
-                const nameInput = document.getElementById('authName');
-                const genderSelect = document.getElementById('authGender');
-                const favoritesInput = document.getElementById('authFavorites');
-                const countryInput = document.getElementById('authCountry');
-
-                const name = nameInput ? nameInput.value.trim() : '';
-                const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
-                const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-                const country = countryInput ? countryInput.value.trim() : '';
-
-                if (!name || name.length < 2) {
-                    error.textContent = 'Please enter a username (minimum 2 characters).';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    return;
-                }
-                if (!country) {
-                    error.textContent = 'Please select your country.';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    return;
-                }
-
-                checkUsernameAvailability(name)
-                    .then((available) => {
-                        if (!available) {
-                            error.textContent = '❌ Username is already taken.';
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = '🚀 Create Account';
-                            return Promise.reject('Username taken');
-                        }
-                        return auth.createUserWithEmailAndPassword(email, password);
-                    })
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        return user.sendEmailVerification().then(() => user);
-                    })
-                    .then((user) => {
-                        const countryData = countries.find(c => c.name === country);
-                        return db.collection('users').doc(user.uid).set({
-                            name: name,
-                            email: email,
-                            gender: gender,
-                            favorites: favorites || 'Not specified',
-                            country: country,
-                            emergencyNumber: countryData?.emergency || '911',
-                            emailVerified: false,
-                            isAdmin: false,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    })
-                    .then(() => {
-                        closeModal();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                        auth.signOut();
-                        alert('✅ Verification email sent to ' + email + '!\n\nPlease check your inbox and click the verification link.\n\nAfter verifying, log in to access The Harbor.');
-                    })
-                    .catch((err) => {
-                        if (err !== 'Username taken') {
-                            error.textContent = err.message;
-                        }
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Create Account';
-                    });
-            }
-        }
-
-        function resendVerification() {
-            const user = auth.currentUser;
-            if (!user) {
-                alert('Please log in first.');
-                return;
-            }
-            user.sendEmailVerification()
-                .then(() => alert('✅ Verification email resent!'))
-                .catch((err) => alert('❌ Error: ' + err.message));
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                auth.signOut();
-                window.location.href = 'index.html';
-            }
-        }
-
-        // ============================================
-        // AUTH STATE LISTENER
-        // ============================================
-        auth.onAuthStateChanged((user) => {
-            const authButtons = document.getElementById('authButtons');
-            const userInfo = document.getElementById('userInfo');
-            const userName = document.getElementById('userName');
-            const userGenderBadge = document.getElementById('userGenderBadge');
-
-            if (user) {
-                authButtons.style.display = 'none';
-                userInfo.style.display = 'flex';
-                db.collection('users').doc(user.uid).get()
-                    .then((doc) => {
-                        if (doc.exists) {
-                            const data = doc.data();
-                            userName.textContent = data.name || 'Friend';
-                            userGenderBadge.textContent = data.gender || '';
-                        }
-                    })
-                    .catch((err) => console.error('Error fetching user data:', err));
-            } else {
-                authButtons.style.display = 'flex';
-                userInfo.style.display = 'none';
-            }
-        });
-
-        // ============================================
-        // WELCOME FIREWORKS (simplified)
-        // ============================================
-        function showWelcomeFireworks() {
-            // Check if already shown
-            if (sessionStorage.getItem('welcomeShown') === 'true') return;
-            sessionStorage.setItem('welcomeShown', 'true');
-
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position:fixed; top:0; left:0; width:100%; height:100%;
-                background:rgba(26,74,74,0.9); z-index:99999;
-                display:flex; justify-content:center; align-items:center;
-                flex-direction:column; color:white;
-                animation: fadeIn 0.5s ease;
-            `;
-            overlay.innerHTML = `
-                <style>
-                    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-                    @keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
-                    .confetti-piece {
-                        position:fixed; width:10px; height:10px; border-radius:50%;
-                        pointer-events:none; animation: fall 2.5s linear forwards; z-index:100000;
-                    }
-                    @keyframes fall {
-                        0% { transform: translateY(-100px) rotate(0deg) scale(0.5); opacity:1; }
-                        100% { transform: translateY(100vh) rotate(720deg) scale(1.5); opacity:0; }
-                    }
-                </style>
-                <span style="font-size:4rem;margin-bottom:8px;">🎉</span>
-                <h1 style="font-size:3rem;font-weight:300;text-align:center;">Welcome to <span style="font-weight:700;color:#c47a5a;">The Harbor</span></h1>
-                <p style="font-size:1.2rem;opacity:0.8;text-align:center;">⚓ A safe place to share, heal, and grow</p>
-                <button onclick="this.parentElement.remove()" style="margin-top:30px;padding:14px 40px;background:#c47a5a;border:none;border-radius:50px;color:white;font-size:1.1rem;font-weight:700;cursor:pointer;transition:0.3s;">Continue</button>
-            `;
-            document.body.appendChild(overlay);
-
-            // Confetti
-            const colors = ['#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24'];
-            for (let i = 0; i < 80; i++) {
-                const el = document.createElement('div');
-                el.className = 'confetti-piece';
-                el.style.left = Math.random() * 100 + '%';
-                el.style.top = '-20px';
-                el.style.background = colors[Math.floor(Math.random() * colors.length)];
-                el.style.width = (6 + Math.random() * 12) + 'px';
-                el.style.height = (6 + Math.random() * 12) + 'px';
-                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-                el.style.animationDuration = (2 + Math.random() * 3) + 's';
-                el.style.animationDelay = (Math.random() * 2) + 's';
-                document.body.appendChild(el);
-                setTimeout(() => el.remove(), 5000);
-            }
-
-            // Auto-remove after 8 seconds
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    overlay.style.animation = 'fadeOut 0.5s ease forwards';
-                    setTimeout(() => overlay.remove(), 500);
-                }
-            }, 8000);
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 About page ready');
-
-            // Populate datalists
-            populateDatalists();
-
-            // Setup emergency search
-            setupEmergencySearch();
-
-            // Modal close on outside click
-            document.getElementById('authModal').addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
-
-            // Password strength
-            document.getElementById('authPassword').addEventListener('input', function() {
-                const pwd = this.value;
-                const strengthDiv = document.getElementById('passwordStrength');
-                if (!strengthDiv) return;
-                if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-                const result = checkPasswordStrength(pwd);
-                strengthDiv.innerHTML = `
-                    <div style="margin-top:6px;font-size:0.85rem;">
-                        Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                    </div>
-                `;
-            });
-
-            // Username availability
-            document.getElementById('authName').addEventListener('input', checkUsernameOnType);
-
-            // Gender warning on signup
-            document.getElementById('authGender').addEventListener('change', updateGenderWarning);
-
-            // Enter key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const modal = document.getElementById('authModal');
-                    if (modal && modal.style.display === 'flex') handleAuth();
-                }
-            });
-
-            console.log('✅ About page ready');
-        });
-
-        console.log('📖 About page loaded successfully');
-    </script>
-
+    <!-- ============================================
+    JAVASCRIPT
+    ============================================ -->
     <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/gold.js"></script>
+    <script src="js/comments.js"></script>
+
+    <script>
+    // ============================================
+    // ABOUT PAGE - COMPLETE
+    // ============================================
+
+    // Country data
+    const emergencyCountries = [
+        { name: 'Afghanistan', emergency: '119' },
+        { name: 'Albania', emergency: '112' },
+        { name: 'Algeria', emergency: '14' },
+        { name: 'Argentina', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Austria', emergency: '112' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'Belgium', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'China', emergency: '110' },
+        { name: 'Denmark', emergency: '112' },
+        { name: 'Egypt', emergency: '122' },
+        { name: 'Finland', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'Greece', emergency: '112' },
+        { name: 'India', emergency: '112' },
+        { name: 'Indonesia', emergency: '112' },
+        { name: 'Iran', emergency: '110' },
+        { name: 'Ireland', emergency: '112' },
+        { name: 'Israel', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Japan', emergency: '110' },
+        { name: 'Malaysia', emergency: '999' },
+        { name: 'Mexico', emergency: '911' },
+        { name: 'Netherlands', emergency: '112' },
+        { name: 'New Zealand', emergency: '111' },
+        { name: 'Norway', emergency: '112' },
+        { name: 'Pakistan', emergency: '112' },
+        { name: 'Philippines', emergency: '911' },
+        { name: 'Poland', emergency: '112' },
+        { name: 'Portugal', emergency: '112' },
+        { name: 'Russia', emergency: '112' },
+        { name: 'Saudi Arabia', emergency: '911' },
+        { name: 'Singapore', emergency: '999' },
+        { name: 'South Africa', emergency: '112' },
+        { name: 'South Korea', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Sweden', emergency: '112' },
+        { name: 'Switzerland', emergency: '112' },
+        { name: 'Turkey', emergency: '112' },
+        { name: 'United Arab Emirates', emergency: '999' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'United States', emergency: '911' },
+        { name: 'Vietnam', emergency: '113' }
+    ];
+
+    // ============================================
+    // POPULATE DATALISTS
+    // ============================================
+    function populateEmergencyDatalist() {
+        const datalist = document.getElementById('emergency-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        emergencyCountries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
+        });
+    }
+
+    // ============================================
+    // EMERGENCY SEARCH
+    // ============================================
+    function searchCountry(name) {
+        if (!name) return;
+
+        const input = document.getElementById('emergencySearch');
+        if (input) input.value = name;
+
+        const result = emergencyCountries.find(c => c.name.toLowerCase() === name.toLowerCase());
+
+        if (result) {
+            showEmergencyResult(result);
+        } else {
+            // Try partial match
+            const partial = emergencyCountries.filter(c => c.name.toLowerCase().includes(name.toLowerCase()));
+            if (partial.length > 0) {
+                showEmergencyResult(partial[0]);
+            } else {
+                document.getElementById('emergencyResult').style.display = 'none';
+                document.getElementById('noResult').style.display = 'block';
+            }
+        }
+    }
+
+    function showEmergencyResult(result) {
+        const resultDiv = document.getElementById('emergencyResult');
+        const noResult = document.getElementById('noResult');
+
+        document.getElementById('resultCountry').textContent = result.name;
+        document.getElementById('resultNumber').textContent = result.emergency;
+        document.getElementById('resultNote').textContent = '📞 Emergency Services';
+        document.getElementById('callBtn').href = 'tel:' + result.emergency;
+
+        resultDiv.style.display = 'block';
+        noResult.style.display = 'none';
+    }
+
+    // ============================================
+    // SETUP EMERGENCY SEARCH
+    // ============================================
+    function setupEmergencySearch() {
+        const input = document.getElementById('emergencySearch');
+        if (!input) return;
+
+        input.addEventListener('input', function() {
+            const query = this.value.trim();
+
+            if (!query) {
+                document.getElementById('emergencyResult').style.display = 'none';
+                document.getElementById('noResult').style.display = 'none';
+                return;
+            }
+
+            // Try exact match
+            let result = emergencyCountries.find(c => c.name.toLowerCase() === query.toLowerCase());
+
+            if (!result) {
+                // Try partial match
+                result = emergencyCountries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
+            }
+
+            if (result) {
+                showEmergencyResult(result);
+            } else {
+                document.getElementById('emergencyResult').style.display = 'none';
+                document.getElementById('noResult').style.display = 'block';
+            }
+        });
+
+        // Show default result
+        setTimeout(() => {
+            const defaultResult = emergencyCountries.find(c => c.name === 'United States');
+            if (defaultResult) {
+                showEmergencyResult(defaultResult);
+            }
+        }, 500);
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        populateEmergencyDatalist();
+        setupEmergencySearch();
+
+        // Modal close on outside click
+        document.getElementById('authModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Password strength
+        document.getElementById('authPassword')?.addEventListener('input', function() {
+            const pwd = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+            const result = checkPasswordStrength(pwd);
+            strengthDiv.innerHTML = `
+                <div style="margin-top:6px;font-size:0.85rem;">
+                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                </div>
+            `;
+        });
+
+        document.getElementById('authName')?.addEventListener('input', checkUsernameOnType);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const modal = document.getElementById('authModal');
+                if (modal && modal.classList.contains('active')) handleAuth();
+            }
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        populateCountryDatalist();
+
+        console.log('✅ About page ready');
+    });
+
+    console.log('📄 About page loaded');
+    </script>
 </body>
 </html>
