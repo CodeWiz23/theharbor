@@ -7,7 +7,7 @@
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
-    <!-- META TAGS -->
+    <!-- META TAGS FOR SEO & SOCIAL SHARING -->
     <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
     <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
     <meta name="author" content="The Harbor" />
@@ -23,6 +23,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
+
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-81R2FX47H0');
@@ -36,22 +37,16 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <!-- ===== EXTERNAL SCRIPTS ===== -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
-
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* ===== CATEGORY INFO STYLES ===== */
+        /* Additional homepage styles */
         .category-info-wrapper {
             display: inline-flex;
             align-items: center;
             gap: 4px;
             position: relative;
-            z-index: 9999;
         }
         .category-info-wrapper .tab-text {
             display: inline-block;
@@ -63,44 +58,42 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--bg-secondary, #f0f4f8);
-            color: var(--text-muted, #718096);
+            background: var(--bg-secondary);
+            color: var(--text-muted);
             font-size: 10px;
             font-weight: 700;
             cursor: help;
-            transition: all 0.2s ease;
-            border: 1px solid var(--border-color, #e2e8f0);
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
             flex-shrink: 0;
             margin-left: 2px;
-            position: relative;
-            z-index: 9999;
         }
         .category-info-trigger:hover {
-            background: var(--primary, #1a4a4a);
+            background: var(--primary);
             color: white;
             transform: scale(1.1);
-            border-color: var(--primary, #1a4a4a);
+            border-color: var(--primary);
         }
         .category-info-tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%) scale(0.9);
-            background: var(--text-primary, #1a1a2e);
-            color: var(--bg-primary, #f0f4f8);
+            background: var(--text-primary);
+            color: var(--bg-primary);
             padding: 8px 14px;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             font-size: 0.75rem;
             font-weight: 400;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.2s ease;
+            transition: all var(--transition-fast);
             max-width: 260px;
             white-space: normal;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.16);
-            z-index: 99999 !important;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
             line-height: 1.4;
         }
         .category-info-trigger:hover .category-info-tooltip {
@@ -108,12 +101,12 @@
             transform: translateX(-50%) scale(1);
         }
 
-        /* ===== HERO ===== */
+        /* Hero buttons */
         .hero-actions .btn {
             padding: 0.6rem 1.8rem;
         }
 
-        /* ===== GUEST MESSAGE ===== */
+        /* Guest message */
         #guestMessage {
             display: none;
             background: #fef3c7;
@@ -124,36 +117,6 @@
             color: #92400e;
         }
 
-        /* ===== GUEST CLASSES ===== */
-        .guest-hidden {
-            display: none !important;
-        }
-        .logged-in-hidden {
-            display: none !important;
-        }
-
-        /* ===== LOADING SPINNER ===== */
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border-color, #e2e8f0);
-            border-top-color: #1a4a4a;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 8px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-muted, #718096);
-        }
-
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 600px) {
             .category-info-tooltip {
                 max-width: 180px;
@@ -169,34 +132,6 @@
                 height: 14px;
                 font-size: 8px;
             }
-            .header {
-                padding: 0.6rem 1rem;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 0.6rem;
-            }
-            .header-right {
-                justify-content: center;
-            }
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            .container {
-                padding: 0 1rem;
-            }
-            .tabs {
-                gap: 4px;
-                overflow-x: auto;
-                flex-wrap: nowrap;
-            }
-            .tab {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.7rem;
-                white-space: nowrap;
-            }
-            .story-card {
-                padding: 1rem;
-            }
         }
     </style>
 </head>
@@ -207,14 +142,14 @@
         <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
         <div class="header-right">
-            <!-- FEED BUTTON - Only visible when logged in -->
-            <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
+            <!-- FEED BUTTON -->
+            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
 
-            <!-- About - Always visible (for everyone) -->
+            <!-- About - Always visible -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
 
-            <!-- Guest Restricted Elements - Only visible when logged in -->
-            <div class="guest-restricted guest-hidden">
+            <!-- Guest Restricted Elements -->
+            <div class="guest-restricted">
                 <a href="submit.html" class="btn btn-nav">📝 Share</a>
                 <a href="profile.html" class="btn btn-nav">👤 Profile</a>
                 <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
@@ -222,17 +157,15 @@
                 <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
 
-            <!-- Settings Gear - Only visible when logged in -->
-            <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
+            <!-- Settings Gear -->
+            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
 
-            <!-- Auth Buttons - Only visible when NOT logged in -->
-            <div id="authButtons" class="logged-in-hidden">
+            <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
 
-            <!-- User Info - Only visible when logged in -->
-            <div id="userInfo" class="guest-hidden">
+            <div id="userInfo">
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
@@ -249,27 +182,28 @@
         <p>🔒 <strong>Welcome to The Harbor!</strong> Please <a href="#" onclick="openModal('login');return false;">Log In</a> or <a href="#" onclick="openModal('signup');return false;">Join</a> to read and share stories.</p>
     </div>
 
-    <!-- ===== HERO - Always visible ===== -->
+    <!-- ===== HERO ===== -->
     <div class="container">
         <section class="hero">
             <h1>⚓ Welcome to <span>The Harbor</span></h1>
             <p>A safe place to share, heal, and grow — together.</p>
             <div class="hero-actions">
-                <a href="activity.html" class="btn btn-nav guest-hidden">📊 Activity</a>
-                <a href="submit.html" class="btn btn-nav guest-hidden" style="background:#c47a5a;color:white;">📝 Share Your Story</a>
-                <a href="about.html" class="btn btn-nav" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3);">🌿 Learn More</a>
+                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+                <a href="submit.html" class="btn btn-primary-hero">📝 Share Your Story</a>
+                <a href="about.html" class="btn btn-nav">🌿 Learn More</a>
             </div>
         </section>
     </div>
 
-    <!-- ===== SEARCH - Only visible when logged in ===== -->
-    <div class="search-bar guest-hidden">
+    <!-- ===== SEARCH ===== -->
+    <div class="search-bar">
         <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter') searchStories()" />
     </div>
 
-    <!-- ===== TABS - Only visible when logged in ===== -->
+    <!-- ===== TABS WITH CATEGORY INFO ===== -->
     <div class="container">
-        <div class="tabs guest-hidden" id="categoryTabs">
+        <div class="tabs" id="categoryTabs">
+            <!-- All -->
             <button class="tab active" data-category="all" onclick="switchCategory('all')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">🌊 All</span>
@@ -279,6 +213,8 @@
                     </span>
                 </span>
             </button>
+
+            <!-- Men's Harbor -->
             <button class="tab" data-category="men" onclick="switchCategory('men')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">🧔 Men's Harbor</span>
@@ -288,6 +224,8 @@
                     </span>
                 </span>
             </button>
+
+            <!-- Women's Harbor -->
             <button class="tab" data-category="women" onclick="switchCategory('women')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">👩 Women's Harbor</span>
@@ -297,6 +235,8 @@
                     </span>
                 </span>
             </button>
+
+            <!-- The Storm -->
             <button class="tab" data-category="struggles" onclick="switchCategory('struggles')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">🌊 The Storm</span>
@@ -306,6 +246,8 @@
                     </span>
                 </span>
             </button>
+
+            <!-- Sunny Skies -->
             <button class="tab" data-category="fun" onclick="switchCategory('fun')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">☀️ Sunny Skies</span>
@@ -315,6 +257,8 @@
                     </span>
                 </span>
             </button>
+
+            <!-- The Compass -->
             <button class="tab" data-category="learning" onclick="switchCategory('learning')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">🧭 The Compass</span>
@@ -332,7 +276,7 @@
         </div>
 
         <!-- ===== PAGINATION ===== -->
-        <div class="pagination guest-hidden" id="paginationContainer"></div>
+        <div class="pagination" id="paginationContainer"></div>
     </div>
 
     <!-- ===== AUTH MODAL ===== -->
@@ -418,12 +362,12 @@
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html" class="guest-hidden">📊 Activity</a>
+            <a href="activity.html">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html" class="guest-hidden">📝 Share Story</a>
-            <a href="profile.html" class="guest-hidden">👤 Profile</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html" class="guest-hidden">💡 Suggest</a>
+            <a href="suggest.html">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
@@ -436,47 +380,54 @@
     <!-- ============================================
     JAVASCRIPT
     ============================================ -->
-    <script>
-        // ============================================
-        // APPLY GUEST RESTRICTIONS - FIXED
-        // ============================================
-        function applyGuestRestrictions() {
-            // Check if currentUser is defined (from app.js)
-            var isLoggedIn = false;
-            if (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false) {
-                isLoggedIn = true;
-            }
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/gold.js"></script>
+    <script src="js/comments.js"></script>
 
-            // Handle guest-hidden elements (visible only when logged in)
-            var guestElements = document.querySelectorAll('.guest-hidden');
-            for (var i = 0; i < guestElements.length; i++) {
-                var el = guestElements[i];
+    <script>
+        // Check if user is logged in and apply guest restrictions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth state
+            const checkAuth = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(checkAuth);
+                    applyGuestRestrictions();
+                }
+            }, 100);
+
+            // Also check on auth change
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function(user) {
+                    setTimeout(applyGuestRestrictions, 200);
+                });
+            }
+        });
+
+        function applyGuestRestrictions() {
+            const isLoggedIn = currentUser !== null && currentUser !== undefined;
+            const elements = document.querySelectorAll('.guest-restricted');
+
+            elements.forEach(function(el) {
                 if (isLoggedIn) {
                     el.style.display = '';
                 } else {
                     el.style.display = 'none';
                 }
-            }
+            });
 
-            // Handle logged-in-hidden elements (visible only when NOT logged in)
-            var loggedInElements = document.querySelectorAll('.logged-in-hidden');
-            for (var j = 0; j < loggedInElements.length; j++) {
-                var el2 = loggedInElements[j];
+            // Show/hide guest message
+            const guestMsg = document.getElementById('guestMessage');
+            if (guestMsg) {
                 if (isLoggedIn) {
-                    el2.style.display = 'none';
+                    guestMsg.style.display = 'none';
                 } else {
-                    el2.style.display = '';
+                    guestMsg.style.display = 'block';
                 }
             }
 
-            // Guest message
-            var guestMsg = document.getElementById('guestMessage');
-            if (guestMsg) {
-                guestMsg.style.display = isLoggedIn ? 'none' : 'block';
-            }
-
-            // Stories container - show login message if guest
-            var container = document.getElementById('storiesContainer');
+            // Show/hide stories based on login
+            const container = document.getElementById('storiesContainer');
             if (container && !isLoggedIn) {
                 container.innerHTML = `
                     <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
@@ -493,31 +444,7 @@
                     </div>
                 `;
             }
-
-            console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
         }
-
-        // ============================================
-        // INIT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for auth state from app.js
-            var checkAuth = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(checkAuth);
-                    applyGuestRestrictions();
-                }
-            }, 100);
-
-            // Also check on auth change from app.js
-            if (typeof auth !== 'undefined') {
-                auth.onAuthStateChanged(function(user) {
-                    setTimeout(applyGuestRestrictions, 200);
-                });
-            }
-
-            console.log('✅ Index page loaded');
-        });
 
         console.log('✅ Index page loaded with category info icons and guest restrictions');
     </script>
