@@ -1,5 +1,5 @@
 // ============================================
-// SIDEBAR CONTROLS
+// SIDEBAR CONTROLS - COMPLETE FIXED
 // ============================================
 
 let isSidebarOpen = false;
@@ -87,6 +87,8 @@ function createSidebar() {
 
     // Add CSS for sidebar
     addSidebarStyles();
+
+    console.log('✅ Sidebar created');
 }
 
 // ============================================
@@ -127,7 +129,7 @@ function addSidebarStyles() {
             min-width: 280px;
             max-width: 420px;
             height: 100%;
-            background: var(--sidebar-bg, #f5f0eb);
+            background: var(--sidebar-bg, #ffffff);
             box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
             overflow-y: auto;
             animation: sidebarSlideIn 0.3s ease;
@@ -144,7 +146,7 @@ function addSidebarStyles() {
         /* Sidebar Header */
         .sidebar-header {
             padding: 20px 24px;
-            border-bottom: 2px solid var(--sidebar-border, #d4c8b8);
+            border-bottom: 2px solid var(--sidebar-border, #e2e8f0);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -205,7 +207,7 @@ function addSidebarStyles() {
             width: 100%;
             padding: 10px 14px;
             margin-bottom: 6px;
-            background: var(--sidebar-btn-bg, #e8ddd0);
+            background: var(--sidebar-btn-bg, #f0f4f8);
             border: none;
             border-radius: 8px;
             font-size: 0.9rem;
@@ -216,25 +218,25 @@ function addSidebarStyles() {
             text-align: left;
         }
         .sidebar-btn:hover {
-            background: var(--sidebar-btn-hover, #d4c8b8);
+            background: var(--sidebar-btn-hover, #e2e8f0);
             transform: translateX(4px);
         }
         .sidebar-btn:active {
             transform: scale(0.98);
         }
         .sidebar-btn.btn-danger {
-            background: #c0392b;
+            background: #dc2626;
             color: white;
             text-align: center;
             font-weight: 600;
         }
         .sidebar-btn.btn-danger:hover {
-            background: #e74c3c;
+            background: #b91c1c;
         }
 
         /* Gold Balance */
         .gold-balance {
-            background: var(--sidebar-gold-bg, #f5d6b3);
+            background: var(--sidebar-gold-bg, #fef3c7);
             padding: 10px 14px;
             border-radius: 8px;
             margin-bottom: 8px;
@@ -272,6 +274,10 @@ function addSidebarStyles() {
             }
             .sidebar-header h2 {
                 font-size: 1.2rem;
+            }
+            .sidebar-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
             }
         }
 
@@ -320,9 +326,15 @@ function addSidebarStyles() {
 }
 
 // ============================================
-// OPEN / CLOSE SIDEBAR
+// OPEN / CLOSE SIDEBAR - FIXED: Guest check
 // ============================================
 function openSidebar() {
+    // FIXED: Only allow if user is logged in
+    if (!currentUser) {
+        alert('Please log in to access settings.');
+        return;
+    }
+
     if (!sidebarOverlay) createSidebar();
     if (!sidebarOverlay) return;
 
@@ -351,10 +363,14 @@ function toggleSidebar() {
 }
 
 // ============================================
-// UPDATE SIDEBAR DATA
+// UPDATE SIDEBAR DATA - FIXED: Safe checks
 // ============================================
 function updateSidebarData() {
-    if (!currentUser || !currentUserData) return;
+    // FIXED: Check if user is logged in
+    if (!currentUser || !currentUserData) {
+        console.warn('Cannot update sidebar: User not logged in');
+        return;
+    }
 
     // Update gold balance
     const goldBalance = document.getElementById('sidebarGoldBalance');
@@ -407,7 +423,7 @@ function updateSidebarData() {
 }
 
 // ============================================
-// TOGGLE THEME
+// TOGGLE THEME - FIXED: Works without sidebar
 // ============================================
 function toggleTheme() {
     const html = document.documentElement;
@@ -421,15 +437,29 @@ function toggleTheme() {
         localStorage.setItem('theme', 'dark');
     }
 
+    // Update button text
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) {
+        themeBtn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+    }
+
+    // Update sidebar data
     updateSidebarData();
+
+    console.log(`✅ Theme switched to: ${isDark ? 'Light' : 'Dark'}`);
 }
 
 // ============================================
-// TOGGLE PROFILE PRIVACY
+// TOGGLE PROFILE PRIVACY - FIXED
 // ============================================
 function toggleProfilePrivacy() {
     if (!currentUser) {
         alert('Please log in.');
+        return;
+    }
+
+    if (!currentUserData) {
+        alert('Loading user data...');
         return;
     }
 
@@ -440,6 +470,14 @@ function toggleProfilePrivacy() {
     }).then(() => {
         currentUserData.isPublic = newPrivacy;
         updateSidebarData();
+        
+        // Update privacy badge on profile if visible
+        const privacyBadge = document.querySelector('.privacy-badge');
+        if (privacyBadge) {
+            privacyBadge.textContent = newPrivacy ? '🌍 Public Profile' : '🔒 Private Profile';
+            privacyBadge.className = `privacy-badge ${newPrivacy ? 'public' : 'private'}`;
+        }
+        
         alert(newPrivacy ? '✅ Profile is now Public' : '🔒 Profile is now Private');
     }).catch((err) => {
         alert('❌ Error: ' + err.message);
@@ -447,7 +485,7 @@ function toggleProfilePrivacy() {
 }
 
 // ============================================
-// SETTINGS MODALS
+// SETTINGS MODALS - FIXED
 // ============================================
 function openSettingsModal(type) {
     if (!currentUser) {
@@ -455,19 +493,39 @@ function openSettingsModal(type) {
         return;
     }
 
+    if (!currentUserData) {
+        alert('Loading user data...');
+        return;
+    }
+
     if (type === 'name') {
         const newName = prompt('Enter new username:', currentUserData.name || '');
         if (newName && newName.trim().length >= 2) {
-            db.collection('users').doc(currentUser.uid).update({
-                name: newName.trim()
-            }).then(() => {
-                currentUserData.name = newName.trim();
-                document.getElementById('userName').textContent = newName.trim();
-                updateSidebarData();
-                alert('✅ Username updated!');
-            }).catch((err) => {
-                alert('❌ Error: ' + err.message);
-            });
+            // Check if username is taken
+            db.collection('users').where('name', '==', newName.trim()).get()
+                .then((snapshot) => {
+                    if (!snapshot.empty && snapshot.docs[0].id !== currentUser.uid) {
+                        alert('❌ Username is already taken. Please choose another.');
+                        return;
+                    }
+                    return db.collection('users').doc(currentUser.uid).update({
+                        name: newName.trim()
+                    });
+                })
+                .then(() => {
+                    if (!currentUserData) return;
+                    currentUserData.name = newName.trim();
+                    
+                    // Update header
+                    const userNameEl = document.getElementById('userName');
+                    if (userNameEl) userNameEl.textContent = newName.trim();
+                    
+                    updateSidebarData();
+                    alert('✅ Username updated!');
+                })
+                .catch((err) => {
+                    alert('❌ Error: ' + err.message);
+                });
         }
     } else if (type === 'password') {
         const currentPwd = prompt('Enter current password:');
@@ -493,22 +551,29 @@ function openSettingsModal(type) {
 
         // Re-authenticate
         const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPwd);
-        user.reauthenticateWithCredential(credential).then(() => {
-            return user.updatePassword(newPwd);
-        }).then(() => {
-            alert('✅ Password updated successfully!');
-        }).catch((err) => {
-            alert('❌ Error: ' + err.message);
-        });
+        user.reauthenticateWithCredential(credential)
+            .then(() => {
+                return user.updatePassword(newPwd);
+            })
+            .then(() => {
+                alert('✅ Password updated successfully!');
+            })
+            .catch((err) => {
+                if (err.code === 'auth/wrong-password') {
+                    alert('❌ Current password is incorrect.');
+                } else {
+                    alert('❌ Error: ' + err.message);
+                }
+            });
     } else if (type === 'language') {
-        const lang = prompt('Select language (en/es/fr):', 'en');
+        const lang = prompt('Select language (en/es/fr):', currentUserData.language || 'en');
         if (lang && ['en', 'es', 'fr'].includes(lang)) {
             db.collection('users').doc(currentUser.uid).update({
                 language: lang
             }).then(() => {
                 currentUserData.language = lang;
                 localStorage.setItem('language', lang);
-                alert('✅ Language updated!');
+                alert('✅ Language updated to ' + lang + '!');
             }).catch((err) => {
                 alert('❌ Error: ' + err.message);
             });
@@ -519,7 +584,7 @@ function openSettingsModal(type) {
 }
 
 // ============================================
-// VIEW GOLD HISTORY
+// VIEW GOLD HISTORY - FIXED
 // ============================================
 function viewGoldHistory() {
     if (!currentUser) {
@@ -527,13 +592,25 @@ function viewGoldHistory() {
         return;
     }
 
-    alert('💰 Gold History\n\n' +
-          'Coming soon! You will be able to see all your gold transactions here.\n\n' +
-          'Current Balance: ' + (currentUserData.goldBalance || 0) + ' 🪙');
+    if (!currentUserData) {
+        alert('Loading user data...');
+        return;
+    }
+
+    // Show gold transaction modal or alert
+    alert(
+        '💰 Gold History\n\n' +
+        '━━━━━━━━━━━━━━━━━━━━━\n' +
+        'Current Balance: ' + (currentUserData.goldBalance || 0) + ' 🪙\n' +
+        'Total Received: ' + (currentUserData.goldReceived || 0) + ' 🪙\n' +
+        'Total Given: ' + (currentUserData.goldGiven || 0) + ' 🪙\n' +
+        '━━━━━━━━━━━━━━━━━━━━━\n\n' +
+        '📊 Full transaction history coming soon!'
+    );
 }
 
 // ============================================
-// INIT SIDEBAR ON PAGE LOAD
+// INIT SIDEBAR ON PAGE LOAD - FIXED
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     // Create sidebar on page load
@@ -548,12 +625,13 @@ document.addEventListener('DOMContentLoaded', function() {
         settingsBtn.title = 'Settings';
         settingsBtn.onclick = toggleSidebar;
         settingsBtn.style.fontSize = '1.4rem';
-        settingsBtn.style.padding = '4px 12px';
+        settingsBtn.style.padding = '4px 10px';
         settingsBtn.style.background = 'transparent';
         settingsBtn.style.border = 'none';
         settingsBtn.style.cursor = 'pointer';
-        settingsBtn.style.color = 'inherit';
-        settingsBtn.style.transition = 'transform 0.3s';
+        settingsBtn.style.color = 'var(--text-secondary, #4a5568)';
+        settingsBtn.style.transition = 'transform 0.3s ease, background 0.2s ease';
+        settingsBtn.style.borderRadius = '8px';
 
         // Find where to insert (before auth buttons)
         const authButtons = document.getElementById('authButtons');
@@ -567,4 +645,15 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Sidebar initialized');
 });
 
-console.log('📂 Sidebar module loaded');
+// ============================================
+// GLOBAL EXPOSURE - Make functions accessible
+// ============================================
+window.toggleSidebar = toggleSidebar;
+window.openSidebar = openSidebar;
+window.closeSidebar = closeSidebar;
+window.toggleTheme = toggleTheme;
+window.toggleProfilePrivacy = toggleProfilePrivacy;
+window.openSettingsModal = openSettingsModal;
+window.viewGoldHistory = viewGoldHistory;
+
+console.log('📂 Sidebar module loaded successfully');
