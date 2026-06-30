@@ -15,11 +15,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <!-- ===== EXTERNAL SCRIPTS (FIXED: Added missing dependencies) ===== -->
+    <!-- ===== EXTERNAL SCRIPTS ===== -->
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -458,7 +457,7 @@
             100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
         }
 
-        /* ===== HEADER - Consistent with other pages ===== */
+        /* ===== HEADER ===== */
         .header {
             background: white;
             padding: 0.8rem 2rem;
@@ -745,19 +744,14 @@
 </head>
 
 <body>
-    <!-- ===== HEADER - Consistent with other pages ===== -->
+    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
-            <!-- FEED - Only visible when logged in -->
             <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
-
-            <!-- About - Always visible -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
-
-            <!-- Guest Restricted Elements - Only visible when logged in -->
             <div class="guest-restricted guest-hidden">
                 <a href="submit.html" class="btn btn-nav">📝 Share</a>
                 <a href="profile.html" class="btn btn-nav">👤 Profile</a>
@@ -765,17 +759,11 @@
                 <a href="activity.html" class="btn btn-nav">📊 Activity</a>
                 <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
-
-            <!-- Settings Gear - Only visible when logged in -->
             <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
-
-            <!-- Auth Buttons - Only visible when NOT logged in -->
             <div id="authButtons" class="logged-in-hidden">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
-
-            <!-- User Info - Only visible when logged in -->
             <div id="userInfo" class="guest-hidden">
                 <span id="userName">Friend</span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
@@ -956,7 +944,6 @@
     // ============================================
 
     // Note: Firebase, app.js, and sidebar.js are loaded above
-    // This ensures currentUser, currentUserData, auth, db, escapeHTML, etc. are available
 
     // ============================================
     // GLOBAL STATE
@@ -1122,7 +1109,7 @@
     }
 
     // ============================================
-    // RENDER FULL STORY - FIXED: Read More single button
+    // RENDER FULL STORY
     // ============================================
     function renderFullStory(story) {
         const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
@@ -1156,7 +1143,7 @@
             `;
         });
 
-        // Read More - single button, no duplication
+        // Read More - single button
         const fullText = story.text || '';
         const excerptLength = 300;
         const showReadMore = fullText.length > excerptLength;
@@ -1204,7 +1191,7 @@
     }
 
     // ============================================
-    // TOGGLE READ MORE - FIXED: Single button
+    // TOGGLE READ MORE
     // ============================================
     function toggleReadMore() {
         const fullText = document.getElementById('fullText');
@@ -1342,7 +1329,7 @@
     }
 
     // ============================================
-    // COMMENTS - COMPLETE
+    // COMMENTS - FIXED (removed approved filter)
     // ============================================
     function loadComments(storyId) {
         const container = document.getElementById('commentsContainer');
@@ -1350,9 +1337,10 @@
 
         container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
 
+        // FIXED: Removed the .where('approved', '==', true) filter
+        // This was causing FAILED_PRECONDITION errors because it requires a composite index
         db.collection('comments')
             .where('storyId', '==', storyId)
-            .where('approved', '==', true)
             .get()
             .then((snapshot) => {
                 if (snapshot.empty) {
@@ -1368,7 +1356,10 @@
                 snapshot.forEach((doc) => {
                     const c = doc.data();
                     c.id = doc.id;
-                    comments.push(c);
+                    // Only show approved comments or user's own comments
+                    if (c.approved !== false || c.userId === currentUser?.uid) {
+                        comments.push(c);
+                    }
                 });
 
                 comments.sort((a, b) => {
@@ -1848,43 +1839,269 @@
     }
 
     // ============================================
-    // AUTH FUNCTIONS (using app.js versions)
+    // UTILITY FUNCTIONS
     // ============================================
-    // These functions are already defined in app.js
-    // We're using them from the global scope
+    function escapeHTML(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    }
+
+    function sanitizeInput(text) {
+        if (!text) return '';
+        return text.replace(/<[^>]*>/g, '').trim();
+    }
+
+    function resendVerification() {
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Please log in first.');
+            return;
+        }
+
+        user.sendEmailVerification()
+            .then(() => {
+                alert('✅ Verification email resent to ' + user.email + '!');
+            })
+            .catch((err) => {
+                alert('❌ Error: ' + err.message);
+            });
+    }
 
     // ============================================
-    // AUTH STATE LISTENER (using app.js)
+    // AUTH FUNCTIONS
     // ============================================
-    // Auth state is already handled in app.js
-    // We just need to call loadStory() when ready
+    function openModal(mode) {
+        const modal = document.getElementById('authModal');
+        if (!modal) return;
+
+        const title = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const signupFields = document.getElementById('signupFields');
+        const switchLink = document.getElementById('authSwitch');
+        const error = document.getElementById('authError');
+
+        if (error) error.textContent = '';
+
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        document.getElementById('authCountry').value = '';
+
+        if (mode === 'login') {
+            title.textContent = '🔐 Welcome Back';
+            submitBtn.textContent = '🚀 Log In';
+            signupFields.style.display = 'none';
+            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.dataset.mode = 'signup';
+        } else {
+            title.textContent = '📝 Join The Harbor';
+            submitBtn.textContent = '🚀 Create Account';
+            signupFields.style.display = 'block';
+            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.dataset.mode = 'login';
+        }
+
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').classList.remove('active');
+    }
+
+    function toggleAuthMode() {
+        const switchLink = document.getElementById('authSwitch');
+        if (!switchLink) return;
+        const mode = switchLink.dataset.mode;
+        closeModal();
+        setTimeout(() => openModal(mode), 200);
+    }
+
+    function handleAuth() {
+        const emailInput = document.getElementById('authEmail');
+        const passwordInput = document.getElementById('authPassword');
+        const error = document.getElementById('authError');
+        const submitBtn = document.getElementById('authSubmitBtn');
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        error.textContent = '';
+
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            error.textContent = 'Please enter a valid email address.';
+            return;
+        }
+        if (!password || password.length < 6) {
+            error.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+
+        const isLogin = submitBtn.textContent.includes('Log In');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Please wait...';
+
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (!user.emailVerified) {
+                        error.innerHTML = `
+                            ⚠️ Please verify your email first.<br>
+                            <button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;margin-top:4px;">
+                                🔄 Resend verification email
+                            </button>
+                        `;
+                        auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        return;
+                    }
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                    location.reload();
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                });
+        } else {
+            const nameInput = document.getElementById('authName');
+            const countryInput = document.getElementById('authCountry');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const country = countryInput ? countryInput.value.trim() : '';
+
+            if (!name || name.length < 2) {
+                error.textContent = 'Please enter a username (minimum 2 characters).';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            if (!country) {
+                error.textContent = 'Please select your country.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+
+            const termsChecked = document.getElementById('termsCheckbox').checked;
+            if (!termsChecked) {
+                error.textContent = 'You must agree to the Terms and Privacy Policy.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return user.sendEmailVerification().then(() => user);
+                })
+                .then((user) => {
+                    return db.collection('users').doc(user.uid).set({
+                        uid: user.uid,
+                        name: name,
+                        email: email,
+                        gender: '🙅 Prefer not to say',
+                        favorites: 'Not specified',
+                        country: country,
+                        emergencyNumber: '911',
+                        emailVerified: false,
+                        isAdmin: false,
+                        isPublic: true,
+                        goldBalance: 10,
+                        goldReceived: 0,
+                        goldGiven: 0,
+                        followers: [],
+                        following: [],
+                        storyCount: 0,
+                        commentCount: 0,
+                        likesReceived: 0,
+                        avatar: '👤',
+                        border: 'default',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    auth.signOut();
+                    alert(
+                        '✅ Verification email sent to ' + email + '!\n\n' +
+                        '📧 Please check your inbox and click the verification link.\n\n' +
+                        '💰 You received 10 🪙 gold as a welcome gift!'
+                    );
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                });
+        }
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+
+        if (user) {
+            currentUser = user;
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+
+            db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        userName.textContent = currentUserData.name || 'Friend';
+                        if (!currentStoryId) {
+                            loadStory();
+                        }
+                    }
+                })
+                .catch((err) => console.error('Error fetching user data:', err));
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
+            if (!currentStoryId) {
+                loadStory();
+            }
+        }
+        applyGuestRestrictions();
+    });
 
     // ============================================
     // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         populateCountryDatalist();
-
-        // Apply guest restrictions
-        if (typeof currentUser !== 'undefined') {
-            applyGuestRestrictions();
-        }
-
-        // Watch for auth changes
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged(function(user) {
-                setTimeout(function() {
-                    applyGuestRestrictions();
-                    if (user) {
-                        // User is logged in, load story
-                        loadStory();
-                    } else {
-                        // User is logged out, still try to load story (will show login required)
-                        loadStory();
-                    }
-                }, 300);
-            });
-        }
 
         // Comment counter
         document.getElementById('commentText')?.addEventListener('input', function() {
@@ -1928,6 +2145,11 @@
             }
         });
 
+        // Load story if auth already resolved
+        if (currentUser) {
+            loadStory();
+        }
+
         console.log('✅ Story page ready');
     });
 
@@ -1949,7 +2171,7 @@
         return { score, strength, color };
     }
 
-    console.log('📖 Story page loaded with all dependencies');
+    console.log('📖 Story page loaded with all fixes');
     </script>
 </body>
 </html>
