@@ -1,10 +1,70 @@
 // ============================================
-// SIDEBAR CONTROLS - COMPLETE FIXED
+// SIDEBAR CONTROLS - COMPLETE FIXED (Dark Mode Persistence)
 // ============================================
 
 let isSidebarOpen = false;
 let sidebarOverlay = null;
 let sidebarPanel = null;
+
+// ============================================
+// THEME MANAGEMENT - PERSISTENT
+// ============================================
+
+// Get saved theme or system preference
+function getSavedTheme() {
+    // Check localStorage first
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') {
+        return saved;
+    }
+    // Fallback to system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    return 'light';
+}
+
+// Apply theme to document
+function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+    }
+    
+    // Update sidebar button text if visible
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) {
+        themeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+    
+    console.log(`✅ Theme applied: ${theme}`);
+}
+
+// Initialize theme on page load
+function initTheme() {
+    const savedTheme = getSavedTheme();
+    applyTheme(savedTheme);
+}
+
+// Toggle theme - FIXED: Works without sidebar
+function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+    
+    applyTheme(newTheme);
+    
+    // Update sidebar data if function exists
+    if (typeof updateSidebarData === 'function') {
+        updateSidebarData();
+    }
+    
+    console.log(`✅ Theme toggled to: ${newTheme}`);
+}
 
 // ============================================
 // CREATE SIDEBAR HTML
@@ -38,7 +98,7 @@ function createSidebar() {
                 <div class="sidebar-section">
                     <h3>🎨 Appearance</h3>
                     <button class="sidebar-btn" id="themeToggleBtn" onclick="toggleTheme()">
-                        🌙 Dark Mode
+                        ${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
                     </button>
                 </div>
 
@@ -329,7 +389,7 @@ function addSidebarStyles() {
 // OPEN / CLOSE SIDEBAR - FIXED: Guest check
 // ============================================
 function openSidebar() {
-    // FIXED: Only allow if user is logged in
+    // Only allow if user is logged in
     if (!currentUser) {
         alert('Please log in to access settings.');
         return;
@@ -381,7 +441,7 @@ function applySidebarGuestRestrictions() {
 // UPDATE SIDEBAR DATA - FIXED: Safe checks
 // ============================================
 function updateSidebarData() {
-    // FIXED: Check if user is logged in
+    // Check if user is logged in
     if (!currentUser || !currentUserData) {
         console.warn('Cannot update sidebar: User not logged in');
         return;
@@ -435,33 +495,6 @@ function updateSidebarData() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         themeBtn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
     }
-}
-
-// ============================================
-// TOGGLE THEME - FIXED: Works without sidebar
-// ============================================
-function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = html.getAttribute('data-theme') === 'dark';
-
-    if (isDark) {
-        html.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
-    } else {
-        html.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-    }
-
-    // Update button text
-    const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) {
-        themeBtn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-    }
-
-    // Update sidebar data
-    updateSidebarData();
-
-    console.log(`✅ Theme switched to: ${isDark ? 'Light' : 'Dark'}`);
 }
 
 // ============================================
@@ -628,6 +661,9 @@ function viewGoldHistory() {
 // INIT SIDEBAR ON PAGE LOAD - FIXED
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
+    // INITIALIZE THEME FIRST (before creating sidebar)
+    initTheme();
+    
     // Create sidebar on page load
     createSidebar();
 
@@ -669,7 +705,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    console.log('✅ Sidebar initialized');
+    console.log('✅ Sidebar initialized with persistent dark mode');
 });
 
 // ============================================
@@ -682,5 +718,8 @@ window.toggleTheme = toggleTheme;
 window.toggleProfilePrivacy = toggleProfilePrivacy;
 window.openSettingsModal = openSettingsModal;
 window.viewGoldHistory = viewGoldHistory;
+window.initTheme = initTheme;
+window.applyTheme = applyTheme;
+window.getSavedTheme = getSavedTheme;
 
 console.log('📂 Sidebar module loaded successfully');
