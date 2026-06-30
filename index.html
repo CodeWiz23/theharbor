@@ -7,39 +7,29 @@
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
-    <!-- ============================================
-    META TAGS FOR SEO & SOCIAL SHARING
-    ============================================ -->
-    <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together. Free mental health support community." />
+    <!-- META TAGS FOR SEO & SOCIAL SHARING -->
+    <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
     <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
     <meta name="author" content="The Harbor" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Open Graph Tags (for social media sharing) -->
+    <!-- Open Graph Tags -->
     <meta property="og:title" content="The Harbor — Share & Heal" />
     <meta property="og:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://codewiz23.github.io/theharbor/" />
-    <meta property="og:image" content="https://codewiz23.github.io/theharbor/images/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
 
-    <!-- Twitter Card Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="The Harbor — Share & Heal" />
-    <meta name="twitter:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
-    <meta name="twitter:image" content="https://codewiz23.github.io/theharbor/images/og-image.png" />
-
-    <!-- ⭐ GOOGLE ANALYTICS - ADDED ⭐ -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-81R2FX47H0');
-      console.log('✅ Google Analytics initialized on index.html');
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-81R2FX47H0');
     </script>
 
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -47,22 +37,155 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
     </script>
 
-    <link rel="stylesheet" href="css/style.css" />
-
+    <!-- ============================================
+    CLEAN STYLES - ALL IN ONE
+    ============================================ -->
     <style>
-        /* ============================================
-           ADDITIONAL HOMEPAGE STYLES
-           ============================================ */
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER / NAVBAR ===== */
+        .header {
+            background: white;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a4a4a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo span {
+            font-weight: 300;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-nav {
+            background: #f0f4f8;
+            color: #1a4a4a;
+        }
+        .btn-nav:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-feed {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-feed:hover {
+            background: #2d6a6a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 74, 74, 0.3);
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #1a4a4a;
+            border: 2px solid #1a4a4a;
+        }
+        .btn-login:hover {
+            background: #1a4a4a;
+            color: white;
+        }
+
+        .btn-signup {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #2d6a6a;
+        }
+
+        .btn-logout {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-logout:hover {
+            background: #fecaca;
+        }
+
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        #userName {
+            font-weight: 600;
+            color: #1a4a4a;
+        }
+
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ===== HERO ===== */
         .hero {
             background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
             color: white;
-            padding: 50px 24px 40px;
+            padding: 2.5rem 2rem;
             text-align: center;
-            border-radius: 20px;
-            margin-bottom: 30px;
+            border-radius: 16px;
+            margin: 1.5rem 0;
         }
         .hero h1 {
-            font-size: 2.8rem;
+            font-size: 2.4rem;
             font-weight: 300;
         }
         .hero h1 span {
@@ -70,138 +193,513 @@
             color: #c47a5a;
         }
         .hero p {
-            font-size: 1.2rem;
-            opacity: 0.8;
-            margin-top: 8px;
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-top: 6px;
         }
         .hero-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
-            margin-top: 20px;
-        }
-        .hero-actions .btn {
-            padding: 12px 32px;
-            border: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .hero-actions .btn-primary-hero {
-            background: #c47a5a;
-            color: white;
-        }
-        .hero-actions .btn-primary-hero:hover {
-            background: #a86545;
-            transform: scale(1.02);
-        }
-        .hero-actions .btn-secondary-hero {
-            background: transparent;
-            border: 2px solid white;
-            color: white;
-        }
-        .hero-actions .btn-secondary-hero:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.02);
+            margin-top: 16px;
         }
 
+        /* ===== SEARCH ===== */
         .search-bar {
             max-width: 600px;
-            margin: -20px auto 20px;
-            padding: 0 20px;
+            margin: -16px auto 20px;
+            padding: 0 1.5rem;
             position: relative;
             z-index: 10;
         }
         .search-bar input {
             width: 100%;
-            padding: 14px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 50px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             font-size: 1rem;
             outline: none;
             background: white;
         }
         .search-bar input:focus {
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 1.5rem 0 1.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .tab {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a5568;
+        }
+        .tab:hover {
+            background: #edf2f7;
+        }
+        .tab.active {
+            background: #1a4a4a;
+            color: white;
+        }
+
+        /* ===== STORY CARDS ===== */
+        .story-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #edf2f7;
+            transition: all 0.2s;
+        }
+        .story-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .story-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .story-author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .story-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .story-meta {
+            display: flex;
+            flex-direction: column;
+        }
+        .story-author-name {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .story-date {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .story-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0.3rem 0;
+            color: #1a1a2e;
+        }
+
+        .story-content {
+            color: #2d3748;
+            margin: 0.5rem 0;
+            line-height: 1.7;
+            word-wrap: break-word;
+        }
+
+        .story-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin: 0.6rem 0;
+        }
+        .story-tag {
+            background: #eef2ff;
+            color: #4a6cf7;
+            padding: 0.15rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .visibility-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge-public {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .badge-private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .story-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .btn-action {
+            padding: 0.35rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-edit {
+            background: #eef2ff;
+            color: #4a6cf7;
+        }
+        .btn-edit:hover {
+            background: #dce3ff;
+        }
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        .btn-visibility {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .btn-visibility.private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2.5rem 0;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            padding: 0.4rem 0.9rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #1a4a4a;
+            color: white;
+            border-color: #1a4a4a;
+        }
+        .pagination button.active {
+            background: #1a4a4a;
+            color: white;
+            border-color: #1a4a4a;
+        }
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .page-info {
+            padding: 0.4rem 1rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #718096;
+        }
+        .modal-close:hover {
+            color: #1a1a2e;
+        }
+        .modal-content h2 {
+            margin-bottom: 1.2rem;
+            color: #1a4a4a;
+        }
+
+        .modal-content label {
+            display: block;
+            font-weight: 600;
+            margin: 0.8rem 0 0.3rem;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border 0.2s;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: #1a4a4a;
+            outline: none;
+        }
+
+        .btn-modal {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1a4a4a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-modal:hover {
+            background: #2d6a6a;
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+            cursor: pointer;
+        }
+        .switch-link strong {
+            color: #1a4a4a;
+        }
+
+        .error-msg {
+            color: #dc2626;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .success-msg {
+            color: #16a34a;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.8rem 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        .checkbox-group label {
+            margin: 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* ===== EDIT MODAL ===== */
+        #editModal .modal-content textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            min-height: 100px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        #editModal .modal-content textarea:focus {
+            border-color: #1a4a4a;
+            outline: none;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 0.8rem 0;
+        }
+        .footer-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            color: #1a4a4a;
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .header {
+                padding: 0.6rem 1rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.6rem;
+            }
+            .header-right {
+                justify-content: center;
+            }
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+            .tabs {
+                gap: 4px;
+            }
+            .tab {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            .story-card {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- ============================================
-    HEADER - WITH PROFILE & SUGGEST LINKS
-    ============================================ -->
+
+    <!-- ===== HEADER WITH FEED BUTTON ===== -->
     <header class="header">
-        <div class="header-left">
-            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
-        </div>
+        <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
+
         <div class="header-right">
-            <!-- Navigation Links -->
+            <!-- FEED BUTTON - Always visible, goes to home -->
+            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
+
             <a href="about.html" class="btn btn-nav">🌿 About</a>
             <a href="submit.html" class="btn btn-nav">📝 Share</a>
             <a href="profile.html" class="btn btn-nav">👤 Profile</a>
             <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-            <!-- Admin link - hidden by default, shown only to admins -->
             <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
 
-            <!-- Auth Buttons (visible when logged out) -->
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
 
-            <!-- User Info (visible when logged in) -->
             <div id="userInfo">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
                 <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- ============================================
-    EMERGENCY BANNER
-    ============================================ -->
+    <!-- ===== EMERGENCY BANNER ===== -->
     <div id="emergencyBanner"></div>
 
-    <!-- ============================================
-    GENDER RESTRICTION BANNER
-    ============================================ -->
-    <div id="genderRestrictionBanner">
-        <span id="genderRestrictionText"></span>
-    </div>
-
-    <!-- ============================================
-    HERO SECTION
-    ============================================ -->
+    <!-- ===== HERO ===== -->
     <div class="container">
         <section class="hero">
             <h1>⚓ Welcome to <span>The Harbor</span></h1>
             <p>A safe place to share, heal, and grow — together.</p>
             <div class="hero-actions">
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="submit.html" class="btn btn-primary-hero">📝 Share Your Story</a>
-                <a href="about.html" class="btn btn-secondary-hero">🌿 Learn More</a>
+                <a href="activity.html" class="btn btn-nav" style="background:rgba(255,255,255,0.15);color:white;">📊 Activity</a>
+                <a href="submit.html" class="btn btn-nav" style="background:#c47a5a;color:white;">📝 Share Your Story</a>
+                <a href="about.html" class="btn btn-nav" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3);">🌿 Learn More</a>
             </div>
         </section>
     </div>
 
-    <!-- ============================================
-    SEARCH BAR
-    ============================================ -->
+    <!-- ===== SEARCH ===== -->
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter') searchStories()" />
     </div>
 
-    <!-- ============================================
-    CATEGORY TABS
-    ============================================ -->
+    <!-- ===== TABS ===== -->
     <div class="container">
         <div class="tabs" id="categoryTabs">
             <button class="tab active" data-category="all" onclick="switchCategory('all')">🌊 All</button>
@@ -212,24 +710,23 @@
             <button class="tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass</button>
         </div>
 
-        <!-- ============================================
-        STORIES CONTAINER
-        ============================================ -->
+        <!-- ===== STORIES ===== -->
         <div id="storiesContainer">
             <div class="loading">⏳ Loading stories...</div>
         </div>
+
+        <!-- ===== PAGINATION ===== -->
+        <div class="pagination" id="paginationContainer"></div>
     </div>
 
-    <!-- ============================================
-    AUTH MODAL - WITH TERMS CHECKBOX
-    ============================================ -->
+    <!-- ===== AUTH MODAL ===== -->
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
 
             <div class="warning-box" id="genderWarning">
-                <span class="icon">⚠️</span>
+                <span>⚠️</span>
                 <span id="genderWarningText">Your gender determines which sections you can see.</span>
             </div>
 
@@ -238,36 +735,25 @@
 
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
-            <div id="passwordStrength"></div>
 
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label>
                 <input type="text" id="authName" placeholder="Choose a unique username" />
-                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
 
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
+                <!-- GENDER REMOVED - No longer asking for gender -->
+                <!-- Users can only see content based on their registered gender -->
 
                 <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." />
                 <datalist id="country-list"></datalist>
 
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
 
-                <!-- TERMS & PRIVACY CHECKBOX -->
-                <div class="checkbox-group" style="margin-top:14px;">
+                <div class="checkbox-group">
                     <input type="checkbox" id="termsCheckbox" />
-                    <label for="termsCheckbox" style="font-weight:600;cursor:pointer;color:#2d3a3a;">
-                        I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms of Service</a> and 
+                    <label for="termsCheckbox">
+                        I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms</a> and
                         <a href="privacy.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Privacy Policy</a>
                         <span style="color:#c0392b;">*</span>
                     </label>
@@ -285,9 +771,24 @@
         </div>
     </div>
 
-    <!-- ============================================
-    FOOTER - WITH PRIVACY, TERMS & COPYRIGHT
-    ============================================ -->
+    <!-- ===== EDIT MODAL ===== -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            <h2>✏️ Edit Story</h2>
+
+            <label for="editTitle">Title</label>
+            <input type="text" id="editTitle" />
+
+            <label for="editContent">Content</label>
+            <textarea id="editContent" rows="6"></textarea>
+
+            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
+            <div class="error-msg" id="editError"></div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
@@ -302,13 +803,463 @@
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
             © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community. Unauthorized reproduction or distribution is prohibited.
+            Built with 💚 for the community.
         </div>
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT
+    JAVASCRIPT - ALL FUNCTIONALITY
     ============================================ -->
-    <script src="js/app.js"></script>
+    <script>
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8qNPQ5aD-Ua00xDU4S6gNy8cXXA5cIZM",
+            authDomain: "theharbor-2f4c6.firebaseapp.com",
+            projectId: "theharbor-2f4c6",
+            storageBucket: "theharbor-2f4c6.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ===== STATE =====
+        let currentUser = null;
+        let currentCategory = 'all';
+        let allStories = [];
+        let filteredStories = [];
+        let currentPage = 1;
+        const STORIES_PER_PAGE = 10;
+        let currentEditId = null;
+
+        // ===== AUTH FUNCTIONS =====
+        function openModal(mode) {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authError').textContent = '';
+            document.getElementById('authSuccess').textContent = '';
+            if (mode === 'signup') {
+                document.getElementById('modalTitle').textContent = '📝 Join The Harbor';
+                document.getElementById('signupFields').style.display = 'block';
+                document.getElementById('authSubmitBtn').textContent = '📝 Join';
+                document.getElementById('authSwitch').innerHTML =
+                    'Already have an account? <strong>Log In</strong>';
+                // Remove gender from signup - no longer asking
+            } else {
+                document.getElementById('modalTitle').textContent = '🔐 Welcome Back';
+                document.getElementById('signupFields').style.display = 'none';
+                document.getElementById('authSubmitBtn').textContent = '🚀 Log In';
+                document.getElementById('authSwitch').innerHTML =
+                    'Don\'t have an account? <strong>Sign Up</strong>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function toggleAuthMode() {
+            const isSignup = document.getElementById('signupFields').style.display === 'block';
+            if (isSignup) {
+                openModal('login');
+            } else {
+                openModal('signup');
+            }
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const isSignup = document.getElementById('signupFields').style.display === 'block';
+
+            if (!email || !password) {
+                document.getElementById('authError').textContent = '⚠️ Please fill in all fields.';
+                return;
+            }
+
+            if (isSignup) {
+                // Sign up
+                const name = document.getElementById('authName').value.trim();
+                const country = document.getElementById('authCountry').value.trim();
+                const favorites = document.getElementById('authFavorites').value.trim();
+                const termsChecked = document.getElementById('termsCheckbox').checked;
+
+                if (!name) {
+                    document.getElementById('authError').textContent = '⚠️ Please choose a username.';
+                    return;
+                }
+                if (!termsChecked) {
+                    document.getElementById('authError').textContent = '⚠️ You must agree to the Terms and Privacy Policy.';
+                    return;
+                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        // Save user data WITHOUT gender
+                        return db.collection('users').doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            country: country || 'Not specified',
+                            favorites: favorites || 'Not specified',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            isAdmin: false,
+                            isVerified: false
+                        });
+                    })
+                    .then(() => {
+                        document.getElementById('authSuccess').textContent = '✅ Account created! Welcome to The Harbor.';
+                        document.getElementById('authError').textContent = '';
+                        setTimeout(() => {
+                            closeModal();
+                            location.reload();
+                        }, 1500);
+                    })
+                    .catch((error) => {
+                        document.getElementById('authError').textContent = '❌ ' + error.message;
+                    });
+            } else {
+                // Log in
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        document.getElementById('authSuccess').textContent = '✅ Welcome back!';
+                        document.getElementById('authError').textContent = '';
+                        setTimeout(() => {
+                            closeModal();
+                            location.reload();
+                        }, 1000);
+                    })
+                    .catch((error) => {
+                        document.getElementById('authError').textContent = '❌ ' + error.message;
+                    });
+            }
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        // ===== AUTH STATE =====
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                // Load user data
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        document.getElementById('userName').textContent = data.name || 'Friend';
+                        if (data.isAdmin) {
+                            document.getElementById('adminNavLink').style.display = 'inline-block';
+                        }
+                        if (data.isVerified) {
+                            document.getElementById('verificationBadge').textContent = '✅ Verified';
+                            document.getElementById('verificationBadge').style.background = '#dcfce7';
+                            document.getElementById('verificationBadge').style.color = '#16a34a';
+                        }
+                    }
+                });
+                loadStories();
+            } else {
+                currentUser = null;
+                document.getElementById('authButtons').style.display = 'flex';
+                document.getElementById('userInfo').style.display = 'none';
+                document.getElementById('adminNavLink').style.display = 'none';
+                loadStories();
+            }
+        });
+
+        // ===== LOAD STORIES =====
+        function loadStories() {
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
+
+            let query = db.collection('stories')
+                .orderBy('createdAt', 'desc');
+
+            // If not admin, only show public + user's private
+            if (!currentUser) {
+                query = query.where('visibility', '==', 'public');
+            }
+
+            query.get().then((snapshot) => {
+                allStories = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // If private and not owner, skip
+                    if (data.visibility === 'private' && currentUser && data.uid !== currentUser.uid) {
+                        return;
+                    }
+                    allStories.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+                applyFilters();
+            }).catch((error) => {
+                container.innerHTML = `<div class="loading" style="color:#dc2626;">❌ Error loading stories: ${error.message}</div>`;
+            });
+        }
+
+        // ===== FILTER & PAGINATE =====
+        function applyFilters() {
+            // Filter by category
+            if (currentCategory === 'all') {
+                filteredStories = [...allStories];
+            } else {
+                filteredStories = allStories.filter(s => s.category === currentCategory);
+            }
+
+            // Filter by search
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (searchTerm) {
+                filteredStories = filteredStories.filter(s =>
+                    (s.title && s.title.toLowerCase().includes(searchTerm)) ||
+                    (s.content && s.content.toLowerCase().includes(searchTerm)) ||
+                    (s.authorName && s.authorName.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            renderStories();
+        }
+
+        function renderStories() {
+            const container = document.getElementById('storiesContainer');
+            const totalPages = Math.ceil(filteredStories.length / STORIES_PER_PAGE) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * STORIES_PER_PAGE;
+            const end = start + STORIES_PER_PAGE;
+            const pageStories = filteredStories.slice(start, end);
+
+            if (pageStories.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:#718096;">
+                        🌊 No stories found. Be the first to share!
+                    </div>
+                `;
+            } else {
+                container.innerHTML = pageStories.map(story => `
+                    <div class="story-card">
+                        <div class="story-header">
+                            <div class="story-author-info">
+                                <div class="story-avatar">${(story.authorName || 'A')[0].toUpperCase()}</div>
+                                <div class="story-meta">
+                                    <span class="story-author-name">${story.authorName || 'Anonymous'}</span>
+                                    <span class="story-date">${story.createdAt ? new Date(story.createdAt.toDate()).toLocaleDateString() : 'Just now'}</span>
+                                </div>
+                            </div>
+                            <span class="visibility-badge ${story.visibility === 'public' ? 'badge-public' : 'badge-private'}">
+                                ${story.visibility === 'public' ? '🌍 Public' : '🔒 Private'}
+                            </span>
+                        </div>
+
+                        <h3 class="story-title">${story.title || 'Untitled'}</h3>
+                        <p class="story-content">${story.content || ''}</p>
+
+                        ${story.tags && story.tags.length ? `
+                            <div class="story-tags">
+                                ${story.tags.map(tag => `<span class="story-tag">#${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+
+                        ${currentUser && story.uid === currentUser.uid ? `
+                            <div class="story-actions">
+                                <button class="btn-action btn-edit" onclick="openEditModal('${story.id}')">✏️ Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
+                                <button class="btn-action btn-visibility ${story.visibility === 'private' ? 'private' : ''}" 
+                                        onclick="toggleVisibility('${story.id}')">
+                                    ${story.visibility === 'public' ? '🔒 Make Private' : '🌍 Make Public'}
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+
+            renderPagination(totalPages);
+        }
+
+        // ===== PAGINATION =====
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationContainer');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>◀ Prev</button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="active">${i}</button>`;
+                } else if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+                    html += `<button onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<span class="page-info">…</span>`;
+                }
+            }
+
+            html += `
+                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ▶</button>
+                <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredStories.length / STORIES_PER_PAGE) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderStories();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===== CATEGORY SWITCH =====
+        function switchCategory(category) {
+            currentCategory = category;
+            currentPage = 1;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-category="${category}"]`).classList.add('active');
+            applyFilters();
+        }
+
+        // ===== SEARCH =====
+        function searchStories() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        // ===== EDIT FUNCTIONS =====
+        function openEditModal(storyId) {
+            const story = allStories.find(s => s.id === storyId);
+            if (!story) return;
+
+            currentEditId = storyId;
+            document.getElementById('editTitle').value = story.title || '';
+            document.getElementById('editContent').value = story.content || '';
+            document.getElementById('editError').textContent = '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditId = null;
+        }
+
+        function saveEdit() {
+            const title = document.getElementById('editTitle').value.trim();
+            const content = document.getElementById('editContent').value.trim();
+
+            if (!title || !content) {
+                document.getElementById('editError').textContent = '⚠️ Title and content are required.';
+                return;
+            }
+
+            db.collection('stories').doc(currentEditId).update({
+                title: title,
+                content: content,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                closeEditModal();
+                loadStories();
+            }).catch((error) => {
+                document.getElementById('editError').textContent = '❌ ' + error.message;
+            });
+        }
+
+        // ===== DELETE =====
+        function deleteStory(storyId) {
+            if (!confirm('⚠️ Are you sure you want to delete this story? This cannot be undone.')) return;
+
+            db.collection('stories').doc(storyId).delete()
+                .then(() => {
+                    loadStories();
+                })
+                .catch((error) => {
+                    alert('❌ Error deleting story: ' + error.message);
+                });
+        }
+
+        // ===== TOGGLE VISIBILITY =====
+        function toggleVisibility(storyId) {
+            const story = allStories.find(s => s.id === storyId);
+            if (!story) return;
+
+            const newVisibility = story.visibility === 'public' ? 'private' : 'public';
+
+            db.collection('stories').doc(storyId).update({
+                visibility: newVisibility
+            }).then(() => {
+                loadStories();
+            }).catch((error) => {
+                alert('❌ Error updating visibility: ' + error.message);
+            });
+        }
+
+        // ===== COUNTRY LIST (for signup) =====
+        const countries = [
+            'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Argentina', 'Armenia',
+            'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados',
+            'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina',
+            'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia',
+            'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile',
+            'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus',
+            'Czech Republic', 'Denmark', 'Djibouti', 'Dominican Republic', 'Ecuador', 'Egypt',
+            'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia',
+            'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana',
+            'Greece', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland',
+            'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica',
+            'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia',
+            'Lebanon', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar',
+            'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Mauritania', 'Mauritius', 'Mexico',
+            'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar',
+            'Namibia', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria',
+            'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Panama', 'Paraguay',
+            'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda',
+            'Saudi Arabia', 'Senegal', 'Serbia', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia',
+            'Somalia', 'South Africa', 'South Korea', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname',
+            'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand',
+            'Timor-Leste', 'Togo', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan',
+            'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States',
+            'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+        ];
+
+        // Populate country datalist
+        const datalist = document.getElementById('country-list');
+        countries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c;
+            datalist.appendChild(option);
+        });
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeEditModal();
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById('authModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeEditModal();
+        });
+
+        console.log('✅ The Harbor - Clean version loaded!');
+        console.log('✅ Features: Edit | Delete | Visibility | Pagination | Feed button');
+        console.log('✅ Gender removed from signup');
+    </script>
 </body>
 </html>
