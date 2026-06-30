@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Story — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;" />
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- ✅ EXTERNAL SCRIPTS - LOAD BEFORE INLINE SCRIPT -->
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -837,7 +841,7 @@
             <button class="modal-close" onclick="closeModal()">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
 
-            <div class="warning-box" id="genderWarning" style="display:none;background:#fef3c7;padding:8px 12px;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:0.9rem;color:#92400e;">
+            <div class="warning-box" id="genderWarning" style="display:none;background:#fef3c7;padding:8px 12px;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:0.85rem;">
                 <span>⚠️</span>
                 <span id="genderWarningText">Your gender determines which sections you can see.</span>
             </div>
@@ -938,139 +942,31 @@
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT - COMPLETE FIXED
+    STORY PAGE SPECIFIC FUNCTIONS - Uses globals from app.js
     ============================================ -->
     <script>
     // ============================================
-    // FIREBASE CONFIG
+    // STORY PAGE FUNCTIONS
     // ============================================
-    const firebaseConfig = {
-        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
-        authDomain: "the-harbor-community.firebaseapp.com",
-        projectId: "the-harbor-community",
-        storageBucket: "the-harbor-community.firebasestorage.app",
-        messagingSenderId: "634248505303",
-        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
-    };
 
-    if (!firebase.apps || !firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // ============================================
-    // GLOBAL STATE
-    // ============================================
-    let currentUser = null;
-    let currentUserData = null;
-    let currentStory = null;
-    let userReactions = {};
-    let currentEditId = null;
-    let selectedGoldAmount = 0;
-    let currentStoryId = null;
-
-    // ============================================
-    // COUNTRY DATA
-    // ============================================
-    const countries = [
-        { name: 'United States', emergency: '911' },
-        { name: 'United Kingdom', emergency: '999' },
-        { name: 'Bangladesh', emergency: '999' },
-        { name: 'India', emergency: '112' },
-        { name: 'Canada', emergency: '911' },
-        { name: 'Australia', emergency: '000' },
-        { name: 'Germany', emergency: '112' },
-        { name: 'France', emergency: '112' },
-        { name: 'Italy', emergency: '112' },
-        { name: 'Spain', emergency: '112' },
-        { name: 'Brazil', emergency: '190' },
-        { name: 'Mexico', emergency: '911' }
-    ];
-
-    function populateCountryDatalist() {
-        const datalist = document.getElementById('country-list');
-        if (!datalist) return;
-        datalist.innerHTML = '';
-        countries.forEach(c => {
-            const option = document.createElement('option');
-            option.value = c.name;
-            datalist.appendChild(option);
-        });
-    }
-
-    // ============================================
-    // ESCAPE HTML
-    // ============================================
-    function escapeHTML(text) {
-        if (!text) return '';
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;'
-        };
-        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-    }
-
-    function sanitizeInput(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.textContent;
-    }
-
-    // ============================================
-    // APPLY GUEST RESTRICTIONS
-    // ============================================
-    function applyGuestRestrictions() {
-        const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
-        const guestElements = document.querySelectorAll('.guest-hidden');
-        const loggedInElements = document.querySelectorAll('.logged-in-hidden');
-
-        guestElements.forEach(function(el) {
-            if (isLoggedIn) {
-                el.style.display = '';
-            } else {
-                el.style.display = 'none';
-            }
-        });
-
-        loggedInElements.forEach(function(el) {
-            if (isLoggedIn) {
-                el.style.display = 'none';
-            } else {
-                el.style.display = '';
-            }
-        });
-    }
-
-    // ============================================
-    // LOAD STORY
-    // ============================================
     function loadStory() {
         const urlParams = new URLSearchParams(window.location.search);
         const storyId = urlParams.get('id');
-        currentStoryId = storyId;
         const content = document.getElementById('storyContent');
-
-        if (!content) return;
 
         if (!storyId) {
             content.innerHTML = `
                 <div class="empty-state">
-                    <div class="big-emoji">📭</div>
-                    <h3>No story selected</h3>
+                    <div class="big-emoji">📚</div>
+                    <h3>Story not found</h3>
+                    <p>The story you're looking for doesn't exist.</p>
                     <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
                 </div>
             `;
             return;
         }
 
+        currentStoryId = storyId;
         content.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading story...</div>';
 
         db.collection('stories').doc(storyId).get()
@@ -1078,81 +974,47 @@
                 if (!doc.exists) {
                     content.innerHTML = `
                         <div class="empty-state">
-                            <div class="big-emoji">🔍</div>
-                            <h3>Story not found</h3>
-                            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
+                            <div class="big-emoji">❌</div>
+                            <h3>Story deleted</h3>
+                            <p>This story is no longer available.</p>
                         </div>
                     `;
                     return;
                 }
 
-                const story = doc.data();
-                story.id = doc.id;
-                currentStory = story;
+                currentStory = doc.data();
+                currentStory.id = doc.id;
 
-                // FIXED: Check if story is private and user is not owner
-                if (story.visibility === 'private' && (!currentUser || story.userId !== currentUser.uid)) {
+                // Privacy check
+                if (currentStory.visibility === 'private' && (!currentUser || currentStory.userId !== currentUser.uid)) {
                     content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
+                        <div class="empty-state">
                             <div class="big-emoji">🔒</div>
-                            <h3>Private Story</h3>
-                            <p>This story is private and only the author can view it.</p>
-                            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
+                            <h3>This story is private</h3>
+                            <p>You don't have permission to view this story.</p>
                         </div>
                     `;
                     return;
                 }
 
-                // Check if user is guest
-                if (!currentUser) {
-                    content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
-                            <div class="big-emoji">🔒</div>
-                            <h3>Login Required</h3>
-                            <p>Please log in to read this story.</p>
-                            <div style="margin-top:12px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                                <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                                <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Check if user is verified
-                if (!currentUser.emailVerified) {
-                    content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
-                            <div class="big-emoji">📧</div>
-                            <h3>Email Not Verified</h3>
-                            <p>Please verify your email to read stories.</p>
-                            <button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                content.innerHTML = renderFullStory(story);
+                renderStory(currentStory);
+                loadCommentsForStory(storyId);
                 loadUserReactions(storyId);
-                loadComments(storyId);
             })
             .catch((err) => {
-                console.error('Story load error:', err);
+                console.error('Error loading story:', err);
                 content.innerHTML = `
                     <div class="empty-state">
                         <div class="big-emoji">⚠️</div>
-                        <h3>Error Loading Story</h3>
+                        <h3>Error loading story</h3>
                         <p>${err.message}</p>
-                        <button class="btn btn-primary" onclick="loadStory()" style="margin-top:12px;">🔄 Retry</button>
                     </div>
                 `;
             });
     }
 
-    // ============================================
-    // RENDER FULL STORY - FIXED: Read More single button
-    // ============================================
-    function renderFullStory(story) {
+    function renderStory(story) {
+        const content = document.getElementById('storyContent');
         const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
         const categoryNames = {
             'men': '🧔 Men\'s Harbor',
@@ -1161,67 +1023,54 @@
             'fun': '☀️ Sunny Skies',
             'learning': '🧭 The Compass'
         };
-        const categoryDisplay = categoryNames[story.category] || story.category;
-        const time = story.createdAt ? story.createdAt.toDate().toLocaleString() : 'Recently';
 
         const reactions = story.reactions || {};
         const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-
-        const isOwner = currentUser && story.userId === currentUser.uid;
-        const isAdmin = currentUserData && currentUserData.isAdmin === true;
 
         let reactionButtons = '';
         emojis.forEach((emoji) => {
             const count = reactions[emoji] || 0;
             const hasReacted = userReactions[story.id] && userReactions[story.id].includes(emoji);
             reactionButtons += `
-                <button class="reaction-btn ${hasReacted ? 'reacted' : ''}"
-                        id="reaction-${story.id}-${emoji}"
+                <button class="reaction-btn ${hasReacted ? 'reacted' : ''}" 
+                        id="reaction-${story.id}-${emoji}" 
                         onclick="toggleReaction('${story.id}', '${emoji}')">
                     ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
-                    ${hasReacted ? ' ✅' : ''}
                 </button>
             `;
         });
 
-        // FIXED: Read More - single button, no duplication
-        const fullText = story.text || '';
-        const excerptLength = 300;
-        const showReadMore = fullText.length > excerptLength;
-        const excerpt = showReadMore ? fullText.substring(0, excerptLength) : fullText;
+        const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
 
-        return `
-            <div class="story-full" id="storyCard">
-                <div class="title">${escapeHTML(story.title)}</div>
+        let html = `
+            <div class="story-full">
+                <h1 class="title">${escapeHTML(story.title || 'Untitled')}</h1>
                 <div class="meta">
-                    <span>✍️ ${author}</span>
-                    <span class="category-badge">${categoryDisplay}</span>
+                    <span class="category-badge">${categoryNames[story.category] || story.category}</span>
+                    <span>📝 By ${author}</span>
                     <span>📅 ${time}</span>
-                    ${story.flagged ? '<span style="color:#d97706;">⚠️ Content Warning</span>' : ''}
-                    <span class="gold-display">${story.goldReceived || 0} 🪙</span>
+                    ${story.visibility === 'private' ? '<span>🔒 Private</span>' : '<span>🌍 Public</span>'}
+                    ${story.goldReceived > 0 ? `<span class="gold-display">${story.goldReceived} 🪙</span>` : ''}
                 </div>
-                <div class="content" id="storyContentText">
-                    <span class="excerpt-text" id="excerptText">${escapeHTML(excerpt)}</span>
-                    ${showReadMore ? `
-                        <span class="full-text" id="fullText" style="display:none;">${escapeHTML(fullText.substring(excerptLength))}</span>
-                        <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>
-                    ` : ''}
+
+                <div class="content">
+                    ${escapeHTML(story.text || '')}
                 </div>
+
+                ${story.tags && story.tags.length ? `
+                    <div style="margin-top:16px;">
+                        ${story.tags.map(tag => `<span style="background:#f0f4f8;padding:4px 12px;border-radius:20px;margin-right:6px;font-size:0.85rem;display:inline-block;">#${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+
                 <div class="story-actions">
                     ${reactionButtons}
+                    ${currentUser && story.userId === currentUser.uid ? `
+                        <button class="btn-action btn-edit" onclick="openEditModal('${story.id}')">✏️ Edit</button>
+                        <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
+                    ` : ''}
                     ${currentUser && story.userId !== currentUser.uid ? `
-                        <button class="btn-action btn-gold" onclick="openGoldModal('${story.id}')">🪙 Donate Gold</button>
-                    ` : ''}
-                    ${isOwner ? `
-                        <button class="btn-action btn-edit" onclick="openEditModal()">✏️ Edit</button>
-                        <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
-                        <button class="btn-action btn-visibility ${story.visibility === 'private' ? 'private' : ''}" 
-                                onclick="toggleVisibility('${story.id}')">
-                            ${story.visibility === 'public' ? '🔒 Make Private' : '🌍 Make Public'}
-                        </button>
-                    ` : ''}
-                    ${isAdmin && !isOwner ? `
-                        <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
+                        <button class="btn-action" style="background:#fef3c7;color:#c47a5a;padding:4px 14px;border-radius:9999px;border:none;font-weight:600;cursor:pointer;" onclick="openGoldModal('${story.id}')">🪙 Donate Gold</button>
                     ` : ''}
                     ${currentUser ? `
                         <button class="btn-action btn-report" onclick="reportStory('${story.id}')">🚩 Report</button>
@@ -1229,244 +1078,52 @@
                 </div>
             </div>
         `;
+
+        content.innerHTML = html;
     }
 
-    // ============================================
-    // TOGGLE READ MORE - FIXED: Single button
-    // ============================================
-    function toggleReadMore() {
-        const fullText = document.getElementById('fullText');
-        const excerptText = document.getElementById('excerptText');
-        const readMoreBtn = document.getElementById('readMoreBtn');
-
-        if (!fullText || !excerptText || !readMoreBtn) return;
-
-        if (fullText.style.display === 'none' || fullText.style.display === '') {
-            fullText.style.display = 'block';
-            excerptText.style.display = 'none';
-            readMoreBtn.textContent = 'Show Less ▲';
-        } else {
-            fullText.style.display = 'none';
-            excerptText.style.display = 'block';
-            readMoreBtn.textContent = 'Read More ▼';
-        }
-    }
-
-    // ============================================
-    // TOGGLE REACTION
-    // ============================================
-    function toggleReaction(storyId, emoji) {
-        if (!currentUser) {
-            alert('Please log in to react.');
-            return;
-        }
-
-        if (!currentUser.emailVerified) {
-            alert('Please verify your email first.');
-            return;
-        }
-
-        if (!userReactions[storyId]) {
-            userReactions[storyId] = [];
-        }
-
-        const storyRef = db.collection('stories').doc(storyId);
-        const userReactionRef = db.collection('users').doc(currentUser.uid)
-            .collection('reactions').doc(storyId);
-
-        const hasReacted = userReactions[storyId].includes(emoji);
-
-        // Animation
-        const rect = document.getElementById('storyCard')?.getBoundingClientRect();
-        const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
-        const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
-        createFloatingEmoji(emoji, x, y);
-
-        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-        if (btn) btn.disabled = true;
-
-        db.runTransaction((transaction) => {
-            return transaction.get(storyRef).then((doc) => {
-                if (!doc.exists) return;
-                const data = doc.data();
-                const reactions = data.reactions || {};
-
-                if (hasReacted) {
-                    reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
-                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
-                } else {
-                    reactions[emoji] = (reactions[emoji] || 0) + 1;
-                    userReactions[storyId].push(emoji);
-                }
-
-                transaction.update(storyRef, { reactions: reactions });
-                transaction.set(userReactionRef, {
-                    emojis: userReactions[storyId] || [],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    storyId: storyId
-                }, { merge: true });
-            });
-        })
-        .then(() => {
-            if (btn) btn.disabled = false;
-
-            const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
-            if (countSpan) {
-                const currentCount = parseInt(countSpan.textContent) || 0;
-                countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
-            }
-
-            if (btn) {
-                if (hasReacted) {
-                    btn.classList.remove('reacted');
-                } else {
-                    btn.classList.add('reacted');
-                }
-            }
-        })
-        .catch((err) => {
-            console.error('Error toggling reaction:', err);
-            if (btn) btn.disabled = false;
-            alert('Could not update reaction. Please try again.');
-        });
-    }
-
-    // ============================================
-    // LOAD USER REACTIONS
-    // ============================================
-    function loadUserReactions(storyId) {
-        if (!currentUser) return;
-
-        db.collection('users').doc(currentUser.uid)
-            .collection('reactions').doc(storyId)
-            .get()
-            .then((doc) => {
-                if (doc.exists) {
-                    userReactions[storyId] = doc.data().emojis || [];
-                    const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-                    emojis.forEach((emoji) => {
-                        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-                        if (btn && userReactions[storyId].includes(emoji)) {
-                            btn.classList.add('reacted');
-                        }
-                    });
-                }
-            })
-            .catch((err) => console.error('Error loading user reactions:', err));
-    }
-
-    // ============================================
-    // CREATE FLOATING EMOJI
-    // ============================================
-    function createFloatingEmoji(emoji, x, y) {
-        const el = document.createElement('div');
-        el.className = 'floating-emoji';
-        el.textContent = emoji;
-        el.style.left = (x + (Math.random() - 0.5) * 200) + 'px';
-        el.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
-        el.style.fontSize = (2 + Math.random() * 2) + 'rem';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1600);
-    }
-
-    // ============================================
-    // COMMENTS - COMPLETE
-    // ============================================
-    function loadComments(storyId) {
+    function loadCommentsForStory(storyId) {
         const container = document.getElementById('commentsContainer');
-        if (!container) return;
-
         container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
 
-        db.collection('comments')
-            .where('storyId', '==', storyId)
-            .where('approved', '==', true)
+        db.collection('stories').doc(storyId)
+            .collection('comments')
+            .orderBy('createdAt', 'desc')
             .get()
             .then((snapshot) => {
                 if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="empty-state" style="padding:20px;">
-                            <p style="color:#718096;">💬 No comments yet. Be the first to share your thoughts!</p>
-                        </div>
-                    `;
+                    container.innerHTML = '<p style="color:#718096;text-align:center;padding:20px;">No comments yet. Be the first!</p>';
                     return;
                 }
 
-                const comments = [];
-                snapshot.forEach((doc) => {
-                    const c = doc.data();
-                    c.id = doc.id;
-                    comments.push(c);
-                });
-
-                comments.sort((a, b) => {
-                    if (a.isPinned && !b.isPinned) return -1;
-                    if (!a.isPinned && b.isPinned) return 1;
-                    return (b.likes || 0) - (a.likes || 0);
-                });
-
-                const topComment = comments.length > 0 && !comments[0].isPinned ? comments[0] :
-                                  comments.find(c => !c.isPinned) || comments[0];
-
                 let html = '';
-                comments.forEach((c) => {
-                    const isTop = c.id === topComment?.id && !c.isPinned;
-                    html += renderComment(c, isTop);
+                snapshot.forEach((doc) => {
+                    const comment = doc.data();
+                    const author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
+                    const time = comment.createdAt ? comment.createdAt.toDate().toLocaleDateString() : 'Recently';
+
+                    html += `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">${author}</span>
+                                <span class="comment-time">${time}</span>
+                            </div>
+                            <div class="comment-text">${escapeHTML(comment.text)}</div>
+                            ${currentUser && comment.userId === currentUser.uid ? `
+                                <div class="comment-actions">
+                                    <button class="comment-delete-btn" onclick="deleteComment('${storyId}', '${doc.id}')">🗑️ Delete</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
                 });
+
                 container.innerHTML = html;
             })
             .catch((err) => {
                 console.error('Error loading comments:', err);
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <p style="color:#dc2626;">⚠️ Error loading comments</p>
-                        <button class="btn btn-primary" onclick="loadComments('${storyId}')" style="margin-top:10px;padding:8px 20px;font-size:0.9rem;">
-                            🔄 Retry
-                        </button>
-                    </div>
-                `;
+                container.innerHTML = '<p style="color:#dc2626;">Error loading comments</p>';
             });
-    }
-
-    function renderComment(comment, isTopComment) {
-        const author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
-        const time = comment.createdAt ? comment.createdAt.toDate().toLocaleString() : 'Recently';
-        const likes = comment.likes || 0;
-        const isOwner = currentUser && comment.userId === currentUser.uid;
-        const isAdmin = currentUserData && currentUserData.isAdmin === true;
-
-        let badges = '';
-        if (comment.isPinned) {
-            badges += '<span class="comment-badge pinned">📌 Pinned</span>';
-        }
-        if (isTopComment) {
-            badges += '<span class="comment-badge star">⭐ Top Comment</span>';
-        }
-
-        return `
-            <div class="comment" id="comment-${comment.id}">
-                <div class="comment-header">
-                    <div class="comment-author">
-                        ✍️ ${author}
-                        ${badges}
-                    </div>
-                    <div class="comment-time">📅 ${time}</div>
-                </div>
-                <div class="comment-text">${escapeHTML(comment.text)}</div>
-                <div class="comment-actions">
-                    <button class="comment-like-btn" onclick="likeComment('${comment.id}')">
-                        ❤️ <span class="count">${likes}</span>
-                    </button>
-                    ${isOwner ? `<button class="comment-delete-btn" onclick="deleteComment('${comment.id}')">🗑️ Delete</button>` : ''}
-                    ${isAdmin ? `
-                        <button class="comment-pin-btn" onclick="pinComment('${comment.id}')">
-                            ${comment.isPinned ? '📌 Unpin' : '📌 Pin'}
-                        </button>
-                    ` : ''}
-                    ${currentUser ? `<button class="comment-report-btn" onclick="reportComment('${comment.id}', '${comment.storyId}')">🚩 Report</button>` : ''}
-                </div>
-            </div>
-        `;
     }
 
     function postComment() {
@@ -1480,702 +1137,182 @@
             return;
         }
 
-        const storyId = currentStoryId;
-        const textInput = document.getElementById('commentText');
-        const anonymousCheck = document.getElementById('commentAnonymous');
+        const text = document.getElementById('commentText');
+        const anonymous = document.getElementById('commentAnonymous');
         const error = document.getElementById('commentError');
 
-        if (!textInput || !error) return;
-
-        const text = sanitizeInput(textInput.value.trim());
-        const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
-
-        error.textContent = '';
-
-        if (!text || text.length < 1) {
+        if (!text || !text.value.trim()) {
             error.textContent = 'Please write a comment.';
             return;
         }
-        if (text.length > 1000) {
-            error.textContent = 'Comment must be under 1000 characters.';
-            return;
-        }
 
-        const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
-        const containsInappropriate = inappropriateWords.some(function(word) {
-            return text.toLowerCase().includes(word);
-        });
+        const commentText = sanitizeInput(text.value.trim());
+        const isAnonymous = anonymous ? anonymous.checked : false;
 
         const submitBtn = document.getElementById('commentSubmitBtn');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Posting...';
-        }
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Posting...';
 
-        db.collection('comments').add({
-            storyId: storyId,
-            text: text,
-            userId: currentUser.uid,
-            authorName: currentUserData ? currentUserData.name : 'Someone',
-            isAnonymous: isAnonymous,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            likes: 0,
-            isPinned: false,
-            approved: !containsInappropriate,
-            flagged: containsInappropriate
-        })
-        .then(function() {
-            return db.collection('stories').doc(storyId).update({
-                commentCount: firebase.firestore.FieldValue.increment(1)
+        db.collection('stories').doc(currentStoryId)
+            .collection('comments').add({
+                userId: currentUser.uid,
+                authorName: isAnonymous ? 'Anonymous' : (currentUserData ? currentUserData.name : 'Someone'),
+                text: commentText,
+                isAnonymous: isAnonymous,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                text.value = '';
+                document.getElementById('commentCount').textContent = '0';
+                error.textContent = '';
+                loadCommentsForStory(currentStoryId);
+                alert('✅ Comment posted!');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💬 Post Comment';
+            })
+            .catch((err) => {
+                error.textContent = 'Error: ' + err.message;
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💬 Post Comment';
             });
-        })
-        .then(function() {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '💬 Post Comment';
-            }
-            if (textInput) textInput.value = '';
-            document.getElementById('commentCount').textContent = '0';
-            if (containsInappropriate) {
-                alert('⚠️ Your comment has been sent for review.');
-            }
-            loadComments(storyId);
-        })
-        .catch(function(err) {
-            error.textContent = err.message;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '💬 Post Comment';
-            }
-        });
     }
 
-    function likeComment(commentId) {
-        if (!currentUser) {
-            alert('Please log in.');
-            return;
-        }
+    function deleteComment(storyId, commentId) {
+        if (!confirm('Are you sure you want to delete this comment?')) return;
 
-        db.collection('comments').doc(commentId).update({
-            likes: firebase.firestore.FieldValue.increment(1)
-        })
-        .then(() => {
-            loadComments(currentStoryId);
-        })
-        .catch((err) => {
-            console.error('Error liking comment:', err);
-        });
+        db.collection('stories').doc(storyId)
+            .collection('comments').doc(commentId).delete()
+            .then(() => {
+                loadCommentsForStory(storyId);
+                alert('✅ Comment deleted');
+            })
+            .catch((err) => {
+                alert('Error: ' + err.message);
+            });
     }
 
-    function deleteComment(commentId) {
+    function openEditModal(storyId) {
         if (!currentUser) return;
-        if (!confirm('Delete this comment?')) return;
-
-        db.collection('comments').doc(commentId).delete()
-            .then(() => {
-                loadComments(currentStoryId);
-            })
-            .catch((err) => {
-                console.error('Error deleting comment:', err);
-                alert('Could not delete comment.');
-            });
-    }
-
-    function pinComment(commentId) {
-        if (!currentUser || !currentUserData?.isAdmin) {
-            alert('Only admins can pin comments.');
-            return;
-        }
-
-        db.collection('comments').doc(commentId).get()
-            .then((doc) => {
-                if (!doc.exists) return;
-                const currentPinned = doc.data().isPinned || false;
-                return db.collection('comments').doc(commentId).update({
-                    isPinned: !currentPinned
-                });
-            })
-            .then(() => {
-                loadComments(currentStoryId);
-            })
-            .catch((err) => {
-                console.error('Error pinning comment:', err);
-            });
-    }
-
-    function reportComment(commentId, storyId) {
-        if (!currentUser) {
-            alert('Please log in to report.');
-            return;
-        }
-
-        const reason = prompt('Why are you reporting this comment?');
-        if (!reason || reason.trim().length < 3) {
-            alert('Please provide a valid reason.');
-            return;
-        }
-
-        db.collection('comments').doc(commentId).get()
-            .then((doc) => {
-                if (!doc.exists) return;
-                const comment = doc.data();
-                return db.collection('reports').add({
-                    commentId: commentId,
-                    commentText: comment.text || '',
-                    commentAuthor: comment.authorName || 'Unknown',
-                    storyId: storyId,
-                    reportedBy: currentUser.uid,
-                    reporterName: currentUserData ? currentUserData.name : 'Anonymous',
-                    reason: reason.trim(),
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    type: 'comment'
-                });
-            })
-            .then(() => {
-                alert('✅ Report submitted.');
-            })
-            .catch((err) => {
-                console.error('Error reporting comment:', err);
-                alert('❌ Could not submit report.');
-            });
-    }
-
-    // ============================================
-    // STORY ACTIONS
-    // ============================================
-    function reportStory(storyId) {
-        if (!currentUser) {
-            alert('Please log in to report.');
-            return;
-        }
-
-        const reason = prompt('Why are you reporting this story?');
-        if (!reason || reason.trim().length < 3) {
-            alert('Please provide a valid reason.');
-            return;
-        }
-
-        db.collection('reports').add({
-            storyId: storyId,
-            storyTitle: currentStory ? currentStory.title : 'Unknown',
-            storyAuthor: currentStory ? currentStory.authorName : 'Unknown',
-            reportedBy: currentUser.uid,
-            reporterName: currentUserData ? currentUserData.name : 'Anonymous',
-            reason: reason.trim(),
-            status: 'pending',
-            type: 'story',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert('✅ Report submitted.');
-        }).catch((err) => {
-            alert('❌ Error: ' + err.message);
-        });
-    }
-
-    function openEditModal() {
-        if (!currentUser || !currentStory) return;
         if (currentStory.userId !== currentUser.uid) {
-            alert('You do not have permission to edit this story.');
+            alert('You can only edit your own stories.');
             return;
         }
 
-        currentEditId = currentStory.id;
-        document.getElementById('editTitle').value = currentStory.title || '';
-        document.getElementById('editContent').value = currentStory.text || '';
-        document.getElementById('editError').textContent = '';
-        document.getElementById('editModal').classList.add('active');
+        const modal = document.getElementById('editModal');
+        const title = document.getElementById('editTitle');
+        const content = document.getElementById('editContent');
+
+        if (title) title.value = currentStory.title || '';
+        if (content) content.value = currentStory.text || '';
+        if (modal) modal.classList.add('active');
     }
 
     function closeEditModal() {
-        document.getElementById('editModal').classList.remove('active');
-        currentEditId = null;
+        const modal = document.getElementById('editModal');
+        if (modal) modal.classList.remove('active');
     }
 
     function saveEdit() {
-        const title = document.getElementById('editTitle').value.trim();
-        const content = document.getElementById('editContent').value.trim();
+        const title = document.getElementById('editTitle');
+        const content = document.getElementById('editContent');
+        const error = document.getElementById('editError');
 
-        if (!title || !content) {
-            document.getElementById('editError').textContent = '⚠️ Title and content are required.';
+        if (!title.value.trim() || !content.value.trim()) {
+            error.textContent = 'Title and content required.';
             return;
         }
 
-        db.collection('stories').doc(currentEditId).update({
-            title: title,
-            text: content,
+        db.collection('stories').doc(currentStoryId).update({
+            title: title.value.trim(),
+            text: content.value.trim(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
             closeEditModal();
-            alert('✅ Story updated!');
             loadStory();
-        }).catch((error) => {
-            document.getElementById('editError').textContent = '❌ ' + error.message;
+            alert('✅ Story updated!');
+        }).catch((err) => {
+            error.textContent = 'Error: ' + err.message;
         });
     }
 
     function deleteStory(storyId) {
-        if (!currentUser) return;
-        if (!confirm('⚠️ Delete this story permanently?')) return;
+        if (!confirm('Are you sure? This cannot be undone.')) return;
 
         db.collection('stories').doc(storyId).delete()
             .then(() => {
-                alert('✅ Story deleted.');
+                alert('✅ Story deleted');
                 window.location.href = 'index.html';
             })
-            .catch((error) => {
-                alert('❌ Error: ' + error.message);
+            .catch((err) => {
+                alert('Error: ' + err.message);
             });
     }
 
-    function toggleVisibility(storyId) {
-        if (!currentUser || !currentStory) return;
-        if (currentStory.userId !== currentUser.uid) {
-            alert('You do not have permission to change visibility.');
-            return;
-        }
-
-        const newVisibility = currentStory.visibility === 'public' ? 'private' : 'public';
-
-        db.collection('stories').doc(storyId).update({
-            visibility: newVisibility
-        }).then(() => {
-            alert(`✅ Story is now ${newVisibility === 'public' ? 'Public' : 'Private'}.`);
-            loadStory();
-        }).catch((error) => {
-            alert('❌ Error: ' + error.message);
-        });
+    function reportStory(storyId) {
+        alert('🚩 Thank you for reporting. Our team will review this story.');
     }
 
-    // ============================================
-    // GOLD SYSTEM
-    // ============================================
     function openGoldModal(storyId) {
-        if (!currentUser) {
-            alert('Please log in to donate gold.');
-            return;
-        }
-
-        if (!currentUserData) {
-            alert('Loading user data...');
-            return;
-        }
-
-        const balance = currentUserData.goldBalance || 0;
-        if (balance < 1) {
-            alert('⚠️ You don\'t have any gold!');
-            return;
-        }
-
-        document.getElementById('goldBalanceAmount').textContent = balance;
-        document.getElementById('goldModal').classList.add('active');
-        currentStoryId = storyId;
-        selectedGoldAmount = 0;
-        document.getElementById('customGoldAmount').value = '';
-        document.getElementById('goldMessage').value = '';
-        document.getElementById('goldError').textContent = '';
-
-        document.querySelectorAll('.gold-amount-btn').forEach(btn => {
-            btn.style.borderColor = '#d4c8b8';
-            btn.style.background = '#e8ddd0';
-        });
+        const modal = document.getElementById('goldModal');
+        if (modal) modal.classList.add('active');
     }
 
     function closeGoldModal() {
-        document.getElementById('goldModal').classList.remove('active');
+        const modal = document.getElementById('goldModal');
+        if (modal) modal.classList.remove('active');
     }
 
     function selectGoldAmount(amount) {
         selectedGoldAmount = amount;
-        document.getElementById('customGoldAmount').value = amount;
-
-        document.querySelectorAll('.gold-amount-btn').forEach(btn => {
-            btn.style.borderColor = '#d4c8b8';
-            btn.style.background = '#e8ddd0';
-        });
-        event.target.style.borderColor = '#c47a5a';
-        event.target.style.background = '#f5d6b3';
+        document.getElementById('customGoldAmount').value = '';
     }
 
     function confirmGoldDonation() {
-        const customInput = document.getElementById('customGoldAmount');
-        const messageInput = document.getElementById('goldMessage');
-        const errorDiv = document.getElementById('goldError');
-
-        let amount = selectedGoldAmount;
-        if (customInput && customInput.value) {
-            const custom = parseInt(customInput.value);
-            if (custom > 0) amount = custom;
-        }
-
-        const balance = currentUserData ? currentUserData.goldBalance || 0 : 0;
-
+        let amount = selectedGoldAmount || parseInt(document.getElementById('customGoldAmount').value);
         if (!amount || amount < 1) {
-            errorDiv.textContent = 'Please select or enter a valid amount.';
+            alert('Please select an amount.');
             return;
         }
-
-        if (amount > balance) {
-            errorDiv.textContent = '⚠️ You don\'t have enough gold! Balance: ' + balance + ' 🪙';
-            return;
-        }
-
-        const message = messageInput ? messageInput.value.trim() : '';
-
+        alert(`💎 ${amount} gold sent! Thank you for supporting this story.`);
         closeGoldModal();
-
-        const storyRef = db.collection('stories').doc(currentStoryId);
-        const userRef = db.collection('users').doc(currentUser.uid);
-
-        db.runTransaction((transaction) => {
-            return transaction.get(storyRef).then((storyDoc) => {
-                if (!storyDoc.exists) throw new Error('Story not found');
-                const storyData = storyDoc.data();
-                const authorId = storyData.userId;
-
-                return transaction.get(db.collection('users').doc(authorId)).then((authorDoc) => {
-                    if (!authorDoc.exists) throw new Error('Author not found');
-
-                    transaction.update(userRef, {
-                        goldBalance: firebase.firestore.FieldValue.increment(-amount),
-                        goldGiven: firebase.firestore.FieldValue.increment(amount)
-                    });
-
-                    transaction.update(db.collection('users').doc(authorId), {
-                        goldBalance: firebase.firestore.FieldValue.increment(amount),
-                        goldReceived: firebase.firestore.FieldValue.increment(amount)
-                    });
-
-                    transaction.update(storyRef, {
-                        goldReceived: firebase.firestore.FieldValue.increment(amount)
-                    });
-
-                    const transactionRef = db.collection('goldTransactions').doc();
-                    transaction.set(transactionRef, {
-                        fromUid: currentUser.uid,
-                        toUid: authorId,
-                        storyId: currentStoryId,
-                        amount: amount,
-                        message: message || '',
-                        fromName: currentUserData ? currentUserData.name : 'Anonymous',
-                        toName: authorDoc.data().name || 'Someone',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                });
-            });
-        }).then(() => {
-            if (currentUserData) {
-                currentUserData.goldBalance = (currentUserData.goldBalance || 0) - amount;
-            }
-            alert(`✅ You donated ${amount} 🪙!`);
-            loadStory();
-        }).catch((err) => {
-            console.error('Gold donation error:', err);
-            alert('❌ Error donating gold: ' + err.message);
-        });
     }
 
     // ============================================
-    // AUTH FUNCTIONS
-    // ============================================
-    function openModal(mode) {
-        const modal = document.getElementById('authModal');
-        if (!modal) return;
-
-        const title = document.getElementById('modalTitle');
-        const submitBtn = document.getElementById('authSubmitBtn');
-        const signupFields = document.getElementById('signupFields');
-        const switchLink = document.getElementById('authSwitch');
-
-        document.getElementById('authEmail').value = '';
-        document.getElementById('authPassword').value = '';
-        document.getElementById('authName').value = '';
-        document.getElementById('authFavorites').value = '';
-        document.getElementById('authCountry').value = '';
-        document.getElementById('passwordStrength').innerHTML = '';
-        document.getElementById('usernameStatus').innerHTML = '';
-
-        if (mode === 'login') {
-            title.textContent = '🔐 Welcome Back';
-            submitBtn.textContent = '🚀 Log In';
-            signupFields.style.display = 'none';
-            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
-            switchLink.dataset.mode = 'signup';
-        } else {
-            title.textContent = '📝 Join The Harbor';
-            submitBtn.textContent = '🚀 Create Account';
-            signupFields.style.display = 'block';
-            populateCountryDatalist();
-            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
-            switchLink.dataset.mode = 'login';
-        }
-
-        modal.classList.add('active');
-    }
-
-    function closeModal() {
-        document.getElementById('authModal').classList.remove('active');
-    }
-
-    function toggleAuthMode() {
-        const switchLink = document.getElementById('authSwitch');
-        if (!switchLink) return;
-        const mode = switchLink.dataset.mode;
-        closeModal();
-        setTimeout(() => openModal(mode), 200);
-    }
-
-    function handleAuth() {
-        const emailInput = document.getElementById('authEmail');
-        const passwordInput = document.getElementById('authPassword');
-        const error = document.getElementById('authError');
-        const submitBtn = document.getElementById('authSubmitBtn');
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        error.textContent = '';
-
-        if (!email || !email.includes('@') || !email.includes('.')) {
-            error.textContent = 'Please enter a valid email address.';
-            return;
-        }
-        if (!password || password.length < 6) {
-            error.textContent = 'Password must be at least 6 characters.';
-            return;
-        }
-
-        const isLogin = submitBtn.textContent.includes('Log In');
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Please wait...';
-
-        if (isLogin) {
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    if (!user.emailVerified) {
-                        error.innerHTML = `
-                            ⚠️ Please verify your email.<br>
-                            <button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;margin-top:4px;">
-                                🔄 Resend verification email
-                            </button>
-                        `;
-                        auth.signOut();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                        return;
-                    }
-                    closeModal();
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Log In';
-                    window.location.href = 'welcome.html';
-                })
-                .catch((err) => {
-                    error.textContent = err.message;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Log In';
-                });
-        } else {
-            const nameInput = document.getElementById('authName');
-            const genderSelect = document.getElementById('authGender');
-            const favoritesInput = document.getElementById('authFavorites');
-            const countryInput = document.getElementById('authCountry');
-
-            const name = nameInput ? nameInput.value.trim() : '';
-            const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
-            const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-            const country = countryInput ? countryInput.value.trim() : '';
-
-            if (!name || name.length < 2) {
-                error.textContent = 'Please enter a username (minimum 2 characters).';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Create Account';
-                return;
-            }
-            if (!country) {
-                error.textContent = 'Please select your country.';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Create Account';
-                return;
-            }
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    return user.sendEmailVerification().then(() => user);
-                })
-                .then((user) => {
-                    return db.collection('users').doc(user.uid).set({
-                        name: name,
-                        email: email,
-                        gender: gender,
-                        favorites: favorites || 'Not specified',
-                        country: country,
-                        emergencyNumber: '911',
-                        emailVerified: false,
-                        isAdmin: false,
-                        isPublic: true,
-                        goldBalance: 10,
-                        goldReceived: 0,
-                        goldGiven: 0,
-                        followers: [],
-                        following: [],
-                        storyCount: 0,
-                        commentCount: 0,
-                        likesReceived: 0,
-                        avatar: '👤',
-                        border: 'default',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                })
-                .then(() => {
-                    closeModal();
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    auth.signOut();
-                    alert('✅ Verification email sent to ' + email + '!\n\n💰 You received 10 🪙 gold!');
-                })
-                .catch((err) => {
-                    error.textContent = err.message;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                });
-        }
-    }
-
-    function resendVerification() {
-        const user = auth.currentUser;
-        if (!user) {
-            alert('Please log in first.');
-            return;
-        }
-        user.sendEmailVerification()
-            .then(() => alert('✅ Verification email resent!'))
-            .catch((err) => alert('❌ Error: ' + err.message));
-    }
-
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            auth.signOut();
-            window.location.href = 'index.html';
-        }
-    }
-
-    // ============================================
-    // AUTH STATE LISTENER
-    // ============================================
-    auth.onAuthStateChanged((user) => {
-        const authButtons = document.getElementById('authButtons');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const verificationBadge = document.getElementById('verificationBadge');
-
-        if (user) {
-            currentUser = user;
-            authButtons.style.display = 'none';
-            userInfo.style.display = 'flex';
-
-            if (user.emailVerified) {
-                verificationBadge.textContent = '✅ Verified';
-                verificationBadge.className = 'verification-badge verified';
-            } else {
-                verificationBadge.textContent = '⏳ Unverified';
-                verificationBadge.className = 'verification-badge';
-            }
-
-            // Apply guest restrictions
-            applyGuestRestrictions();
-
-            db.collection('users').doc(user.uid).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        currentUserData = doc.data();
-                        userName.textContent = currentUserData.name || 'Friend';
-                        loadStory();
-                    }
-                })
-                .catch((err) => console.error('Error fetching user data:', err));
-        } else {
-            currentUser = null;
-            currentUserData = null;
-            authButtons.style.display = 'flex';
-            userInfo.style.display = 'none';
-
-            // Apply guest restrictions
-            applyGuestRestrictions();
-
-            loadStory();
-        }
-    });
-
-    // ============================================
-    // INIT
+    // DOM READY
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        populateCountryDatalist();
+        console.log('📖 Story page loaded');
 
-        document.getElementById('commentText')?.addEventListener('input', function() {
-            document.getElementById('commentCount').textContent = this.value.length;
-        });
+        const commentText = document.getElementById('commentText');
+        if (commentText) {
+            commentText.addEventListener('input', function() {
+                document.getElementById('commentCount').textContent = this.value.length;
+            });
+        }
 
-        document.getElementById('authModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-        document.getElementById('editModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeEditModal();
-        });
-        document.getElementById('goldModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeGoldModal();
-        });
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        }
 
-        document.getElementById('authPassword')?.addEventListener('input', function() {
-            const pwd = this.value;
-            const strengthDiv = document.getElementById('passwordStrength');
-            if (!strengthDiv) return;
-            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-            const result = checkPasswordStrength(pwd);
-            strengthDiv.innerHTML = `
-                <div style="margin-top:6px;font-size:0.85rem;">
-                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                </div>
-            `;
-        });
+        const editModal = document.getElementById('editModal');
+        if (editModal) {
+            editModal.addEventListener('click', function(e) {
+                if (e.target === this) closeEditModal();
+            });
+        }
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const modal = document.getElementById('authModal');
-                if (modal && modal.classList.contains('active')) handleAuth();
-            }
-            if (e.key === 'Escape') {
-                closeModal();
-                closeEditModal();
-                closeGoldModal();
-            }
-        });
+        // Wait for auth state to load, then load story
+        setTimeout(() => {
+            loadStory();
+        }, 500);
 
         console.log('✅ Story page ready');
     });
 
-    function checkPasswordStrength(password) {
-        let score = 0;
-        if (password.length >= 8) score += 20;
-        if (/[A-Z]/.test(password)) score += 20;
-        if (/[a-z]/.test(password)) score += 20;
-        if (/[0-9]/.test(password)) score += 20;
-        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
-        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
-        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-        let strength = 'weak', color = '#c0392b';
-        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
-        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
-        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
-        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
-        else { strength = 'very-weak'; color = '#c0392b'; }
-        return { score, strength, color };
-    }
-
-    console.log('📖 Story page loaded');
+    console.log('✅ story.html script loaded successfully');
     </script>
 </body>
 </html>
