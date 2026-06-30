@@ -1,260 +1,516 @@
-// ============================================
-// THE HARBOR - MAIN APPLICATION
-// ============================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Harbor — Share & Heal</title>
 
-// ... (firebaseConfig, auth, db remain same)
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
-// ============================================
-// GLOBAL STATE
-// ============================================
-let currentUser = null;
-let currentUserData = null;
-let currentCategory = 'all';
-let userReactions = {};
-let allStories = [];
-let filteredStories = [];
-let currentPage = 1;
-const STORIES_PER_PAGE = 10;
-let currentEditId = null;
+    <!-- META TAGS -->
+    <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
+    <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
+    <meta name="author" content="The Harbor" />
+    <meta name="robots" content="index, follow" />
 
-// ============================================
-// LOAD STORIES - COMPATIBLE WITH SECURITY RULES
-// ============================================
-function loadStories() {
-    const container = document.getElementById('storiesContainer');
-    if (!container) return;
+    <!-- Open Graph -->
+    <meta property="og:title" content="The Harbor — Share & Heal" />
+    <meta property="og:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://codewiz23.github.io/theharbor/" />
 
-    if (!currentUser) {
-        // handled by applyGuestRestrictions, but safe fallback
-        return;
-    }
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-81R2FX47H0');
+    </script>
 
-    if (!currentUser.emailVerified) {
-        container.innerHTML = `
-            <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
-                <div class="big-emoji">📧</div>
-                <h3>Email Not Verified</h3>
-                <p>Please verify your email to read stories.</p>
-                <button class="btn btn-primary" onclick="resendVerification()">🔄 Resend Verification</button>
-            </div>
-        `;
-        return;
-    }
+    <!-- Firebase (must be first) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading stories...</div>';
+    <!-- Core app scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/gold.js"></script>
+    <script src="js/comments.js"></script>
 
-    const gender = currentUserData ? currentUserData.gender : null;
-    let query = db.collection('stories')
-        .where('approved', '==', true)
-        .orderBy('createdAt', 'desc');
+    <link rel="stylesheet" href="css/style.css" />
 
-    // Gender-based filtering for "All" category
-    if (currentCategory === 'all') {
-        if (gender === '🧔 Man') {
-            query = query.where('category', 'in', ['men', 'struggles', 'fun', 'learning']);
-        } else if (gender === '👩 Woman') {
-            query = query.where('category', 'in', ['women', 'struggles', 'fun', 'learning']);
-        } else {
-            query = query.where('category', 'in', ['struggles', 'fun', 'learning']);
+    <style>
+        /* ===== CATEGORY INFO TOOLTIP ===== */
+        .category-info-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            z-index: 9999;
         }
-    } else {
-        query = query.where('category', '==', currentCategory);
-    }
+        .category-info-wrapper .tab-text {
+            display: inline-block;
+        }
+        .category-info-trigger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-secondary, #f0f4f8);
+            color: var(--text-muted, #718096);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: help;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color, #e2e8f0);
+            flex-shrink: 0;
+            margin-left: 2px;
+            position: relative;
+            z-index: 9999;
+        }
+        .category-info-trigger:hover {
+            background: var(--primary, #1a4a4a);
+            color: white;
+            transform: scale(1.1);
+            border-color: var(--primary, #1a4a4a);
+        }
+        .category-info-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: var(--text-primary, #1a1a2e);
+            color: var(--bg-primary, #f0f4f8);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 400;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            max-width: 260px;
+            white-space: normal;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+            z-index: 99999 !important;
+            line-height: 1.4;
+        }
+        .category-info-trigger:hover .category-info-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
 
-    query.get()
-        .then((snapshot) => {
-            if (snapshot.empty) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="big-emoji">🌊</div>
-                        <h3>No stories in this category yet</h3>
-                        <p>Be the first to share your story!</p>
-                    </div>
-                `;
-                return;
+        /* ===== HERO ===== */
+        .hero-actions .btn {
+            padding: 0.6rem 1.8rem;
+        }
+
+        /* ===== GUEST MESSAGE ===== */
+        #guestMessage {
+            display: none;
+            background: #fef3c7;
+            border-left: 4px solid #d97706;
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-md);
+            color: #92400e;
+        }
+
+        /* ===== GUEST CLASSES ===== */
+        .guest-hidden {
+            display: none !important;
+        }
+        .logged-in-hidden {
+            display: none !important;
+        }
+
+        /* ===== LOADING SPINNER ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color, #e2e8f0);
+            border-top-color: #1a4a4a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted, #718096);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .category-info-tooltip {
+                max-width: 180px;
+                font-size: 0.7rem;
+                white-space: normal;
             }
+            .tab {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+            .category-info-trigger {
+                width: 14px;
+                height: 14px;
+                font-size: 8px;
+            }
+            .header {
+                padding: 0.6rem 1rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.6rem;
+            }
+            .header-right {
+                justify-content: center;
+            }
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+            .tabs {
+                gap: 4px;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            .tab {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
+                white-space: nowrap;
+            }
+            .story-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
 
-            allStories = [];
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                data.id = doc.id;
-                // Security rules ensure we only see what we're allowed to
-                allStories.push(data);
-            });
+    <!-- ===== HEADER - Consistent with all pages ===== -->
+    <header class="header">
+        <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
-            applyFilters();
-        })
-        .catch((err) => {
-            console.error('Error loading stories:', err);
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="big-emoji">⚠️</div>
-                    <h3>Error Loading Stories</h3>
-                    <p>${err.message}</p>
-                    <button class="btn btn-primary" onclick="loadStories()">🔄 Retry</button>
-                </div>
-            `;
-        });
-}
+        <div class="header-right">
+            <!-- FEED BUTTON - Only visible when logged in -->
+            <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
 
-// ============================================
-// RENDER STORY CARD - UPDATED FIELD NAMES
-// ============================================
-function renderStoryCard(story) {
-    const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
-    const categoryNames = {
-        'men': '🧔 Men\'s Harbor',
-        'women': '👩 Women\'s Harbor',
-        'struggles': '🌊 The Storm',
-        'fun': '☀️ Sunny Skies',
-        'learning': '🧭 The Compass'
-    };
-    const categoryDisplay = categoryNames[story.category] || story.category;
+            <!-- About - Always visible -->
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
 
-    const reactions = story.reactions || {};
-    const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-
-    let reactionButtons = '';
-    emojis.forEach((emoji) => {
-        const count = reactions[emoji] || 0;
-        const hasReacted = userReactions[story.id] && userReactions[story.id].includes(emoji);
-        reactionButtons += `
-            <button class="btn-action btn-edit ${hasReacted ? 'reacted' : ''}" 
-                    id="reaction-${story.id}-${emoji}" 
-                    onclick="addReaction('${story.id}', '${emoji}')">
-                ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
-                ${hasReacted ? '<span class="checkmark">✅</span>' : ''}
-            </button>
-        `;
-    });
-
-    const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
-    const storyText = story.text || '';   // <-- changed from 'content'
-    const excerpt = storyText.length > 200 ? escapeHTML(storyText.substring(0, 200)) + '...' : escapeHTML(storyText);
-    const showReadMore = storyText.length > 200;
-
-    return `
-        <div class="story-card" data-story-id="${story.id}">
-            <div class="story-header">
-                <div class="story-author-info" onclick="viewProfile('${story.userId}')">  <!-- changed from 'uid' -->
-                    <div class="story-avatar">${(story.authorName || 'A')[0].toUpperCase()}</div>
-                    <div class="story-meta">
-                        <span class="story-author-name">${author}</span>
-                        <span class="story-date">📅 ${time}</span>
-                    </div>
-                </div>
-                <div class="story-badges">
-                    <span class="visibility-badge ${story.visibility === 'public' ? 'badge-public' : 'badge-private'}">
-                        ${story.visibility === 'public' ? '🌍 Public' : '🔒 Private'}
-                    </span>
-                    ${story.goldReceived > 0 ? `<span class="gold-badge">${story.goldReceived} 🪙</span>` : ''}
-                </div>
+            <!-- Guest Restricted Elements - Only visible when logged in -->
+            <div class="guest-restricted guest-hidden">
+                <a href="submit.html" class="btn btn-nav">📝 Share</a>
+                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
 
-            <h3 class="story-title">${escapeHTML(story.title || 'Untitled')}</h3>
-            <div class="story-content">
-                <p>${excerpt}</p>
-                ${showReadMore ? `
-                    <button class="read-more-btn" onclick="toggleReadMore('${story.id}')">Read More ▼</button>
-                    <div class="story-full-content" id="fullContent-${story.id}">
-                        ${escapeHTML(storyText.substring(200))}
-                        <button class="read-less-btn" onclick="toggleReadMore('${story.id}')">Show Less ▲</button>
-                    </div>
-                ` : ''}
+            <!-- Settings Gear - Only visible when logged in -->
+            <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
+
+            <!-- Auth Buttons - Only visible when NOT logged in -->
+            <div id="authButtons" class="logged-in-hidden">
+                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
 
-            ${story.tags && story.tags.length ? `
-                <div class="story-tags">
-                    ${story.tags.map(tag => `<span class="story-tag">#${tag}</span>`).join('')}
-                </div>
-            ` : ''}
-
-            <div class="story-actions">
-                ${reactionButtons}
-                <button class="btn-action btn-edit" onclick="openCommentSection('${story.id}')">
-                    💬 ${story.commentCount || 0}
-                </button>
-                ${currentUser && story.userId === currentUser.uid ? `
-                    <button class="btn-action btn-edit" onclick="openEditModal('${story.id}')">✏️ Edit</button>
-                    <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
-                    <button class="btn-action btn-visibility ${story.visibility === 'private' ? 'private' : ''}" 
-                            onclick="toggleVisibility('${story.id}')">
-                        ${story.visibility === 'public' ? '🔒 Make Private' : '🌍 Make Public'}
-                    </button>
-                ` : ''}
-                ${currentUser && story.userId !== currentUser.uid ? `
-                    <button class="btn-action btn-edit" onclick="openGoldModal('${story.id}')">🪙 Donate Gold</button>
-                ` : ''}
-                ${currentUser ? `
-                    <button class="btn-action btn-report" onclick="reportStory('${story.id}')">🚩 Report</button>
-                ` : ''}
+            <!-- User Info - Only visible when logged in -->
+            <div id="userInfo" class="guest-hidden">
+                <span id="userName">Friend</span>
+                <span id="userGenderBadge"></span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
-    `;
-}
+    </header>
 
-// ============================================
-// EDIT FUNCTIONS - UPDATED FIELD NAMES
-// ============================================
-function openEditModal(storyId) {
-    if (!currentUser) {
-        alert('Please log in to edit.');
-        return;
-    }
-    const story = allStories.find(s => s.id === storyId);
-    if (!story) return;
-    if (story.userId !== currentUser.uid) {
-        alert('You do not have permission to edit this story.');
-        return;
-    }
+    <!-- ===== EMERGENCY BANNER ===== -->
+    <div id="emergencyBanner"></div>
 
-    currentEditId = storyId;
-    document.getElementById('editTitle').value = story.title || '';
-    document.getElementById('editContent').value = story.text || '';  // changed from 'content'
-    document.getElementById('editError').textContent = '';
-    document.getElementById('editModal').classList.add('active');
-}
+    <!-- ===== GUEST MESSAGE ===== -->
+    <div class="container" id="guestMessage">
+        <p>🔒 <strong>Welcome to The Harbor!</strong> Please <a href="#" onclick="openModal('login');return false;">Log In</a> or <a href="#" onclick="openModal('signup');return false;">Join</a> to read and share stories.</p>
+    </div>
 
-function saveEdit() {
-    const title = document.getElementById('editTitle').value.trim();
-    const content = document.getElementById('editContent').value.trim();
+    <!-- ===== HERO - Always visible ===== -->
+    <div class="container">
+        <section class="hero">
+            <h1>⚓ Welcome to <span>The Harbor</span></h1>
+            <p>A safe place to share, heal, and grow — together.</p>
+            <div class="hero-actions">
+                <a href="activity.html" class="btn btn-nav guest-hidden">📊 Activity</a>
+                <a href="submit.html" class="btn btn-nav guest-hidden" style="background:#c47a5a;color:white;">📝 Share Your Story</a>
+                <a href="about.html" class="btn btn-nav" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3);">🌿 Learn More</a>
+            </div>
+        </section>
+    </div>
 
-    if (!title || !content) {
-        document.getElementById('editError').textContent = '⚠️ Title and content are required.';
-        return;
-    }
+    <!-- ===== SEARCH - Only visible when logged in ===== -->
+    <div class="search-bar guest-hidden">
+        <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter') searchStories()" />
+    </div>
 
-    db.collection('stories').doc(currentEditId).update({
-        title: title,
-        text: content,   // changed from 'content'
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        closeEditModal();
-        loadStories();
-        alert('✅ Story updated successfully!');
-    }).catch((error) => {
-        document.getElementById('editError').textContent = '❌ ' + error.message;
-    });
-}
+    <!-- ===== TABS - Only visible when logged in ===== -->
+    <div class="container">
+        <div class="tabs guest-hidden" id="categoryTabs">
+            <button class="tab active" data-category="all" onclick="switchCategory('all')">
+                <span class="category-info-wrapper">
+                    <span class="tab-text">🌊 All</span>
+                    <span class="category-info-trigger">
+                        ?
+                        <span class="category-info-tooltip">All stories from every harbor category. Explore the full community.</span>
+                    </span>
+                </span>
+            </button>
+            <button class="tab" data-category="men" onclick="switchCategory('men')">
+                <span class="category-info-wrapper">
+                    <span class="tab-text">🧔 Men's Harbor</span>
+                    <span class="category-info-trigger">
+                        ?
+                        <span class="category-info-tooltip">A dedicated space for men to share their journey, struggles, and growth.</span>
+                    </span>
+                </span>
+            </button>
+            <button class="tab" data-category="women" onclick="switchCategory('women')">
+                <span class="category-info-wrapper">
+                    <span class="tab-text">👩 Women's Harbor</span>
+                    <span class="category-info-trigger">
+                        ?
+                        <span class="category-info-tooltip">A safe harbor for women to connect, share, and support each other.</span>
+                    </span>
+                </span>
+            </button>
+            <button class="tab" data-category="struggles" onclick="switchCategory('struggles')">
+                <span class="category-info-wrapper">
+                    <span class="tab-text">🌊 The Storm</span>
+                    <span class="category-info-trigger">
+                        ?
+                        <span class="category-info-tooltip">Share your struggles, challenges, and difficult moments. You're not alone.</span>
+                    </span>
+                </span>
+            </button>
+            <button class="tab" data-category="fun" onclick="switchCategory('fun')">
+                <span class="category-info-wrapper">
+                    <span class="tab-text">☀️ Sunny Skies</span>
+                    <span class="category-info-trigger">
+                        ?
+                        <span class="category-info-tooltip">Celebrate victories, share happiness, and spread positivity.</span>
+                    </span>
+                </span>
+            </button>
+            <button class="tab" data-category="learning" onclick="switchCategory('learning')">
+                <span class="category-info-wrapper">
+                    <span class="tab-text">🧭 The Compass</span>
+                    <span class="category-info-trigger">
+                        ?
+                        <span class="category-info-tooltip">Life lessons, wisdom, and guidance to help navigate your journey.</span>
+                    </span>
+                </span>
+            </button>
+        </div>
 
-// ============================================
-// (Other functions remain similar, but ensure field names: userId, text)
-// ============================================
+        <!-- ===== STORIES CONTAINER ===== -->
+        <div id="storiesContainer">
+            <div class="loading"><div class="loading-spinner"></div> Loading stories...</div>
+        </div>
 
-// ============================================
-// ADD REACTION - still uses 'reactions' map
-// ============================================
-function addReaction(storyId, emoji) {
-    // ... same as before (uses storyRef.update({ reactions: ... }))
-}
+        <!-- ===== PAGINATION ===== -->
+        <div class="pagination guest-hidden" id="paginationContainer"></div>
+    </div>
 
-// ============================================
-// SEARCH, PAGINATION, etc. - unchanged but use story.text
-// ============================================
+    <!-- ===== AUTH MODAL ===== -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
 
-// ============================================
-// AUTH STATE LISTENER - handles admin link, etc.
-// ============================================
-auth.onAuthStateChanged((user) => {
-    // ... same as before but ensure admin check uses currentUserData.isAdmin
-});
+            <div class="warning-box" id="genderWarning">
+                <span>⚠️</span>
+                <span id="genderWarningText">Your gender determines which sections you can see.</span>
+            </div>
+
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" />
+
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <div id="passwordStrength"></div>
+
+            <div id="signupFields" style="display:none;">
+                <label for="authName">Username</label>
+                <input type="text" id="authName" placeholder="Choose a unique username" />
+                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
+
+                <label for="authGender">Gender</label>
+                <select id="authGender" onchange="updateGenderWarning()">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
+                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
+                </div>
+
+                <label for="authCountry">Country</label>
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <datalist id="country-list"></datalist>
+
+                <label for="authFavorites">Favorite things</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <label for="termsCheckbox">
+                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
+                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:var(--danger);">*</span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
+                Don't have an account? <strong>Sign Up</strong>
+            </div>
+
+            <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
+        </div>
+    </div>
+
+    <!-- ===== EDIT MODAL ===== -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            <h2>✏️ Edit Story</h2>
+
+            <label for="editTitle">Title</label>
+            <input type="text" id="editTitle" placeholder="Enter title..." />
+
+            <label for="editContent">Content</label>
+            <textarea id="editContent" rows="6" placeholder="Write your story..."></textarea>
+
+            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
+            <div class="error-msg" id="editError"></div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="activity.html" class="guest-hidden">📊 Activity</a>
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html" class="guest-hidden">📝 Share Story</a>
+            <a href="profile.html" class="guest-hidden">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+            <a href="suggest.html" class="guest-hidden">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div class="footer-copy">
+            © 2026 The Harbor — All Rights Reserved.<br>
+            Built with 💚 for the community.
+        </div>
+    </footer>
+
+    <!-- ============================================
+    JAVASCRIPT - Guest Restrictions & Initialization
+    ============================================ -->
+    <script>
+        // ============================================
+        // APPLY GUEST RESTRICTIONS
+        // ============================================
+        function applyGuestRestrictions() {
+            var isLoggedIn = false;
+            if (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false) {
+                isLoggedIn = true;
+            }
+
+            var guestElements = document.querySelectorAll('.guest-hidden');
+            for (var i = 0; i < guestElements.length; i++) {
+                var el = guestElements[i];
+                el.style.display = isLoggedIn ? '' : 'none';
+            }
+
+            var loggedInElements = document.querySelectorAll('.logged-in-hidden');
+            for (var j = 0; j < loggedInElements.length; j++) {
+                var el2 = loggedInElements[j];
+                el2.style.display = isLoggedIn ? 'none' : '';
+            }
+
+            var guestMsg = document.getElementById('guestMessage');
+            if (guestMsg) {
+                guestMsg.style.display = isLoggedIn ? 'none' : 'block';
+            }
+
+            var container = document.getElementById('storiesContainer');
+            if (container && !isLoggedIn) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
+                        <div class="big-emoji">🔒</div>
+                        <h3 style="color:#1a4a4a;">Login Required</h3>
+                        <p style="color:#4a5568;">Please log in or join to read and share stories.</p>
+                        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
+                            <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
+                        </div>
+                        <p style="margin-top:12px;font-size:0.9rem;color:#718096;">
+                            🌊 The Harbor is a safe community for sharing, healing, and growth.
+                        </p>
+                    </div>
+                `;
+            }
+            console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
+        }
+
+        // ============================================
+        // INIT - Wait for auth and app.js to load
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for currentUser periodically (app.js sets it)
+            var checkAuth = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(checkAuth);
+                    applyGuestRestrictions();
+                    // If user is logged in, load stories (app.js provides loadStories)
+                    if (currentUser && typeof loadStories === 'function') {
+                        loadStories();
+                    }
+                }
+            }, 100);
+
+            // Also listen for auth state changes (from app.js)
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function(user) {
+                    setTimeout(function() {
+                        applyGuestRestrictions();
+                        if (user && typeof loadStories === 'function') {
+                            loadStories();
+                        }
+                    }, 200);
+                });
+            }
+        });
+
+        console.log('✅ Index page loaded (final version)');
+    </script>
+
+</body>
+</html>
