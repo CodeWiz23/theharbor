@@ -17,7 +17,6 @@
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
 
     <style>
         /* ============================================
@@ -1072,7 +1071,7 @@
         }
 
         // ============================================
-        // FOLLOW FUNCTIONS - Self-follow prevention
+        // FOLLOW FUNCTIONS
         // ============================================
         function followUser(targetUid) {
             if (!currentUser) {
@@ -1131,7 +1130,7 @@
         }
 
         // ============================================
-        // REPORT USER - Self-report prevention
+        // REPORT USER
         // ============================================
         function reportUser(userId) {
             if (!currentUser) {
@@ -1166,7 +1165,7 @@
         }
 
         // ============================================
-        // VIEW OTHER USER'S PROFILE - FIXED
+        // VIEW OTHER USER'S PROFILE
         // ============================================
         function viewProfile(userId) {
             if (userId && userId !== auth.currentUser?.uid) {
@@ -1263,6 +1262,7 @@
                     selectedAvatar = userData.avatar || '👤';
                     selectedBorder = userData.border || 'default';
 
+                    // CRITICAL FIX: Check if private and not self
                     if (userData.isPublic === false && auth.currentUser?.uid !== uid) {
                         const following = currentUserData?.following?.includes(uid) || false;
                         container.innerHTML = `
@@ -1298,6 +1298,7 @@
                             storiesSnapshot.forEach((s) => {
                                 const storyData = s.data();
                                 storyData.id = s.id;
+                                // Only show public stories or own stories
                                 if (storyData.visibility === 'public' || uid === auth.currentUser?.uid) {
                                     stories.push(storyData);
                                 }
@@ -1329,7 +1330,7 @@
         }
 
         // ============================================
-        // RENDER PROFILE - FIXED: Follow/Report only for others
+        // RENDER PROFILE - FIXED isSelf detection
         // ============================================
         function renderProfile(userData, stories) {
             const container = document.getElementById('profileContent');
@@ -1337,6 +1338,7 @@
             const gender = userData.gender || '';
             const isAdmin = userData.isAdmin || false;
             const isPrivate = userData.isPublic === false;
+            // CRITICAL FIX: Use document ID comparison, not userData.uid
             const isSelf = auth.currentUser?.uid === userData.uid;
             const following = isFollowing(userData.uid);
 
@@ -1347,9 +1349,9 @@
             }) : 'Recently';
 
             // ===== AVATAR OPTIONS =====
-            const maleAvatars = ['👨', '🧑', '👦', '🧔', '👨‍🦰', '👨‍🦳', '👨‍🦱', '👨‍🦲', '🧑‍🦰', '🧑‍🦳', '🧑‍🦱', '👴', '🦸‍♂️', '🧝‍♂️', '🧙‍♂️', '🧛‍♂️', '🧜‍♂️', '🧞‍♂️', '🧟‍♂️', '👨‍🎤', '👨‍💻', '👨‍🏫'];
-            const femaleAvatars = ['👩', '👧', '👩‍🦰', '👩‍🦳', '👩‍🦱', '👩‍🦲', '🧑‍🦰', '🧑‍🦳', '🧑‍🦱', '👵', '🦸‍♀️', '🧝‍♀️', '🧙‍♀️', '🧛‍♀️', '🧜‍♀️', '🧞‍♀️', '🧟‍♀️', '👩‍🎤', '👩‍💻', '👩‍🏫', '👸', '🧚‍♀️'];
-            const neutralAvatars = ['🧑', '👤', '🦸', '🧝', '🧙', '🧚', '🧛', '🧜', '🧞', '🧟', '🤖', '👾', '🎅', '🧑‍🎄', '🤵', '👰'];
+            const maleAvatars = ['👨', '👦', '🧔', '🧑', '👨‍🦰', '👨‍🦳', '👨‍🦱', '👨‍🦲', '🧔‍🦰', '🧔‍🦳', '🧔‍🦱', '👴', '👨‍💻', '👨‍🏫', '👨‍⚕️', '👨‍🔬', '👨‍🚀', '👨‍✈️', '👨‍🎤', '👨‍🍳', '👨‍🌾'];
+            const femaleAvatars = ['👩', '👧', '👩‍🦰', '👩‍🦳', '👩‍🦱', '👩‍🦲', '🧑‍🦰', '🧑‍🦳', '🧑‍🦱', '👵', '👩‍💻', '👩‍🏫', '👩‍⚕️', '👩‍🔬', '👩‍🚀', '👩‍✈️', '👩‍🎤', '👩‍🍳', '👩‍🌾', '👸', '🧝‍♀️'];
+            const neutralAvatars = ['👤', '🧑', '👶', '🧝', '🧙', '🧛', '🧞', '🧚', '👽', '🤖', '👾', '🎅', '🧑‍💻', '🧑‍🏫', '🧑‍⚕️', '🧑‍🔬', '🧑‍🚀', '🧑‍✈️', '🧑‍🎤', '🧑‍🍳'];
 
             let avatarOptions = neutralAvatars;
             if (gender === '🧔 Man') avatarOptions = maleAvatars;
@@ -1373,7 +1375,7 @@
 
             const borderOptions = [
                 { id: 'default', label: 'Default', class: 'default' },
-                { id: 'gold', label: '✨ Gold', class: 'gold' },
+                { id: 'gold', label: '🪙 Gold', class: 'gold' },
                 { id: 'rainbow', label: '🌈 Rainbow', class: 'rainbow' },
                 { id: 'dark', label: '🌑 Dark', class: 'dark' },
                 { id: 'neon', label: '💡 Neon', class: 'neon' },
@@ -1394,7 +1396,7 @@
                         `).join('')}
                     </div>
                     <div style="font-size:0.7rem;color:#718096;text-align:center;margin-top:4px;">
-                        ✨ Click a border to equip it
+                        🪙 Click a border to equip it
                     </div>
                 </div>
             ` : '';
@@ -1409,7 +1411,7 @@
             const goldReceived = userData.goldReceived || 0;
             const likesReceived = userData.likesReceived || 0;
 
-            // ===== FOLLOW BUTTON - FIXED: Only show for others =====
+            // ===== FOLLOW BUTTON =====
             let followButton = '';
             if (!isSelf && auth.currentUser) {
                 followButton = `
@@ -1424,7 +1426,7 @@
                 `;
             }
 
-            // ===== REPORT BUTTON - FIXED: Only show for others =====
+            // ===== REPORT BUTTON =====
             let reportButton = '';
             if (!isSelf && auth.currentUser) {
                 reportButton = `
@@ -1588,7 +1590,7 @@
         }
 
         // ============================================
-        // SAVE AVATAR & BORDER - Check if user exists
+        // SAVE AVATAR & BORDER
         // ============================================
         function saveAvatarAndBorder() {
             if (!currentUser || !currentUser.uid) {
@@ -1803,7 +1805,9 @@
                         return user.sendEmailVerification().then(() => user);
                     })
                     .then((user) => {
+                        // CRITICAL FIX: Add uid field to user document
                         return db.collection('users').doc(user.uid).set({
+                            uid: user.uid,  // ← CRITICAL FIX
                             name: name,
                             email: email,
                             gender: '🙅 Prefer not to say',
@@ -1892,7 +1896,9 @@
                             userName.textContent = currentUserData.name || 'Friend';
                             loadProfile();
                         } else {
+                            // Create user document with uid field
                             db.collection('users').doc(user.uid).set({
+                                uid: user.uid,  // ← CRITICAL FIX
                                 name: user.displayName || 'Friend',
                                 email: user.email,
                                 gender: '🙅 Prefer not to say',
@@ -1965,7 +1971,7 @@
             console.log('✅ Profile page ready');
         });
 
-        console.log('📄 Profile page loaded successfully');
+        console.log('👤 Profile page loaded successfully');
     </script>
 
 </body>
