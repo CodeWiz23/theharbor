@@ -1,5 +1,5 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION
+// THE HARBOR - MAIN APPLICATION (COMPLETE FIX)
 // ============================================
 
 // ============================================
@@ -15,7 +15,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -53,7 +55,6 @@ function checkGuestRestrictions() {
         }
     });
 
-    // Show login required message if guest
     const guestMessage = document.getElementById('guestMessage');
     if (guestMessage) {
         if (isGuest) {
@@ -91,7 +92,7 @@ function resendVerification() {
 }
 
 // ============================================
-// FOLLOW SYSTEM
+// FOLLOW SYSTEM - COMPLETE
 // ============================================
 function followUser(targetUid) {
     if (!currentUser) {
@@ -120,6 +121,7 @@ function followUser(targetUid) {
                 transaction.update(targetRef, {
                     followers: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
                 });
+                return 'unfollowed';
             } else {
                 // Follow
                 transaction.update(userRef, {
@@ -128,16 +130,20 @@ function followUser(targetUid) {
                 transaction.update(targetRef, {
                     followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
                 });
+                return 'followed';
             }
         });
-    }).then(() => {
-        // Reload profile if on profile page
+    }).then((action) => {
         if (window.location.pathname.includes('profile.html')) {
             loadProfile();
         }
-        // Update sidebar
         if (typeof updateSidebarData === 'function') {
             updateSidebarData();
+        }
+        if (action === 'followed') {
+            alert('✅ You are now following this user!');
+        } else {
+            alert('✅ You have unfollowed this user.');
         }
     }).catch((err) => {
         console.error('Error following/unfollowing:', err);
@@ -148,6 +154,28 @@ function followUser(targetUid) {
 function isFollowing(targetUid) {
     if (!currentUserData) return false;
     return currentUserData.following && currentUserData.following.includes(targetUid);
+}
+
+function getFollowerCount(uid) {
+    return db.collection('users').doc(uid).get()
+        .then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                return data.followers ? data.followers.length : 0;
+            }
+            return 0;
+        });
+}
+
+function getFollowingCount(uid) {
+    return db.collection('users').doc(uid).get()
+        .then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                return data.following ? data.following.length : 0;
+            }
+            return 0;
+        });
 }
 
 // ============================================
@@ -284,7 +312,6 @@ function switchCategory(category) {
     console.log('🔄 Switching to category:', category);
     
     if (!currentUser) {
-        // Show login message for guests
         const container = document.getElementById('storiesContainer');
         if (container) {
             container.innerHTML = `
@@ -308,6 +335,7 @@ function switchCategory(category) {
     }
     
     currentCategory = category;
+    currentPage = 1;
     
     document.querySelectorAll('.tab').forEach((tab) => {
         if (tab.dataset.category === category) {
@@ -401,7 +429,7 @@ function checkPasswordOnType() {
     strengthDiv.innerHTML = `
         <div style="margin-top:6px;font-size:0.85rem;">
             <span>Strength: <span style="color:${result.color};font-weight:700;">${result.strength.replace('-', ' ')}</span></span>
-            <div style="width:100%;height:4px;background:var(--border-color);border-radius:4px;margin-top:4px;">
+            <div style="width:100%;height:4px;background:var(--border-color, #e2e8f0);border-radius:4px;margin-top:4px;">
                 <div style="width:${result.score}%;height:100%;background:${result.color};border-radius:4px;"></div>
             </div>
         </div>
@@ -435,13 +463,13 @@ function updateGenderWarning() {
     const gender = genderSelect.value;
     if (gender === '🧔 Man') {
         text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections. Women\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
-        warning.classList.add('show');
+        warning.style.display = 'flex';
     } else if (gender === '👩 Woman') {
         text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections. Men\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
-        warning.classList.add('show');
+        warning.style.display = 'flex';
     } else {
         text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>. Men\'s and Women\'s Harbors are restricted based on gender.';
-        warning.classList.add('show');
+        warning.style.display = 'flex';
     }
 }
 
@@ -534,7 +562,6 @@ function handleAuth() {
             return;
         }
 
-        // Check if Terms & Privacy checkbox is checked
         const termsCheckbox = document.getElementById('termsCheckbox');
         if (termsCheckbox && !termsCheckbox.checked) {
             error.textContent = '⚠️ Please agree to the Terms of Service and Privacy Policy.';
@@ -982,7 +1009,6 @@ function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
 
-    // Guest restriction - show login message
     if (!currentUser) {
         container.innerHTML = `
             <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
@@ -1086,14 +1112,12 @@ function loadStories() {
 // FILTER & PAGINATE
 // ============================================
 function applyFilters() {
-    // Filter by category
     if (currentCategory === 'all') {
         filteredStories = [...allStories];
     } else {
         filteredStories = allStories.filter(s => s.category === currentCategory);
     }
 
-    // Filter by search
     const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
     if (searchTerm) {
         filteredStories = filteredStories.filter(s =>
@@ -1224,6 +1248,9 @@ function renderStoryCard(story) {
                 ${currentUser && story.userId !== currentUser.uid ? `
                     <button class="btn-action btn-edit" onclick="openGoldModal('${story.id}')">🪙 Donate Gold</button>
                 ` : ''}
+                ${currentUser ? `
+                    <button class="btn-action btn-report" onclick="reportStory('${story.id}')">🚩 Report</button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -1247,7 +1274,6 @@ function toggleReadMore(storyId) {
 }
 
 function openCommentSection(storyId) {
-    // Redirect to story page with comments
     window.location.href = 'story.html?id=' + storyId + '#comments';
 }
 
@@ -1255,6 +1281,38 @@ function viewProfile(userId) {
     if (userId) {
         window.location.href = 'profile.html?uid=' + userId;
     }
+}
+
+// ============================================
+// REPORT FUNCTIONS
+// ============================================
+function reportStory(storyId) {
+    if (!currentUser) {
+        alert('Please log in to report.');
+        return;
+    }
+
+    const reason = prompt('Why are you reporting this story?');
+    if (!reason || reason.trim().length < 3) {
+        alert('Please provide a valid reason (minimum 3 characters).');
+        return;
+    }
+
+    db.collection('reports').add({
+        storyId: storyId,
+        storyTitle: 'Unknown',
+        storyAuthor: 'Unknown',
+        reportedBy: currentUser.uid,
+        reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+        reason: reason.trim(),
+        status: 'pending',
+        type: 'story',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert('✅ Report submitted. Thank you for helping keep The Harbor safe!');
+    }).catch((err) => {
+        alert('❌ Error: ' + err.message);
+    });
 }
 
 // ============================================
@@ -1297,47 +1355,6 @@ function goToPage(page) {
     currentPage = page;
     renderStories();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ============================================
-// CATEGORY SWITCH
-// ============================================
-function switchCategory(category) {
-    if (!currentUser) {
-        // Show login message for guests
-        const container = document.getElementById('storiesContainer');
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
-                    <div class="big-emoji">🔒</div>
-                    <h3 style="color:#1a4a4a;">Login Required</h3>
-                    <p style="color:#4a5568;">Please log in or join to read and share stories.</p>
-                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                        <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                        <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
-                    </div>
-                </div>
-            `;
-        }
-        return;
-    }
-    
-    if (!canSeeCategory(category)) {
-        alert('⚠️ You don\'t have permission to view this category.');
-        return;
-    }
-    
-    currentCategory = category;
-    currentPage = 1;
-    
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelector(`.tab[data-category="${category}"]`)?.classList.add('active');
-    
-    const url = new URL(window.location);
-    url.searchParams.set('cat', category);
-    window.history.pushState({ category: category }, '', url);
-    
-    loadStories();
 }
 
 // ============================================
@@ -1551,7 +1568,6 @@ auth.onAuthStateChanged((user) => {
                     updateEmergencyBanner();
                     updateAdminLink();
 
-                    // Load theme
                     if (currentUserData.theme) {
                         if (currentUserData.theme === 'dark') {
                             document.documentElement.setAttribute('data-theme', 'dark');
@@ -1628,7 +1644,6 @@ auth.onAuthStateChanged((user) => {
             `;
         }
         
-        // Apply guest restrictions
         checkGuestRestrictions();
     }
 });
@@ -1667,10 +1682,8 @@ function loadUserReactions(storyId) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 DOM Ready — The Harbor (NEXT-GEN)');
     
-    // Guest restrictions
     checkGuestRestrictions();
 
-    // Modal close on outside click
     const modal = document.getElementById('authModal');
     if (modal) {
         modal.addEventListener('click', function(e) {
@@ -1685,7 +1698,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Password strength
     const passwordInput = document.getElementById('authPassword');
     if (passwordInput) {
         passwordInput.addEventListener('input', checkPasswordOnType);
@@ -1696,7 +1708,6 @@ document.addEventListener('DOMContentLoaded', function() {
         nameInput.addEventListener('input', checkUsernameOnType);
     }
 
-    // Enter key for auth
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             const modal = document.getElementById('authModal');
@@ -1710,7 +1721,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Character counters for submit
     const titleInput = document.getElementById('storyTitle');
     const textInput = document.getElementById('storyText');
     const titleCount = document.getElementById('titleCount');
@@ -1734,7 +1744,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Comment character counter
     const commentText = document.getElementById('commentText');
     const commentCount = document.getElementById('commentCount');
     if (commentText && commentCount) {
@@ -1743,7 +1752,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Search on Enter
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('keydown', function(e) {
@@ -1753,10 +1761,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Populate country datalist
     populateCountryDatalist();
 
-    // Load page-specific content
     if (window.location.pathname.includes('profile.html')) {
         loadProfile();
     }
@@ -1779,3 +1785,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('✅ All event listeners attached');
 });
+
+console.log('✅ The Harbor app loaded successfully');
