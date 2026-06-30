@@ -41,38 +41,16 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* ============================================
-           HOME PAGE FIXES - PROPER GUEST VIEW
-           ============================================ */
-
-        /* Guest message - shown when not logged in */
-        #guestMessage {
-            display: none;
-            background: #fef3c7;
-            border-left: 4px solid #d97706;
-            padding: 16px 20px;
-            border-radius: 8px;
-            margin: 16px auto;
-            max-width: 820px;
-            color: #92400e;
-            text-align: center;
-        }
-
-        #guestMessage a {
-            color: #1a4a4a;
-            font-weight: 600;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
-        /* Category info wrapper */
+        /* Additional homepage styles */
         .category-info-wrapper {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             position: relative;
         }
-
+        .category-info-wrapper .tab-text {
+            display: inline-block;
+        }
         .category-info-trigger {
             display: inline-flex;
             align-items: center;
@@ -80,149 +58,80 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: #edf2f7;
-            color: #718096;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
             font-size: 10px;
             font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid #e2e8f0;
+            cursor: help;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
             flex-shrink: 0;
             margin-left: 2px;
-            min-width: 18px;
-            min-height: 18px;
-            touch-action: manipulation;
         }
-
         .category-info-trigger:hover {
-            background: #1a4a4a;
+            background: var(--primary);
             color: white;
             transform: scale(1.1);
-            border-color: #1a4a4a;
+            border-color: var(--primary);
         }
-
-        .category-info-trigger:active {
-            transform: scale(0.9);
-        }
-
         .category-info-tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%) scale(0.9);
-            background: #1a1a2e;
-            color: #f0f4f8;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.7rem;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
             font-weight: 400;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.2s ease;
-            max-width: 220px;
+            transition: all var(--transition-fast);
+            max-width: 260px;
             white-space: normal;
             text-align: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-lg);
             z-index: 100;
             line-height: 1.4;
         }
-
         .category-info-trigger:hover .category-info-tooltip {
             opacity: 1;
             transform: translateX(-50%) scale(1);
         }
 
-        @media (max-width: 768px) {
+        /* Hero buttons */
+        .hero-actions .btn {
+            padding: 0.6rem 1.8rem;
+        }
+
+        /* Guest message */
+        #guestMessage {
+            display: none;
+            background: #fef3c7;
+            border-left: 4px solid #d97706;
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-md);
+            color: #92400e;
+        }
+
+        @media (max-width: 600px) {
             .category-info-tooltip {
-                max-width: 160px;
-                font-size: 0.65rem;
-                bottom: calc(100% + 12px);
-            }
-            .category-info-trigger {
-                width: 20px;
-                height: 20px;
-                font-size: 9px;
-                min-width: 20px;
-                min-height: 20px;
+                max-width: 180px;
+                font-size: 0.7rem;
+                white-space: normal;
             }
             .tab {
                 font-size: 0.75rem;
                 padding: 0.3rem 0.6rem;
             }
-        }
-
-        @media (max-width: 480px) {
-            .category-info-tooltip {
-                max-width: 140px;
-                font-size: 0.6rem;
-                padding: 4px 8px;
-            }
             .category-info-trigger {
-                width: 16px;
-                height: 16px;
-                font-size: 7px;
-                min-width: 16px;
-                min-height: 16px;
+                width: 14px;
+                height: 14px;
+                font-size: 8px;
             }
-            .tab {
-                font-size: 0.65rem;
-                padding: 0.2rem 0.5rem;
-            }
-        }
-
-        .hero-actions .btn {
-            padding: 0.6rem 1.8rem;
-        }
-
-        .btn-primary-hero {
-            background: #c47a5a;
-            color: white;
-            border: none;
-        }
-
-        .btn-primary-hero:hover {
-            background: #a86545;
-            transform: translateY(-2px);
-        }
-
-        /* ============================================
-           GUEST VIEW - HIDE EVERYTHING EXCEPT BASIC
-           ============================================ */
-        .guest-hidden {
-            display: none !important;
-        }
-
-        /* Guest login required banner */
-        .guest-login-banner {
-            display: none;
-            text-align: center;
-            padding: 40px 20px;
-            background: #fef3c7;
-            border-radius: 16px;
-            border-left: 4px solid #d97706;
-            margin: 20px 0;
-        }
-
-        .guest-login-banner .big-emoji {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 12px;
-        }
-
-        .guest-login-banner h3 {
-            color: #1a4a4a;
-            font-size: 1.3rem;
-            margin-bottom: 8px;
-        }
-
-        .guest-login-banner p {
-            color: #4a5568;
-            margin-bottom: 16px;
-        }
-
-        .guest-login-banner .btn {
-            margin: 0 6px;
         }
     </style>
 </head>
@@ -233,11 +142,14 @@
         <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
         <div class="header-right">
+            <!-- FEED BUTTON -->
+            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
+
             <!-- About - Always visible -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
 
-            <!-- RESTRICTED: Only visible when logged in -->
-            <div class="guest-hidden" id="loggedInNav">
+            <!-- Guest Restricted Elements -->
+            <div class="guest-restricted">
                 <a href="submit.html" class="btn btn-nav">📝 Share</a>
                 <a href="profile.html" class="btn btn-nav">👤 Profile</a>
                 <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
@@ -245,17 +157,15 @@
                 <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
 
-            <!-- Settings Gear - Only visible when logged in -->
-            <button class="btn-settings guest-hidden" onclick="toggleSidebar()" title="Settings" style="font-size:1.4rem;padding:4px 10px;background:transparent;border:none;cursor:pointer;color:#4a5568;transition:transform 0.2s;border-radius:8px;">⚙️</button>
+            <!-- Settings Gear -->
+            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
 
-            <!-- Auth Buttons - Visible when logged out -->
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
 
-            <!-- User Info - Visible when logged in -->
-            <div id="userInfo" style="display:none;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+            <div id="userInfo">
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
@@ -268,10 +178,8 @@
     <div id="emergencyBanner"></div>
 
     <!-- ===== GUEST MESSAGE ===== -->
-    <div class="container">
-        <div id="guestMessage">
-            <p>🔒 <strong>Welcome to The Harbor!</strong> Please <a href="#" onclick="openModal('login');return false;">Log In</a> or <a href="#" onclick="openModal('signup');return false;">Join</a> to read and share stories.</p>
-        </div>
+    <div class="container" id="guestMessage">
+        <p>🔒 <strong>Welcome to The Harbor!</strong> Please <a href="#" onclick="openModal('login');return false;">Log In</a> or <a href="#" onclick="openModal('signup');return false;">Join</a> to read and share stories.</p>
     </div>
 
     <!-- ===== HERO ===== -->
@@ -280,29 +188,28 @@
             <h1>⚓ Welcome to <span>The Harbor</span></h1>
             <p>A safe place to share, heal, and grow — together.</p>
             <div class="hero-actions">
-                <!-- Only show Activity and Share to logged in users -->
-                <a href="activity.html" class="btn btn-nav guest-hidden" id="heroActivity">📊 Activity</a>
-                <a href="submit.html" class="btn btn-primary-hero guest-hidden" id="heroShare">📝 Share Your Story</a>
+                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+                <a href="submit.html" class="btn btn-primary-hero">📝 Share Your Story</a>
                 <a href="about.html" class="btn btn-nav">🌿 Learn More</a>
             </div>
         </section>
     </div>
 
     <!-- ===== SEARCH ===== -->
-    <div class="search-bar guest-hidden" id="searchBar">
+    <div class="search-bar">
         <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter') searchStories()" />
     </div>
 
-    <!-- ===== TABS - HIDDEN FOR GUESTS ===== -->
+    <!-- ===== TABS WITH CATEGORY INFO ===== -->
     <div class="container">
-        <div class="tabs guest-hidden" id="categoryTabs">
+        <div class="tabs" id="categoryTabs">
             <!-- All -->
             <button class="tab active" data-category="all" onclick="switchCategory('all')">
                 <span class="category-info-wrapper">
                     <span class="tab-text">🌊 All</span>
                     <span class="category-info-trigger">
                         ?
-                        <span class="category-info-tooltip">All stories from every harbor category.</span>
+                        <span class="category-info-tooltip">All stories from every harbor category. Explore the full community.</span>
                     </span>
                 </span>
             </button>
@@ -313,7 +220,7 @@
                     <span class="tab-text">🧔 Men's Harbor</span>
                     <span class="category-info-trigger">
                         ?
-                        <span class="category-info-tooltip">A dedicated space for men to share their journey.</span>
+                        <span class="category-info-tooltip">A dedicated space for men to share their journey, struggles, and growth.</span>
                     </span>
                 </span>
             </button>
@@ -324,7 +231,7 @@
                     <span class="tab-text">👩 Women's Harbor</span>
                     <span class="category-info-trigger">
                         ?
-                        <span class="category-info-tooltip">A safe harbor for women to connect and share.</span>
+                        <span class="category-info-tooltip">A safe harbor for women to connect, share, and support each other.</span>
                     </span>
                 </span>
             </button>
@@ -335,7 +242,7 @@
                     <span class="tab-text">🌊 The Storm</span>
                     <span class="category-info-trigger">
                         ?
-                        <span class="category-info-tooltip">Share your struggles and challenges.</span>
+                        <span class="category-info-tooltip">Share your struggles, challenges, and difficult moments. You're not alone.</span>
                     </span>
                 </span>
             </button>
@@ -346,7 +253,7 @@
                     <span class="tab-text">☀️ Sunny Skies</span>
                     <span class="category-info-trigger">
                         ?
-                        <span class="category-info-tooltip">Celebrate victories and share happiness.</span>
+                        <span class="category-info-tooltip">Celebrate victories, share happiness, and spread positivity.</span>
                     </span>
                 </span>
             </button>
@@ -357,7 +264,7 @@
                     <span class="tab-text">🧭 The Compass</span>
                     <span class="category-info-trigger">
                         ?
-                        <span class="category-info-tooltip">Life lessons and wisdom to guide you.</span>
+                        <span class="category-info-tooltip">Life lessons, wisdom, and guidance to help navigate your journey.</span>
                     </span>
                 </span>
             </button>
@@ -369,7 +276,7 @@
         </div>
 
         <!-- ===== PAGINATION ===== -->
-        <div class="pagination guest-hidden" id="paginationContainer"></div>
+        <div class="pagination" id="paginationContainer"></div>
     </div>
 
     <!-- ===== AUTH MODAL ===== -->
@@ -455,12 +362,12 @@
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html" class="guest-hidden">📊 Activity</a>
+            <a href="activity.html">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html" class="guest-hidden">📝 Share Story</a>
-            <a href="profile.html" class="guest-hidden">👤 Profile</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html" class="guest-hidden">💡 Suggest</a>
+            <a href="suggest.html">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
@@ -479,39 +386,55 @@
     <script src="js/comments.js"></script>
 
     <script>
-        // ============================================
-        // GUEST RESTRICTIONS - PROPER GUEST VIEW
-        // ============================================
-        function applyGuestRestrictions() {
-            const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== '';
+        // Check if user is logged in and apply guest restrictions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth state
+            const checkAuth = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(checkAuth);
+                    applyGuestRestrictions();
+                }
+            }, 100);
 
-            // Show/hide ALL guest-hidden elements
-            const hiddenEls = document.querySelectorAll('.guest-hidden');
-            hiddenEls.forEach(function(el) {
-                el.style.display = isLoggedIn ? '' : 'none';
+            // Also check on auth change
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function(user) {
+                    setTimeout(applyGuestRestrictions, 200);
+                });
+            }
+        });
+
+        function applyGuestRestrictions() {
+            const isLoggedIn = currentUser !== null && currentUser !== undefined;
+            const elements = document.querySelectorAll('.guest-restricted');
+
+            elements.forEach(function(el) {
+                if (isLoggedIn) {
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
             });
 
             // Show/hide guest message
             const guestMsg = document.getElementById('guestMessage');
             if (guestMsg) {
-                guestMsg.style.display = isLoggedIn ? 'none' : 'block';
+                if (isLoggedIn) {
+                    guestMsg.style.display = 'none';
+                } else {
+                    guestMsg.style.display = 'block';
+                }
             }
 
-            // Show/hide auth buttons
-            const authBtns = document.getElementById('authButtons');
-            const userInfo = document.getElementById('userInfo');
-            if (authBtns) authBtns.style.display = isLoggedIn ? 'none' : '';
-            if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
-
-            // If not logged in, show login required in stories
+            // Show/hide stories based on login
             const container = document.getElementById('storiesContainer');
             if (container && !isLoggedIn) {
                 container.innerHTML = `
-                    <div class="guest-login-banner" style="display:block;">
+                    <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
                         <div class="big-emoji">🔒</div>
-                        <h3>Login Required</h3>
-                        <p>Please log in or join to read and share stories.</p>
-                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                        <h3 style="color:#1a4a4a;">Login Required</h3>
+                        <p style="color:#4a5568;">Please log in or join to read and share stories.</p>
+                        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
                             <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
                             <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
                         </div>
@@ -521,61 +444,9 @@
                     </div>
                 `;
             }
-
-            // Update user name if logged in
-            if (isLoggedIn && currentUserData) {
-                const userNameEl = document.getElementById('userName');
-                if (userNameEl) userNameEl.textContent = currentUserData.name || 'Friend';
-            }
         }
 
-        // ============================================
-        // FIXED: ? icon click handler for mobile
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fix for ? icon on mobile
-            const triggers = document.querySelectorAll('.category-info-trigger');
-            triggers.forEach(function(trigger) {
-                trigger.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const tooltip = this.querySelector('.category-info-tooltip');
-                    if (tooltip) {
-                        if (window.innerWidth <= 768) {
-                            const isVisible = tooltip.style.opacity === '1';
-                            document.querySelectorAll('.category-info-tooltip').forEach(function(t) {
-                                t.style.opacity = '0';
-                                t.style.transform = 'translateX(-50%) scale(0.9)';
-                            });
-                            if (!isVisible) {
-                                tooltip.style.opacity = '1';
-                                tooltip.style.transform = 'translateX(-50%) scale(1)';
-                            }
-                        }
-                    }
-                });
-            });
-
-            // Close tooltips on click outside
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.category-info-tooltip').forEach(function(t) {
-                    t.style.opacity = '0';
-                    t.style.transform = 'translateX(-50%) scale(0.9)';
-                });
-            });
-
-            // Check auth state
-            if (typeof auth !== 'undefined') {
-                auth.onAuthStateChanged(function(user) {
-                    currentUser = user;
-                    setTimeout(applyGuestRestrictions, 300);
-                });
-            }
-
-            // Initial check
-            setTimeout(applyGuestRestrictions, 500);
-        });
-
-        console.log('✅ Index page loaded - Proper guest restrictions applied');
+        console.log('✅ Index page loaded with category info icons and guest restrictions');
     </script>
 
 </body>
