@@ -363,6 +363,21 @@ function toggleSidebar() {
 }
 
 // ============================================
+// APPLY GUEST RESTRICTIONS TO SIDEBAR
+// ============================================
+function applySidebarGuestRestrictions() {
+    const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
+    const sidebarBtn = document.querySelector('.btn-settings');
+    if (sidebarBtn) {
+        if (isLoggedIn) {
+            sidebarBtn.style.display = '';
+        } else {
+            sidebarBtn.style.display = 'none';
+        }
+    }
+}
+
+// ============================================
 // UPDATE SIDEBAR DATA - FIXED: Safe checks
 // ============================================
 function updateSidebarData() {
@@ -440,7 +455,7 @@ function toggleTheme() {
     // Update button text
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) {
-        themeBtn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+        themeBtn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
     }
 
     // Update sidebar data
@@ -640,6 +655,18 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             headerRight.appendChild(settingsBtn);
         }
+    }
+
+    // Apply guest restrictions to sidebar
+    if (typeof currentUser !== 'undefined') {
+        applySidebarGuestRestrictions();
+    }
+
+    // Watch for auth changes
+    if (typeof auth !== 'undefined') {
+        auth.onAuthStateChanged(function(user) {
+            setTimeout(applySidebarGuestRestrictions, 200);
+        });
     }
 
     console.log('✅ Sidebar initialized');
