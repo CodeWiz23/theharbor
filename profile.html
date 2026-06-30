@@ -14,10 +14,6 @@
     </script>
 
     <style>
-        /* ============================================
-           PROFESSIONAL CLEAN PROFILE STYLES
-           ============================================ */
-
         /* ===== RESET ===== */
         * {
             margin: 0;
@@ -33,11 +29,11 @@
             min-height: 100vh;
         }
 
-        /* ===== TOP NAVIGATION - CLEAN ===== */
-        .top-bar {
+        /* ===== HEADER - Consistent with other pages ===== */
+        .header {
             background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 0.75rem 2rem;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -45,11 +41,12 @@
             top: 0;
             z-index: 100;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .logo {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #1a4a4a;
             text-decoration: none;
@@ -60,84 +57,157 @@
 
         .logo span {
             font-weight: 300;
-            color: #4a6a6a;
         }
 
-        .nav-links {
+        .header-right {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
             flex-wrap: wrap;
         }
 
-        .nav-links a,
-        .nav-links button {
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: all 0.2s;
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 0.5rem 1.2rem;
             border: none;
-            background: transparent;
-            color: #4a5568;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .nav-links a:hover,
-        .nav-links button:hover {
-            background: #edf2f7;
-            color: #1a202c;
-        }
-
-        .nav-links a.active {
-            color: #1a4a4a;
+            border-radius: 8px;
             font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
 
-        .btn-login-nav {
+        .btn-nav {
+            background: #f0f4f8;
+            color: #1a4a4a;
+        }
+        .btn-nav:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-feed {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-feed:hover {
+            background: #2d6a6a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26,74,74,0.3);
+        }
+
+        .btn-settings {
+            font-size: 1.4rem;
+            padding: 4px 10px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #4a5568;
+            transition: transform 0.2s ease;
+            border-radius: 8px;
+        }
+        .btn-settings:hover {
+            transform: rotate(60deg);
+            background: #f0f4f8;
+        }
+
+        .btn-login {
             background: transparent;
             color: #1a4a4a;
             border: 2px solid #1a4a4a;
-            padding: 0.4rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
         }
-
-        .btn-login-nav:hover {
+        .btn-login:hover {
             background: #1a4a4a;
             color: white;
         }
 
-        .btn-join-nav {
+        .btn-signup {
             background: #1a4a4a;
             color: white;
-            padding: 0.4rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
         }
-
-        .btn-join-nav:hover {
+        .btn-signup:hover {
             background: #2d6a6a;
         }
 
-        .btn-logout-nav {
+        .btn-logout {
             background: #fee2e2;
             color: #dc2626;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
         }
-
-        .btn-logout-nav:hover {
+        .btn-logout:hover {
             background: #fecaca;
         }
 
-        .user-name {
+        .btn-primary {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2d6a6a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1a4a4a;
+            border: 2px solid #1a4a4a;
+        }
+        .btn-secondary:hover {
+            background: #1a4a4a;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-report {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .btn-report:hover {
+            background: #fde68a;
+            transform: translateY(-2px);
+        }
+
+        /* ===== GUEST HIDDEN ===== */
+        .guest-hidden {
+            display: none !important;
+        }
+        .logged-in-hidden {
+            display: none !important;
+        }
+
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        #userName {
             font-weight: 600;
             color: #1a4a4a;
-            font-size: 0.9rem;
+        }
+
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .verification-badge.verified {
+            background: #dcfce7;
+            color: #16a34a;
         }
 
         /* ===== CONTAINER ===== */
@@ -369,62 +439,6 @@
             background: #e2e8f0;
             color: #718096;
             cursor: default;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: 0.5rem 1.2rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: #1a4a4a;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2d6a6a;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #1a4a4a;
-            border: 2px solid #1a4a4a;
-        }
-
-        .btn-secondary:hover {
-            background: #1a4a4a;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #b91c1c;
-            transform: translateY(-2px);
-        }
-
-        .btn-report {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fde68a;
-        }
-
-        .btn-report:hover {
-            background: #fde68a;
-            transform: translateY(-2px);
         }
 
         /* ===== PROFILE ACTIONS ===== */
@@ -739,7 +753,7 @@
             font-size: 0.9rem;
         }
 
-        /* ===== FOOTER - CLEAN ===== */
+        /* ===== FOOTER ===== */
         .footer {
             background: white;
             border-top: 1px solid #e2e8f0;
@@ -779,82 +793,65 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .top-bar {
+            .header {
                 padding: 0.5rem 1rem;
                 flex-direction: column;
                 gap: 0.5rem;
             }
-
-            .nav-links {
+            .header-right {
                 justify-content: center;
                 gap: 0.3rem;
             }
-
-            .nav-links a,
-            .nav-links button {
+            .btn {
                 font-size: 0.75rem;
                 padding: 0.3rem 0.7rem;
             }
-
             .logo {
                 font-size: 1.2rem;
             }
-
             .container {
                 padding: 0 1rem;
             }
-
             .profile-card {
                 padding: 20px;
             }
-
             .avatar-border {
                 width: 100px;
                 height: 100px;
             }
-
             .avatar-img {
                 font-size: 3rem;
                 line-height: 100px;
             }
-
             .profile-name {
                 font-size: 1.4rem;
             }
-
             .profile-stats {
                 grid-template-columns: repeat(3, 1fr);
                 padding: 12px;
             }
-
             .profile-stats .stat .number {
                 font-size: 1.2rem;
             }
-
             .avatar-option {
                 width: 40px;
                 height: 40px;
                 font-size: 1.4rem;
             }
-
             .border-option {
                 width: 28px;
                 height: 28px;
             }
-
             .profile-actions {
                 flex-direction: column;
                 align-items: center;
             }
-
             .footer {
                 padding: 1.5rem 1rem;
             }
-
             .footer-links {
                 gap: 0.8rem;
             }
-
             .footer-links a {
                 font-size: 0.8rem;
             }
@@ -864,27 +861,21 @@
             .profile-stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-
             .avatar-border {
                 width: 80px;
                 height: 80px;
             }
-
             .avatar-img {
                 font-size: 2.4rem;
                 line-height: 80px;
             }
-
-            .nav-links a,
-            .nav-links button {
+            .btn {
                 font-size: 0.7rem;
                 padding: 0.2rem 0.5rem;
             }
-
             .story-item {
                 padding: 10px 14px;
             }
-
             .story-item .title {
                 font-size: 0.9rem;
             }
@@ -894,26 +885,47 @@
 
 <body>
 
-    <!-- ===== TOP NAVIGATION - CLEAN ===== -->
-    <header class="top-bar">
+    <!-- ===== HEADER - Consistent with other pages ===== -->
+    <header class="header">
         <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
-        <nav class="nav-links">
-            <a href="about.html">About</a>
-            <a href="submit.html" id="shareLink">Share</a>
-            <a href="profile.html" class="active">Profile</a>
+        <div class="header-right">
+            <!-- FEED BUTTON - Only visible when logged in -->
+            <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
 
-            <span id="authButtons">
-                <button class="btn-login-nav" onclick="openModal('login')">Log In</button>
-                <button class="btn-join-nav" onclick="openModal('signup')">Join</button>
-            </span>
+            <!-- About - Always visible -->
+            <a href="about.html" class="btn btn-nav">🌿 About</a>
 
-            <span id="userInfo" style="display:none; align-items:center; gap:0.5rem;">
-                <span class="user-name" id="userName">User</span>
-                <button class="btn-logout-nav" onclick="logout()">Logout</button>
-            </span>
-        </nav>
+            <!-- Guest Restricted Elements - Only visible when logged in -->
+            <div class="guest-restricted guest-hidden">
+                <a href="submit.html" class="btn btn-nav">📝 Share</a>
+                <a href="profile.html" class="btn btn-nav" style="background:#1a4a4a;color:white;">👤 Profile</a>
+                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            </div>
+
+            <!-- Settings Gear - Only visible when logged in -->
+            <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
+
+            <!-- Auth Buttons - Only visible when NOT logged in -->
+            <div id="authButtons" class="logged-in-hidden">
+                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
+            </div>
+
+            <!-- User Info - Only visible when logged in -->
+            <div id="userInfo" class="guest-hidden">
+                <span id="userName">Friend</span>
+                <span id="userGenderBadge"></span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
     </header>
+
+    <!-- ===== EMERGENCY BANNER ===== -->
+    <div id="emergencyBanner"></div>
 
     <!-- ===== MAIN CONTENT ===== -->
     <div class="container">
@@ -985,7 +997,7 @@
         </div>
     </div>
 
-    <!-- ===== FOOTER - CLEAN ===== -->
+    <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-links">
@@ -1059,7 +1071,6 @@
                 return;
             }
 
-            // FIXED: Prevent self-follow
             if (targetUid === currentUser.uid) {
                 alert('You cannot follow yourself.');
                 return;
@@ -1093,6 +1104,7 @@
                     }
                 });
             }).then((action) => {
+                // Reload profile to update counts
                 loadProfile();
                 if (action === 'followed') {
                     alert('✅ You are now following this user!');
@@ -1119,7 +1131,6 @@
                 return;
             }
 
-            // FIXED: Prevent self-report
             if (userId === currentUser.uid) {
                 alert('You cannot report yourself.');
                 return;
@@ -1147,13 +1158,37 @@
         }
 
         // ============================================
+        // APPLY GUEST RESTRICTIONS
+        // ============================================
+        function applyGuestRestrictions() {
+            const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
+            const guestElements = document.querySelectorAll('.guest-hidden');
+            const loggedInElements = document.querySelectorAll('.logged-in-hidden');
+
+            guestElements.forEach(function(el) {
+                if (isLoggedIn) {
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+
+            loggedInElements.forEach(function(el) {
+                if (isLoggedIn) {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = '';
+                }
+            });
+        }
+
+        // ============================================
         // LOAD PROFILE
         // ============================================
         function loadProfile() {
             const container = document.getElementById('profileContent');
             if (!container) return;
 
-            // Check URL for viewed user
             const urlParams = new URLSearchParams(window.location.search);
             const uid = urlParams.get('uid');
 
@@ -1209,7 +1244,6 @@
                     selectedAvatar = userData.avatar || '👤';
                     selectedBorder = userData.border || 'default';
 
-                    // Check if profile is private
                     if (userData.isPublic === false && auth.currentUser?.uid !== uid) {
                         const following = currentUserData?.following?.includes(uid) || false;
                         container.innerHTML = `
@@ -1237,7 +1271,6 @@
 
                     viewedUserData = userData;
 
-                    // Load stories - FIXED: Only show public or own stories
                     return db.collection('stories')
                         .where('userId', '==', uid)
                         .get()
@@ -1246,7 +1279,6 @@
                             storiesSnapshot.forEach((s) => {
                                 const storyData = s.data();
                                 storyData.id = s.id;
-                                // FIXED: Only show public stories or user's own private stories
                                 if (storyData.visibility === 'public' || uid === auth.currentUser?.uid) {
                                     stories.push(storyData);
                                 }
@@ -1373,7 +1405,7 @@
                 `;
             }
 
-            // ===== STORIES HTML - FIXED: Only show public or own stories =====
+            // ===== STORIES HTML =====
             let storiesHtml = '';
             if (stories.length === 0) {
                 storiesHtml = `
@@ -1532,7 +1564,6 @@
         // SAVE AVATAR & BORDER - FIXED: Check if user exists
         // ============================================
         function saveAvatarAndBorder() {
-            // FIXED: Check if currentUser and uid exist before updating
             if (!currentUser || !currentUser.uid) {
                 console.warn('Cannot save avatar: No user logged in');
                 return;
@@ -1543,7 +1574,6 @@
                 border: selectedBorder
             }).catch((err) => {
                 console.error('Error saving avatar/border:', err);
-                // If document doesn't exist, create it
                 if (err.code === 'not-found') {
                     db.collection('users').doc(currentUser.uid).set({
                         avatar: selectedAvatar,
@@ -1825,6 +1855,9 @@
                 authButtons.style.display = 'none';
                 userInfo.style.display = 'flex';
 
+                // Apply guest restrictions
+                applyGuestRestrictions();
+
                 db.collection('users').doc(user.uid).get()
                     .then((doc) => {
                         if (doc.exists) {
@@ -1832,7 +1865,6 @@
                             userName.textContent = currentUserData.name || 'Friend';
                             loadProfile();
                         } else {
-                            // Create user document if it doesn't exist
                             db.collection('users').doc(user.uid).set({
                                 name: user.displayName || 'Friend',
                                 email: user.email,
@@ -1866,6 +1898,10 @@
                 currentUserData = null;
                 authButtons.style.display = 'flex';
                 userInfo.style.display = 'none';
+
+                // Apply guest restrictions
+                applyGuestRestrictions();
+
                 const container = document.getElementById('profileContent');
                 if (container) {
                     container.innerHTML = `
