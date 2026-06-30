@@ -55,14 +55,8 @@
         .story-full .content .full-text {
             display: none;
         }
-        .story-full .content .full-text.show {
-            display: block;
-        }
         .story-full .content .excerpt-text {
             display: block;
-        }
-        .story-full .content .excerpt-text.hidden {
-            display: none;
         }
 
         .read-more-btn {
@@ -729,13 +723,13 @@
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed" onclick="location.reload()">🏠 Feed</a>
+            <a href="index.html" class="btn btn-feed" onclick="location.reload(); return false;">🏠 Feed</a>
             <a href="about.html" class="btn btn-nav">🌿 About</a>
             <a href="submit.html" class="btn btn-nav">📝 Share</a>
             <a href="profile.html" class="btn btn-nav">👤 Profile</a>
             <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
             <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-            <button class="btn-settings" onclick="alert('⚙️ Settings')" title="Settings">⚙️</button>
+            <button class="btn-settings" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -912,7 +906,7 @@
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT - COMPLETE
+    JAVASCRIPT - COMPLETE FIXED
     ============================================ -->
     <script>
     // ============================================
@@ -1039,7 +1033,7 @@
                 story.id = doc.id;
                 currentStory = story;
 
-                // Check if story is private and user is not owner
+                // FIXED: Check if story is private and user is not owner
                 if (story.visibility === 'private' && (!currentUser || story.userId !== currentUser.uid)) {
                     content.innerHTML = `
                         <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
@@ -1099,7 +1093,7 @@
     }
 
     // ============================================
-    // RENDER FULL STORY
+    // RENDER FULL STORY - FIXED: Read More single button
     // ============================================
     function renderFullStory(story) {
         const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
@@ -1133,11 +1127,11 @@
             `;
         });
 
-        // Read More logic - split content
+        // FIXED: Read More - single button, no duplication
         const fullText = story.text || '';
         const excerptLength = 300;
         const showReadMore = fullText.length > excerptLength;
-        const excerpt = showReadMore ? fullText.substring(0, excerptLength) + '...' : fullText;
+        const excerpt = showReadMore ? fullText.substring(0, excerptLength) : fullText;
 
         return `
             <div class="story-full" id="storyCard">
@@ -1152,7 +1146,7 @@
                 <div class="content" id="storyContentText">
                     <span class="excerpt-text" id="excerptText">${escapeHTML(excerpt)}</span>
                     ${showReadMore ? `
-                        <span class="full-text" id="fullText" style="display:none;">${escapeHTML(fullText)}</span>
+                        <span class="full-text" id="fullText" style="display:none;">${escapeHTML(fullText.substring(excerptLength))}</span>
                         <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>
                     ` : ''}
                 </div>
@@ -1181,7 +1175,7 @@
     }
 
     // ============================================
-    // TOGGLE READ MORE
+    // TOGGLE READ MORE - FIXED: Single button
     // ============================================
     function toggleReadMore() {
         const fullText = document.getElementById('fullText');
@@ -1190,7 +1184,7 @@
 
         if (!fullText || !excerptText || !readMoreBtn) return;
 
-        if (fullText.style.display === 'none') {
+        if (fullText.style.display === 'none' || fullText.style.display === '') {
             fullText.style.display = 'block';
             excerptText.style.display = 'none';
             readMoreBtn.textContent = 'Show Less ▲';
@@ -1319,7 +1313,7 @@
     }
 
     // ============================================
-    // COMMENTS
+    // COMMENTS - COMPLETE
     // ============================================
     function loadComments(storyId) {
         const container = document.getElementById('commentsContainer');
@@ -1348,14 +1342,12 @@
                     comments.push(c);
                 });
 
-                // Sort: Pinned first, then by likes
                 comments.sort((a, b) => {
                     if (a.isPinned && !b.isPinned) return -1;
                     if (!a.isPinned && b.isPinned) return 1;
                     return (b.likes || 0) - (a.likes || 0);
                 });
 
-                // Find top comment for star
                 const topComment = comments.length > 0 && !comments[0].isPinned ? comments[0] :
                                   comments.find(c => !c.isPinned) || comments[0];
 
@@ -1726,7 +1718,6 @@
         document.getElementById('goldMessage').value = '';
         document.getElementById('goldError').textContent = '';
 
-        // Reset button styles
         document.querySelectorAll('.gold-amount-btn').forEach(btn => {
             btn.style.borderColor = '#d4c8b8';
             btn.style.background = '#e8ddd0';
@@ -1776,7 +1767,6 @@
 
         closeGoldModal();
 
-        // Donate gold
         const storyRef = db.collection('stories').doc(currentStoryId);
         const userRef = db.collection('users').doc(currentUser.uid);
 
@@ -2061,12 +2051,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         populateCountryDatalist();
 
-        // Comment counter
         document.getElementById('commentText')?.addEventListener('input', function() {
             document.getElementById('commentCount').textContent = this.value.length;
         });
 
-        // Modal close on outside click
         document.getElementById('authModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
@@ -2077,7 +2065,6 @@
             if (e.target === this) closeGoldModal();
         });
 
-        // Password strength
         document.getElementById('authPassword')?.addEventListener('input', function() {
             const pwd = this.value;
             const strengthDiv = document.getElementById('passwordStrength');
