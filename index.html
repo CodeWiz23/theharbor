@@ -21,11 +21,8 @@
 
     <script>
     (function() {
-        // 1. Check localStorage for saved theme
         var savedTheme = localStorage.getItem('theme');
         var theme = savedTheme;
-        
-        // 2. If no saved theme, check system preference
         if (!theme) {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 theme = 'dark';
@@ -33,15 +30,11 @@
                 theme = 'light';
             }
         }
-        
-        // 3. Apply theme IMMEDIATELY (before page renders)
         if (theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         } else {
             document.documentElement.removeAttribute('data-theme');
         }
-        
-        // 4. Listen for system theme changes (only if user hasn't manually set)
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
                 if (!localStorage.getItem('theme')) {
@@ -54,7 +47,6 @@
                 }
             });
         }
-        
         console.log('🌓 Dark mode applied:', theme);
     })();
 </script>
@@ -374,53 +366,11 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             border: 1px solid var(--border-color, #e2e8f0);
             transition: all 0.2s ease;
+            cursor: pointer;
         }
         .story-card:hover {
             box-shadow: 0 8px 24px rgba(0,0,0,0.06);
             transform: translateY(-2px);
-        }
-
-        .story-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.6rem;
-        }
-
-        .story-author-info {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            cursor: pointer;
-        }
-
-        .story-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .story-meta {
-            display: flex;
-            flex-direction: column;
-        }
-        .story-author-name {
-            font-weight: 600;
-            color: var(--text-primary, #1a1a2e);
-        }
-        .story-date {
-            font-size: 0.8rem;
-            color: var(--text-muted, #718096);
         }
 
         .story-title {
@@ -430,11 +380,108 @@
             color: var(--text-primary, #1a1a2e);
         }
 
+        .story-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted, #718096);
+            margin: 0.3rem 0 0.6rem;
+        }
+
+        .category-badge {
+            background: var(--bg-secondary, #f5f0eb);
+            padding: 2px 14px;
+            border-radius: 9999px;
+            color: var(--text-secondary, #4a5568);
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
         .story-content {
             color: var(--text-secondary, #2d3748);
-            margin: 0.5rem 0;
             line-height: 1.7;
             word-wrap: break-word;
+        }
+
+        .story-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+        }
+
+        .reaction-btn {
+            padding: 4px 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 9999px;
+            background: var(--bg-secondary, #f5f0eb);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .reaction-btn:hover {
+            background: var(--border-color, #e2e8f0);
+            transform: scale(1.05);
+        }
+        .reaction-btn .count {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted, #718096);
+        }
+
+        .comment-link {
+            padding: 4px 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 9999px;
+            background: var(--bg-secondary, #f5f0eb);
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: var(--text-secondary, #4a5568);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .comment-link:hover {
+            background: var(--border-color, #e2e8f0);
+            transform: scale(1.05);
+        }
+
+        .btn-action {
+            padding: 4px 14px;
+            border: none;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: white;
+            font-weight: 700;
+        }
+        .btn-gold:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(241,196,15,0.4);
+        }
+
+        .btn-report {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .btn-report:hover {
+            background: #fde68a;
         }
 
         .visibility-badge {
@@ -450,120 +497,6 @@
         .badge-private {
             background: #fef3c7;
             color: #d97706;
-        }
-
-        .story-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-top: 0.8rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid var(--border-color, #e2e8f0);
-        }
-
-        .btn-action {
-            padding: 0.35rem 1rem;
-            border: none;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-edit {
-            background: #eef2ff;
-            color: #4a6cf7;
-        }
-        .btn-edit:hover {
-            background: #dce3ff;
-        }
-        .btn-delete {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-        .btn-delete:hover {
-            background: #fecaca;
-        }
-        .btn-visibility {
-            background: #f0fdf4;
-            color: #16a34a;
-        }
-        .btn-visibility.private {
-            background: #fef3c7;
-            color: #d97706;
-        }
-
-        .read-more-btn {
-            background: none;
-            border: none;
-            color: #c47a5a;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 0;
-            font-size: 0.9rem;
-            transition: color 0.2s ease;
-        }
-        .read-more-btn:hover {
-            color: #a86545;
-            text-decoration: underline;
-        }
-
-        .story-full-content {
-            display: none;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed var(--border-color, #e2e8f0);
-        }
-
-        /* ===== PAGINATION ===== */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 2.5rem 0;
-            flex-wrap: wrap;
-        }
-        .pagination button {
-            padding: 0.4rem 0.9rem;
-            border: 1px solid var(--border-color, #e2e8f0);
-            background: var(--bg-card, #ffffff);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            color: var(--text-secondary, #4a5568);
-            font-size: 0.9rem;
-        }
-        .pagination button:hover:not(:disabled) {
-            background: #1a4a4a;
-            color: white;
-            border-color: #1a4a4a;
-        }
-        .pagination button.active {
-            background: #1a4a4a;
-            color: white;
-            border-color: #1a4a4a;
-        }
-        .pagination button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .page-info {
-            padding: 0.4rem 1rem;
-            color: var(--text-muted, #718096);
-            font-weight: 500;
-        }
-
-        /* ===== GUEST MESSAGE ===== */
-        #guestMessage {
-            display: none;
-            background: #fef3c7;
-            border-left: 4px solid #d97706;
-            padding: var(--space-md);
-            border-radius: var(--radius-sm);
-            margin-bottom: var(--space-md);
-            color: #92400e;
         }
 
         .empty-state {
@@ -1018,20 +951,31 @@
         </div>
     </div>
 
-    <!-- ===== EDIT MODAL ===== -->
-    <div class="modal" id="editModal">
+    <!-- ===== GOLD MODAL ===== -->
+    <div class="modal" id="goldModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeEditModal()">&times;</button>
-            <h2>✏️ Edit Story</h2>
-
-            <label for="editTitle">Title</label>
-            <input type="text" id="editTitle" placeholder="Enter title..." />
-
-            <label for="editContent">Content</label>
-            <textarea id="editContent" rows="6" placeholder="Write your story..."></textarea>
-
-            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
-            <div class="error-msg" id="editError"></div>
+            <button class="modal-close" onclick="closeGoldModal()">&times;</button>
+            <h2>💰 Donate Gold</h2>
+            <div id="goldBalanceDisplay" style="padding:12px;background:#fef3c7;border-radius:8px;margin-bottom:16px;text-align:center;font-weight:600;">
+                Your Balance: <span id="goldBalanceAmount">0</span> 🪙
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                <button class="gold-amount-btn" onclick="selectGoldAmount(1)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">1 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(5)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">5 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(10)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">10 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(25)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">25 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(50)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">50 🪙</button>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label>
+                <input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid #d4c8b8;border-radius:8px;font-size:1rem;" />
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label>
+                <textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid #d4c8b8;border-radius:8px;font-family:inherit;resize:vertical;"></textarea>
+            </div>
+            <div id="goldError" class="error-msg"></div>
+            <button class="btn-modal" onclick="confirmGoldDonation()" style="background:#c47a5a;color:white;">💎 Send Gold</button>
         </div>
     </div>
 
@@ -1055,57 +999,117 @@
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE
     ============================================ -->
     <script>
         // ============================================
-        // APPLY GUEST RESTRICTIONS
+        // FIREBASE CONFIG
         // ============================================
-        function applyGuestRestrictions() {
-            var isLoggedIn = false;
-            
-            // Check if currentUser is defined and logged in
-            if (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false) {
-                isLoggedIn = true;
-            }
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+            authDomain: "the-harbor-community.firebaseapp.com",
+            projectId: "the-harbor-community",
+            storageBucket: "the-harbor-community.firebasestorage.app",
+            messagingSenderId: "634248505303",
+            appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+        };
 
-            console.log('🔍 applyGuestRestrictions() - isLoggedIn:', isLoggedIn);
+        if (!firebase.apps || !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
 
-            // Show/hide guest-hidden elements
-            var guestElements = document.querySelectorAll('.guest-hidden');
-            for (var i = 0; i < guestElements.length; i++) {
-                var el = guestElements[i];
-                if (isLoggedIn) {
-                    el.style.display = '';
-                    el.classList.remove('guest-hidden');
-                } else {
-                    el.style.display = 'none';
-                    el.classList.add('guest-hidden');
-                }
-            }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            // Show/hide logged-in-hidden elements
-            var loggedInElements = document.querySelectorAll('.logged-in-hidden');
-            for (var j = 0; j < loggedInElements.length; j++) {
-                var el2 = loggedInElements[j];
-                if (isLoggedIn) {
-                    el2.style.display = 'none';
-                    el2.classList.add('logged-in-hidden');
-                } else {
-                    el2.style.display = '';
-                    el2.classList.remove('logged-in-hidden');
-                }
-            }
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        let currentUser = null;
+        let currentUserData = null;
+        let allStories = [];
+        let currentCategory = 'all';
+        let currentPage = 1;
+        const STORIES_PER_PAGE = 10;
+        let userReactions = {};
+        let currentStoryId = null;
+        let selectedGoldAmount = 0;
 
-            // Guest message
-            var guestMsg = document.getElementById('guestMessage');
-            if (guestMsg) {
-                guestMsg.style.display = isLoggedIn ? 'none' : 'block';
-            }
+        // ============================================
+        // ESCAPE HTML
+        // ============================================
+        function escapeHTML(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+            return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+        }
 
-            // Stories container - show login message if guest
-            var container = document.getElementById('storiesContainer');
-            if (container && !isLoggedIn) {
+        // ============================================
+        // CHECK PASSWORD STRENGTH
+        // ============================================
+        function checkPasswordStrength(password) {
+            let score = 0;
+            if (password.length >= 8) score += 20;
+            if (/[A-Z]/.test(password)) score += 20;
+            if (/[a-z]/.test(password)) score += 20;
+            if (/[0-9]/.test(password)) score += 20;
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+            const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+            if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+            let strength = 'weak', color = '#c0392b';
+            if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
+            else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
+            else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
+            else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
+            else { strength = 'very-weak'; color = '#c0392b'; }
+            return { score, strength, color };
+        }
+
+        // ============================================
+        // COUNTRY DATA
+        // ============================================
+        const countries = [
+            { name: 'United States', emergency: '911' },
+            { name: 'United Kingdom', emergency: '999' },
+            { name: 'Bangladesh', emergency: '999' },
+            { name: 'India', emergency: '112' },
+            { name: 'Canada', emergency: '911' },
+            { name: 'Australia', emergency: '000' },
+            { name: 'Germany', emergency: '112' },
+            { name: 'France', emergency: '112' },
+            { name: 'Italy', emergency: '112' },
+            { name: 'Spain', emergency: '112' },
+            { name: 'Brazil', emergency: '190' },
+            { name: 'Mexico', emergency: '911' }
+        ];
+
+        function populateCountryDatalist() {
+            const datalist = document.getElementById('country-list');
+            if (!datalist) return;
+            datalist.innerHTML = '';
+            countries.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.name;
+                datalist.appendChild(option);
+            });
+        }
+
+        // ============================================
+        // LOAD STORIES - FIXED
+        // ============================================
+        function loadStories() {
+            const container = document.getElementById('storiesContainer');
+            if (!container) return;
+
+            if (!currentUser) {
                 container.innerHTML = `
                     <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
                         <div class="big-emoji">🔒</div>
@@ -1115,65 +1119,853 @@
                             <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
                             <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
                         </div>
-                        <p style="margin-top:12px;font-size:0.9rem;color:#718096;">
-                            🌊 The Harbor is a safe community for sharing, healing, and growth.
-                        </p>
                     </div>
                 `;
+                return;
             }
 
-            console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
-            console.log('📋 Elements with guest-hidden class:', document.querySelectorAll('.guest-hidden').length);
+            if (!currentUser.emailVerified) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding:30px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
+                        <div class="big-emoji">📧</div>
+                        <h3>Email Not Verified</h3>
+                        <p>Please verify your email to read stories.</p>
+                        <button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading stories...</div>';
+
+            const gender = currentUserData?.gender || '';
+            let allowedCategories = ['struggles', 'fun', 'learning'];
+
+            if (gender === '🧔 Man') allowedCategories.push('men');
+            else if (gender === '👩 Woman') allowedCategories.push('women');
+            else allowedCategories.push('men', 'women');
+
+            if (currentCategory !== 'all') {
+                allowedCategories = [currentCategory];
+            }
+
+            // ===== FIXED: Separate public and private queries =====
+            const publicQuery = db.collection('stories')
+                .where('visibility', '==', 'public')
+                .where('category', 'in', allowedCategories);
+
+            const ownQuery = db.collection('stories')
+                .where('userId', '==', currentUser.uid)
+                .where('visibility', '==', 'private')
+                .where('category', 'in', allowedCategories);
+
+            Promise.all([publicQuery.get(), ownQuery.get()])
+                .then(([publicSnap, ownSnap]) => {
+                    const stories = [];
+
+                    publicSnap.forEach((doc) => {
+                        const data = doc.data();
+                        data.id = doc.id;
+                        stories.push(data);
+                    });
+
+                    ownSnap.forEach((doc) => {
+                        const data = doc.data();
+                        data.id = doc.id;
+                        stories.push(data);
+                    });
+
+                    if (stories.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="big-emoji">📭</div>
+                                <h3>No stories in this category</h3>
+                                <p>Be the first to share your story!</p>
+                                <a href="submit.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;margin-top:12px;">📝 Share Your Story</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    stories.sort((a, b) => {
+                        const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+                        const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+                        return timeB - timeA;
+                    });
+
+                    allStories = stories;
+                    renderStoriesPage(1);
+                })
+                .catch((err) => {
+                    console.error('Error loading stories:', err);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="big-emoji">⚠️</div>
+                            <h3>Error Loading Stories</h3>
+                            <p>${err.message}</p>
+                            <button class="btn btn-primary" onclick="loadStories()" style="margin-top:12px;">🔄 Retry</button>
+                        </div>
+                    `;
+                });
         }
 
         // ============================================
-        // INIT - Wait for auth and app.js to load
+        // RENDER STORIES PAGE
         // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 DOM ready - Index page');
+        function renderStoriesPage(page) {
+            const container = document.getElementById('storiesContainer');
+            if (!container) return;
 
-            // Wait for currentUser to be defined (app.js sets it)
-            var checkAuth = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(checkAuth);
-                    console.log('✅ currentUser detected:', currentUser);
-                    applyGuestRestrictions();
-                    
-                    // If user is logged in, load stories
-                    if (currentUser && typeof loadStories === 'function') {
-                        console.log('📚 Loading stories...');
-                        loadStories();
-                    } else if (currentUser && typeof loadStories !== 'function') {
-                        console.warn('⚠️ loadStories() not defined - check if app.js loaded');
-                    }
-                }
-            }, 100);
+            currentPage = page;
+            const start = (page - 1) * STORIES_PER_PAGE;
+            const end = start + STORIES_PER_PAGE;
+            const pageStories = allStories.slice(start, end);
 
-            // Also listen for auth state changes
-            if (typeof auth !== 'undefined') {
-                auth.onAuthStateChanged(function(user) {
-                    console.log('🔥 Auth state changed:', user ? 'Logged in' : 'Logged out');
-                    setTimeout(function() {
-                        applyGuestRestrictions();
-                        if (user && typeof loadStories === 'function') {
-                            console.log('📚 Reloading stories after auth change...');
-                            loadStories();
-                        }
-                    }, 300);
-                });
-            } else {
-                console.warn('⚠️ auth is not defined - check if Firebase loaded');
+            if (pageStories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-emoji">📭</div>
+                        <h3>No stories on this page</h3>
+                    </div>
+                `;
+                return;
             }
 
-            // Force re-check after 2 seconds (fallback)
-            setTimeout(function() {
-                if (typeof currentUser !== 'undefined') {
-                    applyGuestRestrictions();
+            let html = '';
+            pageStories.forEach((story) => {
+                html += renderStoryCard(story);
+            });
+
+            container.innerHTML = html;
+            renderPagination();
+        }
+
+        // ============================================
+        // RENDER STORY CARD
+        // ============================================
+        function renderStoryCard(story) {
+            const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+            const categoryNames = {
+                'men': '🧔 Men\'s Harbor',
+                'women': '👩 Women\'s Harbor',
+                'struggles': '🌊 The Storm',
+                'fun': '☀️ Sunny Skies',
+                'learning': '🧭 The Compass'
+            };
+            const categoryDisplay = categoryNames[story.category] || story.category;
+
+            const reactions = story.reactions || {};
+            const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+
+            const time = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+            const storyText = story.text || '';
+            const excerpt = storyText.length > 300 ? escapeHTML(storyText.substring(0, 300)) + '...' : escapeHTML(storyText);
+
+            const isOwner = currentUser && story.userId === currentUser.uid;
+
+            let reactionButtons = '';
+            emojis.forEach((emoji) => {
+                const count = reactions[emoji] || 0;
+                reactionButtons += `
+                    <button class="reaction-btn" onclick="event.stopPropagation(); addReaction('${story.id}', '${emoji}')">
+                        ${emoji} <span class="count">${count}</span>
+                    </button>
+                `;
+            });
+
+            return `
+                <div class="story-card" onclick="window.location.href='story.html?id=${story.id}'">
+                    <div class="story-title">${escapeHTML(story.title || 'Untitled')}</div>
+                    <div class="story-meta">
+                        <span>✍️ ${author}</span>
+                        <span class="category-badge">${categoryDisplay}</span>
+                        <span>📅 ${time}</span>
+                        ${isOwner ? '<span style="color:#c47a5a;">👤 Your Story</span>' : ''}
+                        ${story.visibility === 'private' ? '<span style="color:#d97706;">🔒 Private</span>' : '<span class="visibility-badge badge-public">🌍 Public</span>'}
+                    </div>
+                    <div class="story-content">${excerpt}</div>
+                    <div class="story-actions">
+                        ${reactionButtons}
+                        <span class="comment-link">💬 ${story.commentCount || 0}</span>
+                        ${!isOwner && currentUser ? `<button class="btn-action btn-gold" onclick="event.stopPropagation(); openGoldModal('${story.id}')">🪙 Donate Gold</button>` : ''}
+                        ${!isOwner && currentUser ? `<button class="btn-action btn-report" onclick="event.stopPropagation(); reportStory('${story.id}')">🚩 Report</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // ADD REACTION
+        // ============================================
+        function addReaction(storyId, emoji) {
+            if (!currentUser) {
+                alert('Please log in to react.');
+                return;
+            }
+
+            const storyRef = db.collection('stories').doc(storyId);
+
+            db.runTransaction((transaction) => {
+                return transaction.get(storyRef).then((doc) => {
+                    if (!doc.exists) return;
+                    const data = doc.data();
+                    const reactions = data.reactions || {};
+                    reactions[emoji] = (reactions[emoji] || 0) + 1;
+                    transaction.update(storyRef, { reactions: reactions });
+                });
+            })
+            .then(() => {
+                loadStories();
+            })
+            .catch((err) => {
+                console.error('Error adding reaction:', err);
+                alert('Could not add reaction. Please try again.');
+            });
+        }
+
+        // ============================================
+        // REPORT STORY
+        // ============================================
+        function reportStory(storyId) {
+            if (!currentUser) {
+                alert('Please log in to report.');
+                return;
+            }
+
+            const reason = prompt('Why are you reporting this story?');
+            if (!reason || reason.trim().length < 3) {
+                alert('Please provide a valid reason.');
+                return;
+            }
+
+            db.collection('reports').add({
+                storyId: storyId,
+                reportedBy: currentUser.uid,
+                reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+                reason: reason.trim(),
+                status: 'pending',
+                type: 'story',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('✅ Report submitted.');
+            }).catch((err) => {
+                alert('❌ Error: ' + err.message);
+            });
+        }
+
+        // ============================================
+        // RENDER PAGINATION
+        // ============================================
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            if (!container) return;
+
+            const totalPages = Math.ceil(allStories.length / STORIES_PER_PAGE);
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="renderStoriesPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>
+                    ← Previous
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `
+                    <button class="${i === currentPage ? 'active' : ''}" onclick="renderStoriesPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            html += `
+                <button onclick="renderStoriesPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>
+                    Next →
+                </button>
+                <span class="page-info">${currentPage}/${totalPages}</span>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // SWITCH CATEGORY
+        // ============================================
+        function switchCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.tab').forEach((tab) => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            loadStories();
+        }
+
+        // ============================================
+        // SEARCH STORIES
+        // ============================================
+        function searchStories() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) {
+                loadStories();
+                return;
+            }
+
+            const filtered = allStories.filter((story) => {
+                const title = (story.title || '').toLowerCase();
+                const text = (story.text || '').toLowerCase();
+                return title.includes(query) || text.includes(query);
+            });
+
+            const container = document.getElementById('storiesContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-emoji">🔍</div>
+                        <h3>No stories found</h3>
+                        <p>Try a different search term.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            allStories = filtered;
+            renderStoriesPage(1);
+        }
+
+        // ============================================
+        // GOLD SYSTEM
+        // ============================================
+        function openGoldModal(storyId) {
+            if (!currentUser) {
+                alert('Please log in to donate gold.');
+                return;
+            }
+
+            if (!currentUserData) {
+                alert('Loading user data...');
+                return;
+            }
+
+            const balance = currentUserData.goldBalance || 0;
+            if (balance < 1) {
+                alert('⚠️ You don\'t have any gold!');
+                return;
+            }
+
+            const modal = document.getElementById('goldModal');
+            if (!modal) return;
+
+            document.getElementById('goldBalanceAmount').textContent = balance;
+            modal.classList.add('active');
+            currentStoryId = storyId;
+            selectedGoldAmount = 0;
+            document.getElementById('customGoldAmount').value = '';
+            document.getElementById('goldMessage').value = '';
+            document.getElementById('goldError').textContent = '';
+
+            document.querySelectorAll('.gold-amount-btn').forEach(btn => {
+                btn.style.borderColor = '#d4c8b8';
+                btn.style.background = '#e8ddd0';
+            });
+        }
+
+        function closeGoldModal() {
+            const modal = document.getElementById('goldModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function selectGoldAmount(amount) {
+            selectedGoldAmount = amount;
+            document.getElementById('customGoldAmount').value = amount;
+
+            document.querySelectorAll('.gold-amount-btn').forEach(btn => {
+                btn.style.borderColor = '#d4c8b8';
+                btn.style.background = '#e8ddd0';
+            });
+            event.target.style.borderColor = '#c47a5a';
+            event.target.style.background = '#f5d6b3';
+        }
+
+        function confirmGoldDonation() {
+            const customInput = document.getElementById('customGoldAmount');
+            const messageInput = document.getElementById('goldMessage');
+            const errorDiv = document.getElementById('goldError');
+
+            let amount = selectedGoldAmount;
+            if (customInput && customInput.value) {
+                const custom = parseInt(customInput.value);
+                if (custom > 0) amount = custom;
+            }
+
+            const balance = currentUserData ? currentUserData.goldBalance || 0 : 0;
+
+            if (!amount || amount < 1) {
+                errorDiv.textContent = 'Please select or enter a valid amount.';
+                return;
+            }
+
+            if (amount > balance) {
+                errorDiv.textContent = '⚠️ You don\'t have enough gold! Balance: ' + balance + ' 🪙';
+                return;
+            }
+
+            const message = messageInput ? messageInput.value.trim() : '';
+
+            closeGoldModal();
+
+            const storyRef = db.collection('stories').doc(currentStoryId);
+            const userRef = db.collection('users').doc(currentUser.uid);
+
+            db.runTransaction((transaction) => {
+                return transaction.get(storyRef).then((storyDoc) => {
+                    if (!storyDoc.exists) throw new Error('Story not found');
+                    const storyData = storyDoc.data();
+                    const authorId = storyData.userId;
+
+                    return transaction.get(db.collection('users').doc(authorId)).then((authorDoc) => {
+                        if (!authorDoc.exists) throw new Error('Author not found');
+
+                        transaction.update(userRef, {
+                            goldBalance: firebase.firestore.FieldValue.increment(-amount),
+                            goldGiven: firebase.firestore.FieldValue.increment(amount)
+                        });
+
+                        transaction.update(db.collection('users').doc(authorId), {
+                            goldBalance: firebase.firestore.FieldValue.increment(amount),
+                            goldReceived: firebase.firestore.FieldValue.increment(amount)
+                        });
+
+                        transaction.update(storyRef, {
+                            goldReceived: firebase.firestore.FieldValue.increment(amount)
+                        });
+
+                        const transactionRef = db.collection('goldTransactions').doc();
+                        transaction.set(transactionRef, {
+                            fromUid: currentUser.uid,
+                            toUid: authorId,
+                            storyId: currentStoryId,
+                            amount: amount,
+                            message: message || '',
+                            fromName: currentUserData ? currentUserData.name : 'Anonymous',
+                            toName: authorDoc.data().name || 'Someone',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                });
+            }).then(() => {
+                if (currentUserData) {
+                    currentUserData.goldBalance = (currentUserData.goldBalance || 0) - amount;
                 }
-            }, 2000);
+                alert(`✅ You donated ${amount} 🪙!`);
+                loadStories();
+            }).catch((err) => {
+                console.error('Gold donation error:', err);
+                alert('❌ Error donating gold: ' + err.message);
+            });
+        }
+
+        // ============================================
+        // APPLY GUEST RESTRICTIONS
+        // ============================================
+        function applyGuestRestrictions() {
+            const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
+            const guestElements = document.querySelectorAll('.guest-hidden');
+            const loggedInElements = document.querySelectorAll('.logged-in-hidden');
+
+            guestElements.forEach(function(el) {
+                if (isLoggedIn) {
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+
+            loggedInElements.forEach(function(el) {
+                if (isLoggedIn) {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = '';
+                }
+            });
+
+            const guestMsg = document.getElementById('guestMessage');
+            if (guestMsg) {
+                guestMsg.style.display = isLoggedIn ? 'none' : 'block';
+            }
+        }
+
+        // ============================================
+        // AUTH FUNCTIONS
+        // ============================================
+        function openModal(mode) {
+            const modal = document.getElementById('authModal');
+            if (!modal) return;
+
+            const title = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const signupFields = document.getElementById('signupFields');
+            const switchLink = document.getElementById('authSwitch');
+            const error = document.getElementById('authError');
+
+            if (error) error.textContent = '';
+
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authName').value = '';
+            document.getElementById('authCountry').value = '';
+
+            if (mode === 'login') {
+                title.textContent = '🔐 Welcome Back';
+                submitBtn.textContent = '🚀 Log In';
+                signupFields.style.display = 'none';
+                switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+                switchLink.dataset.mode = 'signup';
+            } else {
+                title.textContent = '📝 Join The Harbor';
+                submitBtn.textContent = '🚀 Create Account';
+                signupFields.style.display = 'block';
+                switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+                switchLink.dataset.mode = 'login';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function toggleAuthMode() {
+            const switchLink = document.getElementById('authSwitch');
+            if (!switchLink) return;
+            const mode = switchLink.dataset.mode;
+            closeModal();
+            setTimeout(() => openModal(mode), 200);
+        }
+
+        function updateGenderWarning() {
+            const genderSelect = document.getElementById('authGender');
+            const warning = document.getElementById('genderWarning');
+            const text = document.getElementById('genderWarningText');
+            if (!genderSelect || !warning || !text) return;
+
+            const gender = genderSelect.value;
+            if (gender === '🧔 Man') {
+                text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
+                warning.style.display = 'flex';
+            } else if (gender === '👩 Woman') {
+                text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
+                warning.style.display = 'flex';
+            } else {
+                text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
+                warning.style.display = 'flex';
+            }
+        }
+
+        function handleAuth() {
+            const emailInput = document.getElementById('authEmail');
+            const passwordInput = document.getElementById('authPassword');
+            const error = document.getElementById('authError');
+            const submitBtn = document.getElementById('authSubmitBtn');
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            error.textContent = '';
+
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                error.textContent = 'Please enter a valid email address.';
+                return;
+            }
+            if (!password || password.length < 6) {
+                error.textContent = 'Password must be at least 6 characters.';
+                return;
+            }
+
+            const isLogin = submitBtn.textContent.includes('Log In');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Please wait...';
+
+            if (isLogin) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        if (!user.emailVerified) {
+                            error.innerHTML = `
+                                ⚠️ Please verify your email first.<br>
+                                <button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;margin-top:4px;">
+                                    🔄 Resend verification email
+                                </button>
+                            `;
+                            auth.signOut();
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '🚀 Log In';
+                            return;
+                        }
+                        closeModal();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        location.reload();
+                    })
+                    .catch((err) => {
+                        error.textContent = err.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                    });
+            } else {
+                const nameInput = document.getElementById('authName');
+                const countryInput = document.getElementById('authCountry');
+                const genderSelect = document.getElementById('authGender');
+
+                const name = nameInput ? nameInput.value.trim() : '';
+                const country = countryInput ? countryInput.value.trim() : '';
+                const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+
+                if (!name || name.length < 2) {
+                    error.textContent = 'Please enter a username (minimum 2 characters).';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+                if (!country) {
+                    error.textContent = 'Please select your country.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+
+                const termsChecked = document.getElementById('termsCheckbox').checked;
+                if (!termsChecked) {
+                    error.textContent = 'You must agree to the Terms and Privacy Policy.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    return;
+                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return user.sendEmailVerification().then(() => user);
+                    })
+                    .then((user) => {
+                        const countryData = countries.find(c => c.name === country);
+                        // ===== FIX: Add uid field =====
+                        return db.collection('users').doc(user.uid).set({
+                            uid: user.uid,
+                            name: name,
+                            email: email,
+                            gender: gender,
+                            favorites: 'Not specified',
+                            country: country,
+                            emergencyNumber: countryData?.emergency || '911',
+                            emailVerified: false,
+                            isAdmin: false,
+                            isPublic: true,
+                            theme: 'light',
+                            goldBalance: 10,
+                            goldReceived: 0,
+                            goldGiven: 0,
+                            followers: [],
+                            following: [],
+                            storyCount: 0,
+                            commentCount: 0,
+                            likesReceived: 0,
+                            avatar: '👤',
+                            border: 'default',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    })
+                    .then(() => {
+                        closeModal();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                        auth.signOut();
+                        alert(
+                            '✅ Verification email sent to ' + email + '!\n\n' +
+                            '📧 Please check your inbox and click the verification link.\n\n' +
+                            '💰 You received 10 🪙 gold as a welcome gift!'
+                        );
+                    })
+                    .catch((err) => {
+                        error.textContent = err.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Create Account';
+                    });
+            }
+        }
+
+        function resendVerification() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please log in first.');
+                return;
+            }
+
+            user.sendEmailVerification()
+                .then(() => {
+                    alert('✅ Verification email resent to ' + user.email + '!');
+                })
+                .catch((err) => {
+                    alert('❌ Error: ' + err.message);
+                });
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut();
+                window.location.href = 'index.html';
+            }
+        }
+
+        // ============================================
+        // AUTH STATE LISTENER
+        // ============================================
+        auth.onAuthStateChanged((user) => {
+            const authButtons = document.getElementById('authButtons');
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userGenderBadge = document.getElementById('userGenderBadge');
+            const verificationBadge = document.getElementById('verificationBadge');
+
+            if (user) {
+                currentUser = user;
+                if (authButtons) authButtons.style.display = 'none';
+                if (userInfo) userInfo.style.display = 'flex';
+
+                if (user.emailVerified) {
+                    if (verificationBadge) {
+                        verificationBadge.textContent = '✅ Verified';
+                        verificationBadge.className = 'verification-badge verified';
+                    }
+                } else {
+                    if (verificationBadge) {
+                        verificationBadge.textContent = '⏳ Unverified';
+                        verificationBadge.className = 'verification-badge';
+                    }
+                }
+
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            currentUserData = doc.data();
+                            if (userName) userName.textContent = currentUserData.name || 'Friend';
+                            if (userGenderBadge) userGenderBadge.textContent = currentUserData.gender || '';
+
+                            const adminLink = document.getElementById('adminNavLink');
+                            if (adminLink && currentUserData.isAdmin) {
+                                adminLink.style.display = 'inline-block';
+                            }
+
+                            applyGuestRestrictions();
+                            loadStories();
+                        } else {
+                            // Create user document with uid field
+                            db.collection('users').doc(user.uid).set({
+                                uid: user.uid,
+                                name: user.displayName || 'Friend',
+                                email: user.email,
+                                gender: '🙅 Prefer not to say',
+                                favorites: 'Not specified',
+                                country: 'Not specified',
+                                emergencyNumber: '911',
+                                emailVerified: user.emailVerified || false,
+                                isAdmin: false,
+                                isPublic: true,
+                                theme: 'light',
+                                goldBalance: 10,
+                                goldReceived: 0,
+                                goldGiven: 0,
+                                followers: [],
+                                following: [],
+                                storyCount: 0,
+                                commentCount: 0,
+                                likesReceived: 0,
+                                avatar: '👤',
+                                border: 'default',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(() => {
+                                if (userName) userName.textContent = 'Friend';
+                                applyGuestRestrictions();
+                                loadStories();
+                            });
+                        }
+                    })
+                    .catch((err) => console.error('Error fetching user data:', err));
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                if (authButtons) authButtons.style.display = 'flex';
+                if (userInfo) userInfo.style.display = 'none';
+                applyGuestRestrictions();
+                loadStories();
+            }
         });
 
-        console.log('✅ Index page loaded (FINAL FIXED VERSION)');
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 The Harbor app initializing...');
+
+            document.getElementById('authModal')?.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
+            document.getElementById('goldModal')?.addEventListener('click', function(e) {
+                if (e.target === this) closeGoldModal();
+            });
+
+            document.getElementById('authPassword')?.addEventListener('input', function() {
+                const pwd = this.value;
+                const strengthDiv = document.getElementById('passwordStrength');
+                if (!strengthDiv) return;
+                if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+                const result = checkPasswordStrength(pwd);
+                strengthDiv.innerHTML = `
+                    <div style="margin-top:6px;font-size:0.85rem;">
+                        Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('authName')?.addEventListener('input', function() {
+                const username = this.value.trim();
+                const statusDiv = document.getElementById('usernameStatus');
+                if (!statusDiv) return;
+                if (username.length < 2) { statusDiv.innerHTML = ''; return; }
+                db.collection('users').where('name', '==', username).get()
+                    .then((snapshot) => {
+                        if (snapshot.empty) {
+                            statusDiv.innerHTML = `<span style="color:#27ae60;">✅ Username available!</span>`;
+                        } else {
+                            statusDiv.innerHTML = `<span style="color:#c0392b;">❌ Username taken</span>`;
+                        }
+                    })
+                    .catch(() => {
+                        statusDiv.innerHTML = '';
+                    });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const modal = document.getElementById('authModal');
+                    if (modal && modal.classList.contains('active')) handleAuth();
+                }
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeGoldModal();
+                }
+            });
+
+            populateCountryDatalist();
+
+            console.log('✅ The Harbor app initialized');
+        });
+
+        console.log('✅ Index page loaded (FULLY FIXED)');
     </script>
 
 </body>
