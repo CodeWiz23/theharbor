@@ -6,181 +6,220 @@
     <title>Story — The Harbor</title>
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/analytics.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
+        /* ===== STORY PAGE STYLES ===== */
         .story-full {
-            background: var(--bg-card);
-            padding: var(--space-xl);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            margin-bottom: var(--space-lg);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        .story-full::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: opacity var(--transition-base);
-        }
-        .story-full:hover::before {
-            opacity: 1;
+            background: var(--bg-card, #ffffff);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .story-full .title {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: var(--space-sm);
+            color: var(--text-primary, #1a1a2e);
+            margin-bottom: 8px;
         }
         .story-full .meta {
             display: flex;
-            gap: var(--space-md);
+            gap: 14px;
             flex-wrap: wrap;
             font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: var(--space-md);
+            color: var(--text-muted, #718096);
+            margin-bottom: 16px;
         }
         .story-full .meta .category-badge {
-            background: var(--bg-secondary);
+            background: var(--bg-secondary, #f5f0eb);
             padding: 2px 14px;
-            border-radius: var(--radius-full);
-            color: var(--text-secondary);
+            border-radius: 9999px;
+            color: var(--text-secondary, #4a5568);
             font-weight: 600;
             font-size: 0.75rem;
-            border: 1px solid var(--border-color);
         }
         .story-full .content {
             font-size: 1.1rem;
             line-height: 1.8;
             white-space: pre-wrap;
             word-wrap: break-word;
-            color: var(--text-secondary);
+            color: var(--text-secondary, #2d3748);
         }
-        .story-full .gold-display {
+        .story-full .content .full-text {
+            display: none;
+        }
+        .story-full .content .full-text.show {
+            display: block;
+        }
+        .story-full .content .excerpt-text {
+            display: block;
+        }
+        .story-full .content .excerpt-text.hidden {
+            display: none;
+        }
+
+        .read-more-btn {
+            background: none;
+            border: none;
+            color: var(--secondary, #c47a5a);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        .read-more-btn:hover {
+            color: var(--secondary-dark, #a86545);
+            text-decoration: underline;
+        }
+
+        .gold-display {
             display: inline-flex;
             align-items: center;
             gap: 4px;
             background: #fef3c7;
             padding: 2px 12px;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
             font-size: 0.85rem;
             font-weight: 600;
             color: #92400e;
         }
-        .story-full .actions {
+
+        .story-actions {
             display: flex;
-            gap: var(--space-sm);
+            gap: 8px;
             flex-wrap: wrap;
-            margin-top: var(--space-lg);
-            padding-top: var(--space-lg);
-            border-top: 2px solid var(--border-color);
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px solid var(--border-color, #e2e8f0);
         }
 
-        /* Reaction buttons */
         .reaction-btn {
-            padding: 0.3rem 0.8rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-full);
-            background: var(--bg-secondary);
+            padding: 4px 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 9999px;
+            background: var(--bg-secondary, #f5f0eb);
             cursor: pointer;
-            font-size: 1.1rem;
-            transition: all var(--transition-fast);
+            font-size: 1rem;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
         .reaction-btn:hover {
-            background: var(--border-color);
+            background: var(--border-color, #e2e8f0);
             transform: scale(1.05);
-        }
-        .reaction-btn:active {
-            transform: scale(0.9);
         }
         .reaction-btn .count {
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-muted, #718096);
         }
         .reaction-btn.reacted {
             background: #dcfce7;
-            border-color: var(--success);
+            border-color: #16a34a;
         }
         .reaction-btn.reacted .count {
-            color: var(--success);
-        }
-        .reaction-btn .checkmark {
-            color: var(--success);
-            font-size: 0.7rem;
+            color: #16a34a;
         }
 
-        /* Gold donate button */
-        .gold-donate-btn {
-            padding: 0.3rem 1rem;
+        .btn-action {
+            padding: 4px 14px;
             border: none;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+        .btn-edit {
+            background: #eef2ff;
+            color: #4a6cf7;
+        }
+        .btn-edit:hover {
+            background: #dce3ff;
+        }
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        .btn-visibility {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .btn-visibility.private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .btn-report {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .btn-report:hover {
+            background: #fde68a;
+        }
+        .btn-gold {
             background: linear-gradient(135deg, #f1c40f, #f39c12);
             color: white;
             font-weight: 700;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            font-size: 0.85rem;
         }
-        .gold-donate-btn:hover {
+        .btn-gold:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(241, 196, 15, 0.4);
+            box-shadow: 0 4px 12px rgba(241,196,15,0.4);
         }
 
-        /* Comments Section */
+        /* Comments */
         .comment-section {
-            margin-top: var(--space-xl);
+            margin-top: 24px;
         }
         .comment-section .comment-input-area {
-            margin-top: var(--space-md);
-            padding-top: var(--space-md);
-            border-top: 2px solid var(--border-color);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--border-color, #e2e8f0);
         }
         .comment-section textarea {
             width: 100%;
-            padding: var(--space-md);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 10px;
             font-size: 1rem;
             font-family: inherit;
             resize: vertical;
             min-height: 80px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all var(--transition-fast);
+            background: var(--bg-primary, #f0f4f8);
+            color: var(--text-primary, #1a1a2e);
+            transition: border 0.2s ease;
         }
         .comment-section textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
+            border-color: #1a4a4a;
+            box-shadow: 0 0 0 3px rgba(26,74,74,0.12);
         }
 
         .comment {
-            background: var(--bg-secondary);
-            padding: var(--space-md);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-sm);
-            border: 1px solid var(--border-color);
-            transition: all var(--transition-fast);
+            background: var(--bg-secondary, #f5f0eb);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            transition: all 0.2s ease;
             animation: fadeIn 0.3s ease;
         }
         .comment:hover {
-            border-color: var(--primary-light);
+            border-color: #c47a5a;
         }
 
         @keyframes fadeIn {
@@ -192,42 +231,38 @@
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: var(--space-xs);
-            margin-bottom: var(--space-xs);
+            gap: 4px;
+            margin-bottom: 4px;
         }
-
         .comment-author {
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--text-primary, #1a1a2e);
             display: flex;
             align-items: center;
-            gap: var(--space-xs);
+            gap: 6px;
             flex-wrap: wrap;
         }
-
         .comment-time {
             font-size: 0.8rem;
-            color: var(--text-muted);
+            color: var(--text-muted, #718096);
         }
-
         .comment-text {
-            color: var(--text-secondary);
+            color: var(--text-secondary, #2d3748);
             line-height: 1.6;
             word-wrap: break-word;
         }
-
         .comment-actions {
-            margin-top: var(--space-sm);
+            margin-top: 8px;
             display: flex;
-            gap: var(--space-sm);
+            gap: 8px;
             flex-wrap: wrap;
             align-items: center;
         }
 
         .comment-badge {
             font-size: 0.65rem;
-            padding: 0.1rem 0.6rem;
-            border-radius: var(--radius-full);
+            padding: 1px 8px;
+            border-radius: 9999px;
             font-weight: 600;
         }
         .comment-badge.pinned {
@@ -240,34 +275,34 @@
         }
 
         .comment-like-btn {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-full);
-            padding: 0.1rem 0.8rem;
+            background: var(--bg-primary, #f0f4f8);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 9999px;
+            padding: 1px 10px;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all var(--transition-fast);
-            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            color: var(--text-secondary, #4a5568);
         }
         .comment-like-btn:hover {
-            background: var(--border-color);
+            background: var(--border-color, #e2e8f0);
         }
         .comment-like-btn .count {
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-muted, #718096);
             margin-left: 2px;
         }
 
         .comment-delete-btn {
             background: #fee2e2;
-            color: var(--danger);
+            color: #dc2626;
             border: none;
-            border-radius: var(--radius-full);
-            padding: 0.1rem 0.8rem;
+            border-radius: 9999px;
+            padding: 1px 10px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
         }
         .comment-delete-btn:hover {
             background: #fecaca;
@@ -277,12 +312,12 @@
             background: #fef3c7;
             color: #d97706;
             border: none;
-            border-radius: var(--radius-full);
-            padding: 0.1rem 0.8rem;
+            border-radius: 9999px;
+            padding: 1px 10px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
         }
         .comment-pin-btn:hover {
             background: #fde68a;
@@ -292,75 +327,118 @@
             background: #fef3c7;
             color: #92400e;
             border: none;
-            border-radius: var(--radius-full);
-            padding: 0.1rem 0.8rem;
+            border-radius: 9999px;
+            padding: 1px 10px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
         }
         .comment-report-btn:hover {
             background: #fde68a;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border: none;
-            border-radius: var(--radius-full);
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #1a4a4a;
+            cursor: pointer;
+        }
+        .checkbox-group label {
             font-weight: 600;
             cursor: pointer;
-            transition: all var(--transition-fast);
+            margin: 0;
+            color: var(--text-secondary, #4a5568);
+        }
+
+        .btn-primary {
+            background: #1a4a4a;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         .btn-primary:hover {
-            background: var(--primary-light);
+            background: #2d6a6a;
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 12px rgba(26,74,74,0.3);
         }
         .btn-primary:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
         .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            padding: 0.5rem 1.5rem;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-full);
+            background: var(--bg-secondary, #f5f0eb);
+            color: var(--text-secondary, #4a5568);
+            padding: 8px 20px;
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 9999px;
             font-weight: 600;
             cursor: pointer;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
             text-decoration: none;
             display: inline-block;
         }
         .btn-secondary:hover {
-            background: var(--border-color);
+            background: var(--border-color, #e2e8f0);
             transform: translateY(-2px);
         }
 
+        .error-msg {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            text-align: center;
+        }
         .empty-state {
             text-align: center;
-            padding: var(--space-xl) var(--space-lg);
-            color: var(--text-muted);
+            padding: 40px 20px;
+            color: #718096;
         }
         .empty-state .big-emoji {
             font-size: 3rem;
             display: block;
-            margin-bottom: var(--space-sm);
+            margin-bottom: 8px;
         }
         .empty-state h3 {
-            color: var(--text-primary);
-            margin-bottom: var(--space-xs);
+            color: #1a1a2e;
+            margin-bottom: 4px;
         }
-
         .loading {
             text-align: center;
-            padding: var(--space-xl);
-            color: var(--text-muted);
+            padding: 40px 0;
+            color: #718096;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #1a4a4a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .card {
+            background: var(--bg-card, #ffffff);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color, #e2e8f0);
         }
 
         .floating-emoji {
@@ -376,31 +454,270 @@
             100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
         }
 
-        .checkbox-group {
+        /* Header */
+        .header {
+            background: white;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a4a4a;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            margin: var(--space-sm) 0;
+            gap: 6px;
         }
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--primary);
+        .logo span { font-weight: 300; }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .btn-nav {
+            background: #f0f4f8;
+            color: #1a4a4a;
+        }
+        .btn-nav:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+        .btn-feed {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-feed:hover {
+            background: #2d6a6a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26,74,74,0.3);
+        }
+        .btn-settings {
+            font-size: 1.4rem;
+            padding: 4px 10px;
+            background: transparent;
+            border: none;
             cursor: pointer;
+            color: #4a5568;
+            transition: transform 0.2s ease;
+            border-radius: 8px;
         }
-        .checkbox-group label {
+        .btn-settings:hover {
+            transform: rotate(60deg);
+            background: #f0f4f8;
+        }
+        .btn-login {
+            background: transparent;
+            color: #1a4a4a;
+            border: 2px solid #1a4a4a;
+        }
+        .btn-login:hover {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-signup {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #2d6a6a;
+        }
+        .btn-logout {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-logout:hover {
+            background: #fecaca;
+        }
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        #userName {
             font-weight: 600;
-            cursor: pointer;
-            margin: 0;
-            color: var(--text-secondary);
+            color: #1a4a4a;
+        }
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .verification-badge.verified {
+            background: #dcfce7;
+            color: #16a34a;
         }
 
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .footer {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 0.8rem 0;
+        }
+        .footer-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            color: #1a4a4a;
+        }
+        .footer-copy {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        #emergencyBanner {
+            display: none;
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #718096;
+        }
+        .modal-close:hover {
+            color: #1a1a2e;
+        }
+        .modal-content h2 {
+            margin-bottom: 1.2rem;
+            color: #1a4a4a;
+        }
+        .modal-content label {
+            display: block;
+            font-weight: 600;
+            margin: 0.8rem 0 0.3rem;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        .modal-content input:focus,
+        .modal-content textarea:focus {
+            border-color: #1a4a4a;
+            outline: none;
+        }
+        .modal-content textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn-modal {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1a4a4a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-modal:hover {
+            background: #2d6a6a;
+        }
+        .error-msg {
+            color: #dc2626;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .success-msg {
+            color: #16a34a;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
         @media (max-width: 600px) {
-            .story-full { padding: var(--space-lg); }
+            .header {
+                padding: 0.6rem 1rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.6rem;
+            }
+            .header-right {
+                justify-content: center;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+            .story-full { padding: 16px; }
             .story-full .title { font-size: 1.4rem; }
             .story-full .content { font-size: 1rem; }
-            .reaction-btn { font-size: 0.9rem; padding: 0.2rem 0.6rem; }
-            .comment { padding: var(--space-sm); }
+            .reaction-btn { font-size: 0.9rem; padding: 2px 8px; }
+            .comment { padding: 10px 12px; }
         }
     </style>
 </head>
@@ -412,30 +729,25 @@
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
+            <a href="index.html" class="btn btn-feed" onclick="location.reload()">🏠 Feed</a>
             <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <div class="guest-restricted">
-                <a href="submit.html" class="btn btn-nav">📝 Share</a>
-                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
-            </div>
-            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
+            <a href="submit.html" class="btn btn-nav">📝 Share</a>
+            <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+            <button class="btn-settings" onclick="alert('⚙️ Settings')" title="Settings">⚙️</button>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
             <div id="userInfo">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
                 <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- ===== EMERGENCY BANNER ===== -->
     <div id="emergencyBanner"></div>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -446,15 +758,15 @@
 
         <!-- Comments Section -->
         <div class="comment-section card">
-            <h3 style="margin-bottom:var(--space-md);color:var(--text-primary);">💬 Comments</h3>
+            <h3 style="margin-bottom:12px;color:var(--text-primary, #1a1a2e);">💬 Comments</h3>
             <div id="commentsContainer">
                 <div class="loading"><div class="loading-spinner"></div> Loading comments...</div>
             </div>
 
             <div class="comment-input-area">
-                <label for="commentText" style="font-weight:600;color:var(--text-secondary);display:block;margin-bottom:var(--space-xs);">Share your thoughts</label>
+                <label style="font-weight:600;color:var(--text-secondary, #4a5568);display:block;margin-bottom:4px;">Share your thoughts</label>
                 <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
-                <div style="font-size:0.75rem;color:var(--text-muted);text-align:right;margin-top:var(--space-xs);">
+                <div style="font-size:0.75rem;color:var(--text-muted, #718096);text-align:right;margin-top:4px;">
                     <span id="commentCount">0</span>/1000
                 </div>
 
@@ -465,14 +777,31 @@
 
                 <div id="commentError" class="error-msg"></div>
 
-                <button class="btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:var(--space-sm);">
+                <button class="btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:8px;">
                     💬 Post Comment
                 </button>
             </div>
         </div>
 
-        <div style="text-align:center;margin-top:var(--space-xl);">
-            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+        <div style="text-align:center;margin-top:24px;">
+            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- ===== EDIT STORY MODAL ===== -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            <h2>✏️ Edit Story</h2>
+
+            <label for="editTitle">Title</label>
+            <input type="text" id="editTitle" />
+
+            <label for="editContent">Content</label>
+            <textarea id="editContent" rows="6"></textarea>
+
+            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
+            <div class="error-msg" id="editError"></div>
         </div>
     </div>
 
@@ -482,7 +811,7 @@
             <button class="modal-close" onclick="closeModal()">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
 
-            <div class="warning-box" id="genderWarning">
+            <div class="warning-box" id="genderWarning" style="display:none;background:#fef3c7;padding:8px 12px;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:0.9rem;color:#92400e;">
                 <span>⚠️</span>
                 <span id="genderWarningText">Your gender determines which sections you can see.</span>
             </div>
@@ -500,18 +829,15 @@
                 <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
 
                 <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
+                <select id="authGender">
                     <option value="🧔 Man">🧔 Man</option>
                     <option value="👩 Woman">👩 Woman</option>
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
 
                 <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." />
                 <datalist id="country-list"></datalist>
 
                 <label for="authFavorites">Favorite things</label>
@@ -520,21 +846,49 @@
                 <div class="checkbox-group">
                     <input type="checkbox" id="termsCheckbox" />
                     <label for="termsCheckbox">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
-                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
-                        <span style="color:var(--danger);">*</span>
+                        I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms</a> and
+                        <a href="privacy.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:#c0392b;">*</span>
                     </label>
                 </div>
             </div>
 
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
 
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()" style="text-align:center;margin-top:12px;color:#718096;cursor:pointer;">
                 Don't have an account? <strong>Sign Up</strong>
             </div>
 
             <div class="error-msg" id="authError"></div>
             <div class="success-msg" id="authSuccess"></div>
+        </div>
+    </div>
+
+    <!-- ===== GOLD MODAL ===== -->
+    <div class="modal" id="goldModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeGoldModal()">&times;</button>
+            <h2>💰 Donate Gold</h2>
+            <div id="goldBalanceDisplay" style="padding:12px;background:#fef3c7;border-radius:8px;margin-bottom:16px;text-align:center;font-weight:600;">
+                Your Balance: <span id="goldBalanceAmount">0</span> 🪙
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                <button class="gold-amount-btn" onclick="selectGoldAmount(1)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">1 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(5)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">5 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(10)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">10 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(25)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">25 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(50)" style="padding:8px 16px;background:#e8ddd0;border:2px solid #d4c8b8;border-radius:8px;cursor:pointer;font-weight:600;">50 🪙</button>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label>
+                <input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid #d4c8b8;border-radius:8px;font-size:1rem;" />
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label>
+                <textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid #d4c8b8;border-radius:8px;font-family:inherit;resize:vertical;"></textarea>
+            </div>
+            <div id="goldError" class="error-msg"></div>
+            <button class="btn-modal" onclick="confirmGoldDonation()" style="background:#c47a5a;color:white;">💎 Send Gold</button>
         </div>
     </div>
 
@@ -558,20 +912,91 @@
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE
     ============================================ -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
-
     <script>
     // ============================================
-    // STORY PAGE - COMPLETE
+    // FIREBASE CONFIG
     // ============================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+        authDomain: "the-harbor-community.firebaseapp.com",
+        projectId: "the-harbor-community",
+        storageBucket: "the-harbor-community.firebasestorage.app",
+        messagingSenderId: "634248505303",
+        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+    };
 
+    if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ============================================
+    // GLOBAL STATE
+    // ============================================
+    let currentUser = null;
+    let currentUserData = null;
     let currentStory = null;
     let userReactions = {};
+    let currentEditId = null;
+    let selectedGoldAmount = 0;
+    let currentStoryId = null;
+
+    // ============================================
+    // COUNTRY DATA
+    // ============================================
+    const countries = [
+        { name: 'United States', emergency: '911' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'India', emergency: '112' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Mexico', emergency: '911' }
+    ];
+
+    function populateCountryDatalist() {
+        const datalist = document.getElementById('country-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        countries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
+        });
+    }
+
+    // ============================================
+    // ESCAPE HTML
+    // ============================================
+    function escapeHTML(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    }
+
+    function sanitizeInput(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
+    }
 
     // ============================================
     // LOAD STORY
@@ -579,6 +1004,7 @@
     function loadStory() {
         const urlParams = new URLSearchParams(window.location.search);
         const storyId = urlParams.get('id');
+        currentStoryId = storyId;
         const content = document.getElementById('storyContent');
 
         if (!content) return;
@@ -588,7 +1014,7 @@
                 <div class="empty-state">
                     <div class="big-emoji">📭</div>
                     <h3>No story selected</h3>
-                    <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:var(--space-md);">← Back to Home</a>
+                    <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
                 </div>
             `;
             return;
@@ -603,8 +1029,7 @@
                         <div class="empty-state">
                             <div class="big-emoji">🔍</div>
                             <h3>Story not found</h3>
-                            <p>The story you're looking for may have been deleted or is private.</p>
-                            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:var(--space-md);">← Back to Home</a>
+                            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
                         </div>
                     `;
                     return;
@@ -617,24 +1042,11 @@
                 // Check if story is private and user is not owner
                 if (story.visibility === 'private' && (!currentUser || story.userId !== currentUser.uid)) {
                     content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:var(--radius-lg);padding:var(--space-xl);border-left:4px solid #d97706;">
+                        <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
                             <div class="big-emoji">🔒</div>
                             <h3>Private Story</h3>
                             <p>This story is private and only the author can view it.</p>
-                            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:var(--space-md);">← Back to Home</a>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Check if story is pending and user is not admin
-                if (!story.approved && !currentUserData?.isAdmin) {
-                    content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:var(--radius-lg);padding:var(--space-xl);border-left:4px solid #d97706;">
-                            <div class="big-emoji">⏳</div>
-                            <h3>Pending Review</h3>
-                            <p>This story is waiting for moderation before it can be viewed.</p>
-                            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:var(--space-md);">← Back to Home</a>
+                            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a>
                         </div>
                     `;
                     return;
@@ -643,11 +1055,11 @@
                 // Check if user is guest
                 if (!currentUser) {
                     content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:var(--radius-lg);padding:var(--space-xl);border-left:4px solid #d97706;">
+                        <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
                             <div class="big-emoji">🔒</div>
                             <h3>Login Required</h3>
                             <p>Please log in to read this story.</p>
-                            <div style="margin-top:var(--space-md);display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <div style="margin-top:12px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
                                 <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
                                 <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
                             </div>
@@ -659,26 +1071,19 @@
                 // Check if user is verified
                 if (!currentUser.emailVerified) {
                     content.innerHTML = `
-                        <div class="empty-state" style="background:#fef3c7;border-radius:var(--radius-lg);padding:var(--space-xl);border-left:4px solid #d97706;">
+                        <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
                             <div class="big-emoji">📧</div>
                             <h3>Email Not Verified</h3>
                             <p>Please verify your email to read stories.</p>
-                            <button class="btn btn-primary" onclick="resendVerification()" style="margin-top:var(--space-md);">🔄 Resend Verification</button>
+                            <button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button>
                         </div>
                     `;
                     return;
                 }
 
-                // Render story
                 content.innerHTML = renderFullStory(story);
-
-                // Load user reactions
-                if (currentUser) {
-                    loadUserReactions(storyId);
-                }
-
-                // Load comments
-                loadCommentsEnhanced(storyId);
+                loadUserReactions(storyId);
+                loadComments(storyId);
             })
             .catch((err) => {
                 console.error('Story load error:', err);
@@ -687,7 +1092,7 @@
                         <div class="big-emoji">⚠️</div>
                         <h3>Error Loading Story</h3>
                         <p>${err.message}</p>
-                        <button class="btn btn-primary" onclick="loadStory()" style="margin-top:var(--space-md);">🔄 Retry</button>
+                        <button class="btn btn-primary" onclick="loadStory()" style="margin-top:12px;">🔄 Retry</button>
                     </div>
                 `;
             });
@@ -723,10 +1128,16 @@
                         id="reaction-${story.id}-${emoji}"
                         onclick="toggleReaction('${story.id}', '${emoji}')">
                     ${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span>
-                    ${hasReacted ? '<span class="checkmark">✅</span>' : ''}
+                    ${hasReacted ? ' ✅' : ''}
                 </button>
             `;
         });
+
+        // Read More logic - split content
+        const fullText = story.text || '';
+        const excerptLength = 300;
+        const showReadMore = fullText.length > excerptLength;
+        const excerpt = showReadMore ? fullText.substring(0, excerptLength) + '...' : fullText;
 
         return `
             <div class="story-full" id="storyCard">
@@ -738,24 +1149,31 @@
                     ${story.flagged ? '<span style="color:#d97706;">⚠️ Content Warning</span>' : ''}
                     <span class="gold-display">${story.goldReceived || 0} 🪙</span>
                 </div>
-                <div class="content">${escapeHTML(story.text || '')}</div>
-                <div class="actions">
+                <div class="content" id="storyContentText">
+                    <span class="excerpt-text" id="excerptText">${escapeHTML(excerpt)}</span>
+                    ${showReadMore ? `
+                        <span class="full-text" id="fullText" style="display:none;">${escapeHTML(fullText)}</span>
+                        <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>
+                    ` : ''}
+                </div>
+                <div class="story-actions">
                     ${reactionButtons}
                     ${currentUser && story.userId !== currentUser.uid ? `
-                        <button class="gold-donate-btn" onclick="openGoldModal('${story.id}')">🪙 Donate Gold</button>
+                        <button class="btn-action btn-gold" onclick="openGoldModal('${story.id}')">🪙 Donate Gold</button>
                     ` : ''}
                     ${isOwner ? `
-                        <button class="btn btn-secondary" onclick="openEditModal('${story.id}')" style="padding:0.2rem 1rem;font-size:0.85rem;">✏️ Edit</button>
-                        <button class="btn btn-secondary" onclick="deleteStory('${story.id}')" style="padding:0.2rem 1rem;font-size:0.85rem;border-color:var(--danger);color:var(--danger);">🗑️ Delete</button>
-                        <button class="btn btn-secondary" onclick="toggleVisibility('${story.id}')" style="padding:0.2rem 1rem;font-size:0.85rem;">
+                        <button class="btn-action btn-edit" onclick="openEditModal()">✏️ Edit</button>
+                        <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
+                        <button class="btn-action btn-visibility ${story.visibility === 'private' ? 'private' : ''}" 
+                                onclick="toggleVisibility('${story.id}')">
                             ${story.visibility === 'public' ? '🔒 Make Private' : '🌍 Make Public'}
                         </button>
                     ` : ''}
                     ${isAdmin && !isOwner ? `
-                        <button class="btn btn-secondary" onclick="deleteStory('${story.id}')" style="padding:0.2rem 1rem;font-size:0.85rem;border-color:var(--danger);color:var(--danger);">🗑️ Delete</button>
+                        <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
                     ` : ''}
                     ${currentUser ? `
-                        <button class="btn btn-secondary" onclick="reportStory('${story.id}')" style="padding:0.2rem 1rem;font-size:0.85rem;border-color:#fef3c7;color:#92400e;">🚩 Report</button>
+                        <button class="btn-action btn-report" onclick="reportStory('${story.id}')">🚩 Report</button>
                     ` : ''}
                 </div>
             </div>
@@ -763,105 +1181,245 @@
     }
 
     // ============================================
-    // REPORT STORY
+    // TOGGLE READ MORE
     // ============================================
-    function reportStory(storyId) {
+    function toggleReadMore() {
+        const fullText = document.getElementById('fullText');
+        const excerptText = document.getElementById('excerptText');
+        const readMoreBtn = document.getElementById('readMoreBtn');
+
+        if (!fullText || !excerptText || !readMoreBtn) return;
+
+        if (fullText.style.display === 'none') {
+            fullText.style.display = 'block';
+            excerptText.style.display = 'none';
+            readMoreBtn.textContent = 'Show Less ▲';
+        } else {
+            fullText.style.display = 'none';
+            excerptText.style.display = 'block';
+            readMoreBtn.textContent = 'Read More ▼';
+        }
+    }
+
+    // ============================================
+    // TOGGLE REACTION
+    // ============================================
+    function toggleReaction(storyId, emoji) {
         if (!currentUser) {
-            alert('Please log in to report.');
+            alert('Please log in to react.');
             return;
         }
 
-        const reason = prompt('Why are you reporting this story?');
-        if (!reason || reason.trim().length < 3) {
-            alert('Please provide a valid reason (minimum 3 characters).');
+        if (!currentUser.emailVerified) {
+            alert('Please verify your email first.');
             return;
         }
 
-        db.collection('reports').add({
-            storyId: storyId,
-            storyTitle: currentStory ? currentStory.title : 'Unknown',
-            storyAuthor: currentStory ? currentStory.authorName : 'Unknown',
-            reportedBy: currentUser.uid,
-            reporterName: currentUserData ? currentUserData.name : 'Anonymous',
-            reason: reason.trim(),
-            status: 'pending',
-            type: 'story',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert('✅ Report submitted. Thank you for helping keep The Harbor safe!');
-        }).catch((err) => {
-            alert('❌ Error: ' + err.message);
+        if (!userReactions[storyId]) {
+            userReactions[storyId] = [];
+        }
+
+        const storyRef = db.collection('stories').doc(storyId);
+        const userReactionRef = db.collection('users').doc(currentUser.uid)
+            .collection('reactions').doc(storyId);
+
+        const hasReacted = userReactions[storyId].includes(emoji);
+
+        // Animation
+        const rect = document.getElementById('storyCard')?.getBoundingClientRect();
+        const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+        const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+        createFloatingEmoji(emoji, x, y);
+
+        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+        if (btn) btn.disabled = true;
+
+        db.runTransaction((transaction) => {
+            return transaction.get(storyRef).then((doc) => {
+                if (!doc.exists) return;
+                const data = doc.data();
+                const reactions = data.reactions || {};
+
+                if (hasReacted) {
+                    reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0);
+                    userReactions[storyId] = userReactions[storyId].filter(e => e !== emoji);
+                } else {
+                    reactions[emoji] = (reactions[emoji] || 0) + 1;
+                    userReactions[storyId].push(emoji);
+                }
+
+                transaction.update(storyRef, { reactions: reactions });
+                transaction.set(userReactionRef, {
+                    emojis: userReactions[storyId] || [],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    storyId: storyId
+                }, { merge: true });
+            });
+        })
+        .then(() => {
+            if (btn) btn.disabled = false;
+
+            const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+            if (countSpan) {
+                const currentCount = parseInt(countSpan.textContent) || 0;
+                countSpan.textContent = hasReacted ? currentCount - 1 : currentCount + 1;
+            }
+
+            if (btn) {
+                if (hasReacted) {
+                    btn.classList.remove('reacted');
+                } else {
+                    btn.classList.add('reacted');
+                }
+            }
+        })
+        .catch((err) => {
+            console.error('Error toggling reaction:', err);
+            if (btn) btn.disabled = false;
+            alert('Could not update reaction. Please try again.');
         });
     }
 
     // ============================================
-    // EDIT STORY (from story page)
+    // LOAD USER REACTIONS
     // ============================================
-    function openEditModal(storyId) {
-        if (!currentUser || !currentStory) return;
-        if (currentStory.userId !== currentUser.uid) {
-            alert('You do not have permission to edit this story.');
-            return;
-        }
+    function loadUserReactions(storyId) {
+        if (!currentUser) return;
 
-        currentEditId = storyId;
-        document.getElementById('editTitle').value = currentStory.title || '';
-        document.getElementById('editContent').value = currentStory.text || '';
-        document.getElementById('editError').textContent = '';
-        document.getElementById('editModal').classList.add('active');
+        db.collection('users').doc(currentUser.uid)
+            .collection('reactions').doc(storyId)
+            .get()
+            .then((doc) => {
+                if (doc.exists) {
+                    userReactions[storyId] = doc.data().emojis || [];
+                    const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
+                    emojis.forEach((emoji) => {
+                        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+                        if (btn && userReactions[storyId].includes(emoji)) {
+                            btn.classList.add('reacted');
+                        }
+                    });
+                }
+            })
+            .catch((err) => console.error('Error loading user reactions:', err));
     }
 
     // ============================================
-    // DELETE STORY (from story page)
+    // CREATE FLOATING EMOJI
     // ============================================
-    function deleteStory(storyId) {
-        if (!currentUser) {
-            alert('Please log in.');
-            return;
-        }
+    function createFloatingEmoji(emoji, x, y) {
+        const el = document.createElement('div');
+        el.className = 'floating-emoji';
+        el.textContent = emoji;
+        el.style.left = (x + (Math.random() - 0.5) * 200) + 'px';
+        el.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
+        el.style.fontSize = (2 + Math.random() * 2) + 'rem';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1600);
+    }
 
-        if (currentStory && currentStory.userId !== currentUser.uid && !currentUserData?.isAdmin) {
-            alert('You do not have permission to delete this story.');
-            return;
-        }
+    // ============================================
+    // COMMENTS
+    // ============================================
+    function loadComments(storyId) {
+        const container = document.getElementById('commentsContainer');
+        if (!container) return;
 
-        if (!confirm('⚠️ Are you sure you want to delete this story? This cannot be undone.')) return;
+        container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
 
-        db.collection('stories').doc(storyId).delete()
-            .then(() => {
-                alert('✅ Story deleted successfully.');
-                window.location.href = 'index.html';
+        db.collection('comments')
+            .where('storyId', '==', storyId)
+            .where('approved', '==', true)
+            .get()
+            .then((snapshot) => {
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding:20px;">
+                            <p style="color:#718096;">💬 No comments yet. Be the first to share your thoughts!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const comments = [];
+                snapshot.forEach((doc) => {
+                    const c = doc.data();
+                    c.id = doc.id;
+                    comments.push(c);
+                });
+
+                // Sort: Pinned first, then by likes
+                comments.sort((a, b) => {
+                    if (a.isPinned && !b.isPinned) return -1;
+                    if (!a.isPinned && b.isPinned) return 1;
+                    return (b.likes || 0) - (a.likes || 0);
+                });
+
+                // Find top comment for star
+                const topComment = comments.length > 0 && !comments[0].isPinned ? comments[0] :
+                                  comments.find(c => !c.isPinned) || comments[0];
+
+                let html = '';
+                comments.forEach((c) => {
+                    const isTop = c.id === topComment?.id && !c.isPinned;
+                    html += renderComment(c, isTop);
+                });
+                container.innerHTML = html;
             })
-            .catch((error) => {
-                alert('❌ Error deleting story: ' + error.message);
+            .catch((err) => {
+                console.error('Error loading comments:', err);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="color:#dc2626;">⚠️ Error loading comments</p>
+                        <button class="btn btn-primary" onclick="loadComments('${storyId}')" style="margin-top:10px;padding:8px 20px;font-size:0.9rem;">
+                            🔄 Retry
+                        </button>
+                    </div>
+                `;
             });
     }
 
-    // ============================================
-    // TOGGLE VISIBILITY (from story page)
-    // ============================================
-    function toggleVisibility(storyId) {
-        if (!currentUser || !currentStory) return;
-        if (currentStory.userId !== currentUser.uid) {
-            alert('You do not have permission to change visibility.');
-            return;
+    function renderComment(comment, isTopComment) {
+        const author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
+        const time = comment.createdAt ? comment.createdAt.toDate().toLocaleString() : 'Recently';
+        const likes = comment.likes || 0;
+        const isOwner = currentUser && comment.userId === currentUser.uid;
+        const isAdmin = currentUserData && currentUserData.isAdmin === true;
+
+        let badges = '';
+        if (comment.isPinned) {
+            badges += '<span class="comment-badge pinned">📌 Pinned</span>';
+        }
+        if (isTopComment) {
+            badges += '<span class="comment-badge star">⭐ Top Comment</span>';
         }
 
-        const newVisibility = currentStory.visibility === 'public' ? 'private' : 'public';
-
-        db.collection('stories').doc(storyId).update({
-            visibility: newVisibility
-        }).then(() => {
-            alert(`✅ Story is now ${newVisibility === 'public' ? 'Public' : 'Private'}.`);
-            loadStory();
-        }).catch((error) => {
-            alert('❌ Error updating visibility: ' + error.message);
-        });
+        return `
+            <div class="comment" id="comment-${comment.id}">
+                <div class="comment-header">
+                    <div class="comment-author">
+                        ✍️ ${author}
+                        ${badges}
+                    </div>
+                    <div class="comment-time">📅 ${time}</div>
+                </div>
+                <div class="comment-text">${escapeHTML(comment.text)}</div>
+                <div class="comment-actions">
+                    <button class="comment-like-btn" onclick="likeComment('${comment.id}')">
+                        ❤️ <span class="count">${likes}</span>
+                    </button>
+                    ${isOwner ? `<button class="comment-delete-btn" onclick="deleteComment('${comment.id}')">🗑️ Delete</button>` : ''}
+                    ${isAdmin ? `
+                        <button class="comment-pin-btn" onclick="pinComment('${comment.id}')">
+                            ${comment.isPinned ? '📌 Unpin' : '📌 Pin'}
+                        </button>
+                    ` : ''}
+                    ${currentUser ? `<button class="comment-report-btn" onclick="reportComment('${comment.id}', '${comment.storyId}')">🚩 Report</button>` : ''}
+                </div>
+            </div>
+        `;
     }
 
-    // ============================================
-    // POST COMMENT
-    // ============================================
     function postComment() {
         if (!currentUser) {
             alert('Please log in to comment.');
@@ -873,8 +1431,7 @@
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const storyId = urlParams.get('id');
+        const storyId = currentStoryId;
         const textInput = document.getElementById('commentText');
         const anonymousCheck = document.getElementById('commentAnonymous');
         const error = document.getElementById('commentError');
@@ -919,14 +1476,7 @@
             flagged: containsInappropriate
         })
         .then(function() {
-            // Update comment count on story
             return db.collection('stories').doc(storyId).update({
-                commentCount: firebase.firestore.FieldValue.increment(1)
-            });
-        })
-        .then(function() {
-            // Update user's comment count
-            return db.collection('users').doc(currentUser.uid).update({
                 commentCount: firebase.firestore.FieldValue.increment(1)
             });
         })
@@ -938,9 +1488,9 @@
             if (textInput) textInput.value = '';
             document.getElementById('commentCount').textContent = '0';
             if (containsInappropriate) {
-                alert('⚠️ Your comment has been sent for review. It will appear after moderation.');
+                alert('⚠️ Your comment has been sent for review.');
             }
-            loadCommentsEnhanced(storyId);
+            loadComments(storyId);
         })
         .catch(function(err) {
             error.textContent = err.message;
@@ -951,84 +1501,587 @@
         });
     }
 
-    // ============================================
-    // LOAD USER REACTIONS
-    // ============================================
-    function loadUserReactions(storyId) {
+    function likeComment(commentId) {
+        if (!currentUser) {
+            alert('Please log in.');
+            return;
+        }
+
+        db.collection('comments').doc(commentId).update({
+            likes: firebase.firestore.FieldValue.increment(1)
+        })
+        .then(() => {
+            loadComments(currentStoryId);
+        })
+        .catch((err) => {
+            console.error('Error liking comment:', err);
+        });
+    }
+
+    function deleteComment(commentId) {
         if (!currentUser) return;
+        if (!confirm('Delete this comment?')) return;
 
-        db.collection('users').doc(currentUser.uid)
-            .collection('reactions').doc(storyId)
-            .get()
-            .then((doc) => {
-                if (doc.exists) {
-                    userReactions[storyId] = doc.data().emojis || [];
-                    const emojis = ['❤️', '🙏', '😢', '💪', '🤗', '🌊', '🕊️', '👊'];
-                    emojis.forEach((emoji) => {
-                        const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
-                        if (btn && userReactions[storyId].includes(emoji)) {
-                            btn.classList.add('reacted');
-                            if (!btn.querySelector('.checkmark')) {
-                                btn.innerHTML += ' <span class="checkmark">✅</span>';
-                            }
-                        }
-                    });
-                }
+        db.collection('comments').doc(commentId).delete()
+            .then(() => {
+                loadComments(currentStoryId);
             })
-            .catch((err) => console.error('Error loading user reactions:', err));
+            .catch((err) => {
+                console.error('Error deleting comment:', err);
+                alert('Could not delete comment.');
+            });
+    }
+
+    function pinComment(commentId) {
+        if (!currentUser || !currentUserData?.isAdmin) {
+            alert('Only admins can pin comments.');
+            return;
+        }
+
+        db.collection('comments').doc(commentId).get()
+            .then((doc) => {
+                if (!doc.exists) return;
+                const currentPinned = doc.data().isPinned || false;
+                return db.collection('comments').doc(commentId).update({
+                    isPinned: !currentPinned
+                });
+            })
+            .then(() => {
+                loadComments(currentStoryId);
+            })
+            .catch((err) => {
+                console.error('Error pinning comment:', err);
+            });
+    }
+
+    function reportComment(commentId, storyId) {
+        if (!currentUser) {
+            alert('Please log in to report.');
+            return;
+        }
+
+        const reason = prompt('Why are you reporting this comment?');
+        if (!reason || reason.trim().length < 3) {
+            alert('Please provide a valid reason.');
+            return;
+        }
+
+        db.collection('comments').doc(commentId).get()
+            .then((doc) => {
+                if (!doc.exists) return;
+                const comment = doc.data();
+                return db.collection('reports').add({
+                    commentId: commentId,
+                    commentText: comment.text || '',
+                    commentAuthor: comment.authorName || 'Unknown',
+                    storyId: storyId,
+                    reportedBy: currentUser.uid,
+                    reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+                    reason: reason.trim(),
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    type: 'comment'
+                });
+            })
+            .then(() => {
+                alert('✅ Report submitted.');
+            })
+            .catch((err) => {
+                console.error('Error reporting comment:', err);
+                alert('❌ Could not submit report.');
+            });
     }
 
     // ============================================
-    // UTILITY
+    // STORY ACTIONS
     // ============================================
-    function escapeHTML(text) {
-        if (!text) return '';
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;'
-        };
-        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    function reportStory(storyId) {
+        if (!currentUser) {
+            alert('Please log in to report.');
+            return;
+        }
+
+        const reason = prompt('Why are you reporting this story?');
+        if (!reason || reason.trim().length < 3) {
+            alert('Please provide a valid reason.');
+            return;
+        }
+
+        db.collection('reports').add({
+            storyId: storyId,
+            storyTitle: currentStory ? currentStory.title : 'Unknown',
+            storyAuthor: currentStory ? currentStory.authorName : 'Unknown',
+            reportedBy: currentUser.uid,
+            reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+            reason: reason.trim(),
+            status: 'pending',
+            type: 'story',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert('✅ Report submitted.');
+        }).catch((err) => {
+            alert('❌ Error: ' + err.message);
+        });
     }
 
-    function sanitizeInput(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.textContent;
+    function openEditModal() {
+        if (!currentUser || !currentStory) return;
+        if (currentStory.userId !== currentUser.uid) {
+            alert('You do not have permission to edit this story.');
+            return;
+        }
+
+        currentEditId = currentStory.id;
+        document.getElementById('editTitle').value = currentStory.title || '';
+        document.getElementById('editContent').value = currentStory.text || '';
+        document.getElementById('editError').textContent = '';
+        document.getElementById('editModal').classList.add('active');
     }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+        currentEditId = null;
+    }
+
+    function saveEdit() {
+        const title = document.getElementById('editTitle').value.trim();
+        const content = document.getElementById('editContent').value.trim();
+
+        if (!title || !content) {
+            document.getElementById('editError').textContent = '⚠️ Title and content are required.';
+            return;
+        }
+
+        db.collection('stories').doc(currentEditId).update({
+            title: title,
+            text: content,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            closeEditModal();
+            alert('✅ Story updated!');
+            loadStory();
+        }).catch((error) => {
+            document.getElementById('editError').textContent = '❌ ' + error.message;
+        });
+    }
+
+    function deleteStory(storyId) {
+        if (!currentUser) return;
+        if (!confirm('⚠️ Delete this story permanently?')) return;
+
+        db.collection('stories').doc(storyId).delete()
+            .then(() => {
+                alert('✅ Story deleted.');
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                alert('❌ Error: ' + error.message);
+            });
+    }
+
+    function toggleVisibility(storyId) {
+        if (!currentUser || !currentStory) return;
+        if (currentStory.userId !== currentUser.uid) {
+            alert('You do not have permission to change visibility.');
+            return;
+        }
+
+        const newVisibility = currentStory.visibility === 'public' ? 'private' : 'public';
+
+        db.collection('stories').doc(storyId).update({
+            visibility: newVisibility
+        }).then(() => {
+            alert(`✅ Story is now ${newVisibility === 'public' ? 'Public' : 'Private'}.`);
+            loadStory();
+        }).catch((error) => {
+            alert('❌ Error: ' + error.message);
+        });
+    }
+
+    // ============================================
+    // GOLD SYSTEM
+    // ============================================
+    function openGoldModal(storyId) {
+        if (!currentUser) {
+            alert('Please log in to donate gold.');
+            return;
+        }
+
+        if (!currentUserData) {
+            alert('Loading user data...');
+            return;
+        }
+
+        const balance = currentUserData.goldBalance || 0;
+        if (balance < 1) {
+            alert('⚠️ You don\'t have any gold!');
+            return;
+        }
+
+        document.getElementById('goldBalanceAmount').textContent = balance;
+        document.getElementById('goldModal').classList.add('active');
+        currentStoryId = storyId;
+        selectedGoldAmount = 0;
+        document.getElementById('customGoldAmount').value = '';
+        document.getElementById('goldMessage').value = '';
+        document.getElementById('goldError').textContent = '';
+
+        // Reset button styles
+        document.querySelectorAll('.gold-amount-btn').forEach(btn => {
+            btn.style.borderColor = '#d4c8b8';
+            btn.style.background = '#e8ddd0';
+        });
+    }
+
+    function closeGoldModal() {
+        document.getElementById('goldModal').classList.remove('active');
+    }
+
+    function selectGoldAmount(amount) {
+        selectedGoldAmount = amount;
+        document.getElementById('customGoldAmount').value = amount;
+
+        document.querySelectorAll('.gold-amount-btn').forEach(btn => {
+            btn.style.borderColor = '#d4c8b8';
+            btn.style.background = '#e8ddd0';
+        });
+        event.target.style.borderColor = '#c47a5a';
+        event.target.style.background = '#f5d6b3';
+    }
+
+    function confirmGoldDonation() {
+        const customInput = document.getElementById('customGoldAmount');
+        const messageInput = document.getElementById('goldMessage');
+        const errorDiv = document.getElementById('goldError');
+
+        let amount = selectedGoldAmount;
+        if (customInput && customInput.value) {
+            const custom = parseInt(customInput.value);
+            if (custom > 0) amount = custom;
+        }
+
+        const balance = currentUserData ? currentUserData.goldBalance || 0 : 0;
+
+        if (!amount || amount < 1) {
+            errorDiv.textContent = 'Please select or enter a valid amount.';
+            return;
+        }
+
+        if (amount > balance) {
+            errorDiv.textContent = '⚠️ You don\'t have enough gold! Balance: ' + balance + ' 🪙';
+            return;
+        }
+
+        const message = messageInput ? messageInput.value.trim() : '';
+
+        closeGoldModal();
+
+        // Donate gold
+        const storyRef = db.collection('stories').doc(currentStoryId);
+        const userRef = db.collection('users').doc(currentUser.uid);
+
+        db.runTransaction((transaction) => {
+            return transaction.get(storyRef).then((storyDoc) => {
+                if (!storyDoc.exists) throw new Error('Story not found');
+                const storyData = storyDoc.data();
+                const authorId = storyData.userId;
+
+                return transaction.get(db.collection('users').doc(authorId)).then((authorDoc) => {
+                    if (!authorDoc.exists) throw new Error('Author not found');
+
+                    transaction.update(userRef, {
+                        goldBalance: firebase.firestore.FieldValue.increment(-amount),
+                        goldGiven: firebase.firestore.FieldValue.increment(amount)
+                    });
+
+                    transaction.update(db.collection('users').doc(authorId), {
+                        goldBalance: firebase.firestore.FieldValue.increment(amount),
+                        goldReceived: firebase.firestore.FieldValue.increment(amount)
+                    });
+
+                    transaction.update(storyRef, {
+                        goldReceived: firebase.firestore.FieldValue.increment(amount)
+                    });
+
+                    const transactionRef = db.collection('goldTransactions').doc();
+                    transaction.set(transactionRef, {
+                        fromUid: currentUser.uid,
+                        toUid: authorId,
+                        storyId: currentStoryId,
+                        amount: amount,
+                        message: message || '',
+                        fromName: currentUserData ? currentUserData.name : 'Anonymous',
+                        toName: authorDoc.data().name || 'Someone',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+            });
+        }).then(() => {
+            if (currentUserData) {
+                currentUserData.goldBalance = (currentUserData.goldBalance || 0) - amount;
+            }
+            alert(`✅ You donated ${amount} 🪙!`);
+            loadStory();
+        }).catch((err) => {
+            console.error('Gold donation error:', err);
+            alert('❌ Error donating gold: ' + err.message);
+        });
+    }
+
+    // ============================================
+    // AUTH FUNCTIONS
+    // ============================================
+    function openModal(mode) {
+        const modal = document.getElementById('authModal');
+        if (!modal) return;
+
+        const title = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const signupFields = document.getElementById('signupFields');
+        const switchLink = document.getElementById('authSwitch');
+
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        document.getElementById('authFavorites').value = '';
+        document.getElementById('authCountry').value = '';
+        document.getElementById('passwordStrength').innerHTML = '';
+        document.getElementById('usernameStatus').innerHTML = '';
+
+        if (mode === 'login') {
+            title.textContent = '🔐 Welcome Back';
+            submitBtn.textContent = '🚀 Log In';
+            signupFields.style.display = 'none';
+            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.dataset.mode = 'signup';
+        } else {
+            title.textContent = '📝 Join The Harbor';
+            submitBtn.textContent = '🚀 Create Account';
+            signupFields.style.display = 'block';
+            populateCountryDatalist();
+            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.dataset.mode = 'login';
+        }
+
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').classList.remove('active');
+    }
+
+    function toggleAuthMode() {
+        const switchLink = document.getElementById('authSwitch');
+        if (!switchLink) return;
+        const mode = switchLink.dataset.mode;
+        closeModal();
+        setTimeout(() => openModal(mode), 200);
+    }
+
+    function handleAuth() {
+        const emailInput = document.getElementById('authEmail');
+        const passwordInput = document.getElementById('authPassword');
+        const error = document.getElementById('authError');
+        const submitBtn = document.getElementById('authSubmitBtn');
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        error.textContent = '';
+
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            error.textContent = 'Please enter a valid email address.';
+            return;
+        }
+        if (!password || password.length < 6) {
+            error.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+
+        const isLogin = submitBtn.textContent.includes('Log In');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Please wait...';
+
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (!user.emailVerified) {
+                        error.innerHTML = `
+                            ⚠️ Please verify your email.<br>
+                            <button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;margin-top:4px;">
+                                🔄 Resend verification email
+                            </button>
+                        `;
+                        auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        return;
+                    }
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                    window.location.href = 'welcome.html';
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                });
+        } else {
+            const nameInput = document.getElementById('authName');
+            const genderSelect = document.getElementById('authGender');
+            const favoritesInput = document.getElementById('authFavorites');
+            const countryInput = document.getElementById('authCountry');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
+            const favorites = favoritesInput ? favoritesInput.value.trim() : '';
+            const country = countryInput ? countryInput.value.trim() : '';
+
+            if (!name || name.length < 2) {
+                error.textContent = 'Please enter a username (minimum 2 characters).';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            if (!country) {
+                error.textContent = 'Please select your country.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return user.sendEmailVerification().then(() => user);
+                })
+                .then((user) => {
+                    return db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        gender: gender,
+                        favorites: favorites || 'Not specified',
+                        country: country,
+                        emergencyNumber: '911',
+                        emailVerified: false,
+                        isAdmin: false,
+                        isPublic: true,
+                        goldBalance: 10,
+                        goldReceived: 0,
+                        goldGiven: 0,
+                        followers: [],
+                        following: [],
+                        storyCount: 0,
+                        commentCount: 0,
+                        likesReceived: 0,
+                        avatar: '👤',
+                        border: 'default',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    auth.signOut();
+                    alert('✅ Verification email sent to ' + email + '!\n\n💰 You received 10 🪙 gold!');
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                });
+        }
+    }
+
+    function resendVerification() {
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Please log in first.');
+            return;
+        }
+        user.sendEmailVerification()
+            .then(() => alert('✅ Verification email resent!'))
+            .catch((err) => alert('❌ Error: ' + err.message));
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const verificationBadge = document.getElementById('verificationBadge');
+
+        if (user) {
+            currentUser = user;
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+
+            if (user.emailVerified) {
+                verificationBadge.textContent = '✅ Verified';
+                verificationBadge.className = 'verification-badge verified';
+            } else {
+                verificationBadge.textContent = '⏳ Unverified';
+                verificationBadge.className = 'verification-badge';
+            }
+
+            db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        userName.textContent = currentUserData.name || 'Friend';
+                        loadStory();
+                    }
+                })
+                .catch((err) => console.error('Error fetching user data:', err));
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
+            loadStory();
+        }
+    });
 
     // ============================================
     // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
+        populateCountryDatalist();
+
         // Comment counter
-        const commentText = document.getElementById('commentText');
-        const commentCount = document.getElementById('commentCount');
-        if (commentText && commentCount) {
-            commentText.addEventListener('input', function() {
-                commentCount.textContent = this.value.length;
-            });
-        }
+        document.getElementById('commentText')?.addEventListener('input', function() {
+            document.getElementById('commentCount').textContent = this.value.length;
+        });
 
         // Modal close on outside click
         document.getElementById('authModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
-
         document.getElementById('editModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeEditModal();
+        });
+        document.getElementById('goldModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeGoldModal();
         });
 
         // Password strength
         document.getElementById('authPassword')?.addEventListener('input', function() {
             const pwd = this.value;
             const strengthDiv = document.getElementById('passwordStrength');
+            if (!strengthDiv) return;
             if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
             const result = checkPasswordStrength(pwd);
             strengthDiv.innerHTML = `
@@ -1038,8 +2091,6 @@
             `;
         });
 
-        document.getElementById('authName')?.addEventListener('input', checkUsernameOnType);
-
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const modal = document.getElementById('authModal');
@@ -1048,22 +2099,32 @@
             if (e.key === 'Escape') {
                 closeModal();
                 closeEditModal();
+                closeGoldModal();
             }
         });
-
-        populateCountryDatalist();
-
-        // Load story after auth is ready
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged(function(user) {
-                setTimeout(loadStory, 300);
-            });
-        }
 
         console.log('✅ Story page ready');
     });
 
-    console.log('📖 Story page loaded with enhanced comments and gold system');
+    function checkPasswordStrength(password) {
+        let score = 0;
+        if (password.length >= 8) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[a-z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+        let strength = 'weak', color = '#c0392b';
+        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
+        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
+        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
+        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
+        else { strength = 'very-weak'; color = '#c0392b'; }
+        return { score, strength, color };
+    }
+
+    console.log('📖 Story page loaded');
     </script>
 </body>
 </html>
