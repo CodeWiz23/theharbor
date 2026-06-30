@@ -1,5 +1,5 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION (FINAL FIX)
+// THE HARBOR - MAIN APPLICATION (FULLY FIXED)
 // ============================================
 
 // ============================================
@@ -34,6 +34,7 @@ let filteredStories = [];
 let currentPage = 1;
 const STORIES_PER_PAGE = 10;
 let currentEditId = null;
+let currentStoryId = null;
 
 // ============================================
 // COUNTRY DATA
@@ -65,7 +66,7 @@ function populateCountryDatalist() {
 }
 
 // ============================================
-// SECURITY FUNCTIONS
+// SECURITY & UTILITY FUNCTIONS
 // ============================================
 function escapeHTML(text) {
     if (!text) return '';
@@ -98,6 +99,7 @@ function checkPasswordStrength(password) {
     if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
     const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
     if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+
     let strength = 'weak', color = '#c0392b';
     if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
     else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
@@ -107,9 +109,6 @@ function checkPasswordStrength(password) {
     return { score, strength, color };
 }
 
-// ============================================
-// GENDER RESTRICTION CHECKS
-// ============================================
 function getUserGender() {
     if (!currentUserData) return null;
     return currentUserData.gender;
@@ -118,9 +117,7 @@ function getUserGender() {
 function canSeeCategory(category) {
     const gender = getUserGender();
     if (currentUserData?.isAdmin === true) return true;
-    if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') {
-        return true;
-    }
+    if (category === 'all' || category === 'struggles' || category === 'fun' || category === 'learning') return true;
     if (category === 'men') return gender === '🧔 Man';
     if (category === 'women') return gender === '👩 Woman';
     return false;
@@ -135,18 +132,34 @@ function canPostInCategory(category) {
     return false;
 }
 
+function checkUsernameAvailability(username) {
+    if (!username || username.length < 2) return Promise.resolve(false);
+    return db.collection('users').where('name', '==', username).get().then(s => s.empty);
+}
+
 // ============================================
-// CHECK USERNAME AVAILABILITY
+// RESEND VERIFICATION
 // ============================================
-async function checkUsernameAvailability(username) {
-    if (!username || username.length < 2) return false;
-    try {
-        const snapshot = await db.collection('users').where('name', '==', username).get();
-        return snapshot.empty;
-    } catch (error) {
-        console.error('Error checking username:', error);
-        return false;
+function resendVerification() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Please log in first.');
+        return;
     }
+    user.sendEmailVerification()
+        .then(() => {
+            alert(
+                '✅ Verification email resent to ' + user.email + '!\n\n' +
+                '📧 Please check your inbox and click the verification link.\n\n' +
+                '📌 If you don\'t see the email:\n' +
+                '   • Check your SPAM or JUNK folder\n' +
+                '   • Wait a few minutes and refresh your inbox\n' +
+                '   • Add noreply@the-harbor.com to your contacts'
+            );
+        })
+        .catch((err) => {
+            alert('❌ Error: ' + err.message);
+        });
 }
 
 // ============================================
@@ -170,19 +183,32 @@ function followUser(targetUid) {
             if (!userDoc.exists) return;
             const userData = userDoc.data();
             const following = userData.following || [];
+
             if (following.includes(targetUid)) {
-                transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayRemove(targetUid) });
-                transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) });
+                transaction.update(userRef, {
+                    following: firebase.firestore.FieldValue.arrayRemove(targetUid)
+                });
+                transaction.update(targetRef, {
+                    followers: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
+                });
                 return 'unfollowed';
             } else {
-                transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
-                transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
+                transaction.update(userRef, {
+                    following: firebase.firestore.FieldValue.arrayUnion(targetUid)
+                });
+                transaction.update(targetRef, {
+                    followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+                });
                 return 'followed';
             }
         });
     }).then((action) => {
-        if (window.location.pathname.includes('profile.html')) loadProfile();
-        if (typeof updateSidebarData === 'function') updateSidebarData();
+        if (window.location.pathname.includes('profile.html')) {
+            loadProfile();
+        }
+        if (typeof updateSidebarData === 'function') {
+            updateSidebarData();
+        }
         alert(action === 'followed' ? '✅ You are now following this user!' : '✅ You have unfollowed this user.');
     }).catch((err) => {
         console.error('Error following/unfollowing:', err);
@@ -196,23 +222,50 @@ function isFollowing(targetUid) {
 }
 
 // ============================================
-// RESEND VERIFICATION
+// REPORT USER
 // ============================================
-function resendVerification() {
-    const user = auth.currentUser;
-    if (!user) { alert('Please log in first.'); return; }
-    user.sendEmailVerification()
-        .then(() => alert('✅ Verification email resent to ' + user.email + '!\n\n📧 Please check your inbox and click the verification link.'))
-        .catch((err) => alert('❌ Error: ' + err.message));
+function reportUser(userId) {
+    if (!currentUser) {
+        alert('Please log in to report.');
+        return;
+    }
+    if (userId === currentUser.uid) {
+        alert('You cannot report yourself.');
+        return;
+    }
+    const reason = prompt('Why are you reporting this user?');
+    if (!reason || reason.trim().length < 3) {
+        alert('Please provide a valid reason (minimum 3 characters).');
+        return;
+    }
+    db.collection('reports').add({
+        reportedUser: userId,
+        reportedBy: currentUser.uid,
+        reporterName: currentUserData ? currentUserData.name : 'Anonymous',
+        reason: reason.trim(),
+        status: 'pending',
+        type: 'user',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert('✅ Report submitted. Thank you for helping keep The Harbor safe!');
+    }).catch((err) => {
+        alert('❌ Error: ' + err.message);
+    });
 }
 
 // ============================================
-// REPORT FUNCTIONS
+// REPORT STORY
 // ============================================
 function reportStory(storyId) {
-    if (!currentUser) { alert('Please log in to report.'); return; }
+    if (!currentUser) {
+        alert('Please log in to report.');
+        return;
+    }
     const reason = prompt('Why are you reporting this story?');
-    if (!reason || reason.trim().length < 3) { alert('Please provide a valid reason (minimum 3 characters).'); return; }
+    if (!reason || reason.trim().length < 3) {
+        alert('Please provide a valid reason (minimum 3 characters).');
+        return;
+    }
     db.collection('reports').add({
         storyId: storyId,
         storyTitle: 'Unknown',
@@ -223,12 +276,15 @@ function reportStory(storyId) {
         status: 'pending',
         type: 'story',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert('✅ Report submitted. Thank you for helping keep The Harbor safe!'))
-    .catch((err) => alert('❌ Error: ' + err.message));
+    }).then(() => {
+        alert('✅ Report submitted. Thank you for helping keep The Harbor safe!');
+    }).catch((err) => {
+        alert('❌ Error: ' + err.message);
+    });
 }
 
 // ============================================
-// LOAD STORIES - FIXED (Removed 'approved' filter)
+// LOAD STORIES - FIXED (No 'approved' filter)
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
@@ -685,6 +741,13 @@ function addReaction(storyId, emoji) {
 }
 
 // ============================================
+// TOGGLE REACTION (for story.html)
+// ============================================
+function toggleReaction(storyId, emoji) {
+    addReaction(storyId, emoji); // Reuse the same function
+}
+
+// ============================================
 // LOAD USER REACTIONS (for single story)
 // ============================================
 function loadUserReactions(storyId) {
@@ -842,17 +905,6 @@ function updateAdminLink() {
 }
 
 // ============================================
-// PLACEHOLDER FUNCTIONS (defined in page-specific files)
-// ============================================
-function loadProfile() { console.log('📄 loadProfile() should be defined in profile.html'); }
-function loadStory() { console.log('📄 loadStory() should be defined in story.html'); }
-function loadAdminPanel() { console.log('📄 loadAdminPanel() should be defined in admin.html'); }
-function loadActivity() { console.log('📄 loadActivity() should be defined in activity.html'); }
-function loadSuggestions() { console.log('📄 loadSuggestions() should be defined in suggest.html'); }
-function updateSidebarData() { console.log('📄 updateSidebarData() should be defined in sidebar.js'); }
-function openGoldModal(storyId) { console.log('📄 openGoldModal() should be defined in gold.js or story.js'); }
-
-// ============================================
 // CHECK GUEST RESTRICTIONS
 // ============================================
 function checkGuestRestrictions() {
@@ -874,6 +926,35 @@ function checkGuestRestrictions() {
     if (suggestLink) suggestLink.style.display = isGuest ? 'none' : '';
     if (activityLink) activityLink.style.display = isGuest ? 'none' : '';
 }
+
+// ============================================
+// GOLD SYSTEM FUNCTIONS (Placeholder - defined in gold.js)
+// ============================================
+function openGoldModal(storyId) {
+    if (typeof window.openGoldModal === 'function') {
+        window.openGoldModal(storyId);
+    } else {
+        alert('💰 Gold system loading...');
+    }
+}
+
+// ============================================
+// SIDEBAR DATA UPDATE
+// ============================================
+function updateSidebarData() {
+    if (typeof window.updateSidebarData === 'function') {
+        window.updateSidebarData();
+    }
+}
+
+// ============================================
+// PLACEHOLDER FUNCTIONS (defined in page-specific files)
+// ============================================
+function loadProfile() { /* defined in profile.html */ }
+function loadStory() { /* defined in story.html */ }
+function loadAdminPanel() { /* defined in admin.html */ }
+function loadActivity() { /* defined in activity.html */ }
+function loadSuggestions() { /* defined in suggest.html */ }
 
 // ============================================
 // AUTH FUNCTIONS
@@ -1148,7 +1229,7 @@ auth.onAuthStateChanged((user) => {
 // INIT - DOM READY
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM Ready — The Harbor (FINAL FIX)');
+    console.log('📄 DOM Ready — The Harbor (FULLY FIXED)');
     checkGuestRestrictions();
     const modal = document.getElementById('authModal');
     if (modal) { modal.addEventListener('click', function(e) { if (e.target === this) closeModal(); }); }
@@ -1191,4 +1272,4 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ All event listeners attached');
 });
 
-console.log('✅ The Harbor app loaded successfully (FINAL FIX)');
+console.log('✅ The Harbor app loaded successfully (FULLY FIXED)');
