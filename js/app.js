@@ -41,12 +41,13 @@ const STORIES_PER_PAGE = 10;
 let currentEditId = null;
 
 // ============================================
-// GUEST RESTRICTIONS
+// GUEST RESTRICTIONS - FIXED: Show Feed & About only
 // ============================================
 function checkGuestRestrictions() {
     const isGuest = !currentUser;
-    const guestRestrictedElements = document.querySelectorAll('.guest-restricted');
     
+    // Hide restricted elements for guests
+    const guestRestrictedElements = document.querySelectorAll('.guest-restricted');
     guestRestrictedElements.forEach(el => {
         if (isGuest) {
             el.style.display = 'none';
@@ -55,6 +56,7 @@ function checkGuestRestrictions() {
         }
     });
 
+    // Show/hide guest message
     const guestMessage = document.getElementById('guestMessage');
     if (guestMessage) {
         if (isGuest) {
@@ -63,6 +65,17 @@ function checkGuestRestrictions() {
             guestMessage.style.display = 'none';
         }
     }
+
+    // Hide Share, Profile, Suggest, Activity, Admin for guests
+    const shareLink = document.getElementById('shareLink');
+    const profileLink = document.getElementById('profileLink');
+    const suggestLink = document.getElementById('suggestLink');
+    const activityLink = document.getElementById('activityLink');
+    
+    if (shareLink) shareLink.style.display = isGuest ? 'none' : '';
+    if (profileLink) profileLink.style.display = isGuest ? 'none' : '';
+    if (suggestLink) suggestLink.style.display = isGuest ? 'none' : '';
+    if (activityLink) activityLink.style.display = isGuest ? 'none' : '';
 }
 
 // ============================================
@@ -92,7 +105,7 @@ function resendVerification() {
 }
 
 // ============================================
-// FOLLOW SYSTEM - COMPLETE
+// FOLLOW SYSTEM - FIXED: Self-follow prevention
 // ============================================
 function followUser(targetUid) {
     if (!currentUser) {
@@ -114,7 +127,6 @@ function followUser(targetUid) {
             const following = userData.following || [];
             
             if (following.includes(targetUid)) {
-                // Unfollow
                 transaction.update(userRef, {
                     following: firebase.firestore.FieldValue.arrayRemove(targetUid)
                 });
@@ -123,7 +135,6 @@ function followUser(targetUid) {
                 });
                 return 'unfollowed';
             } else {
-                // Follow
                 transaction.update(userRef, {
                     following: firebase.firestore.FieldValue.arrayUnion(targetUid)
                 });
@@ -154,28 +165,6 @@ function followUser(targetUid) {
 function isFollowing(targetUid) {
     if (!currentUserData) return false;
     return currentUserData.following && currentUserData.following.includes(targetUid);
-}
-
-function getFollowerCount(uid) {
-    return db.collection('users').doc(uid).get()
-        .then((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                return data.followers ? data.followers.length : 0;
-            }
-            return 0;
-        });
-}
-
-function getFollowingCount(uid) {
-    return db.collection('users').doc(uid).get()
-        .then((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                return data.following ? data.following.length : 0;
-            }
-            return 0;
-        });
 }
 
 // ============================================
@@ -562,8 +551,9 @@ function handleAuth() {
             return;
         }
 
+        // FIXED: Terms checkbox check
         const termsCheckbox = document.getElementById('termsCheckbox');
-        if (termsCheckbox && !termsCheckbox.checked) {
+        if (!termsCheckbox || !termsCheckbox.checked) {
             error.textContent = '⚠️ Please agree to the Terms of Service and Privacy Policy.';
             submitBtn.disabled = false;
             submitBtn.textContent = '🚀 Create Account';
@@ -1003,12 +993,13 @@ function toggleReaction(storyId, emoji) {
 }
 
 // ============================================
-// LOAD STORIES - WITH GUEST RESTRICTIONS
+// LOAD STORIES - WITH GUEST RESTRICTIONS & PRIVACY FIX
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
 
+    // Guest restriction
     if (!currentUser) {
         container.innerHTML = `
             <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
@@ -1090,6 +1081,12 @@ function loadStories() {
             snapshot.forEach((doc) => {
                 const story = doc.data();
                 story.id = doc.id;
+                
+                // FIXED: Only show public stories or user's own private stories
+                if (story.visibility === 'private' && story.userId !== currentUser.uid) {
+                    return; // Skip private stories not owned by current user
+                }
+                
                 allStories.push(story);
             });
 
