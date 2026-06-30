@@ -1529,15 +1529,29 @@
         }
 
         // ============================================
-        // SAVE AVATAR & BORDER
+        // SAVE AVATAR & BORDER - FIXED: Check if user exists
         // ============================================
         function saveAvatarAndBorder() {
-            if (!currentUser) return;
+            // FIXED: Check if currentUser and uid exist before updating
+            if (!currentUser || !currentUser.uid) {
+                console.warn('Cannot save avatar: No user logged in');
+                return;
+            }
+
             db.collection('users').doc(currentUser.uid).update({
                 avatar: selectedAvatar,
                 border: selectedBorder
             }).catch((err) => {
                 console.error('Error saving avatar/border:', err);
+                // If document doesn't exist, create it
+                if (err.code === 'not-found') {
+                    db.collection('users').doc(currentUser.uid).set({
+                        avatar: selectedAvatar,
+                        border: selectedBorder
+                    }, { merge: true }).catch((e) => {
+                        console.error('Error creating user document:', e);
+                    });
+                }
             });
         }
 
@@ -1817,6 +1831,33 @@
                             currentUserData = doc.data();
                             userName.textContent = currentUserData.name || 'Friend';
                             loadProfile();
+                        } else {
+                            // Create user document if it doesn't exist
+                            db.collection('users').doc(user.uid).set({
+                                name: user.displayName || 'Friend',
+                                email: user.email,
+                                gender: '🙅 Prefer not to say',
+                                favorites: 'Not specified',
+                                country: 'Not specified',
+                                emergencyNumber: '911',
+                                emailVerified: user.emailVerified || false,
+                                isAdmin: false,
+                                isPublic: true,
+                                goldBalance: 10,
+                                goldReceived: 0,
+                                goldGiven: 0,
+                                followers: [],
+                                following: [],
+                                storyCount: 0,
+                                commentCount: 0,
+                                likesReceived: 0,
+                                avatar: '👤',
+                                border: 'default',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(() => {
+                                loadProfile();
+                            });
                         }
                     })
                     .catch((err) => console.error('Error fetching user data:', err));
