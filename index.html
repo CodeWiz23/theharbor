@@ -5,144 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Harbor — Share & Heal</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
-
-    <!-- META TAGS FOR SEO & SOCIAL SHARING -->
+    <!-- SEO -->
     <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
-    <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
+    <meta name="keywords" content="mental health, support community, anonymous sharing, healing" />
     <meta name="author" content="The Harbor" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Open Graph Tags -->
+    <!-- Open Graph -->
     <meta property="og:title" content="The Harbor — Share & Heal" />
     <meta property="og:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://codewiz23.github.io/theharbor/" />
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-81R2FX47H0');
     </script>
 
     <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* ===== ADDITIONAL HOMEPAGE STYLES ===== */
-        .category-info-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            position: relative;
-        }
-        .category-info-wrapper .tab-text {
-            display: inline-block;
-        }
-        .category-info-trigger {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--bg-secondary, #f0f4f8);
-            color: var(--text-muted, #718096);
-            font-size: 10px;
-            font-weight: 700;
-            cursor: help;
-            transition: all 0.2s ease;
-            border: 1px solid var(--border-color, #e2e8f0);
-            flex-shrink: 0;
-            margin-left: 2px;
-        }
-        .category-info-trigger:hover {
-            background: var(--primary, #1a4a4a);
-            color: white;
-            transform: scale(1.1);
-            border-color: var(--primary, #1a4a4a);
-        }
-        .category-info-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%) scale(0.9);
-            background: var(--text-primary, #1a1a2e);
-            color: var(--bg-primary, #f0f4f8);
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 400;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s ease;
-            max-width: 260px;
-            white-space: normal;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.16);
-            z-index: 100;
-            line-height: 1.4;
-        }
-        .category-info-trigger:hover .category-info-tooltip {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
+        /* ============================================
+           PROFESSIONAL CLEAN DESIGN
+           ============================================ */
+
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* Hero buttons */
-        .hero-actions .btn {
-            padding: 0.6rem 1.8rem;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
-        /* Guest message */
-        #guestMessage {
-            display: none;
-            background: #fef3c7;
-            border-left: 4px solid #d97706;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            color: #92400e;
-        }
-
-        /* Loading spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border-color, #e2e8f0);
-            border-top-color: #1a4a4a;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 8px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-muted, #718096);
-        }
-
-        /* Header styles */
-        .header {
-            background: var(--bg-card, #ffffff);
-            padding: 0.8rem 2rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        /* ===== TOP NAVIGATION - CLEAN ===== */
+        .top-bar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -150,208 +62,250 @@
             top: 0;
             z-index: 100;
             flex-wrap: wrap;
-            gap: 0.8rem;
-            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            gap: 0.5rem;
         }
+
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--text-primary, #1a4a4a);
+            color: #1a4a4a;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .logo span { font-weight: 300; }
-        .header-right {
+
+        .logo span {
+            font-weight: 300;
+            color: #4a6a6a;
+        }
+
+        .nav-links {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
         }
-        .btn {
-            padding: 0.5rem 1.2rem;
-            border: none;
+
+        .nav-links a,
+        .nav-links button {
+            padding: 0.4rem 1rem;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.85rem;
             text-decoration: none;
-            display: inline-block;
-        }
-        .btn-nav {
-            background: var(--bg-secondary, #f0f4f8);
-            color: var(--text-secondary, #4a5568);
-        }
-        .btn-nav:hover {
-            background: var(--border-color, #e2e8f0);
-            transform: translateY(-1px);
-        }
-        .btn-feed {
-            background: #1a4a4a;
-            color: white;
-        }
-        .btn-feed:hover {
-            background: #2d6a6a;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(26,74,74,0.3);
-        }
-        .btn-settings {
-            font-size: 1.4rem;
-            padding: 4px 10px;
-            background: transparent;
+            transition: all 0.2s;
             border: none;
+            background: transparent;
+            color: #4a5568;
             cursor: pointer;
-            color: var(--text-secondary, #4a5568);
-            transition: transform 0.2s ease;
-            border-radius: 8px;
+            font-family: inherit;
         }
-        .btn-settings:hover {
-            transform: rotate(60deg);
-            background: var(--bg-secondary, #f0f4f8);
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            background: #edf2f7;
+            color: #1a202c;
         }
-        .btn-login {
+
+        .nav-links a.active {
+            color: #1a4a4a;
+            font-weight: 600;
+        }
+
+        /* Auth Buttons */
+        .btn-login-nav {
             background: transparent;
             color: #1a4a4a;
             border: 2px solid #1a4a4a;
-        }
-        .btn-login:hover {
-            background: #1a4a4a;
-            color: white;
-        }
-        .btn-signup {
-            background: #1a4a4a;
-            color: white;
-        }
-        .btn-signup:hover {
-            background: #2d6a6a;
-        }
-        .btn-logout {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-        .btn-logout:hover {
-            background: #fecaca;
-        }
-        #userInfo {
-            display: none;
-            align-items: center;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
-        #userName {
+            padding: 0.4rem 1.2rem;
+            border-radius: 8px;
             font-weight: 600;
-            color: var(--text-primary, #1a1a2e);
-        }
-        .verification-badge {
-            font-size: 0.75rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            background: #fef3c7;
-            color: #d97706;
-        }
-        .verification-badge.verified {
-            background: #dcfce7;
-            color: #16a34a;
         }
 
-        /* Hero */
-        .hero {
-            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+        .btn-login-nav:hover {
+            background: #1a4a4a;
             color: white;
+        }
+
+        .btn-join-nav {
+            background: #1a4a4a;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .btn-join-nav:hover {
+            background: #2d6a6a;
+        }
+
+        .btn-logout-nav {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-logout-nav:hover {
+            background: #fecaca;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1a4a4a;
+            font-size: 0.9rem;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            max-width: 820px;
+            margin: 2rem auto 1.5rem;
             padding: 2.5rem 2rem;
             text-align: center;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
             border-radius: 16px;
-            margin: 1.5rem 0;
+            color: white;
         }
+
         .hero h1 {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 300;
         }
+
         .hero h1 span {
             font-weight: 700;
             color: #c47a5a;
         }
+
         .hero p {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             opacity: 0.85;
-            margin-top: 6px;
+            margin-top: 4px;
         }
+
         .hero-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 0.75rem;
             justify-content: center;
-            margin-top: 16px;
+            margin-top: 1.2rem;
         }
 
-        /* Search */
-        .search-bar {
-            max-width: 600px;
-            margin: -16px auto 20px;
+        .hero-actions .btn-hero {
+            padding: 0.6rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .hero-actions .btn-hero-primary {
+            background: #c47a5a;
+            color: white;
+        }
+
+        .hero-actions .btn-hero-primary:hover {
+            background: #a86545;
+            transform: translateY(-2px);
+        }
+
+        .hero-actions .btn-hero-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-actions .btn-hero-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ===== LOGIN REQUIRED BANNER ===== */
+        .login-banner {
+            max-width: 820px;
+            margin: 0 auto 1.5rem;
+            padding: 1.5rem;
+            background: #fef3c7;
+            border-radius: 12px;
+            border-left: 4px solid #d97706;
+            text-align: center;
+        }
+
+        .login-banner p {
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        .login-banner .btn-banner {
+            margin-top: 0.5rem;
+            display: inline-block;
+            padding: 0.4rem 1.5rem;
+            border-radius: 8px;
+            background: #1a4a4a;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .login-banner .btn-banner:hover {
+            background: #2d6a6a;
+        }
+
+        /* ===== CATEGORY TABS ===== */
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
             padding: 0 1.5rem;
-            position: relative;
-            z-index: 10;
-        }
-        .search-bar input {
-            width: 100%;
-            padding: 12px 20px;
-            border: 2px solid var(--border-color, #e2e8f0);
-            border-radius: 9999px;
-            font-size: 1rem;
-            outline: none;
-            background: var(--bg-card, #ffffff);
-            color: var(--text-primary, #1a1a2e);
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        }
-        .search-bar input:focus {
-            border-color: #1a4a4a;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin: 1.5rem 0 1.8rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border-color, #e2e8f0);
+            gap: 0.4rem;
+            margin: 1.5rem 0 1.2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
         }
+
         .tab {
-            padding: 0.5rem 1.2rem;
+            padding: 0.4rem 1.2rem;
             border: none;
             background: transparent;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 500;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-secondary, #4a5568);
+            transition: all 0.2s;
+            color: #4a5568;
         }
+
         .tab:hover {
-            background: var(--bg-secondary, #f0f4f8);
+            background: #edf2f7;
         }
+
         .tab.active {
             background: #1a4a4a;
             color: white;
         }
 
-        /* Story Cards */
+        /* ===== STORIES ===== */
         .story-card {
-            background: var(--bg-card, #ffffff);
+            background: white;
             border-radius: 12px;
             padding: 1.5rem;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            border: 1px solid var(--border-color, #e2e8f0);
-            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
         }
+
         .story-card:hover {
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         }
 
         .story-header {
@@ -360,19 +314,17 @@
             align-items: flex-start;
             flex-wrap: wrap;
             gap: 0.5rem;
-            margin-bottom: 0.6rem;
         }
 
-        .story-author-info {
+        .story-author {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            cursor: pointer;
+            gap: 0.6rem;
         }
 
         .story-avatar {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
             color: white;
@@ -380,7 +332,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             flex-shrink: 0;
         }
 
@@ -388,39 +340,40 @@
             display: flex;
             flex-direction: column;
         }
-        .story-author-name {
+
+        .story-name {
             font-weight: 600;
-            color: var(--text-primary, #1a1a2e);
+            color: #1a202c;
         }
+
         .story-date {
             font-size: 0.8rem;
-            color: var(--text-muted, #718096);
+            color: #718096;
         }
 
         .story-title {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            margin: 0.3rem 0;
-            color: var(--text-primary, #1a1a2e);
+            margin: 0.4rem 0;
+            color: #1a202c;
         }
 
         .story-content {
-            color: var(--text-secondary, #2d3748);
-            margin: 0.5rem 0;
+            color: #4a5568;
             line-height: 1.7;
-            word-wrap: break-word;
         }
 
         .story-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.4rem;
-            margin: 0.6rem 0;
+            gap: 0.3rem;
+            margin: 0.5rem 0;
         }
+
         .story-tag {
-            background: #eef2ff;
-            color: #4a6cf7;
-            padding: 0.15rem 0.7rem;
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 0.1rem 0.7rem;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 500;
@@ -428,139 +381,156 @@
 
         .visibility-badge {
             font-size: 0.7rem;
-            padding: 0.2rem 0.7rem;
+            padding: 0.15rem 0.6rem;
             border-radius: 20px;
             font-weight: 600;
         }
+
         .badge-public {
             background: #dcfce7;
             color: #16a34a;
         }
+
         .badge-private {
             background: #fef3c7;
             color: #d97706;
         }
 
-        .gold-badge {
-            background: linear-gradient(135deg, #f1c40f, #f39c12);
-            color: white;
-            padding: 0.15rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-
         .story-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
+            gap: 0.5rem;
             margin-top: 0.8rem;
             padding-top: 0.8rem;
-            border-top: 1px solid var(--border-color, #e2e8f0);
+            border-top: 1px solid #e2e8f0;
         }
 
         .btn-action {
-            padding: 0.35rem 1rem;
+            padding: 0.3rem 0.9rem;
             border: none;
             border-radius: 6px;
             font-weight: 500;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+
         .btn-edit {
             background: #eef2ff;
             color: #4a6cf7;
         }
+
         .btn-edit:hover {
             background: #dce3ff;
         }
+
         .btn-delete {
             background: #fee2e2;
             color: #dc2626;
         }
+
         .btn-delete:hover {
             background: #fecaca;
         }
+
         .btn-visibility {
             background: #f0fdf4;
             color: #16a34a;
         }
+
         .btn-visibility.private {
             background: #fef3c7;
             color: #d97706;
         }
-        .btn-report {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .btn-report:hover {
-            background: #fde68a;
-        }
 
-        .read-more-btn {
-            background: none;
-            border: none;
-            color: #c47a5a;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 0;
-            font-size: 0.9rem;
-            transition: color 0.2s ease;
-        }
-        .read-more-btn:hover {
-            color: #a86545;
-            text-decoration: underline;
-        }
-
-        .story-full-content {
-            display: none;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed var(--border-color, #e2e8f0);
-        }
-
-        /* Pagination */
+        /* ===== PAGINATION ===== */
         .pagination {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 0.5rem;
-            margin: 2.5rem 0;
+            gap: 0.4rem;
+            margin: 2rem 0;
             flex-wrap: wrap;
         }
+
         .pagination button {
-            padding: 0.4rem 0.9rem;
-            border: 1px solid var(--border-color, #e2e8f0);
-            background: var(--bg-card, #ffffff);
+            padding: 0.3rem 0.8rem;
+            border: 1px solid #e2e8f0;
+            background: white;
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             font-weight: 500;
-            color: var(--text-secondary, #4a5568);
-            font-size: 0.9rem;
+            color: #4a5568;
+            font-size: 0.85rem;
         }
+
         .pagination button:hover:not(:disabled) {
             background: #1a4a4a;
             color: white;
             border-color: #1a4a4a;
         }
+
         .pagination button.active {
             background: #1a4a4a;
             color: white;
             border-color: #1a4a4a;
         }
+
         .pagination button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
+
         .page-info {
-            padding: 0.4rem 1rem;
-            color: var(--text-muted, #718096);
+            padding: 0.3rem 1rem;
+            color: #718096;
             font-weight: 500;
         }
 
-        /* Modal */
+        /* ===== FOOTER - CLEAN ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 2rem 2rem 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .footer-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #1a4a4a;
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+
+        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -568,26 +538,29 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(4px);
+            padding: 1rem;
         }
+
         .modal.active {
             display: flex;
         }
+
         .modal-content {
-            background: var(--bg-card, #ffffff);
+            background: white;
             padding: 2rem;
             border-radius: 16px;
-            max-width: 480px;
-            width: 92%;
+            max-width: 420px;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
+
         .modal-close {
             position: absolute;
             top: 1rem;
@@ -596,45 +569,41 @@
             border: none;
             font-size: 1.8rem;
             cursor: pointer;
-            color: var(--text-muted, #718096);
+            color: #a0aec0;
         }
+
         .modal-close:hover {
-            color: var(--text-primary, #1a1a2e);
+            color: #1a202c;
         }
+
         .modal-content h2 {
             margin-bottom: 1.2rem;
-            color: var(--text-primary, #1a4a4a);
+            color: #1a4a4a;
+            font-weight: 600;
         }
+
         .modal-content label {
             display: block;
             font-weight: 600;
             margin: 0.8rem 0 0.3rem;
-            color: var(--text-secondary, #2d3748);
+            color: #4a5568;
             font-size: 0.9rem;
         }
+
         .modal-content input,
-        .modal-content select,
-        .modal-content textarea {
+        .modal-content select {
             width: 100%;
             padding: 0.6rem 0.8rem;
-            border: 1px solid var(--border-color, #e2e8f0);
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 0.95rem;
-            transition: border 0.2s ease;
-            background: var(--bg-primary, #f0f4f8);
-            color: var(--text-primary, #1a1a2e);
-            font-family: inherit;
+            transition: border 0.2s;
         }
+
         .modal-content input:focus,
-        .modal-content select:focus,
-        .modal-content textarea:focus {
+        .modal-content select:focus {
             border-color: #1a4a4a;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(26,74,74,0.12);
-        }
-        .modal-content textarea {
-            min-height: 100px;
-            resize: vertical;
         }
 
         .btn-modal {
@@ -650,6 +619,7 @@
             transition: 0.2s;
             margin-top: 1rem;
         }
+
         .btn-modal:hover {
             background: #2d6a6a;
         }
@@ -658,34 +628,26 @@
             text-align: center;
             margin-top: 1rem;
             font-size: 0.9rem;
-            color: var(--text-muted, #718096);
+            color: #4a5568;
             cursor: pointer;
         }
+
         .switch-link strong {
-            color: var(--text-primary, #1a4a4a);
+            color: #1a4a4a;
         }
 
         .error-msg {
             color: #dc2626;
             margin-top: 0.5rem;
             font-size: 0.9rem;
+            text-align: center;
         }
+
         .success-msg {
             color: #16a34a;
             margin-top: 0.5rem;
             font-size: 0.9rem;
-        }
-
-        .warning-box {
-            background: #fef3c7;
-            padding: 0.8rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: #92400e;
+            text-align: center;
         }
 
         .checkbox-group {
@@ -694,260 +656,209 @@
             gap: 0.5rem;
             margin: 0.8rem 0;
         }
+
         .checkbox-group input[type="checkbox"] {
             width: auto;
-            accent-color: #1a4a4a;
         }
+
         .checkbox-group label {
             margin: 0;
             font-weight: 500;
             font-size: 0.9rem;
-            cursor: pointer;
         }
 
-        /* Footer */
-        .footer {
-            background: var(--bg-card, #ffffff);
-            padding: 2rem;
+        .loading {
             text-align: center;
-            border-top: 1px solid var(--border-color, #e2e8f0);
-            margin-top: 2rem;
-        }
-        .footer-links {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            margin: 0.8rem 0;
-        }
-        .footer-links a {
-            color: var(--text-muted, #4a5568);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .footer-links a:hover {
-            color: var(--text-primary, #1a4a4a);
-        }
-        .footer-copy {
-            font-size: 0.75rem;
-            color: var(--text-muted, #718096);
-            margin-top: 8px;
+            padding: 3rem;
+            color: #a0aec0;
         }
 
-        #emergencyBanner {
-            display: none;
-            background: #dc2626;
-            color: white;
-            padding: 8px 16px;
-            text-align: center;
-            font-size: 0.9rem;
+        /* ===== EDIT MODAL ===== */
+        #editModal .modal-content textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            min-height: 120px;
+            font-family: inherit;
+            resize: vertical;
         }
 
-        .container {
-            max-width: 820px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
+        #editModal .modal-content textarea:focus {
+            border-color: #1a4a4a;
+            outline: none;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted, #718096);
-        }
-        .empty-state .big-emoji {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 8px;
-        }
-        .empty-state h3 {
-            color: var(--text-primary, #1a1a2e);
-            margin-bottom: 8px;
-        }
-
-        @media (max-width: 600px) {
-            .category-info-tooltip {
-                max-width: 180px;
-                font-size: 0.7rem;
-                white-space: normal;
-            }
-            .tab {
-                font-size: 0.75rem;
-                padding: 0.3rem 0.6rem;
-            }
-            .category-info-trigger {
-                width: 14px;
-                height: 14px;
-                font-size: 8px;
-            }
-            .header {
-                padding: 0.6rem 1rem;
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0.5rem 1rem;
                 flex-direction: column;
-                align-items: stretch;
-                gap: 0.6rem;
+                gap: 0.5rem;
             }
-            .header-right {
+
+            .nav-links {
                 justify-content: center;
+                gap: 0.3rem;
             }
+
+            .nav-links a,
+            .nav-links button {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.7rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .hero {
+                padding: 1.5rem 1rem;
+                margin: 1rem auto;
+            }
+
             .hero h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
+
             .container {
                 padding: 0 1rem;
             }
+
             .tabs {
-                gap: 4px;
+                gap: 0.3rem;
                 overflow-x: auto;
                 flex-wrap: nowrap;
+                padding-bottom: 0.5rem;
             }
+
             .tab {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.7rem;
+                font-size: 0.75rem;
+                padding: 0.3rem 0.8rem;
                 white-space: nowrap;
             }
+
             .story-card {
                 padding: 1rem;
+            }
+
+            .story-title {
+                font-size: 1rem;
+            }
+
+            .story-actions {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .btn-action {
+                width: 100%;
+                text-align: center;
+                padding: 0.4rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .footer {
+                padding: 1.5rem 1rem;
+            }
+
+            .footer-links {
+                gap: 0.8rem;
+            }
+
+            .footer-links a {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.3rem;
+            }
+
+            .hero p {
+                font-size: 0.9rem;
+            }
+
+            .hero-actions .btn-hero {
+                font-size: 0.85rem;
+                padding: 0.5rem 1.2rem;
+            }
+
+            .nav-links a,
+            .nav-links button {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.5rem;
+            }
+
+            .pagination button {
+                padding: 0.2rem 0.6rem;
+                font-size: 0.75rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
-    <header class="header">
+    <!-- ===== TOP NAVIGATION - CLEAN ===== -->
+    <header class="top-bar">
         <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
-        <div class="header-right">
-            <!-- FEED BUTTON - Auto-refresh -->
-            <a href="index.html" class="btn btn-feed" onclick="location.reload(); return false;">🏠 Feed</a>
+        <nav class="nav-links">
+            <!-- Clean navigation - only essential links -->
+            <a href="about.html">About</a>
+            <a href="submit.html" id="shareLink">Share</a>
+            <a href="profile.html" id="profileLink">Profile</a>
 
-            <!-- About - Always visible -->
-            <a href="about.html" class="btn btn-nav">🌿 About</a>
+            <!-- Auth buttons -->
+            <span id="authButtons">
+                <button class="btn-login-nav" onclick="openModal('login')">Log In</button>
+                <button class="btn-join-nav" onclick="openModal('signup')">Join</button>
+            </span>
 
-            <!-- Guest Restricted Elements -->
-            <div class="guest-restricted">
-                <a href="submit.html" class="btn btn-nav">📝 Share</a>
-                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
-            </div>
-
-            <!-- Settings Gear - With fallback -->
-            <button class="btn-settings" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings panel loading...');" title="Settings">⚙️</button>
-
-            <div id="authButtons">
-                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
-                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
-            </div>
-
-            <div id="userInfo">
-                <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
-            </div>
-        </div>
+            <!-- User info (shown when logged in) -->
+            <span id="userInfo" style="display:none; display:flex; align-items:center; gap:0.5rem;">
+                <span class="user-name" id="userName">User</span>
+                <button class="btn-logout-nav" onclick="logout()">Logout</button>
+            </span>
+        </nav>
     </header>
 
-    <!-- ===== EMERGENCY BANNER ===== -->
-    <div id="emergencyBanner"></div>
-
-    <!-- ===== GUEST MESSAGE ===== -->
-    <div class="container" id="guestMessage">
-        <p>🔒 <strong>Welcome to The Harbor!</strong> Please <a href="#" onclick="openModal('login');return false;">Log In</a> or <a href="#" onclick="openModal('signup');return false;">Join</a> to read and share stories.</p>
-    </div>
-
     <!-- ===== HERO ===== -->
-    <div class="container">
-        <section class="hero">
-            <h1>⚓ Welcome to <span>The Harbor</span></h1>
-            <p>A safe place to share, heal, and grow — together.</p>
-            <div class="hero-actions">
-                <a href="activity.html" class="btn btn-nav" style="background:rgba(255,255,255,0.15);color:white;">📊 Activity</a>
-                <a href="submit.html" class="btn btn-nav" style="background:#c47a5a;color:white;">📝 Share Your Story</a>
-                <a href="about.html" class="btn btn-nav" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3);">🌿 Learn More</a>
-            </div>
-        </section>
+    <div class="hero">
+        <h1>⚓ Welcome to <span>The Harbor</span></h1>
+        <p>A safe place to share, heal, and grow — together.</p>
+        <div class="hero-actions">
+            <a href="submit.html" class="btn-hero btn-hero-primary">📝 Share Your Story</a>
+            <a href="about.html" class="btn-hero btn-hero-secondary">🌿 Learn More</a>
+        </div>
     </div>
 
-    <!-- ===== SEARCH ===== -->
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter') searchStories()" />
+    <!-- ===== LOGIN REQUIRED BANNER ===== -->
+    <div class="login-banner" id="loginBanner" style="display:none;">
+        <p>🔐 Welcome to The Harbor! Please <strong>Log In</strong> or <strong>Join</strong> to read and share stories.</p>
+        <button class="btn-banner" onclick="openModal('login')">Log In</button>
+        <button class="btn-banner" onclick="openModal('signup')" style="background:#c47a5a; margin-left:0.5rem;">Join</button>
     </div>
 
-    <!-- ===== TABS WITH CATEGORY INFO ===== -->
+    <!-- ===== CATEGORY TABS ===== -->
     <div class="container">
-        <div class="tabs" id="categoryTabs">
-            <!-- All -->
-            <button class="tab active" data-category="all" onclick="switchCategory('all')">
-                <span class="category-info-wrapper">
-                    <span class="tab-text">🌊 All</span>
-                    <span class="category-info-trigger">
-                        ?
-                        <span class="category-info-tooltip">All stories from every harbor category. Explore the full community.</span>
-                    </span>
-                </span>
-            </button>
-
-            <!-- Men's Harbor -->
-            <button class="tab" data-category="men" onclick="switchCategory('men')">
-                <span class="category-info-wrapper">
-                    <span class="tab-text">🧔 Men's Harbor</span>
-                    <span class="category-info-trigger">
-                        ?
-                        <span class="category-info-tooltip">A dedicated space for men to share their journey, struggles, and growth.</span>
-                    </span>
-                </span>
-            </button>
-
-            <!-- Women's Harbor -->
-            <button class="tab" data-category="women" onclick="switchCategory('women')">
-                <span class="category-info-wrapper">
-                    <span class="tab-text">👩 Women's Harbor</span>
-                    <span class="category-info-trigger">
-                        ?
-                        <span class="category-info-tooltip">A safe harbor for women to connect, share, and support each other.</span>
-                    </span>
-                </span>
-            </button>
-
-            <!-- The Storm -->
-            <button class="tab" data-category="struggles" onclick="switchCategory('struggles')">
-                <span class="category-info-wrapper">
-                    <span class="tab-text">🌊 The Storm</span>
-                    <span class="category-info-trigger">
-                        ?
-                        <span class="category-info-tooltip">Share your struggles, challenges, and difficult moments. You're not alone.</span>
-                    </span>
-                </span>
-            </button>
-
-            <!-- Sunny Skies -->
-            <button class="tab" data-category="fun" onclick="switchCategory('fun')">
-                <span class="category-info-wrapper">
-                    <span class="tab-text">☀️ Sunny Skies</span>
-                    <span class="category-info-trigger">
-                        ?
-                        <span class="category-info-tooltip">Celebrate victories, share happiness, and spread positivity.</span>
-                    </span>
-                </span>
-            </button>
-
-            <!-- The Compass -->
-            <button class="tab" data-category="learning" onclick="switchCategory('learning')">
-                <span class="category-info-wrapper">
-                    <span class="tab-text">🧭 The Compass</span>
-                    <span class="category-info-trigger">
-                        ?
-                        <span class="category-info-tooltip">Life lessons, wisdom, and guidance to help navigate your journey.</span>
-                    </span>
-                </span>
-            </button>
+        <div class="tabs">
+            <button class="tab active" data-category="all" onclick="switchCategory('all')">🌊 All</button>
+            <button class="tab" data-category="men" onclick="switchCategory('men')">🧔 Men</button>
+            <button class="tab" data-category="women" onclick="switchCategory('women')">👩 Women</button>
+            <button class="tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 Storm</button>
+            <button class="tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny</button>
+            <button class="tab" data-category="learning" onclick="switchCategory('learning')">🧭 Compass</button>
         </div>
 
-        <!-- ===== STORIES CONTAINER ===== -->
+        <!-- ===== STORIES ===== -->
         <div id="storiesContainer">
-            <div class="loading"><div class="loading-spinner"></div> Loading stories...</div>
+            <div class="loading">⏳ Loading stories...</div>
         </div>
 
         <!-- ===== PAGINATION ===== -->
@@ -957,50 +868,27 @@
     <!-- ===== AUTH MODAL ===== -->
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <button class="modal-close" onclick="closeModal()">×</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
-
-            <div class="warning-box" id="genderWarning">
-                <span>⚠️</span>
-                <span id="genderWarningText">Your gender determines which sections you can see.</span>
-            </div>
 
             <label for="authEmail">Email</label>
             <input type="email" id="authEmail" placeholder="you@example.com" />
 
             <label for="authPassword">Password</label>
             <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
-            <div id="passwordStrength"></div>
 
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" />
-                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
-
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <div style="font-size:0.8rem;color:var(--text-muted, #718096);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
+                <input type="text" id="authName" placeholder="Choose a username" />
 
                 <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
-                <datalist id="country-list"></datalist>
-
-                <label for="authFavorites">Favorite things</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <input type="text" id="authCountry" placeholder="Your country" />
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="termsCheckbox" />
                     <label for="termsCheckbox">
                         I agree to the <a href="terms.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Terms</a> and
                         <a href="privacy.html" target="_blank" style="color:#1a4a4a;text-decoration:underline;">Privacy Policy</a>
-                        <span style="color:#c0392b;">*</span>
                     </label>
                 </div>
             </div>
@@ -1019,116 +907,398 @@
     <!-- ===== EDIT MODAL ===== -->
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            <button class="modal-close" onclick="closeEditModal()">×</button>
             <h2>✏️ Edit Story</h2>
 
             <label for="editTitle">Title</label>
-            <input type="text" id="editTitle" placeholder="Enter title..." />
+            <input type="text" id="editTitle" />
 
             <label for="editContent">Content</label>
-            <textarea id="editContent" rows="6" placeholder="Write your story..."></textarea>
+            <textarea id="editContent" rows="6"></textarea>
 
             <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
             <div class="error-msg" id="editError"></div>
         </div>
     </div>
 
-    <!-- ===== FOOTER ===== -->
+    <!-- ===== FOOTER - CLEAN ===== -->
     <footer class="footer">
-        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
-        <div class="footer-links">
-            <a href="activity.html">📊 Activity</a>
-            <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
-            <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
-            <a href="privacy.html">🔒 Privacy</a>
-            <a href="terms.html">📜 Terms</a>
-        </div>
-        <div class="footer-copy">
-            © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community.
+        <div class="footer-inner">
+            <div class="footer-links">
+                <a href="about.html">About</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="emergency.html">Emergency</a>
+            </div>
+            <div class="footer-copy">
+                © 2026 The Harbor — Built with ❤️ for the community.
+            </div>
         </div>
     </footer>
 
     <!-- ============================================
     JAVASCRIPT
     ============================================ -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
-
     <script>
-        // ============================================
-        // APPLY GUEST RESTRICTIONS
-        // ============================================
-        function applyGuestRestrictions() {
-            const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
-            const elements = document.querySelectorAll('.guest-restricted');
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8qNPQ5aD-Ua00xDU4S6gNy8cXXA5cIZM",
+            authDomain: "theharbor-2f4c6.firebaseapp.com",
+            projectId: "theharbor-2f4c6",
+            storageBucket: "theharbor-2f4c6.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
 
-            elements.forEach(function(el) {
-                if (isLoggedIn) {
-                    el.style.display = '';
-                } else {
-                    el.style.display = 'none';
-                }
-            });
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            // Show/hide guest message
-            const guestMsg = document.getElementById('guestMessage');
-            if (guestMsg) {
-                if (isLoggedIn) {
-                    guestMsg.style.display = 'none';
-                } else {
-                    guestMsg.style.display = 'block';
-                }
-            }
+        // ===== STATE =====
+        let currentUser = null;
+        let currentCategory = 'all';
+        let allStories = [];
+        let filteredStories = [];
+        let currentPage = 1;
+        const STORIES_PER_PAGE = 10;
+        let currentEditId = null;
 
-            // Show/hide stories based on login
-            const container = document.getElementById('storiesContainer');
-            if (container && !isLoggedIn) {
-                container.innerHTML = `
-                    <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
-                        <div class="big-emoji">🔒</div>
-                        <h3 style="color:#1a4a4a;">Login Required</h3>
-                        <p style="color:#4a5568;">Please log in or join to read and share stories.</p>
-                        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                            <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                            <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
-                        </div>
-                        <p style="margin-top:12px;font-size:0.9rem;color:#718096;">
-                            🌊 The Harbor is a safe community for sharing, healing, and growth.
-                        </p>
-                    </div>
-                `;
+        // ===== AUTH FUNCTIONS =====
+        function openModal(mode) {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authError').textContent = '';
+            document.getElementById('authSuccess').textContent = '';
+            if (mode === 'signup') {
+                document.getElementById('modalTitle').textContent = '📝 Join The Harbor';
+                document.getElementById('signupFields').style.display = 'block';
+                document.getElementById('authSubmitBtn').textContent = '📝 Join';
+                document.getElementById('authSwitch').innerHTML =
+                    'Already have an account? <strong>Log In</strong>';
+            } else {
+                document.getElementById('modalTitle').textContent = '🔐 Welcome Back';
+                document.getElementById('signupFields').style.display = 'none';
+                document.getElementById('authSubmitBtn').textContent = '🚀 Log In';
+                document.getElementById('authSwitch').innerHTML =
+                    'Don\'t have an account? <strong>Sign Up</strong>';
             }
         }
 
-        // ============================================
-        // CHECK AUTH STATE
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for auth state
-            const checkAuth = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(checkAuth);
-                    applyGuestRestrictions();
-                }
-            }, 100);
+        function closeModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
 
-            // Also check on auth change
-            if (typeof auth !== 'undefined') {
-                auth.onAuthStateChanged(function(user) {
-                    setTimeout(applyGuestRestrictions, 200);
+        function toggleAuthMode() {
+            const isSignup = document.getElementById('signupFields').style.display === 'block';
+            if (isSignup) {
+                openModal('login');
+            } else {
+                openModal('signup');
+            }
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const isSignup = document.getElementById('signupFields').style.display === 'block';
+
+            if (!email || !password) {
+                document.getElementById('authError').textContent = '⚠️ Please fill in all fields.';
+                return;
+            }
+
+            if (isSignup) {
+                const name = document.getElementById('authName').value.trim();
+                const country = document.getElementById('authCountry').value.trim();
+                const termsChecked = document.getElementById('termsCheckbox').checked;
+
+                if (!name) {
+                    document.getElementById('authError').textContent = '⚠️ Please choose a username.';
+                    return;
+                }
+                if (!termsChecked) {
+                    document.getElementById('authError').textContent = '⚠️ You must agree to the Terms and Privacy Policy.';
+                    return;
+                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return db.collection('users').doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            country: country || 'Not specified',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            isAdmin: false,
+                            isVerified: false
+                        });
+                    })
+                    .then(() => {
+                        document.getElementById('authSuccess').textContent = '✅ Account created! Welcome.';
+                        document.getElementById('authError').textContent = '';
+                        setTimeout(() => {
+                            closeModal();
+                            location.reload();
+                        }, 1500);
+                    })
+                    .catch((error) => {
+                        document.getElementById('authError').textContent = '❌ ' + error.message;
+                    });
+            } else {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        document.getElementById('authSuccess').textContent = '✅ Welcome back!';
+                        document.getElementById('authError').textContent = '';
+                        setTimeout(() => {
+                            closeModal();
+                            location.reload();
+                        }, 1000);
+                    })
+                    .catch((error) => {
+                        document.getElementById('authError').textContent = '❌ ' + error.message;
+                    });
+            }
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        // ===== AUTH STATE =====
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('loginBanner').style.display = 'none';
+                document.getElementById('shareLink').style.display = 'inline-block';
+                document.getElementById('profileLink').style.display = 'inline-block';
+
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        document.getElementById('userName').textContent = data.name || 'User';
+                    }
                 });
+                loadStories();
+            } else {
+                currentUser = null;
+                document.getElementById('authButtons').style.display = 'inline-flex';
+                document.getElementById('userInfo').style.display = 'none';
+                document.getElementById('loginBanner').style.display = 'block';
+                document.getElementById('shareLink').style.display = 'none';
+                document.getElementById('profileLink').style.display = 'none';
+                loadStories();
             }
         });
 
-        console.log('✅ Index page loaded with category info icons and guest restrictions');
-        console.log('✅ Feed button auto-refresh enabled');
-        console.log('✅ Settings gear with fallback enabled');
+        // ===== LOAD STORIES =====
+        function loadStories() {
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = '<div class="loading">⏳ Loading stories...</div>';
+
+            let query = db.collection('stories')
+                .orderBy('createdAt', 'desc');
+
+            if (!currentUser) {
+                query = query.where('visibility', '==', 'public');
+            }
+
+            query.get().then((snapshot) => {
+                allStories = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.visibility === 'private' && currentUser && data.uid !== currentUser.uid) {
+                        return;
+                    }
+                    allStories.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+                applyFilters();
+            }).catch((error) => {
+                container.innerHTML =
+                `<div class="loading" style="color:#dc2626;">❌ Error loading stories: ${error.message}</div>`;
+            });
+        }
+
+        // ===== FILTER & PAGINATE =====
+        function applyFilters() {
+            if (currentCategory === 'all') {
+                filteredStories = [...allStories];
+            } else {
+                filteredStories = allStories.filter(s => s.category === currentCategory);
+            }
+
+            renderStories();
+        }
+
+        function renderStories() {
+            const container = document.getElementById('storiesContainer');
+            const totalPages = Math.ceil(filteredStories.length / STORIES_PER_PAGE) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * STORIES_PER_PAGE;
+            const end = start + STORIES_PER_PAGE;
+            const pageStories = filteredStories.slice(start, end);
+
+            if (pageStories.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:#718096;">
+                        🌊 No stories found. Be the first to share!
+                    </div>
+                `;
+            } else {
+                container.innerHTML = pageStories.map(story => `
+                    <div class="story-card">
+                        <div class="story-header">
+                            <div class="story-author">
+                                <div class="story-avatar">${(story.authorName || 'A')[0].toUpperCase()}</div>
+                                <div class="story-meta">
+                                    <span class="story-name">${story.authorName || 'Anonymous'}</span>
+                                    <span class="story-date">${story.createdAt ? new Date(story.createdAt.toDate()).toLocaleDateString() : 'Just now'}</span>
+                                </div>
+                            </div>
+                            <span class="visibility-badge ${story.visibility === 'public' ? 'badge-public' : 'badge-private'}">
+                                ${story.visibility === 'public' ? '🌍 Public' : '🔒 Private'}
+                            </span>
+                        </div>
+
+                        <h3 class="story-title">${story.title || 'Untitled'}</h3>
+                        <p class="story-content">${story.content || ''}</p>
+
+                        ${story.tags && story.tags.length ? `
+                            <div class="story-tags">
+                                ${story.tags.map(tag => `<span class="story-tag">#${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+
+                        ${currentUser && story.uid === currentUser.uid ? `
+                            <div class="story-actions">
+                                <button class="btn-action btn-edit" onclick="openEditModal('${story.id}')">✏️ Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
+                                <button class="btn-action btn-visibility ${story.visibility === 'private' ? 'private' : ''}" 
+                                        onclick="toggleVisibility('${story.id}')">
+                                    ${story.visibility === 'public' ? '🔒 Make Private' : '🌍 Make Public'}
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+
+            renderPagination(totalPages);
+        }
+
+        // ===== PAGINATION =====
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationContainer');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>◀ Prev</button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="active">${i}</button>`;
+                } else if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+                    html += `<button onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<span class="page-info">…</span>`;
+                }
+            }
+
+            html += `
+                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ▶</button>
+                <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredStories.length / STORIES_PER_PAGE) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderStories();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===== CATEGORY SWITCH =====
+        function switchCategory(category) {
+            currentCategory = category;
+            currentPage = 1;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-category="${category}"]`).classList.add('active');
+            applyFilters();
+        }
+
+        // ===== EDIT FUNCTIONS =====
+        function openEditModal(storyId) {
+            const story = allStories.find(s => s.id === storyId);
+            if (!story) return;
+
+            currentEditId = storyId;
+            document.getElementById('editTitle').value = story.title || '';
+            document.getElementById('editContent').value = story.content || '';
+            document.getElementById('editError').textContent = '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditId = null;
+        }
+
+        function saveEdit() {
+            const title = document.getElementById('editTitle').value.trim();
+            const content = document.getElementById('editContent').value.trim();
+
+            if (!title || !content) {
+                document.getElementById('editError').textContent = '⚠️ Title and content are required.';
+                return;
+            }
+
+            db.collection('stories').doc(currentEditId).update({
+                title: title,
+                content: content,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                closeEditModal();
+                loadStories();
+            }).catch((error) => {
+                document.getElementById('editError').textContent = '❌ ' + error.message;
+            });
+        }
+
+        // ===== DELETE =====
+        function deleteStory(storyId) {
+            if (!confirm('⚠️ Are you sure you want to delete this story?')) return;
+
+            db.collection('stories').doc(storyId).delete()
+                .then(() => loadStories())
+                .catch((error) => alert('❌ Error: ' + error.message));
+        }
+
+        // ===== TOGGLE VISIBILITY =====
+        function toggleVisibility(storyId) {
+            const story = allStories.find(s => s.id === storyId);
+            if (!story) return;
+
+            const newVisibility = story.visibility === 'public' ? 'private' : 'public';
+
+            db.collection('stories').doc(storyId).update({
+                visibility: newVisibility
+            }).then(() => loadStories())
+            .catch((error) => alert('❌ Error: ' + error.message));
+        }
     </script>
 
 </body>
