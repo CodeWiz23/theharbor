@@ -21,11 +21,9 @@
 
     <script>
     (function() {
-        // 1. Check localStorage for saved theme
         var savedTheme = localStorage.getItem('theme');
         var theme = savedTheme;
         
-        // 2. If no saved theme, check system preference
         if (!theme) {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 theme = 'dark';
@@ -34,14 +32,12 @@
             }
         }
         
-        // 3. Apply theme IMMEDIATELY (before page renders)
         if (theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         } else {
             document.documentElement.removeAttribute('data-theme');
         }
         
-        // 4. Listen for system theme changes (only if user hasn't manually set)
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
                 if (!localStorage.getItem('theme')) {
@@ -57,7 +53,7 @@
         
         console.log('🌓 Dark mode applied:', theme);
     })();
-</script>
+    </script>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
@@ -82,7 +78,7 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* ===== CATEGORY INFO TOOLTIP ===== */
+        /* ===== YOUR EXACT STYLES - PRESERVED ===== */
         .category-info-wrapper {
             display: inline-flex;
             align-items: center;
@@ -145,7 +141,6 @@
             transform: translateX(-50%) scale(1);
         }
 
-        /* ===== HEADER ===== */
         .header {
             background: white;
             padding: 0.8rem 2rem;
@@ -251,7 +246,6 @@
             background: #fecaca;
         }
 
-        /* Guest classes */
         .guest-hidden {
             display: none !important;
         }
@@ -283,7 +277,6 @@
             color: #16a34a;
         }
 
-        /* ===== HERO ===== */
         .hero {
             background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
             color: white;
@@ -313,7 +306,6 @@
             margin-top: 16px;
         }
 
-        /* ===== SEARCH ===== */
         .search-bar {
             max-width: 600px;
             margin: -16px auto 20px;
@@ -338,7 +330,6 @@
             box-shadow: 0 4px 30px rgba(0,0,0,0.1);
         }
 
-        /* ===== TABS ===== */
         .tabs {
             display: flex;
             flex-wrap: wrap;
@@ -366,7 +357,6 @@
             color: white;
         }
 
-        /* ===== STORY CARDS ===== */
         .story-card {
             background: var(--bg-card, #ffffff);
             border-radius: 12px;
@@ -516,7 +506,6 @@
             border-top: 1px dashed var(--border-color, #e2e8f0);
         }
 
-        /* ===== PAGINATION ===== */
         .pagination {
             display: flex;
             justify-content: center;
@@ -556,7 +545,6 @@
             font-weight: 500;
         }
 
-        /* ===== GUEST MESSAGE ===== */
         #guestMessage {
             display: none;
             background: #fef3c7;
@@ -601,7 +589,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ===== MODALS ===== */
         .modal {
             display: none;
             position: fixed;
@@ -746,7 +733,6 @@
             cursor: pointer;
         }
 
-        /* ===== FOOTER ===== */
         .footer {
             background: var(--bg-card, #ffffff);
             padding: 2rem;
@@ -1056,26 +1042,220 @@
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT
+    JAVASCRIPT - FIXED VERSION
     ============================================ -->
     <script>
         // ============================================
-        // APPLY GUEST RESTRICTIONS
+        // FIREBASE CONFIG
         // ============================================
-        function applyGuestRestrictions() {
-            var isLoggedIn = false;
-            
-            // Check if currentUser is defined and logged in
-            if (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false) {
-                isLoggedIn = true;
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8qNPQ5aD-Ua00xDU4S6gNy8cXXA5cIZM",
+            authDomain: "theharbor-2f4c6.firebaseapp.com",
+            projectId: "theharbor-2f4c6",
+            storageBucket: "theharbor-2f4c6.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ============================================
+        // STATE
+        // ============================================
+        let currentUser = null;
+        let currentCategory = 'all';
+        let allStories = [];
+        let filteredStories = [];
+        let currentPage = 1;
+        const STORIES_PER_PAGE = 10;
+        let currentEditId = null;
+
+        // ============================================
+        // AUTH FUNCTIONS
+        // ============================================
+        function openModal(mode) {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authError').textContent = '';
+            document.getElementById('authSuccess').textContent = '';
+            if (mode === 'signup') {
+                document.getElementById('modalTitle').textContent = '📝 Join The Harbor';
+                document.getElementById('signupFields').style.display = 'block';
+                document.getElementById('authSubmitBtn').textContent = '📝 Join';
+                document.getElementById('authSwitch').innerHTML =
+                    'Already have an account? <strong>Log In</strong>';
+            } else {
+                document.getElementById('modalTitle').textContent = '🔐 Welcome Back';
+                document.getElementById('signupFields').style.display = 'none';
+                document.getElementById('authSubmitBtn').textContent = '🚀 Log In';
+                document.getElementById('authSwitch').innerHTML =
+                    'Don\'t have an account? <strong>Sign Up</strong>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function toggleAuthMode() {
+            const isSignup = document.getElementById('signupFields').style.display === 'block';
+            if (isSignup) {
+                openModal('login');
+            } else {
+                openModal('signup');
+            }
+        }
+
+        function updateGenderWarning() {
+            // Gender warning already in place
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const isSignup = document.getElementById('signupFields').style.display === 'block';
+
+            if (!email || !password) {
+                document.getElementById('authError').textContent = '⚠️ Please fill in all fields.';
+                return;
             }
 
+            if (isSignup) {
+                const name = document.getElementById('authName').value.trim();
+                const gender = document.getElementById('authGender').value;
+                const country = document.getElementById('authCountry').value.trim();
+                const favorites = document.getElementById('authFavorites').value.trim();
+                const termsChecked = document.getElementById('termsCheckbox').checked;
+
+                if (!name) {
+                    document.getElementById('authError').textContent = '⚠️ Please choose a username.';
+                    return;
+                }
+                if (!gender) {
+                    document.getElementById('authError').textContent = '⚠️ Please select your gender.';
+                    return;
+                }
+                if (!termsChecked) {
+                    document.getElementById('authError').textContent = '⚠️ You must agree to the Terms and Privacy Policy.';
+                    return;
+                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return db.collection('users').doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            gender: gender,
+                            country: country || 'Not specified',
+                            favorites: favorites || 'Not specified',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            isAdmin: false,
+                            isVerified: false,
+                            isPublic: true
+                        });
+                    })
+                    .then(() => {
+                        document.getElementById('authSuccess').textContent = '✅ Account created! Welcome to The Harbor.';
+                        document.getElementById('authError').textContent = '';
+                        setTimeout(() => {
+                            closeModal();
+                            location.reload();
+                        }, 1500);
+                    })
+                    .catch((error) => {
+                        document.getElementById('authError').textContent = '❌ ' + error.message;
+                    });
+            } else {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        document.getElementById('authSuccess').textContent = '✅ Welcome back!';
+                        document.getElementById('authError').textContent = '';
+                        setTimeout(() => {
+                            closeModal();
+                            location.reload();
+                        }, 1000);
+                    })
+                    .catch((error) => {
+                        document.getElementById('authError').textContent = '❌ ' + error.message;
+                    });
+            }
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        // ============================================
+        // AUTH STATE - FIXED
+        // ============================================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        document.getElementById('userName').textContent = data.name || 'Friend';
+                        document.getElementById('userGenderBadge').textContent = data.gender || '';
+                        if (data.isAdmin) {
+                            document.getElementById('adminNavLink').style.display = 'inline-block';
+                        }
+                        if (data.isVerified) {
+                            document.getElementById('verificationBadge').textContent = '✅ Verified';
+                            document.getElementById('verificationBadge').className = 'verification-badge verified';
+                        }
+                    }
+                });
+                
+                // Load stories after login
+                loadStories();
+                applyGuestRestrictions();
+            } else {
+                currentUser = null;
+                document.getElementById('authButtons').style.display = 'flex';
+                document.getElementById('userInfo').style.display = 'none';
+                document.getElementById('adminNavLink').style.display = 'none';
+                
+                // Show guest message and empty state
+                const container = document.getElementById('storiesContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
+                            <div class="big-emoji">🔒</div>
+                            <h3 style="color:#1a4a4a;">Login Required</h3>
+                            <p style="color:#4a5568;">Please log in or join to read and share stories.</p>
+                            <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
+                            </div>
+                            <p style="margin-top:12px;font-size:0.9rem;color:#718096;">
+                                🌊 The Harbor is a safe community for sharing, healing, and growth.
+                            </p>
+                        </div>
+                    `;
+                }
+                applyGuestRestrictions();
+            }
+        });
+
+        // ============================================
+        // GUEST RESTRICTIONS - FIXED
+        // ============================================
+        function applyGuestRestrictions() {
+            const isLoggedIn = currentUser !== null && currentUser !== undefined;
+            
             console.log('🔍 applyGuestRestrictions() - isLoggedIn:', isLoggedIn);
 
             // Show/hide guest-hidden elements
-            var guestElements = document.querySelectorAll('.guest-hidden');
-            for (var i = 0; i < guestElements.length; i++) {
-                var el = guestElements[i];
+            const guestElements = document.querySelectorAll('.guest-hidden');
+            for (let i = 0; i < guestElements.length; i++) {
+                const el = guestElements[i];
                 if (isLoggedIn) {
                     el.style.display = '';
                     el.classList.remove('guest-hidden');
@@ -1086,9 +1266,9 @@
             }
 
             // Show/hide logged-in-hidden elements
-            var loggedInElements = document.querySelectorAll('.logged-in-hidden');
-            for (var j = 0; j < loggedInElements.length; j++) {
-                var el2 = loggedInElements[j];
+            const loggedInElements = document.querySelectorAll('.logged-in-hidden');
+            for (let j = 0; j < loggedInElements.length; j++) {
+                const el2 = loggedInElements[j];
                 if (isLoggedIn) {
                     el2.style.display = 'none';
                     el2.classList.add('logged-in-hidden');
@@ -1099,79 +1279,392 @@
             }
 
             // Guest message
-            var guestMsg = document.getElementById('guestMessage');
+            const guestMsg = document.getElementById('guestMessage');
             if (guestMsg) {
                 guestMsg.style.display = isLoggedIn ? 'none' : 'block';
             }
 
-            // Stories container - show login message if guest
-            var container = document.getElementById('storiesContainer');
-            if (container && !isLoggedIn) {
+            console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
+        }
+
+        // ============================================
+        // LOAD STORIES - COMPLETE FIX
+        // ============================================
+        function loadStories() {
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading stories...</div>';
+
+            const user = auth.currentUser;
+
+            // If NOT logged in - show login message
+            if (!user) {
                 container.innerHTML = `
                     <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
                         <div class="big-emoji">🔒</div>
                         <h3 style="color:#1a4a4a;">Login Required</h3>
                         <p style="color:#4a5568;">Please log in or join to read and share stories.</p>
                         <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                            <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                            <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
+                            <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
+                            <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
                         </div>
                         <p style="margin-top:12px;font-size:0.9rem;color:#718096;">
                             🌊 The Harbor is a safe community for sharing, healing, and growth.
                         </p>
                     </div>
                 `;
+                document.getElementById('paginationContainer').innerHTML = '';
+                return;
             }
 
-            console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
-            console.log('📋 Elements with guest-hidden class:', document.querySelectorAll('.guest-hidden').length);
+            // CHECK IF USER IS ADMIN
+            db.collection('users').doc(user.uid).get()
+                .then((userDoc) => {
+                    const isAdmin = userDoc.data()?.isAdmin || false;
+
+                    if (isAdmin) {
+                        // ADMIN: See ALL stories
+                        console.log('👑 Admin loading all stories');
+                        return db.collection('stories')
+                            .orderBy('createdAt', 'desc')
+                            .get();
+                    } else {
+                        // REGULAR USER: Public + their own private
+                        console.log('👤 Regular user loading stories');
+                        const publicQuery = db.collection('stories')
+                            .where('visibility', '==', 'public')
+                            .orderBy('createdAt', 'desc');
+
+                        const privateQuery = db.collection('stories')
+                            .where('userId', '==', user.uid)
+                            .where('visibility', '==', 'private')
+                            .orderBy('createdAt', 'desc');
+
+                        return Promise.all([publicQuery.get(), privateQuery.get()])
+                            .then(([publicSnap, privateSnap]) => {
+                                let allStories = [];
+                                publicSnap.forEach(doc => allStories.push({ id: doc.id, ...doc.data() }));
+                                privateSnap.forEach(doc => allStories.push({ id: doc.id, ...doc.data() }));
+                                
+                                allStories.sort((a, b) => {
+                                    const aTime = a.createdAt?.toDate?.() || new Date(0);
+                                    const bTime = b.createdAt?.toDate?.() || new Date(0);
+                                    return bTime - aTime;
+                                });
+                                return allStories;
+                            });
+                    }
+                })
+                .then((result) => {
+                    if (Array.isArray(result)) {
+                        allStories = result;
+                    } else if (result && result.docs) {
+                        allStories = [];
+                        result.docs.forEach(doc => allStories.push({ id: doc.id, ...doc.data() }));
+                    } else {
+                        allStories = [];
+                    }
+                    
+                    console.log('📚 Loaded', allStories.length, 'stories');
+                    applyFilters();
+                })
+                .catch((error) => {
+                    console.error('❌ Error loading stories:', error);
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:2rem;color:#dc2626;">
+                            ❌ Error: ${error.message}<br>
+                            <button onclick="loadStories()" style="margin-top:1rem;padding:0.5rem 1.5rem;background:#1a4a4a;color:white;border:none;border-radius:8px;cursor:pointer;">
+                                🔄 Retry
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('paginationContainer').innerHTML = '';
+                });
         }
 
         // ============================================
-        // INIT - Wait for auth and app.js to load
+        // APPLY FILTERS
         // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 DOM ready - Index page');
+        function applyFilters() {
+            const container = document.getElementById('storiesContainer');
+            let filtered = [...allStories];
 
-            // Wait for currentUser to be defined (app.js sets it)
-            var checkAuth = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(checkAuth);
-                    console.log('✅ currentUser detected:', currentUser);
-                    applyGuestRestrictions();
-                    
-                    // If user is logged in, load stories
-                    if (currentUser && typeof loadStories === 'function') {
-                        console.log('📚 Loading stories...');
-                        loadStories();
-                    } else if (currentUser && typeof loadStories !== 'function') {
-                        console.warn('⚠️ loadStories() not defined - check if app.js loaded');
-                    }
-                }
-            }, 100);
-
-            // Also listen for auth state changes
-            if (typeof auth !== 'undefined') {
-                auth.onAuthStateChanged(function(user) {
-                    console.log('🔥 Auth state changed:', user ? 'Logged in' : 'Logged out');
-                    setTimeout(function() {
-                        applyGuestRestrictions();
-                        if (user && typeof loadStories === 'function') {
-                            console.log('📚 Reloading stories after auth change...');
-                            loadStories();
-                        }
-                    }, 300);
-                });
-            } else {
-                console.warn('⚠️ auth is not defined - check if Firebase loaded');
+            // Filter by category
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(s => s.category === currentCategory);
             }
 
-            // Force re-check after 2 seconds (fallback)
-            setTimeout(function() {
-                if (typeof currentUser !== 'undefined') {
-                    applyGuestRestrictions();
+            // Filter by search
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim();
+            if (searchTerm) {
+                filtered = filtered.filter(s =>
+                    (s.title?.toLowerCase().includes(searchTerm)) ||
+                    (s.text?.toLowerCase().includes(searchTerm)) ||
+                    (s.content?.toLowerCase().includes(searchTerm)) ||
+                    (s.userName?.toLowerCase().includes(searchTerm)) ||
+                    (s.authorName?.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            filteredStories = filtered;
+
+            // Pagination
+            const totalPages = Math.ceil(filtered.length / STORIES_PER_PAGE) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * STORIES_PER_PAGE;
+            const pageStories = filtered.slice(start, start + STORIES_PER_PAGE);
+
+            // Render
+            if (pageStories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-emoji">🌊</div>
+                        <h3>No stories found</h3>
+                        <p>Be the first to share your story with the community.</p>
+                        <div style="margin-top:12px;">
+                            <a href="submit.html" class="btn btn-nav" style="background:#c47a5a;color:white;">📝 Share Your Story</a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = pageStories.map(story => `
+                    <div class="story-card">
+                        <div class="story-header">
+                            <div class="story-author-info" onclick="viewProfile('${story.userId || story.uid || ''}')">
+                                <div class="story-avatar">${(story.userName || story.authorName || 'A')[0].toUpperCase()}</div>
+                                <div class="story-meta">
+                                    <span class="story-author-name">${story.userName || story.authorName || 'Anonymous'}</span>
+                                    <span class="story-date">${story.createdAt ? new Date(story.createdAt.toDate()).toLocaleDateString() : 'Just now'}</span>
+                                </div>
+                            </div>
+                            <span class="visibility-badge ${story.visibility === 'public' ? 'badge-public' : 'badge-private'}">
+                                ${story.visibility === 'public' ? '🌍 Public' : '🔒 Private'}
+                            </span>
+                        </div>
+
+                        <h3 class="story-title">${story.title || 'Untitled'}</h3>
+                        <div class="story-content">
+                            ${story.text || story.content || ''}
+                        </div>
+
+                        ${currentUser && story.userId === currentUser.uid ? `
+                            <div class="story-actions">
+                                <button class="btn-action btn-edit" onclick="openEditModal('${story.id}')">✏️ Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteStory('${story.id}')">🗑️ Delete</button>
+                                <button class="btn-action btn-visibility ${story.visibility === 'private' ? 'private' : ''}" 
+                                        onclick="toggleVisibility('${story.id}')">
+                                    ${story.visibility === 'public' ? '🔒 Make Private' : '🌍 Make Public'}
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+
+            renderPagination(totalPages);
+        }
+
+        // ============================================
+        // PAGINATION
+        // ============================================
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationContainer');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>◀ Prev</button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="active">${i}</button>`;
+                } else if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+                    html += `<button onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<span class="page-info">…</span>`;
                 }
-            }, 2000);
+            }
+
+            html += `
+                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ▶</button>
+                <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredStories.length / STORIES_PER_PAGE) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            applyFilters();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ============================================
+        // CATEGORY SWITCH
+        // ============================================
+        function switchCategory(category) {
+            currentCategory = category;
+            currentPage = 1;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const activeTab = document.querySelector(`.tab[data-category="${category}"]`);
+            if (activeTab) activeTab.classList.add('active');
+            applyFilters();
+        }
+
+        // ============================================
+        // SEARCH
+        // ============================================
+        function searchStories() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        // ============================================
+        // EDIT FUNCTIONS
+        // ============================================
+        function openEditModal(storyId) {
+            const story = allStories.find(s => s.id === storyId);
+            if (!story) return;
+
+            currentEditId = storyId;
+            document.getElementById('editTitle').value = story.title || '';
+            document.getElementById('editContent').value = story.text || story.content || '';
+            document.getElementById('editError').textContent = '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditId = null;
+        }
+
+        function saveEdit() {
+            const title = document.getElementById('editTitle').value.trim();
+            const content = document.getElementById('editContent').value.trim();
+
+            if (!title || !content) {
+                document.getElementById('editError').textContent = '⚠️ Title and content are required.';
+                return;
+            }
+
+            db.collection('stories').doc(currentEditId).update({
+                title: title,
+                text: content,
+                content: content,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                closeEditModal();
+                loadStories();
+            }).catch((error) => {
+                document.getElementById('editError').textContent = '❌ ' + error.message;
+            });
+        }
+
+        // ============================================
+        // DELETE
+        // ============================================
+        function deleteStory(storyId) {
+            if (!confirm('⚠️ Are you sure you want to delete this story? This cannot be undone.')) return;
+
+            db.collection('stories').doc(storyId).delete()
+                .then(() => {
+                    loadStories();
+                })
+                .catch((error) => {
+                    alert('❌ Error deleting story: ' + error.message);
+                });
+        }
+
+        // ============================================
+        // TOGGLE VISIBILITY
+        // ============================================
+        function toggleVisibility(storyId) {
+            const story = allStories.find(s => s.id === storyId);
+            if (!story) return;
+
+            const newVisibility = story.visibility === 'public' ? 'private' : 'public';
+
+            db.collection('stories').doc(storyId).update({
+                visibility: newVisibility
+            }).then(() => {
+                loadStories();
+            }).catch((error) => {
+                alert('❌ Error updating visibility: ' + error.message);
+            });
+        }
+
+        // ============================================
+        // VIEW PROFILE
+        // ============================================
+        function viewProfile(userId) {
+            if (userId) {
+                window.location.href = `profile.html?uid=${userId}`;
+            }
+        }
+
+        // ============================================
+        // COUNTRY LIST
+        // ============================================
+        const countries = [
+            'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Argentina', 'Armenia',
+            'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados',
+            'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina',
+            'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia',
+            'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile',
+            'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus',
+            'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador',
+            'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini',
+            'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany',
+            'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras',
+            'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel',
+            'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait', 'Kyrgyzstan',
+            'Laos', 'Latvia', 'Lebanon', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania',
+            'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta',
+            'Mauritania', 'Mauritius', 'Mexico', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro',
+            'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nepal', 'Netherlands', 'New Zealand',
+            'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia', 'Norway', 'Oman', 'Pakistan',
+            'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines',
+            'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis',
+            'Saint Lucia', 'Samoa', 'San Marino', 'Saudi Arabia', 'Senegal', 'Serbia',
+            'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Somalia',
+            'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
+            'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania',
+            'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia',
+            'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates',
+            'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City',
+            'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+        ];
+
+        // Populate country datalist
+        document.addEventListener('DOMContentLoaded', function() {
+            const datalist = document.getElementById('country-list');
+            if (datalist) {
+                countries.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    datalist.appendChild(option);
+                });
+            }
+        });
+
+        // ============================================
+        // DOM READY INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM ready - Index page (FIXED)');
+            
+            // Check if currentUser is already set
+            if (currentUser) {
+                applyGuestRestrictions();
+                if (typeof loadStories === 'function') {
+                    loadStories();
+                }
+            }
         });
 
         console.log('✅ Index page loaded (FINAL FIXED VERSION)');
