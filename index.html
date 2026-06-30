@@ -39,11 +39,13 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
+        /* ===== CATEGORY INFO STYLES ===== */
         .category-info-wrapper {
             display: inline-flex;
             align-items: center;
             gap: 4px;
             position: relative;
+            z-index: 9999;
         }
         .category-info-wrapper .tab-text {
             display: inline-block;
@@ -55,42 +57,44 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--bg-secondary);
-            color: var(--text-muted);
+            background: var(--bg-secondary, #f0f4f8);
+            color: var(--text-muted, #718096);
             font-size: 10px;
             font-weight: 700;
             cursor: help;
-            transition: all var(--transition-fast);
-            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color, #e2e8f0);
             flex-shrink: 0;
             margin-left: 2px;
+            position: relative;
+            z-index: 9999;
         }
         .category-info-trigger:hover {
-            background: var(--primary);
+            background: var(--primary, #1a4a4a);
             color: white;
             transform: scale(1.1);
-            border-color: var(--primary);
+            border-color: var(--primary, #1a4a4a);
         }
         .category-info-tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%) scale(0.9);
-            background: var(--text-primary);
-            color: var(--bg-primary);
+            background: var(--text-primary, #1a1a2e);
+            color: var(--bg-primary, #f0f4f8);
             padding: 8px 14px;
-            border-radius: var(--radius-sm);
+            border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 400;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
             max-width: 260px;
             white-space: normal;
             text-align: center;
-            box-shadow: var(--shadow-lg);
-            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+            z-index: 99999 !important;
             line-height: 1.4;
         }
         .category-info-trigger:hover .category-info-tooltip {
@@ -98,10 +102,12 @@
             transform: translateX(-50%) scale(1);
         }
 
+        /* ===== HERO ===== */
         .hero-actions .btn {
             padding: 0.6rem 1.8rem;
         }
 
+        /* ===== GUEST MESSAGE ===== */
         #guestMessage {
             display: none;
             background: #fef3c7;
@@ -112,16 +118,15 @@
             color: #92400e;
         }
 
-        /* Guest hidden class - hides elements for non-logged-in users */
+        /* ===== GUEST CLASSES ===== */
         .guest-hidden {
             display: none !important;
         }
-
-        /* Logged-in only class - hides elements for logged-in users */
         .logged-in-hidden {
             display: none !important;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 600px) {
             .category-info-tooltip {
                 max-width: 180px;
@@ -268,7 +273,6 @@
 
         <!-- ===== STORIES CONTAINER ===== -->
         <div id="storiesContainer">
-            <!-- Will show "Login Required" for guests, or stories for logged in -->
             <div class="loading"><div class="loading-spinner"></div> Loading stories...</div>
         </div>
 
@@ -383,28 +387,14 @@
     <script src="js/comments.js"></script>
 
     <script>
-        // Apply guest restrictions on page load and auth change
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkAuth = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(checkAuth);
-                    applyGuestRestrictions();
-                }
-            }, 100);
-
-            if (typeof auth !== 'undefined') {
-                auth.onAuthStateChanged(function(user) {
-                    setTimeout(applyGuestRestrictions, 200);
-                });
-            }
-        });
-
+        // ============================================
+        // APPLY GUEST RESTRICTIONS - FIXED
+        // ============================================
         function applyGuestRestrictions() {
             const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
+            
+            // Handle guest-hidden elements (visible only when logged in)
             const guestElements = document.querySelectorAll('.guest-hidden');
-            const loggedInElements = document.querySelectorAll('.logged-in-hidden');
-
-            // Show/hide guest-hidden elements (visible only when logged in)
             guestElements.forEach(function(el) {
                 if (isLoggedIn) {
                     el.style.display = '';
@@ -413,7 +403,8 @@
                 }
             });
 
-            // Show/hide logged-in-hidden elements (visible only when NOT logged in)
+            // Handle logged-in-hidden elements (visible only when NOT logged in)
+            const loggedInElements = document.querySelectorAll('.logged-in-hidden');
             loggedInElements.forEach(function(el) {
                 if (isLoggedIn) {
                     el.style.display = 'none';
@@ -428,7 +419,7 @@
                 guestMsg.style.display = isLoggedIn ? 'none' : 'block';
             }
 
-            // Stories container
+            // Stories container - show login message if guest
             const container = document.getElementById('storiesContainer');
             if (container && !isLoggedIn) {
                 container.innerHTML = `
@@ -446,9 +437,31 @@
                     </div>
                 `;
             }
+
+            console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
         }
 
-        console.log('✅ Index page loaded with guest restrictions');
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth state
+            const checkAuth = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(checkAuth);
+                    applyGuestRestrictions();
+                }
+            }, 100);
+
+            // Also check on auth change
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function(user) {
+                    setTimeout(applyGuestRestrictions, 200);
+                });
+            }
+        });
+
+        console.log('✅ Index page loaded with category info icons and guest restrictions');
     </script>
 
 </body>
