@@ -28,12 +28,12 @@
         gtag('config', 'G-81R2FX47H0');
     </script>
 
-    <!-- Firebase (must be first) -->
+    <!-- ===== FIREBASE ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- Core app scripts -->
+    <!-- ===== EXTERNAL SCRIPTS ===== -->
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
@@ -105,9 +105,415 @@
             transform: translateX(-50%) scale(1);
         }
 
+        /* ===== HEADER ===== */
+        .header {
+            background: white;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a4a4a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo span { font-weight: 300; }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-nav {
+            background: #f0f4f8;
+            color: #1a4a4a;
+        }
+        .btn-nav:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-feed {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-feed:hover {
+            background: #2d6a6a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26,74,74,0.3);
+        }
+
+        .btn-settings {
+            font-size: 1.4rem;
+            padding: 4px 10px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #4a5568;
+            transition: transform 0.2s ease;
+            border-radius: 8px;
+        }
+        .btn-settings:hover {
+            transform: rotate(60deg);
+            background: #f0f4f8;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #1a4a4a;
+            border: 2px solid #1a4a4a;
+        }
+        .btn-login:hover {
+            background: #1a4a4a;
+            color: white;
+        }
+
+        .btn-signup {
+            background: #1a4a4a;
+            color: white;
+        }
+        .btn-signup:hover {
+            background: #2d6a6a;
+        }
+
+        .btn-logout {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-logout:hover {
+            background: #fecaca;
+        }
+
+        /* Guest classes */
+        .guest-hidden {
+            display: none !important;
+        }
+        .logged-in-hidden {
+            display: none !important;
+        }
+
+        #userInfo {
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        #userName {
+            font-weight: 600;
+            color: #1a4a4a;
+        }
+
+        .verification-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .verification-badge.verified {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
         /* ===== HERO ===== */
-        .hero-actions .btn {
-            padding: 0.6rem 1.8rem;
+        .hero {
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-radius: 16px;
+            margin: 1.5rem 0;
+        }
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 300;
+        }
+        .hero h1 span {
+            font-weight: 700;
+            color: #c47a5a;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-top: 6px;
+        }
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        /* ===== SEARCH ===== */
+        .search-bar {
+            max-width: 600px;
+            margin: -16px auto 20px;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 9999px;
+            font-size: 1rem;
+            outline: none;
+            background: var(--bg-card, #ffffff);
+            color: var(--text-primary, #1a1a2e);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .search-bar input:focus {
+            border-color: #1a4a4a;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 1.5rem 0 1.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color, #e2e8f0);
+        }
+        .tab {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary, #4a5568);
+        }
+        .tab:hover {
+            background: var(--bg-secondary, #f0f4f8);
+        }
+        .tab.active {
+            background: #1a4a4a;
+            color: white;
+        }
+
+        /* ===== STORY CARDS ===== */
+        .story-card {
+            background: var(--bg-card, #ffffff);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color, #e2e8f0);
+            transition: all 0.2s ease;
+        }
+        .story-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+        }
+
+        .story-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .story-author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+        }
+
+        .story-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .story-meta {
+            display: flex;
+            flex-direction: column;
+        }
+        .story-author-name {
+            font-weight: 600;
+            color: var(--text-primary, #1a1a2e);
+        }
+        .story-date {
+            font-size: 0.8rem;
+            color: var(--text-muted, #718096);
+        }
+
+        .story-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0.3rem 0;
+            color: var(--text-primary, #1a1a2e);
+        }
+
+        .story-content {
+            color: var(--text-secondary, #2d3748);
+            margin: 0.5rem 0;
+            line-height: 1.7;
+            word-wrap: break-word;
+        }
+
+        .visibility-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge-public {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .badge-private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .story-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+        }
+
+        .btn-action {
+            padding: 0.35rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-edit {
+            background: #eef2ff;
+            color: #4a6cf7;
+        }
+        .btn-edit:hover {
+            background: #dce3ff;
+        }
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        .btn-visibility {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .btn-visibility.private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .read-more-btn {
+            background: none;
+            border: none;
+            color: #c47a5a;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        .read-more-btn:hover {
+            color: #a86545;
+            text-decoration: underline;
+        }
+
+        .story-full-content {
+            display: none;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border-color, #e2e8f0);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2.5rem 0;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            padding: 0.4rem 0.9rem;
+            border: 1px solid var(--border-color, #e2e8f0);
+            background: var(--bg-card, #ffffff);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: var(--text-secondary, #4a5568);
+            font-size: 0.9rem;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #1a4a4a;
+            color: white;
+            border-color: #1a4a4a;
+        }
+        .pagination button.active {
+            background: #1a4a4a;
+            color: white;
+            border-color: #1a4a4a;
+        }
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .page-info {
+            padding: 0.4rem 1rem;
+            color: var(--text-muted, #718096);
+            font-weight: 500;
         }
 
         /* ===== GUEST MESSAGE ===== */
@@ -121,15 +527,26 @@
             color: #92400e;
         }
 
-        /* ===== GUEST CLASSES ===== */
-        .guest-hidden {
-            display: none !important;
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted, #718096);
         }
-        .logged-in-hidden {
-            display: none !important;
+        .empty-state .big-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .empty-state h3 {
+            color: var(--text-primary, #1a1a2e);
+            margin-bottom: 8px;
         }
 
-        /* ===== LOADING SPINNER ===== */
+        .loading {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted, #718096);
+        }
         .loading-spinner {
             display: inline-block;
             width: 40px;
@@ -144,28 +561,196 @@
             to { transform: rotate(360deg); }
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px 0;
+        /* ===== MODALS ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-card, #ffffff);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
             color: var(--text-muted, #718096);
         }
+        .modal-close:hover {
+            color: var(--text-primary, #1a1a2e);
+        }
+        .modal-content h2 {
+            margin-bottom: 1.2rem;
+            color: var(--text-primary, #1a4a4a);
+        }
+        .modal-content label {
+            display: block;
+            font-weight: 600;
+            margin: 0.8rem 0 0.3rem;
+            color: var(--text-secondary, #2d3748);
+            font-size: 0.9rem;
+        }
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border 0.2s ease;
+            background: var(--bg-primary, #f0f4f8);
+            color: var(--text-primary, #1a1a2e);
+            font-family: inherit;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus,
+        .modal-content textarea:focus {
+            border-color: #1a4a4a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26,74,74,0.12);
+        }
+        .modal-content textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
 
-        /* ===== RESPONSIVE ===== */
+        .btn-modal {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1a4a4a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-modal:hover {
+            background: #2d6a6a;
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted, #718096);
+            cursor: pointer;
+        }
+        .switch-link strong {
+            color: var(--text-primary, #1a4a4a);
+        }
+
+        .error-msg {
+            color: #dc2626;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .success-msg {
+            color: #16a34a;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.8rem 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            accent-color: #1a4a4a;
+        }
+        .checkbox-group label {
+            margin: 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--bg-card, #ffffff);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+            margin-top: 2rem;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 0.8rem 0;
+        }
+        .footer-links a {
+            color: var(--text-muted, #4a5568);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            color: var(--text-primary, #1a4a4a);
+        }
+        .footer-copy {
+            font-size: 0.75rem;
+            color: var(--text-muted, #718096);
+            margin-top: 8px;
+        }
+
+        #emergencyBanner {
+            display: none;
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
         @media (max-width: 600px) {
-            .category-info-tooltip {
-                max-width: 180px;
-                font-size: 0.7rem;
-                white-space: normal;
-            }
-            .tab {
-                font-size: 0.75rem;
-                padding: 0.3rem 0.6rem;
-            }
-            .category-info-trigger {
-                width: 14px;
-                height: 14px;
-                font-size: 8px;
-            }
             .header {
                 padding: 0.6rem 1rem;
                 flex-direction: column;
@@ -199,18 +784,18 @@
 </head>
 <body>
 
-    <!-- ===== HEADER - Consistent with all pages ===== -->
+    <!-- ===== HEADER ===== -->
     <header class="header">
         <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
 
         <div class="header-right">
-            <!-- FEED BUTTON - Only visible when logged in -->
+            <!-- FEED BUTTON -->
             <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
 
             <!-- About - Always visible -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
 
-            <!-- Guest Restricted Elements - Only visible when logged in -->
+            <!-- Guest Restricted Elements -->
             <div class="guest-restricted guest-hidden">
                 <a href="submit.html" class="btn btn-nav">📝 Share</a>
                 <a href="profile.html" class="btn btn-nav">👤 Profile</a>
@@ -219,16 +804,16 @@
                 <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
             </div>
 
-            <!-- Settings Gear - Only visible when logged in -->
+            <!-- Settings Gear -->
             <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
 
-            <!-- Auth Buttons - Only visible when NOT logged in -->
+            <!-- Auth Buttons -->
             <div id="authButtons" class="logged-in-hidden">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
 
-            <!-- User Info - Only visible when logged in -->
+            <!-- User Info -->
             <div id="userInfo" class="guest-hidden">
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge"></span>
@@ -246,7 +831,7 @@
         <p>🔒 <strong>Welcome to The Harbor!</strong> Please <a href="#" onclick="openModal('login');return false;">Log In</a> or <a href="#" onclick="openModal('signup');return false;">Join</a> to read and share stories.</p>
     </div>
 
-    <!-- ===== HERO - Always visible ===== -->
+    <!-- ===== HERO ===== -->
     <div class="container">
         <section class="hero">
             <h1>⚓ Welcome to <span>The Harbor</span></h1>
@@ -259,12 +844,12 @@
         </section>
     </div>
 
-    <!-- ===== SEARCH - Only visible when logged in ===== -->
+    <!-- ===== SEARCH ===== -->
     <div class="search-bar guest-hidden">
         <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter') searchStories()" />
     </div>
 
-    <!-- ===== TABS - Only visible when logged in ===== -->
+    <!-- ===== CATEGORY TABS ===== -->
     <div class="container">
         <div class="tabs guest-hidden" id="categoryTabs">
             <button class="tab active" data-category="all" onclick="switchCategory('all')">
@@ -431,7 +1016,7 @@
     </footer>
 
     <!-- ============================================
-    JAVASCRIPT - Guest Restrictions & Initialization
+    JAVASCRIPT
     ============================================ -->
     <script>
         // ============================================
@@ -439,27 +1024,47 @@
         // ============================================
         function applyGuestRestrictions() {
             var isLoggedIn = false;
+            
+            // Check if currentUser is defined and logged in
             if (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false) {
                 isLoggedIn = true;
             }
 
+            console.log('🔍 applyGuestRestrictions() - isLoggedIn:', isLoggedIn);
+
+            // Show/hide guest-hidden elements
             var guestElements = document.querySelectorAll('.guest-hidden');
             for (var i = 0; i < guestElements.length; i++) {
                 var el = guestElements[i];
-                el.style.display = isLoggedIn ? '' : 'none';
+                if (isLoggedIn) {
+                    el.style.display = '';
+                    el.classList.remove('guest-hidden');
+                } else {
+                    el.style.display = 'none';
+                    el.classList.add('guest-hidden');
+                }
             }
 
+            // Show/hide logged-in-hidden elements
             var loggedInElements = document.querySelectorAll('.logged-in-hidden');
             for (var j = 0; j < loggedInElements.length; j++) {
                 var el2 = loggedInElements[j];
-                el2.style.display = isLoggedIn ? 'none' : '';
+                if (isLoggedIn) {
+                    el2.style.display = 'none';
+                    el2.classList.add('logged-in-hidden');
+                } else {
+                    el2.style.display = '';
+                    el2.classList.remove('logged-in-hidden');
+                }
             }
 
+            // Guest message
             var guestMsg = document.getElementById('guestMessage');
             if (guestMsg) {
                 guestMsg.style.display = isLoggedIn ? 'none' : 'block';
             }
 
+            // Stories container - show login message if guest
             var container = document.getElementById('storiesContainer');
             if (container && !isLoggedIn) {
                 container.innerHTML = `
@@ -477,39 +1082,59 @@
                     </div>
                 `;
             }
+
             console.log('✅ Guest restrictions applied. Logged in:', isLoggedIn);
+            console.log('📋 Elements with guest-hidden class:', document.querySelectorAll('.guest-hidden').length);
         }
 
         // ============================================
         // INIT - Wait for auth and app.js to load
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Check for currentUser periodically (app.js sets it)
+            console.log('📄 DOM ready - Index page');
+
+            // Wait for currentUser to be defined (app.js sets it)
             var checkAuth = setInterval(function() {
                 if (typeof currentUser !== 'undefined') {
                     clearInterval(checkAuth);
+                    console.log('✅ currentUser detected:', currentUser);
                     applyGuestRestrictions();
-                    // If user is logged in, load stories (app.js provides loadStories)
+                    
+                    // If user is logged in, load stories
                     if (currentUser && typeof loadStories === 'function') {
+                        console.log('📚 Loading stories...');
                         loadStories();
+                    } else if (currentUser && typeof loadStories !== 'function') {
+                        console.warn('⚠️ loadStories() not defined - check if app.js loaded');
                     }
                 }
             }, 100);
 
-            // Also listen for auth state changes (from app.js)
+            // Also listen for auth state changes
             if (typeof auth !== 'undefined') {
                 auth.onAuthStateChanged(function(user) {
+                    console.log('🔥 Auth state changed:', user ? 'Logged in' : 'Logged out');
                     setTimeout(function() {
                         applyGuestRestrictions();
                         if (user && typeof loadStories === 'function') {
+                            console.log('📚 Reloading stories after auth change...');
                             loadStories();
                         }
-                    }, 200);
+                    }, 300);
                 });
+            } else {
+                console.warn('⚠️ auth is not defined - check if Firebase loaded');
             }
+
+            // Force re-check after 2 seconds (fallback)
+            setTimeout(function() {
+                if (typeof currentUser !== 'undefined') {
+                    applyGuestRestrictions();
+                }
+            }, 2000);
         });
 
-        console.log('✅ Index page loaded (final version)');
+        console.log('✅ Index page loaded (FINAL FIXED VERSION)');
     </script>
 
 </body>
