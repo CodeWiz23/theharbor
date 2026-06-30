@@ -20,73 +20,74 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 24px;
+            margin-bottom: var(--space-lg);
         }
         .activity-header h1 {
             font-weight: 300;
-            color: #1a4a4a;
+            color: var(--text-primary);
         }
         .activity-header h1 span {
             font-weight: 700;
-            color: #c47a5a;
+            color: var(--secondary);
         }
+
         .activity-tabs {
             display: flex;
-            gap: 10px;
+            gap: var(--space-sm);
             flex-wrap: wrap;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #d4c8b8;
-            padding-bottom: 12px;
+            margin-bottom: var(--space-md);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: var(--space-sm);
         }
         .activity-tab {
-            padding: 8px 24px;
+            padding: 0.5rem 1.5rem;
             border: none;
-            border-radius: 30px;
-            background: #e8ddd0;
+            border-radius: var(--radius-full);
+            background: var(--bg-secondary);
             cursor: pointer;
             font-weight: 600;
-            color: #2d3a3a;
-            transition: 0.3s;
-            font-size: 0.95rem;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+            font-size: 0.9rem;
         }
         .activity-tab:hover {
-            background: #d4c8b8;
+            background: var(--border-color);
             transform: translateY(-2px);
         }
         .activity-tab.active {
-            background: #1a4a4a;
-            color: #f5f0eb;
+            background: var(--primary);
+            color: white;
         }
         .activity-tab .count {
-            background: #c47a5a;
+            background: var(--secondary);
             color: white;
             padding: 0 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
             margin-left: 6px;
         }
         .activity-tab.active .count {
-            background: #f5d6b3;
-            color: #1a4a4a;
+            background: white;
+            color: var(--primary);
         }
 
         .activity-item {
-            background: #f5f0eb;
-            padding: 16px 20px;
-            border-radius: 12px;
-            border: 1px solid #d4c8b8;
-            margin-bottom: 12px;
-            transition: 0.3s;
+            background: var(--bg-card);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: var(--space-sm);
+            transition: all var(--transition-fast);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: var(--space-md);
             flex-wrap: wrap;
         }
         .activity-item:hover {
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-md);
             transform: translateX(4px);
-            border-color: #c47a5a;
+            border-color: var(--primary-light);
         }
         .activity-item .icon {
             font-size: 1.8rem;
@@ -95,60 +96,61 @@
         }
         .activity-item .content {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
         }
         .activity-item .content .title {
             font-weight: 600;
-            color: #1a4a4a;
+            color: var(--text-primary);
             font-size: 1rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-xs);
             flex-wrap: wrap;
         }
         .activity-item .content .meta {
             font-size: 0.85rem;
-            color: #7a9e7e;
+            color: var(--text-muted);
             margin-top: 2px;
         }
         .activity-item .content .excerpt {
             font-size: 0.9rem;
-            color: #2d3a3a;
+            color: var(--text-secondary);
             margin-top: 4px;
             line-height: 1.5;
         }
         .activity-item .badge {
             padding: 2px 12px;
-            border-radius: 20px;
+            border-radius: var(--radius-full);
             font-size: 0.7rem;
             font-weight: 600;
             display: inline-block;
         }
         .badge-reaction {
-            background: #f5d6b3;
-            color: #1a4a4a;
+            background: #fef3c7;
+            color: #92400e;
         }
         .badge-comment {
-            background: #d4e8d4;
-            color: #1a4a4a;
+            background: #dcfce7;
+            color: #166534;
         }
         .badge-story {
-            background: #d4e0f0;
-            color: #1a4a4a;
+            background: #dbeafe;
+            color: #1e40af;
         }
+
         .activity-item .go-link {
-            color: #c47a5a;
+            color: var(--secondary);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.85rem;
             padding: 4px 14px;
-            border: 1px solid #c47a5a;
-            border-radius: 20px;
-            transition: 0.3s;
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-full);
+            transition: all var(--transition-fast);
             white-space: nowrap;
         }
         .activity-item .go-link:hover {
-            background: #c47a5a;
+            background: var(--secondary);
             color: white;
         }
         .activity-item .go-link.disabled {
@@ -159,333 +161,58 @@
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #7a9e7e;
+            padding: var(--space-2xl) var(--space-lg);
+            color: var(--text-muted);
         }
         .empty-state .big-emoji {
             font-size: 3.5rem;
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: var(--space-md);
         }
         .empty-state h3 {
-            color: #1a4a4a;
-            margin-bottom: 8px;
-        }
-        .empty-state p {
-            color: #7a9e7e;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
         }
 
         .loading {
             text-align: center;
-            color: #7a9e7e;
-            padding: 40px 0;
-            font-size: 1.1rem;
+            padding: var(--space-2xl);
+            color: var(--text-muted);
         }
 
         .btn-primary {
-            background: #c47a5a;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 28px;
+            background: var(--primary);
             color: white;
-            font-weight: 700;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
-            display: inline-block;
+            transition: all var(--transition-fast);
             text-decoration: none;
+            display: inline-block;
         }
         .btn-primary:hover {
-            background: #a8654a;
+            background: var(--primary-light);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(196, 122, 90, 0.3);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-secondary {
-            background: transparent;
-            border: 2px solid #c47a5a;
-            border-radius: 50px;
-            padding: 10px 24px;
-            color: #c47a5a;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 0.5rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-full);
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
-            display: inline-block;
+            transition: all var(--transition-fast);
             text-decoration: none;
+            display: inline-block;
         }
         .btn-secondary:hover {
-            background: #c47a5a;
-            color: white;
-        }
-
-        .header {
-            background: #1a4a4a;
-            color: #f5f0eb;
-            padding: 16px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-        }
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-        .logo {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #f5d6b3;
-            text-decoration: none;
-        }
-        .logo span {
-            font-weight: 300;
-            color: #d4c8b8;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .btn-nav {
-            background: transparent;
-            border: 1px solid #f5d6b3;
-            border-radius: 50px;
-            padding: 6px 16px;
-            color: #f5d6b3;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
-            font-size: 0.9rem;
-        }
-        .btn-nav:hover {
-            background: #f5d6b3;
-            color: #1a4a4a;
-        }
-        .btn-login, .btn-signup, .btn-logout {
-            padding: 6px 16px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 0.9rem;
-        }
-        .btn-login {
-            background: transparent;
-            border: 1px solid #7a9e7e;
-            color: #7a9e7e;
-        }
-        .btn-login:hover {
-            background: #7a9e7e;
-            color: white;
-        }
-        .btn-signup {
-            background: #c47a5a;
-            color: white;
-        }
-        .btn-signup:hover {
-            background: #a8654a;
-        }
-        .btn-logout {
-            background: #c0392b;
-            color: white;
-        }
-        .btn-logout:hover {
-            background: #a93226;
-        }
-        #userInfo {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        #userName {
-            font-weight: 600;
-            color: #f5d6b3;
-        }
-        #userGenderBadge {
-            background: #2d3a3a;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-        }
-        .verification-badge {
-            font-size: 0.75rem;
-            padding: 2px 10px;
-            border-radius: 20px;
-            background: #c0392b;
-            color: white;
-        }
-        .verification-badge.verified {
-            background: #27ae60;
-        }
-
-        .footer {
-            background: #1a4a4a;
-            color: #d4c8b8;
-            padding: 30px 5% 20px;
-            margin-top: 40px;
-            text-align: center;
-        }
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin: 12px 0;
-        }
-        .footer-links a {
-            color: #f5d6b3;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .modal-content {
-            background: #f5f0eb;
-            padding: 30px 40px;
-            border-radius: 16px;
-            max-width: 480px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #7a9e7e;
-            transition: 0.3s;
-        }
-        .modal-close:hover {
-            color: #1a4a4a;
-        }
-        .modal-content label {
-            display: block;
-            margin-top: 14px;
-            font-weight: 600;
-            color: #1a4a4a;
-            font-size: 0.9rem;
-        }
-        .modal-content input,
-        .modal-content select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #d4c8b8;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-top: 4px;
-            background: white;
-            transition: 0.3s;
-        }
-        .modal-content input:focus,
-        .modal-content select:focus {
-            border-color: #c47a5a;
-            outline: none;
-        }
-        .btn-modal {
-            width: 100%;
-            padding: 12px;
-            margin-top: 18px;
-            background: #1a4a4a;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-modal:hover {
-            background: #2d5a5a;
-        }
-        .btn-modal:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .switch-link {
-            text-align: center;
-            margin-top: 14px;
-            color: #7a9e7e;
-            cursor: pointer;
-        }
-        .switch-link strong {
-            color: #c47a5a;
-        }
-        .switch-link:hover strong {
-            text-decoration: underline;
-        }
-        .error-msg {
-            color: #c0392b;
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
-        .success-msg {
-            color: #27ae60;
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
-        .warning-box {
-            background: #f5d6b3;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin: 12px 0;
-            display: none;
-            font-size: 0.9rem;
-        }
-        .warning-box.show {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #signupFields {
-            display: none;
-        }
-        #passwordStrength {
-            margin-top: 4px;
-        }
-        #usernameStatus {
-            margin-top: 4px;
-            font-size: 0.85rem;
-        }
-
-        #emergencyBanner {
-            background: #c0392b;
-            color: white;
-            padding: 10px 5%;
-            text-align: center;
-            font-size: 0.95rem;
-            display: none;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 24px 5% 40px;
+            background: var(--border-color);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 600px) {
@@ -496,41 +223,34 @@
             .activity-item .go-link {
                 align-self: flex-start;
             }
-            .header {
-                padding: 12px 4%;
-            }
-            .logo {
-                font-size: 1.2rem;
-            }
-            .header-right {
-                gap: 6px;
-            }
-            .btn-nav, .btn-login, .btn-signup, .btn-logout {
-                font-size: 0.8rem;
-                padding: 4px 12px;
-            }
-            .modal-content {
-                padding: 20px;
-            }
             .activity-tab {
-                padding: 6px 16px;
-                font-size: 0.85rem;
+                padding: 0.3rem 1rem;
+                font-size: 0.8rem;
+            }
+            .activity-header h1 {
+                font-size: 1.4rem;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- HEADER - with Admin link -->
+    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
+            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
             <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <a href="submit.html" class="btn btn-nav">📝 Share</a>
-            <!-- Admin link - hidden by default, shown only to admins -->
-            <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <div class="guest-restricted">
+                <a href="submit.html" class="btn btn-nav">📝 Share</a>
+                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+                <a href="activity.html" class="btn btn-nav" style="background:var(--primary);color:white;">📊 Activity</a>
+                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            </div>
+            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
             <div id="authButtons">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
@@ -544,12 +264,14 @@
         </div>
     </header>
 
+    <!-- ===== EMERGENCY BANNER ===== -->
     <div id="emergencyBanner"></div>
 
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="container">
         <div class="activity-header">
             <h1>📊 My <span>Activity</span></h1>
-            <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-block;">← Back</a>
+            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;">← Back</a>
         </div>
 
         <div class="activity-tabs">
@@ -557,7 +279,7 @@
                 📋 All <span class="count" id="countAll">0</span>
             </button>
             <button class="activity-tab" data-tab="stories" onclick="switchTab('stories')">
-                📝 My Stories <span class="count" id="countStories">0</span>
+                📝 Stories <span class="count" id="countStories">0</span>
             </button>
             <button class="activity-tab" data-tab="comments" onclick="switchTab('comments')">
                 💬 Comments <span class="count" id="countComments">0</span>
@@ -568,31 +290,18 @@
         </div>
 
         <div id="activityContainer">
-            <div class="loading">⏳ Loading activity...</div>
+            <div class="loading"><div class="loading-spinner"></div> Loading activity...</div>
         </div>
     </div>
 
-    <footer class="footer">
-        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
-        <div class="footer-links">
-            <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
-            <a href="emergency.html">🆘 Emergency</a>
-            <a href="activity.html">📊 Activity</a>
-        </div>
-        <div style="margin-top:8px;font-size:0.75rem;color:#6a8a7a;">
-            &copy; 2026 The Harbor — Built with 💚 for the community
-        </div>
-    </footer>
-
+    <!-- ===== AUTH MODAL ===== -->
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
 
             <div class="warning-box" id="genderWarning">
-                <span class="icon">⚠️</span>
+                <span>⚠️</span>
                 <span id="genderWarningText">Your gender determines which sections you can see.</span>
             </div>
 
@@ -615,7 +324,7 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-                <div style="font-size:0.8rem;color:#7a9e7e;margin-top:4px;">
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
                     📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
                 </div>
 
@@ -625,6 +334,15 @@
 
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <label for="termsCheckbox">
+                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
+                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
+                        <span style="color:var(--danger);">*</span>
+                    </label>
+                </div>
             </div>
 
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
@@ -638,51 +356,39 @@
         </div>
     </div>
 
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="activity.html">📊 Activity</a>
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html">📝 Share Story</a>
+            <a href="profile.html">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+            <a href="suggest.html">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div class="footer-copy">
+            © 2026 The Harbor — All Rights Reserved.<br>
+            Built with 💚 for the community.
+        </div>
+    </footer>
+
+    <!-- ============================================
+    JAVASCRIPT
+    ============================================ -->
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/gold.js"></script>
+    <script src="js/comments.js"></script>
+
     <script>
     // ============================================
-    // FIREBASE CONFIG
+    // ACTIVITY PAGE - COMPLETE
     // ============================================
-    const firebaseConfig = {
-        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
-        authDomain: "the-harbor-community.firebaseapp.com",
-        projectId: "the-harbor-community",
-        storageBucket: "the-harbor-community.firebasestorage.app",
-        messagingSenderId: "634248505303",
-        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
-    };
 
-    // Check if Firebase is already initialized
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // ============================================
-    // ACTIVITY PAGE STATE
-    // ============================================
-    let currentUser = null;
-    let currentUserData = null;
     let allActivities = [];
-    let userReactions = {};
-
-    // ============================================
-    // ESCAPE HTML
-    // ============================================
-    function escapeHTML(text) {
-        if (!text) return '';
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;'
-        };
-        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
-    }
 
     // ============================================
     // LOAD ACTIVITY
@@ -693,17 +399,32 @@
 
         if (!currentUser) {
             container.innerHTML = `
-                <div class="empty-state">
-                    <div class="big-emoji">🔐</div>
-                    <h3>Please Log In</h3>
-                    <p>You need to be logged in to view your activity.</p>
-                    <button class="btn-primary" onclick="openModal('login')" style="margin-top:12px;">Log In</button>
+                <div class="empty-state" style="padding:50px 20px;background:#fef3c7;border-radius:16px;border-left:4px solid #d97706;">
+                    <div class="big-emoji">🔒</div>
+                    <h3>Login Required</h3>
+                    <p>Please log in to view your activity.</p>
+                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
+                        <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
+                    </div>
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = '<div class="loading">⏳ Loading activity...</div>';
+        if (!currentUser.emailVerified) {
+            container.innerHTML = `
+                <div class="empty-state" style="background:#fef3c7;border-radius:16px;padding:30px;border-left:4px solid #d97706;">
+                    <div class="big-emoji">📧</div>
+                    <h3>Email Not Verified</h3>
+                    <p>Please verify your email to view your activity.</p>
+                    <button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading activity...</div>';
 
         // Load stories
         const storiesPromise = db.collection('stories')
@@ -756,10 +477,10 @@
                     data.type = 'reaction';
                     data.timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
                     data.emojis = data.emojis || [];
-                    
+
                     // Store in userReactions for quick access
                     userReactions[data.storyId] = data.emojis;
-                    
+
                     // Fetch story title
                     const storyPromise = db.collection('stories').doc(data.storyId).get()
                         .then((storyDoc) => {
@@ -783,7 +504,7 @@
 
                 return Promise.all(reactionPromises).then((reactionsWithTitles) => {
                     activities.push(...reactionsWithTitles);
-                    
+
                     // Sort by timestamp (newest first)
                     activities.sort((a, b) => {
                         const ta = a.timestamp ? a.timestamp.getTime() : 0;
@@ -798,7 +519,7 @@
                     document.getElementById('countReactions').textContent = reactionsSnapshot.size;
 
                     allActivities = activities;
-                    
+
                     const currentTab = document.querySelector('.activity-tab.active')?.dataset.tab || 'all';
                     renderActivities(currentTab);
                 });
@@ -810,7 +531,7 @@
                         <div class="big-emoji">⚠️</div>
                         <h3>Error Loading Activity</h3>
                         <p>${err.message}</p>
-                        <button class="btn-primary" onclick="loadActivity()" style="margin-top:12px;">🔄 Retry</button>
+                        <button class="btn btn-primary" onclick="loadActivity()" style="margin-top:12px;">🔄 Retry</button>
                     </div>
                 `;
             });
@@ -845,7 +566,7 @@
                     <div class="big-emoji">📭</div>
                     <h3>No Activity</h3>
                     <p>${messages[tab] || 'No activity found.'}</p>
-                    <a href="submit.html" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:12px;">📝 Share Your Story</a>
+                    <a href="submit.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;margin-top:12px;">📝 Share Your Story</a>
                 </div>
             `;
             return;
@@ -896,8 +617,8 @@
             storyId = item.storyId;
         }
 
-        const viewButton = storyId ? 
-            `<a href="story.html?id=${storyId}" class="go-link">🔗 View Story</a>` : 
+        const viewButton = storyId ?
+            `<a href="story.html?id=${storyId}" class="go-link">🔗 View Story</a>` :
             '';
 
         return `
@@ -933,333 +654,31 @@
     }
 
     // ============================================
-    // AUTH FUNCTIONS
+    // UTILITY
     // ============================================
-    function openModal(mode) {
-        const modal = document.getElementById('authModal');
-        if (!modal) return;
-        
-        const title = document.getElementById('modalTitle');
-        const submitBtn = document.getElementById('authSubmitBtn');
-        const signupFields = document.getElementById('signupFields');
-        const switchLink = document.getElementById('authSwitch');
-        const error = document.getElementById('authError');
-
-        if (error) error.textContent = '';
-        
-        const fields = ['authEmail', 'authPassword', 'authName', 'authFavorites', 'authCountry'];
-        fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
-        
-        const strengthDiv = document.getElementById('passwordStrength');
-        if (strengthDiv) strengthDiv.innerHTML = '';
-
-        if (mode === 'login') {
-            title.textContent = '🔐 Welcome Back';
-            submitBtn.textContent = '🚀 Log In';
-            if (signupFields) signupFields.style.display = 'none';
-            if (switchLink) {
-                switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
-                switchLink.dataset.mode = 'signup';
-            }
-        } else {
-            title.textContent = '📝 Join The Harbor';
-            submitBtn.textContent = '🚀 Create Account';
-            if (signupFields) signupFields.style.display = 'block';
-            if (switchLink) {
-                switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
-                switchLink.dataset.mode = 'login';
-            }
-        }
-
-        modal.style.display = 'flex';
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('authModal');
-        if (modal) modal.style.display = 'none';
-    }
-
-    function toggleAuthMode() {
-        const switchLink = document.getElementById('authSwitch');
-        if (!switchLink) return;
-        const mode = switchLink.dataset.mode;
-        closeModal();
-        setTimeout(() => openModal(mode), 200);
-    }
-
-    function updateGenderWarning() {
-        const genderSelect = document.getElementById('authGender');
-        const warning = document.getElementById('genderWarning');
-        const text = document.getElementById('genderWarningText');
-        if (!genderSelect) return;
-        const gender = genderSelect.value;
-        if (gender === '🧔 Man') {
-            text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections.';
-            warning.classList.add('show');
-        } else if (gender === '👩 Woman') {
-            text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections.';
-            warning.classList.add('show');
-        } else {
-            text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>.';
-            warning.classList.add('show');
-        }
-    }
-
-    function checkPasswordStrength(password) {
-        let score = 0;
-        if (password.length >= 8) score += 20;
-        if (/[A-Z]/.test(password)) score += 20;
-        if (/[a-z]/.test(password)) score += 20;
-        if (/[0-9]/.test(password)) score += 20;
-        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
-        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
-        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
-
-        let strength = 'weak', color = '#c0392b';
-        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
-        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
-        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
-        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
-        else { strength = 'very-weak'; color = '#c0392b'; }
-        return { score, strength, color };
-    }
-
-    function handleAuth() {
-        const emailInput = document.getElementById('authEmail');
-        const passwordInput = document.getElementById('authPassword');
-        const error = document.getElementById('authError');
-        const submitBtn = document.getElementById('authSubmitBtn');
-
-        if (!emailInput || !passwordInput || !error || !submitBtn) return;
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        error.textContent = '';
-
-        if (!email || !email.includes('@') || !email.includes('.')) {
-            error.textContent = 'Please enter a valid email address.';
-            return;
-        }
-
-        if (!password || password.length < 6) {
-            error.textContent = 'Password must be at least 6 characters.';
-            return;
-        }
-
-        const isLogin = submitBtn.textContent.includes('Log In');
-
-        if (!isLogin) {
-            const strength = checkPasswordStrength(password);
-            if (strength.score < 30) {
-                error.textContent = '⚠️ Password is too weak. Please choose a stronger password.';
-                return;
-            }
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Please wait...';
-
-        if (isLogin) {
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    if (!user.emailVerified) {
-                        error.innerHTML = `
-                            ⚠️ Please verify your email first. Check your inbox (and spam folder)!<br>
-                            <button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;margin-top:4px;">
-                                🔄 Resend verification email
-                            </button>
-                        `;
-                        auth.signOut();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '🚀 Log In';
-                        return;
-                    }
-                    closeModal();
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Log In';
-                    window.location.href = 'welcome.html';
-                })
-                .catch((err) => {
-                    error.textContent = err.message;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Log In';
-                });
-        } else {
-            const nameInput = document.getElementById('authName');
-            const genderSelect = document.getElementById('authGender');
-            const favoritesInput = document.getElementById('authFavorites');
-            const countryInput = document.getElementById('authCountry');
-
-            const name = nameInput ? nameInput.value.trim() : '';
-            const gender = genderSelect ? genderSelect.value : '🙅 Prefer not to say';
-            const favorites = favoritesInput ? favoritesInput.value.trim() : '';
-            const country = countryInput ? countryInput.value.trim() : '';
-
-            if (!name || name.length < 2) {
-                error.textContent = 'Please enter a username (minimum 2 characters).';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Create Account';
-                return;
-            }
-
-            if (!country) {
-                error.textContent = 'Please select your country.';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Create Account';
-                return;
-            }
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    return user.sendEmailVerification().then(() => user);
-                })
-                .then((user) => {
-                    return db.collection('users').doc(user.uid).set({
-                        name: name,
-                        email: email,
-                        gender: gender,
-                        favorites: favorites || 'Not specified',
-                        country: country,
-                        emergencyNumber: '911',
-                        emailVerified: false,
-                        isAdmin: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                })
-                .then(() => {
-                    closeModal();
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                    auth.signOut();
-                    alert(
-                        '✅ Verification email sent to ' + email + '!\n\n' +
-                        '📧 Please check your inbox and click the verification link.\n\n' +
-                        '📌 If you don\'t see the email:\n' +
-                        '   • Check your SPAM or JUNK folder\n' +
-                        '   • Wait a few minutes and refresh your inbox\n' +
-                        '   • Add noreply@the-harbor.com to your contacts\n\n' +
-                        '🔑 After verifying, log in to access The Harbor.'
-                    );
-                })
-                .catch((err) => {
-                    error.textContent = err.message;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Create Account';
-                });
-        }
-    }
-
-    function resendVerification() {
-        const user = auth.currentUser;
-        if (!user) {
-            alert('Please log in first.');
-            return;
-        }
-        
-        user.sendEmailVerification()
-            .then(() => {
-                alert(
-                    '✅ Verification email resent to ' + user.email + '!\n\n' +
-                    '📧 Please check your inbox and click the verification link.\n\n' +
-                    '📌 If you don\'t see the email:\n' +
-                    '   • Check your SPAM or JUNK folder\n' +
-                    '   • Wait a few minutes and refresh your inbox\n' +
-                    '   • Add noreply@the-harbor.com to your contacts'
-                );
-            })
-            .catch((err) => {
-                alert('❌ Error: ' + err.message);
-            });
-    }
-
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            auth.signOut();
-            window.location.href = 'index.html';
-        }
+    function escapeHTML(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
     }
 
     // ============================================
-    // AUTH STATE LISTENER
-    // ============================================
-    auth.onAuthStateChanged((user) => {
-        const authButtons = document.getElementById('authButtons');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const userGenderBadge = document.getElementById('userGenderBadge');
-        const verificationBadge = document.getElementById('verificationBadge');
-
-        if (user) {
-            currentUser = user;
-            if (authButtons) authButtons.style.display = 'none';
-            if (userInfo) userInfo.style.display = 'flex';
-
-            if (user.emailVerified) {
-                if (verificationBadge) {
-                    verificationBadge.textContent = '✅ Verified';
-                    verificationBadge.className = 'verification-badge verified';
-                }
-            } else {
-                if (verificationBadge) {
-                    verificationBadge.textContent = '⏳ Unverified';
-                    verificationBadge.className = 'verification-badge';
-                }
-            }
-
-            db.collection('users').doc(user.uid).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        currentUserData = doc.data();
-                        if (userName) userName.textContent = currentUserData.name || 'Friend';
-                        if (userGenderBadge) userGenderBadge.textContent = currentUserData.gender || '';
-                        
-                        if (user.emailVerified && !currentUserData.emailVerified) {
-                            db.collection('users').doc(user.uid).update({ emailVerified: true });
-                        }
-
-                        // Load activity
-                        loadActivity();
-                    }
-                })
-                .catch((err) => console.error('Error fetching user data:', err));
-        } else {
-            currentUser = null;
-            currentUserData = null;
-            if (authButtons) authButtons.style.display = 'flex';
-            if (userInfo) userInfo.style.display = 'none';
-            
-            const container = document.getElementById('activityContainer');
-            if (container) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="big-emoji">🔐</div>
-                        <h3>Please Log In</h3>
-                        <p>You need to be logged in to view your activity.</p>
-                        <button class="btn-primary" onclick="openModal('login')" style="margin-top:12px;">Log In</button>
-                    </div>
-                `;
-            }
-        }
-    });
-
-    // ============================================
-    // DOM READY
+    // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         // Modal close on outside click
-        const modal = document.getElementById('authModal');
-        if (modal) {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
-        }
+        document.getElementById('authModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
 
         // Password strength
         document.getElementById('authPassword')?.addEventListener('input', function() {
@@ -1269,23 +688,36 @@
             const result = checkPasswordStrength(pwd);
             strengthDiv.innerHTML = `
                 <div style="margin-top:6px;font-size:0.85rem;">
-                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength.replace('-', ' ')}</span>
+                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
                 </div>
             `;
         });
 
-        // Enter key for auth
+        document.getElementById('authName')?.addEventListener('input', checkUsernameOnType);
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const modal = document.getElementById('authModal');
-                if (modal && modal.style.display === 'flex') {
-                    handleAuth();
-                }
+                if (modal && modal.classList.contains('active')) handleAuth();
+            }
+            if (e.key === 'Escape') {
+                closeModal();
             }
         });
 
-        console.log('✅ Activity page loaded');
+        populateCountryDatalist();
+
+        // Load activity after auth is ready
+        if (typeof auth !== 'undefined') {
+            auth.onAuthStateChanged(function(user) {
+                setTimeout(loadActivity, 300);
+            });
+        }
+
+        console.log('✅ Activity page ready');
     });
+
+    console.log('📊 Activity page loaded');
     </script>
 </body>
 </html>
