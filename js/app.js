@@ -448,13 +448,14 @@ function updateGenderWarning() {
     const genderSelect = document.getElementById('authGender');
     const warning = document.getElementById('genderWarning');
     const text = document.getElementById('genderWarningText');
-    if (!genderSelect) return;
+    if (!genderSelect || !warning || !text) return;
+    
     const gender = genderSelect.value;
     if (gender === '🧔 Man') {
-        text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections. Women\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
+        text.innerHTML = '⚠️ As a <strong>Man</strong>, you will only see <strong>Men\'s Harbor</strong> for gender-specific sections. Women\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are available to all.';
         warning.style.display = 'flex';
     } else if (gender === '👩 Woman') {
-        text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections. Men\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are open to everyone.';
+        text.innerHTML = '⚠️ As a <strong>Woman</strong>, you will only see <strong>Women\'s Harbor</strong> for gender-specific sections. Men\'s Harbor will be hidden. The Storm, Sunny Skies, and The Compass are available to all.';
         warning.style.display = 'flex';
     } else {
         text.innerHTML = '⚠️ You will only see <strong>The Storm, Sunny Skies, and The Compass</strong>. Men\'s and Women\'s Harbors are restricted based on gender.';
@@ -1384,33 +1385,45 @@ function openEditModal(storyId) {
     }
 
     currentEditId = storyId;
-    document.getElementById('editTitle').value = story.title || '';
-    document.getElementById('editContent').value = story.text || '';
-    document.getElementById('editError').textContent = '';
-    document.getElementById('editModal').classList.add('active');
+    const editTitle = document.getElementById('editTitle');
+    const editContent = document.getElementById('editContent');
+    const editError = document.getElementById('editError');
+    const editModal = document.getElementById('editModal');
+    
+    if (editTitle) editTitle.value = story.title || '';
+    if (editContent) editContent.value = story.text || '';
+    if (editError) editError.textContent = '';
+    if (editModal) editModal.classList.add('active');
 }
 
 function closeEditModal() {
-    document.getElementById('editModal').classList.remove('active');
+    const editModal = document.getElementById('editModal');
+    if (editModal) editModal.classList.remove('active');
     currentEditId = null;
 }
 
 function saveEdit() {
-    const title = document.getElementById('editTitle').value.trim();
-    const content = document.getElementById('editContent').value.trim();
+    const editTitle = document.getElementById('editTitle');
+    const editContent = document.getElementById('editContent');
+    const editError = document.getElementById('editError');
+    
+    if (!editTitle || !editContent || !editError) return;
+    
+    const title = editTitle.value.trim();
+    const content = editContent.value.trim();
 
     if (!title || !content) {
-        document.getElementById('editError').textContent = '⚠️ Title and content are required.';
+        editError.textContent = '⚠️ Title and content are required.';
         return;
     }
 
     if (title.length < 3) {
-        document.getElementById('editError').textContent = '⚠️ Title must be at least 3 characters.';
+        editError.textContent = '⚠️ Title must be at least 3 characters.';
         return;
     }
 
     if (content.length < 10) {
-        document.getElementById('editError').textContent = '⚠️ Content must be at least 10 characters.';
+        editError.textContent = '⚠️ Content must be at least 10 characters.';
         return;
     }
 
@@ -1423,7 +1436,7 @@ function saveEdit() {
         loadStories();
         alert('✅ Story updated successfully!');
     }).catch((error) => {
-        document.getElementById('editError').textContent = '❌ ' + error.message;
+        editError.textContent = '❌ ' + error.message;
     });
 }
 
@@ -1522,6 +1535,38 @@ function updateEmergencyBanner() {
         ${country ? `(${country})` : ''}
     `;
     banner.style.display = 'block';
+}
+
+// ============================================
+// PLACEHOLDER FUNCTIONS FOR EXTERNAL FILES
+// ============================================
+// These are called from DOMContentLoaded but defined in separate files
+function loadProfile() {
+    console.log('📄 loadProfile() should be defined in profile.js');
+}
+
+function loadStory() {
+    console.log('📄 loadStory() should be defined in story.js');
+}
+
+function loadAdminPanel() {
+    console.log('📄 loadAdminPanel() should be defined in admin.js');
+}
+
+function loadActivity() {
+    console.log('📄 loadActivity() should be defined in activity.js');
+}
+
+function loadSuggestions() {
+    console.log('📄 loadSuggestions() should be defined in suggest.js');
+}
+
+function updateSidebarData() {
+    console.log('📄 updateSidebarData() should be defined in sidebar.js or profile.js');
+}
+
+function openGoldModal(storyId) {
+    console.log('📄 openGoldModal() should be defined in gold.js or story.js');
 }
 
 // ============================================
