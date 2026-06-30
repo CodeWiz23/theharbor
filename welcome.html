@@ -4,10 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome — The Harbor</title>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
             min-height: 100vh;
             display: flex;
@@ -16,31 +21,36 @@
             overflow: hidden;
             position: relative;
         }
+
         .welcome-container {
             text-align: center;
             color: #f5f0eb;
             animation: fadeIn 1s ease;
             z-index: 10;
-            padding: 20px;
+            padding: var(--space-lg, 20px);
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.8); }
+            from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
+
         .welcome-container .emoji {
             font-size: 5rem;
             display: block;
-            margin-bottom: 16px;
+            margin-bottom: var(--space-md, 16px);
             animation: bounce 2s ease-in-out infinite;
         }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
         }
+
         .welcome-container h1 {
             font-size: 3.5rem;
             font-weight: 300;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         .welcome-container h1 span {
             font-weight: 700;
@@ -49,13 +59,14 @@
         .welcome-container p {
             font-size: 1.2rem;
             opacity: 0.85;
-            margin-top: 8px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            margin-top: var(--space-xs, 8px);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         }
+
         .btn-primary {
             display: inline-block;
-            margin-top: 30px;
-            padding: 14px 44px;
+            margin-top: var(--space-xl, 30px);
+            padding: var(--space-md, 14px) var(--space-2xl, 44px);
             background: #c47a5a;
             border: none;
             border-radius: 50px;
@@ -67,15 +78,28 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 20px rgba(196, 122, 90, 0.4);
         }
-        .btn-primary:hover { 
-            transform: scale(1.05) translateY(-3px); 
+        .btn-primary:hover {
+            transform: scale(1.05) translateY(-3px);
             background: #a85a3a;
             box-shadow: 0 6px 30px rgba(196, 122, 90, 0.5);
         }
         .btn-primary:active {
             transform: scale(0.98);
         }
-        
+
+        .welcome-sub {
+            margin-top: var(--space-md, 16px);
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+        .welcome-sub a {
+            color: #f5d6b3;
+            text-decoration: none;
+        }
+        .welcome-sub a:hover {
+            text-decoration: underline;
+        }
+
         /* Fireworks particles */
         .firework {
             position: fixed;
@@ -90,8 +114,7 @@
             0% { transform: translate(0, 0) scale(1); opacity: 1; }
             100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
         }
-        
-        /* Sparkle particles */
+
         .sparkle {
             position: fixed;
             width: 4px;
@@ -105,8 +128,7 @@
             0% { opacity: 1; transform: scale(1) rotate(0deg); }
             100% { opacity: 0; transform: scale(0) rotate(720deg); }
         }
-        
-        /* Star particles */
+
         .star {
             position: fixed;
             width: 3px;
@@ -121,7 +143,7 @@
             0%, 100% { opacity: 0.2; transform: scale(0.5); }
             50% { opacity: 1; transform: scale(1); }
         }
-        
+
         /* Responsive */
         @media (max-width: 600px) {
             .welcome-container h1 {
@@ -134,7 +156,7 @@
                 font-size: 1rem;
             }
             .btn-primary {
-                padding: 12px 32px;
+                padding: var(--space-sm, 12px) var(--space-xl, 32px);
                 font-size: 1rem;
             }
         }
@@ -148,6 +170,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Background stars -->
     <div id="stars"></div>
@@ -157,17 +180,20 @@
         <h1>Welcome to <span>The Harbor</span></h1>
         <p>⚓ A safe place to share, heal, and grow</p>
         <a href="index.html" class="btn-primary">Continue to The Harbor →</a>
+        <div class="welcome-sub">
+            <a href="about.html">🌿 Learn more about The Harbor</a>
+        </div>
     </div>
 
     <script>
         // ============================================
         // FIREWORKS EFFECT
         // ============================================
-        
+
         // Color palette
         const colors = [
-            '#ff6b6b', '#feca57', '#54a0ff', '#5f27cd', 
-            '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24', 
+            '#ff6b6b', '#feca57', '#54a0ff', '#5f27cd',
+            '#ff9ff3', '#00d2d3', '#ff9f43', '#ee5a24',
             '#27ae60', '#f39c12', '#e74c3c', '#3498db',
             '#9b59b6', '#1abc9c', '#e67e22', '#2ecc71'
         ];
@@ -176,7 +202,7 @@
         function createStars() {
             const container = document.getElementById('stars');
             if (!container) return;
-            
+
             for (let i = 0; i < 100; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -273,7 +299,6 @@
 
         // Also launch on click/tap
         document.addEventListener('click', function(e) {
-            // Create multiple bursts on click
             for (let i = 0; i < 3; i++) {
                 setTimeout(() => {
                     createFirework();
@@ -301,11 +326,6 @@
                 }
             }, 500);
         }, 10000);
-
-        // Resize handler - update stars if needed
-        window.addEventListener('resize', function() {
-            // Nothing needed, stars are positioned with %
-        });
 
         console.log('🎆 Welcome fireworks started!');
         console.log('✨ Click anywhere for more fireworks!');
