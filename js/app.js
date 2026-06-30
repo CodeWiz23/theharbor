@@ -41,12 +41,11 @@ const STORIES_PER_PAGE = 10;
 let currentEditId = null;
 
 // ============================================
-// GUEST RESTRICTIONS - FIXED: Show Feed & About only
+// GUEST RESTRICTIONS
 // ============================================
 function checkGuestRestrictions() {
     const isGuest = !currentUser;
     
-    // Hide restricted elements for guests
     const guestRestrictedElements = document.querySelectorAll('.guest-restricted');
     guestRestrictedElements.forEach(el => {
         if (isGuest) {
@@ -56,7 +55,6 @@ function checkGuestRestrictions() {
         }
     });
 
-    // Show/hide guest message
     const guestMessage = document.getElementById('guestMessage');
     if (guestMessage) {
         if (isGuest) {
@@ -66,7 +64,6 @@ function checkGuestRestrictions() {
         }
     }
 
-    // Hide Share, Profile, Suggest, Activity, Admin for guests
     const shareLink = document.getElementById('shareLink');
     const profileLink = document.getElementById('profileLink');
     const suggestLink = document.getElementById('suggestLink');
@@ -105,7 +102,7 @@ function resendVerification() {
 }
 
 // ============================================
-// FOLLOW SYSTEM - FIXED: Self-follow prevention
+// FOLLOW SYSTEM
 // ============================================
 function followUser(targetUid) {
     if (!currentUser) {
@@ -552,7 +549,6 @@ function handleAuth() {
             return;
         }
 
-        // FIXED: Terms checkbox check
         const termsCheckbox = document.getElementById('termsCheckbox');
         if (!termsCheckbox || !termsCheckbox.checked) {
             error.textContent = '⚠️ Please agree to the Terms of Service and Privacy Policy.';
@@ -1085,7 +1081,7 @@ function loadStories() {
                 
                 // FIXED: Only show public stories or user's own private stories
                 if (story.visibility === 'private' && story.userId !== currentUser.uid) {
-                    return; // Skip private stories not owned by current user
+                    return;
                 }
                 
                 allStories.push(story);
@@ -1540,29 +1536,28 @@ function updateEmergencyBanner() {
 // ============================================
 // PLACEHOLDER FUNCTIONS FOR EXTERNAL FILES
 // ============================================
-// These are called from DOMContentLoaded but defined in separate files
 function loadProfile() {
-    console.log('📄 loadProfile() should be defined in profile.js');
+    console.log('📄 loadProfile() should be defined in profile.js or profile.html');
 }
 
 function loadStory() {
-    console.log('📄 loadStory() should be defined in story.js');
+    console.log('📄 loadStory() should be defined in story.js or story.html');
 }
 
 function loadAdminPanel() {
-    console.log('📄 loadAdminPanel() should be defined in admin.js');
+    console.log('📄 loadAdminPanel() should be defined in admin.js or admin.html');
 }
 
 function loadActivity() {
-    console.log('📄 loadActivity() should be defined in activity.js');
+    console.log('📄 loadActivity() should be defined in activity.js or activity.html');
 }
 
 function loadSuggestions() {
-    console.log('📄 loadSuggestions() should be defined in suggest.js');
+    console.log('📄 loadSuggestions() should be defined in suggest.js or suggest.html');
 }
 
 function updateSidebarData() {
-    console.log('📄 updateSidebarData() should be defined in sidebar.js or profile.js');
+    console.log('📄 updateSidebarData() should be defined in sidebar.js');
 }
 
 function openGoldModal(storyId) {
