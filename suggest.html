@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Suggestions — The Harbor</title>
 
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -502,6 +502,606 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script>
+    // ============================================
+    // SUGGESTIONS PAGE - COMPLETE FIXED
+    // ============================================
+
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
+        authDomain: "the-harbor-community.firebaseapp.com",
+        projectId: "the-harbor-community",
+        storageBucket: "the-harbor-community.firebasestorage.app",
+        messagingSenderId: "634248505303",
+        appId: "1:634248505303:web:4eb16e6a9f97903420cd92"
+    };
+
+    if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let currentUser = null;
+    let currentUserData = null;
+    let userUpvotes = {};
+
+    // ============================================
+    // AUTH FUNCTIONS
+    // ============================================
+    function openModal(mode) {
+        const modal = document.getElementById('authModal');
+        if (!modal) return;
+
+        const title = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const signupFields = document.getElementById('signupFields');
+        const switchLink = document.getElementById('authSwitch');
+        const error = document.getElementById('authError');
+
+        if (error) error.textContent = '';
+
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        document.getElementById('authCountry').value = '';
+
+        if (mode === 'login') {
+            title.textContent = '🔐 Welcome Back';
+            submitBtn.textContent = '🚀 Log In';
+            signupFields.style.display = 'none';
+            switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`;
+            switchLink.dataset.mode = 'signup';
+        } else {
+            title.textContent = '📝 Join The Harbor';
+            submitBtn.textContent = '🚀 Create Account';
+            signupFields.style.display = 'block';
+            switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`;
+            switchLink.dataset.mode = 'login';
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').style.display = 'none';
+    }
+
+    function toggleAuthMode() {
+        const switchLink = document.getElementById('authSwitch');
+        if (!switchLink) return;
+        const mode = switchLink.dataset.mode;
+        closeModal();
+        setTimeout(() => openModal(mode), 200);
+    }
+
+    function handleAuth() {
+        const emailInput = document.getElementById('authEmail');
+        const passwordInput = document.getElementById('authPassword');
+        const error = document.getElementById('authError');
+        const submitBtn = document.getElementById('authSubmitBtn');
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        error.textContent = '';
+
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            error.textContent = 'Please enter a valid email address.';
+            return;
+        }
+        if (!password || password.length < 6) {
+            error.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+
+        const isLogin = submitBtn.textContent.includes('Log In');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Please wait...';
+
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (!user.emailVerified) {
+                        error.textContent = '⚠️ Please verify your email first.';
+                        auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Log In';
+                        return;
+                    }
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                    location.reload();
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Log In';
+                });
+        } else {
+            const nameInput = document.getElementById('authName');
+            const countryInput = document.getElementById('authCountry');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const country = countryInput ? countryInput.value.trim() : '';
+
+            if (!name || name.length < 2) {
+                error.textContent = 'Please enter a username (minimum 2 characters).';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+            if (!country) {
+                error.textContent = 'Please select your country.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+
+            const termsChecked = document.getElementById('termsCheckbox').checked;
+            if (!termsChecked) {
+                error.textContent = 'You must agree to the Terms and Privacy Policy.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Create Account';
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return user.sendEmailVerification().then(() => user);
+                })
+                .then((user) => {
+                    return db.collection('users').doc(user.uid).set({
+                        uid: user.uid,
+                        name: name,
+                        email: email,
+                        gender: '🙅 Prefer not to say',
+                        favorites: 'Not specified',
+                        country: country,
+                        emergencyNumber: '911',
+                        emailVerified: false,
+                        isAdmin: false,
+                        isPublic: true,
+                        goldBalance: 10,
+                        goldReceived: 0,
+                        goldGiven: 0,
+                        followers: [],
+                        following: [],
+                        storyCount: 0,
+                        commentCount: 0,
+                        likesReceived: 0,
+                        avatar: '👤',
+                        border: 'default',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    closeModal();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                    auth.signOut();
+                    alert('✅ Verification email sent! Please check your inbox.');
+                })
+                .catch((err) => {
+                    error.textContent = err.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Create Account';
+                });
+        }
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ============================================
+    // COUNTRY DATA
+    // ============================================
+    const countries = [
+        { name: 'United States', emergency: '911' },
+        { name: 'United Kingdom', emergency: '999' },
+        { name: 'Bangladesh', emergency: '999' },
+        { name: 'India', emergency: '112' },
+        { name: 'Canada', emergency: '911' },
+        { name: 'Australia', emergency: '000' },
+        { name: 'Germany', emergency: '112' },
+        { name: 'France', emergency: '112' },
+        { name: 'Italy', emergency: '112' },
+        { name: 'Spain', emergency: '112' },
+        { name: 'Brazil', emergency: '190' },
+        { name: 'Mexico', emergency: '911' }
+    ];
+
+    function populateCountryDatalist() {
+        const datalist = document.getElementById('country-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        countries.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.name;
+            datalist.appendChild(option);
+        });
+    }
+
+    // ============================================
+    // SUBMIT SUGGESTION
+    // ============================================
+    function submitSuggestion() {
+        if (!currentUser) {
+            alert('Please log in to submit a suggestion.');
+            openModal('login');
+            return;
+        }
+
+        if (!currentUser.emailVerified) {
+            alert('Please verify your email first.');
+            return;
+        }
+
+        const titleInput = document.getElementById('suggestionTitle');
+        const textInput = document.getElementById('suggestionText');
+        const errorDiv = document.getElementById('suggestionError');
+        const successDiv = document.getElementById('suggestionSuccess');
+        const submitBtn = document.getElementById('suggestBtn');
+
+        if (errorDiv) errorDiv.textContent = '';
+        if (successDiv) successDiv.textContent = '';
+
+        const title = titleInput ? titleInput.value.trim() : '';
+        const text = textInput ? textInput.value.trim() : '';
+
+        if (!title || title.length < 3) {
+            if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
+            return;
+        }
+        if (title.length > 100) {
+            if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.';
+            return;
+        }
+        if (!text || text.length < 10) {
+            if (errorDiv) errorDiv.textContent = '💡 Suggestion must be at least 10 characters.';
+            return;
+        }
+        if (text.length > 2000) {
+            if (errorDiv) errorDiv.textContent = '💡 Suggestion must be under 2000 characters.';
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+        }
+
+        db.collection('suggestions').add({
+            title: title,
+            text: text,
+            userId: currentUser.uid,
+            userName: currentUserData ? currentUserData.name : 'Anonymous',
+            status: 'pending',
+            upvotes: 0,
+            upvoters: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            if (successDiv) {
+                successDiv.textContent = '✅ Your suggestion has been submitted!';
+            }
+            if (titleInput) titleInput.value = '';
+            if (textInput) textInput.value = '';
+            document.getElementById('titleCount').textContent = '0';
+            document.getElementById('textCount').textContent = '0';
+
+            setTimeout(() => {
+                loadSuggestions();
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '💡 Submit Suggestion';
+                }
+            }, 1000);
+        })
+        .catch((err) => {
+            if (errorDiv) {
+                errorDiv.textContent = '❌ Error: ' + err.message;
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💡 Submit Suggestion';
+            }
+        });
+    }
+
+    // ============================================
+    // LOAD SUGGESTIONS
+    // ============================================
+    function loadSuggestions() {
+        const container = document.getElementById('suggestionsContainer');
+        if (!container) return;
+
+        container.innerHTML = '<div class="loading">⏳ Loading suggestions...</div>';
+
+        db.collection('suggestions')
+            .orderBy('createdAt', 'desc')
+            .get()
+            .then((snapshot) => {
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="big-emoji">💡</div>
+                            <h3>No suggestions yet</h3>
+                            <p>Be the first to share your idea!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const suggestions = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    suggestions.push(data);
+                });
+
+                renderSuggestions(suggestions);
+            })
+            .catch((err) => {
+                console.error('Error loading suggestions:', err);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-emoji">⚠️</div>
+                        <h3>Error Loading Suggestions</h3>
+                        <p>${err.message}</p>
+                        <button class="btn btn-primary" onclick="loadSuggestions()" style="margin-top:12px;">🔄 Retry</button>
+                    </div>
+                `;
+            });
+    }
+
+    // ============================================
+    // RENDER SUGGESTIONS
+    // ============================================
+    function renderSuggestions(suggestions) {
+        const container = document.getElementById('suggestionsContainer');
+        if (!container) return;
+
+        let html = '';
+        suggestions.forEach((suggestion) => {
+            html += renderSuggestionCard(suggestion);
+        });
+        container.innerHTML = html;
+    }
+
+    function renderSuggestionCard(suggestion) {
+        const statusClass = suggestion.status === 'pending' ? 'status-pending' :
+                           suggestion.status === 'approved' ? 'status-approved' : 'status-rejected';
+        const statusLabel = suggestion.status === 'pending' ? '⏳ Pending' :
+                           suggestion.status === 'approved' ? '✅ Approved' : '❌ Rejected';
+
+        const time = suggestion.createdAt ? suggestion.createdAt.toDate().toLocaleString() : 'Recently';
+        const upvotes = suggestion.upvotes || 0;
+        const hasUpvoted = userUpvotes[suggestion.id] === true;
+
+        return `
+            <div class="suggestion-card" id="suggestion-${suggestion.id}">
+                <div class="title">${escapeHTML(suggestion.title)}</div>
+                <div class="meta">
+                    <span>✍️ ${escapeHTML(suggestion.userName || 'Anonymous')}</span>
+                    <span>📅 ${time}</span>
+                    <span class="status ${statusClass}">${statusLabel}</span>
+                    <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" 
+                            onclick="upvoteSuggestion('${suggestion.id}')">
+                        👍 <span class="count">${upvotes}</span>
+                    </button>
+                </div>
+                <div class="content">${escapeHTML(suggestion.text)}</div>
+            </div>
+        `;
+    }
+
+    // ============================================
+    // UPVOTE SUGGESTION
+    // ============================================
+    function upvoteSuggestion(suggestionId) {
+        if (!currentUser) {
+            alert('Please log in to upvote.');
+            openModal('login');
+            return;
+        }
+
+        if (userUpvotes[suggestionId]) {
+            alert('You already upvoted this suggestion.');
+            return;
+        }
+
+        const suggestionRef = db.collection('suggestions').doc(suggestionId);
+
+        db.runTransaction((transaction) => {
+            return transaction.get(suggestionRef).then((doc) => {
+                if (!doc.exists) return;
+                const data = doc.data();
+                const upvoters = data.upvoters || [];
+
+                if (upvoters.includes(currentUser.uid)) {
+                    return;
+                }
+
+                transaction.update(suggestionRef, {
+                    upvotes: firebase.firestore.FieldValue.increment(1),
+                    upvoters: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+                });
+            });
+        })
+        .then(() => {
+            userUpvotes[suggestionId] = true;
+            loadSuggestions();
+        })
+        .catch((err) => {
+            console.error('Error upvoting:', err);
+            alert('❌ Error: ' + err.message);
+        });
+    }
+
+    // ============================================
+    // UTILITY
+    // ============================================
+    function escapeHTML(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+        return String(text).replace(/[&<>"'/`=]/g, function(m) { return map[m]; });
+    }
+
+    function checkPasswordStrength(password) {
+        let score = 0;
+        if (password.length >= 8) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[a-z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 20;
+        const common = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'welcome', 'admin'];
+        if (!common.some(pwd => password.toLowerCase().includes(pwd))) score += 10;
+        let strength = 'weak', color = '#c0392b';
+        if (score >= 90) { strength = 'very-strong'; color = '#27ae60'; }
+        else if (score >= 70) { strength = 'strong'; color = '#2ecc71'; }
+        else if (score >= 50) { strength = 'medium'; color = '#f39c12'; }
+        else if (score >= 30) { strength = 'weak'; color = '#e67e22'; }
+        else { strength = 'very-weak'; color = '#c0392b'; }
+        return { score, strength, color };
+    }
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const verificationBadge = document.getElementById('verificationBadge');
+
+        if (user) {
+            currentUser = user;
+            if (authButtons) authButtons.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'flex';
+
+            if (user.emailVerified) {
+                if (verificationBadge) {
+                    verificationBadge.textContent = '✅ Verified';
+                    verificationBadge.className = 'verification-badge verified';
+                }
+            } else {
+                if (verificationBadge) {
+                    verificationBadge.textContent = '⏳ Unverified';
+                    verificationBadge.className = 'verification-badge';
+                }
+            }
+
+            db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        if (userName) userName.textContent = currentUserData.name || 'Friend';
+
+                        // Load user upvotes
+                        loadUserUpvotes();
+                        loadSuggestions();
+                    }
+                })
+                .catch((err) => console.error('Error fetching user data:', err));
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            if (authButtons) authButtons.style.display = 'flex';
+            if (userInfo) userInfo.style.display = 'none';
+            loadSuggestions();
+        }
+    });
+
+    // ============================================
+    // LOAD USER UPVOTES
+    // ============================================
+    function loadUserUpvotes() {
+        if (!currentUser) return;
+
+        db.collection('suggestions')
+            .where('upvoters', 'array-contains', currentUser.uid)
+            .get()
+            .then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    userUpvotes[doc.id] = true;
+                });
+            })
+            .catch((err) => console.error('Error loading upvotes:', err));
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Title counter
+        const titleInput = document.getElementById('suggestionTitle');
+        const titleCount = document.getElementById('titleCount');
+        if (titleInput && titleCount) {
+            titleInput.addEventListener('input', function() {
+                titleCount.textContent = this.value.length;
+            });
+        }
+
+        // Text counter
+        const textInput = document.getElementById('suggestionText');
+        const textCount = document.getElementById('textCount');
+        if (textInput && textCount) {
+            textInput.addEventListener('input', function() {
+                textCount.textContent = this.value.length;
+            });
+        }
+
+        // Modal close on outside click
+        document.getElementById('authModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Password strength
+        document.getElementById('authPassword')?.addEventListener('input', function() {
+            const pwd = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (!strengthDiv) return;
+            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
+            const result = checkPasswordStrength(pwd);
+            strengthDiv.innerHTML = `
+                <div style="margin-top:6px;font-size:0.85rem;">
+                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
+                </div>
+            `;
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const modal = document.getElementById('authModal');
+                if (modal && modal.style.display === 'flex') handleAuth();
+            }
+        });
+
+        populateCountryDatalist();
+
+        console.log('✅ Suggestions page ready');
+    });
+
+    console.log('💡 Suggestions page loaded');
+    </script>
 </body>
 </html>
