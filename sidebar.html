@@ -1,1 +1,55 @@
+<!-- ============================================
+SIDEBAR COMPONENT
+============================================ -->
+<div id="sidebarOverlay" class="sidebar-overlay">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚙️ Settings</h2>
+            <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-content">
+            <!-- Profile Section -->
+            <div class="sidebar-section">
+                <h3>👤 Profile</h3>
+                <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
+                <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
+                <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Change Language</button>
+                <button class="sidebar-btn" id="privacyToggleBtn" onclick="toggleProfilePrivacy()">
+                    🔒 Make Private
+                </button>
+            </div>
 
+            <!-- Appearance Section -->
+            <div class="sidebar-section">
+                <h3>🎨 Appearance</h3>
+                <button class="sidebar-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    🌙 Dark Mode
+                </button>
+            </div>
+
+            <!-- Gold Section -->
+            <div class="sidebar-section">
+                <h3>💰 Harbor Gold</h3>
+                <div class="gold-balance">
+                    Balance: <span id="sidebarGoldBalance">0</span> 🪙
+                </div>
+                <button class="sidebar-btn" onclick="viewGoldHistory()">📊 Transaction History</button>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="sidebar-section">
+                <h3>📊 My Stats</h3>
+                <div class="stat-item">📝 Stories: <span id="sidebarStoryCount">0</span></div>
+                <div class="stat-item">👥 Followers: <span id="sidebarFollowerCount">0</span></div>
+                <div class="stat-item">👤 Following: <span id="sidebarFollowingCount">0</span></div>
+                <div class="stat-item">🪙 Gold Received: <span id="sidebarGoldReceived">0</span></div>
+                <div class="stat-item">❤️ Likes Received: <span id="sidebarLikesReceived">0</span></div>
+            </div>
+
+            <!-- Logout -->
+            <div class="sidebar-section sidebar-logout">
+                <button class="sidebar-btn btn-danger" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
