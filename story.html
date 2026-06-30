@@ -448,7 +448,7 @@
             100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
         }
 
-        /* Header */
+        /* ===== HEADER - Consistent with other pages ===== */
         .header {
             background: white;
             padding: 0.8rem 2rem;
@@ -461,7 +461,9 @@
             z-index: 100;
             flex-wrap: wrap;
             gap: 0.8rem;
+            border-bottom: 1px solid #e2e8f0;
         }
+
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
@@ -472,12 +474,14 @@
             gap: 6px;
         }
         .logo span { font-weight: 300; }
+
         .header-right {
             display: flex;
             align-items: center;
             gap: 0.8rem;
             flex-wrap: wrap;
         }
+
         .btn-nav {
             background: #f0f4f8;
             color: #1a4a4a;
@@ -486,6 +490,7 @@
             background: #e2e8f0;
             transform: translateY(-1px);
         }
+
         .btn-feed {
             background: #1a4a4a;
             color: white;
@@ -495,6 +500,7 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(26,74,74,0.3);
         }
+
         .btn-settings {
             font-size: 1.4rem;
             padding: 4px 10px;
@@ -509,6 +515,15 @@
             transform: rotate(60deg);
             background: #f0f4f8;
         }
+
+        /* Guest hidden */
+        .guest-hidden {
+            display: none !important;
+        }
+        .logged-in-hidden {
+            display: none !important;
+        }
+
         .btn-login {
             background: transparent;
             color: #1a4a4a;
@@ -518,6 +533,7 @@
             background: #1a4a4a;
             color: white;
         }
+
         .btn-signup {
             background: #1a4a4a;
             color: white;
@@ -525,6 +541,7 @@
         .btn-signup:hover {
             background: #2d6a6a;
         }
+
         .btn-logout {
             background: #fee2e2;
             color: #dc2626;
@@ -532,6 +549,7 @@
         .btn-logout:hover {
             background: #fecaca;
         }
+
         #userInfo {
             display: none;
             align-items: center;
@@ -717,24 +735,38 @@
 </head>
 
 <body>
-    <!-- ===== HEADER ===== -->
+    <!-- ===== HEADER - Consistent with other pages ===== -->
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
         </div>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed" onclick="location.reload(); return false;">🏠 Feed</a>
+            <!-- FEED - Only visible when logged in -->
+            <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
+
+            <!-- About - Always visible -->
             <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <a href="submit.html" class="btn btn-nav">📝 Share</a>
-            <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-            <button class="btn-settings" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
-            <div id="authButtons">
+
+            <!-- Guest Restricted Elements - Only visible when logged in -->
+            <div class="guest-restricted guest-hidden">
+                <a href="submit.html" class="btn btn-nav">📝 Share</a>
+                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
+                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
+                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
+            </div>
+
+            <!-- Settings Gear - Only visible when logged in -->
+            <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
+
+            <!-- Auth Buttons - Only visible when NOT logged in -->
+            <div id="authButtons" class="logged-in-hidden">
                 <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
                 <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
             </div>
-            <div id="userInfo">
+
+            <!-- User Info - Only visible when logged in -->
+            <div id="userInfo" class="guest-hidden">
                 <span id="userName">Friend</span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
                 <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
@@ -890,12 +922,12 @@
     <footer class="footer">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html">📊 Activity</a>
+            <a href="activity.html" class="guest-hidden">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
+            <a href="submit.html" class="guest-hidden">📝 Share Story</a>
+            <a href="profile.html" class="guest-hidden">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
+            <a href="suggest.html" class="guest-hidden">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
@@ -990,6 +1022,31 @@
         const div = document.createElement('div');
         div.textContent = text;
         return div.textContent;
+    }
+
+    // ============================================
+    // APPLY GUEST RESTRICTIONS
+    // ============================================
+    function applyGuestRestrictions() {
+        const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
+        const guestElements = document.querySelectorAll('.guest-hidden');
+        const loggedInElements = document.querySelectorAll('.logged-in-hidden');
+
+        guestElements.forEach(function(el) {
+            if (isLoggedIn) {
+                el.style.display = '';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+
+        loggedInElements.forEach(function(el) {
+            if (isLoggedIn) {
+                el.style.display = 'none';
+            } else {
+                el.style.display = '';
+            }
+        });
     }
 
     // ============================================
@@ -2027,6 +2084,9 @@
                 verificationBadge.className = 'verification-badge';
             }
 
+            // Apply guest restrictions
+            applyGuestRestrictions();
+
             db.collection('users').doc(user.uid).get()
                 .then((doc) => {
                     if (doc.exists) {
@@ -2041,6 +2101,10 @@
             currentUserData = null;
             authButtons.style.display = 'flex';
             userInfo.style.display = 'none';
+
+            // Apply guest restrictions
+            applyGuestRestrictions();
+
             loadStory();
         }
     });
