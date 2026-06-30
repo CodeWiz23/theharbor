@@ -410,12 +410,6 @@
             transform: translateY(-2px);
         }
 
-        .follow-btn.self {
-            background: #e2e8f0;
-            color: #718096;
-            cursor: default;
-        }
-
         /* ===== BUTTONS ===== */
         .btn-primary {
             background: #1a4a4a;
@@ -1127,7 +1121,7 @@
                 }
             }).catch((err) => {
                 console.error('Error following/unfollowing:', err);
-                alert('Error: ' + err.message);
+                alert('❌ Error: ' + err.message);
             });
         }
 
@@ -1169,6 +1163,17 @@
             }).catch((err) => {
                 alert('❌ Error: ' + err.message);
             });
+        }
+
+        // ============================================
+        // VIEW OTHER USER'S PROFILE - FIXED
+        // ============================================
+        function viewProfile(userId) {
+            if (userId && userId !== auth.currentUser?.uid) {
+                window.location.href = 'profile.html?uid=' + userId;
+            } else if (userId === auth.currentUser?.uid) {
+                window.location.href = 'profile.html';
+            }
         }
 
         // ============================================
@@ -1324,7 +1329,7 @@
         }
 
         // ============================================
-        // RENDER PROFILE
+        // RENDER PROFILE - FIXED: Follow/Report only for others
         // ============================================
         function renderProfile(userData, stories) {
             const container = document.getElementById('profileContent');
@@ -1404,7 +1409,7 @@
             const goldReceived = userData.goldReceived || 0;
             const likesReceived = userData.likesReceived || 0;
 
-            // ===== FOLLOW BUTTON - Self-follow prevention =====
+            // ===== FOLLOW BUTTON - FIXED: Only show for others =====
             let followButton = '';
             if (!isSelf && auth.currentUser) {
                 followButton = `
@@ -1416,6 +1421,14 @@
             } else if (!isSelf && !auth.currentUser) {
                 followButton = `
                     <a href="#" onclick="openModal('login');return false;" class="btn btn-secondary">Follow</a>
+                `;
+            }
+
+            // ===== REPORT BUTTON - FIXED: Only show for others =====
+            let reportButton = '';
+            if (!isSelf && auth.currentUser) {
+                reportButton = `
+                    <button class="btn btn-report" onclick="reportUser('${userData.uid}')">🚩 Report User</button>
                 `;
             }
 
@@ -1514,10 +1527,10 @@
                     <!-- Actions -->
                     <div class="profile-actions">
                         ${followButton}
+                        ${reportButton}
                         ${isSelf ? `<button class="btn btn-secondary" onclick="openEditModal()">✏️ Edit Profile</button>` : ''}
                         ${isSelf ? `<button class="btn btn-secondary" onclick="logout()" style="border-color:#dc2626;color:#dc2626;">🚪 Logout</button>` : ''}
                         ${isSelf ? `<a href="delete-account.html" class="btn btn-danger" style="text-decoration:none;">🗑️ Delete Account</a>` : ''}
-                        ${!isSelf && auth.currentUser ? `<button class="btn btn-report" onclick="reportUser('${userData.uid}')">🚩 Report User</button>` : ''}
                     </div>
                 </div>
 
