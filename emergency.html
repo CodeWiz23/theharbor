@@ -24,7 +24,6 @@
 
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
-    <script src="js/language.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -34,65 +33,53 @@
         .emergency-hero .big-icon { font-size: 3rem; display: block; margin-bottom: 6px; }
         .emergency-hero h1 { font-size: 2rem; font-weight: 300; }
         .emergency-hero p { opacity: 0.9; margin-top: 4px; }
-
         .search-box { position: relative; margin-bottom: 1rem; }
-        .search-box input {
-            width: 100%; padding: 12px 18px; border: 2px solid var(--border-color);
-            border-radius: 9999px; font-size: 1rem; background: var(--bg-card); color: var(--text-primary);
-            font-family: inherit; transition: all 0.2s;
-        }
+        .search-box input { width: 100%; padding: 12px 18px; border: 2px solid var(--border-color); border-radius: 9999px; font-size: 1rem; background: var(--bg-card); color: var(--text-primary); font-family: inherit; transition: all 0.2s; }
         .search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,74,74,0.1); }
-
         .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin-bottom: 1rem; }
         .quick-btn { padding: 8px; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; text-align: center; font-family: inherit; color: var(--text-secondary); transition: all 0.15s; }
         .quick-btn:hover { background: var(--border-color); transform: translateY(-1px); }
         .quick-btn .num { display: block; font-size: 1.2rem; color: var(--primary); font-weight: 700; }
         .quick-btn .name { font-size: 0.7rem; color: var(--text-muted); }
-
-        .result-card {
-            background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color); text-align: center; display: none; margin-top: 0.8rem;
-        }
+        .result-card { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center; display: none; margin-top: 0.8rem; }
         .result-card .country { font-size: 1.1rem; color: var(--text-secondary); }
         .result-card .number { font-size: 3rem; font-weight: 700; color: var(--primary); margin: 4px 0; }
         .result-card .note { font-size: 0.9rem; color: var(--text-muted); }
-        .result-card .call-btn {
-            display: inline-block; margin-top: 10px; padding: 10px 28px;
-            background: var(--primary); color: white; border: none; border-radius: 9999px;
-            font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s;
-        }
+        .result-card .call-btn { display: inline-block; margin-top: 10px; padding: 10px 28px; background: var(--primary); color: white; border: none; border-radius: 9999px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; }
         .result-card .call-btn:hover { background: var(--primary-light); transform: scale(1.02); }
-
         .no-result { display: none; text-align: center; padding: 1rem; color: var(--danger); background: #fee2e2; border-radius: var(--radius-md); margin-top: 0.8rem; }
-
-        @media (max-width: 480px) {
-            .emergency-hero { padding: 1.2rem; border-radius: var(--radius-lg); }
-            .emergency-hero h1 { font-size: 1.5rem; }
-            .result-card .number { font-size: 2.2rem; }
-        }
+        @media (max-width: 480px) { .emergency-hero { padding: 1.2rem; border-radius: var(--radius-lg); } .emergency-hero h1 { font-size: 1.5rem; } .result-card .number { font-size: 2.2rem; } }
     </style>
 </head>
 
 <body>
+    <script>
+    (function() {
+        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
+        if (wasLoggedIn === 'true') {
+            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+        }
+    })();
+    </script>
+
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;">
+            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
+            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
                 <span id="userName">Friend</span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
@@ -104,7 +91,6 @@
                 <h1>Emergency Numbers</h1>
                 <p>Find help anywhere in the world</p>
             </div>
-
             <div class="quick-grid">
                 <button class="quick-btn" onclick="searchCountry('United States')"><span class="num">911</span><span class="name">🇺🇸 USA</span></button>
                 <button class="quick-btn" onclick="searchCountry('United Kingdom')"><span class="num">999</span><span class="name">🇬🇧 UK</span></button>
@@ -113,72 +99,53 @@
                 <button class="quick-btn" onclick="searchCountry('Canada')"><span class="num">911</span><span class="name">🇨🇦 Canada</span></button>
                 <button class="quick-btn" onclick="searchCountry('Australia')"><span class="num">000</span><span class="name">🇦🇺 Australia</span></button>
             </div>
-
             <div class="search-box">
                 <input type="text" id="countrySearch" placeholder="🔍 Search for a country..." autocomplete="off" />
             </div>
-
             <div class="result-card" id="resultCard">
                 <div class="country" id="resultCountry"></div>
                 <div class="number" id="resultNumber"></div>
                 <div class="note" id="resultNote"></div>
                 <a href="#" id="callBtn" class="call-btn">📞 Call Now</a>
             </div>
-
             <div class="no-result" id="noResult">🔍 No emergency number found for this country.</div>
-
             <div style="text-align:center;margin-top:20px;">
                 <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
             </div>
         </div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix #1) -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
             <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
-            <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
+            <label for="authEmail">Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
+            <label for="authPassword">Password</label><input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
             <div id="passwordStrength"></div>
             <div id="signupFields" style="display:none;">
-                <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" />
-                <div id="usernameStatus"></div>
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
-                <datalist id="country-list"></datalist>
-                <label for="authFavorites">Favorite things</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div>
+                <label for="authGender">Gender</label><select id="authGender" onchange="updateGenderWarning()"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
+                <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
+                <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
                 <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
                     <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--primary);" />
-                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span>
-                    </label>
+                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
-            <div class="error-msg" id="authError"></div>
-            <div class="success-msg" id="authSuccess"></div>
+            <div class="error-msg" id="authError"></div><div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
     <footer class="footer" role="contentinfo">
-        <div>⚓ The Harbor — Emergency Numbers</div>
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
+            <a href="profile.html" class="guest-only">👤 Profile</a>
             <a href="about.html">🌿 About</a>
             <a href="emergency.html">🆘 Emergency</a>
+            <a href="suggest.html" class="guest-only">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
@@ -205,16 +172,14 @@
 
     function applyGuestRestrictions() {
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-        document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
-        document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
-        var ui = document.getElementById('userInfo');
-        if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
+        document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+        document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+        var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
     }
 
     function searchCountry(name) {
         document.getElementById('countrySearch').value = name;
-        var result = emergencyCountries.find(function(c) { return c.name.toLowerCase() === name.toLowerCase(); }) ||
-                     emergencyCountries.find(function(c) { return c.name.toLowerCase().indexOf(name.toLowerCase()) !== -1; });
+        var result = emergencyCountries.find(function(c) { return c.name.toLowerCase() === name.toLowerCase(); }) || emergencyCountries.find(function(c) { return c.name.toLowerCase().indexOf(name.toLowerCase()) !== -1; });
         if (result) showResult(result);
         else { document.getElementById('resultCard').style.display = 'none'; document.getElementById('noResult').style.display = 'block'; }
     }
@@ -229,6 +194,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        applyGuestRestrictions();
         var input = document.getElementById('countrySearch');
         input?.addEventListener('input', function() {
             var q = this.value.trim();
@@ -237,61 +203,13 @@
             if (result) showResult(result);
             else { document.getElementById('resultCard').style.display='none'; document.getElementById('noResult').style.display='block'; }
         });
-        input?.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') searchCountry(this.value);
-        });
-
-        setTimeout(function() {
-            var def = emergencyCountries.find(function(c) { return c.name === 'United States'; });
-            if (def) showResult(def);
-        }, 300);
-
-        var check = setInterval(function() {
-            if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); }
-        }, 100);
-        if (typeof auth !== 'undefined') auth.onAuthStateChanged(function() { setTimeout(applyGuestRestrictions, 200); });
-
+        input?.addEventListener('keydown', function(e) { if (e.key === 'Enter') searchCountry(this.value); });
+        setTimeout(function() { var def = emergencyCountries.find(function(c) { return c.name === 'United States'; }); if (def) showResult(def); }, 300);
+        if (typeof auth !== 'undefined') auth.onAuthStateChanged(function() { applyGuestRestrictions(); });
         document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
-        document.getElementById('authPassword')?.addEventListener('input', function() {
-            var sd = document.getElementById('passwordStrength');
-            if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; }
-            if (typeof checkPasswordStrength === 'function') {
-                var r = checkPasswordStrength(this.value);
-                sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
-            }
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); }
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // ===== TERMS CHECKBOX FIX (#1) =====
-        (function() {
-            const termsCheckbox = document.getElementById('termsCheckbox');
-            const authSubmitBtn = document.getElementById('authSubmitBtn');
-            if (termsCheckbox && authSubmitBtn) {
-                const toggleBtn = () => {
-                    const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                    if (isSignup) {
-                        authSubmitBtn.disabled = !termsCheckbox.checked;
-                        authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                        authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
-                    } else {
-                        authSubmitBtn.disabled = false;
-                        authSubmitBtn.style.opacity = '1';
-                        authSubmitBtn.style.cursor = 'pointer';
-                    }
-                };
-                termsCheckbox.addEventListener('change', toggleBtn);
-                const originalToggle = toggleAuthMode;
-                window.toggleAuthMode = function() {
-                    originalToggle();
-                    setTimeout(toggleBtn, 100);
-                };
-                toggleBtn();
-            }
-        })();
-
+        document.getElementById('authPassword')?.addEventListener('input', function() { var sd = document.getElementById('passwordStrength'); if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; } if (typeof checkPasswordStrength === 'function') { var r = checkPasswordStrength(this.value); sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>'; } });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); } if (e.key === 'Escape') closeModal(); });
+        (function() { const tc = document.getElementById('termsCheckbox'), sb = document.getElementById('authSubmitBtn'); if (tc && sb) { var t = function() { var isSignup = document.getElementById('signupFields')?.style.display !== 'none'; sb.disabled = isSignup ? !tc.checked : false; sb.style.opacity = isSignup && !tc.checked ? '0.5' : '1'; }; tc.addEventListener('change', t); var orig = toggleAuthMode; window.toggleAuthMode = function() { orig(); setTimeout(t, 100); }; t(); } })();
         console.log('✅ Emergency page ready');
     });
     </script>
