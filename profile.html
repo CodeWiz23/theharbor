@@ -44,8 +44,9 @@
         .avatar-border.fifa { background: linear-gradient(135deg, #f39c12, #e74c3c, #2ecc71, #3498db); }
         .avatar-img { width: 100%; height: 100%; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; }
         .profile-name { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-top: 4px; }
-        .profile-bio { color: var(--text-secondary); font-size: 0.9rem; margin: 4px 0; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .profile-bio { color: var(--text-secondary); font-size: 0.95rem; margin: 8px 0; line-height: 1.6; max-width: 450px; margin-left: auto; margin-right: auto; }
         .profile-meta { color: var(--text-muted); font-size: 0.78rem; }
+        .private-locked-msg { background: #fef3c7; border-radius: 8px; padding: 8px 16px; margin: 10px auto; max-width: 300px; font-size: 0.85rem; color: #92400e; }
         .customize-toggle { display: inline-block; margin-top: 8px; padding: 6px 18px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; }
         .customize-toggle:hover { background: var(--border-color); }
         .customize-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -105,7 +106,6 @@
         .user-list-name { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; }
         .user-list-close { float: right; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
 
-        /* Toggle switch for privacy */
         .toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: 0.3s; border-radius: 28px; }
@@ -168,7 +168,7 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal (redesigned) -->
+    <!-- Edit Profile Modal -->
     <div class="modal" id="editProfileModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeEditProfileModal()" aria-label="Close">&times;</button>
@@ -230,7 +230,6 @@
     var profileFollowing = [];
     var currentProfileIsPrivate = false;
     var profileUserId = null;
-    var profileData = null;
 
     (function() {
         const termsCheckbox = document.getElementById('termsCheckbox');
@@ -395,60 +394,62 @@
         var borderClass = selectedBorder || 'default';
         var bio = userData.bio || '';
 
+        // Follow button: show only if NOT self AND canViewFullProfile (public or follower)
         var followBtnHtml = '';
-        if (!isSelf && auth.currentUser) {
+        if (!isSelf && auth.currentUser && canViewFullProfile) {
             var following = isFollowingUser(userData.uid);
             followBtnHtml = '<button class="follow-btn '+(following?'unfollow':'follow')+'" onclick="profileFollowUser(\''+userData.uid+'\')">'+(following?'Unfollow':'Follow')+'</button>';
         }
+
+        // Report button: always show if not self
         var reportBtnHtml = '';
         if (!isSelf && auth.currentUser) {
             reportBtnHtml = '<button class="btn btn-ghost" onclick="profileReportUser(\''+userData.uid+'\')" style="color:var(--warning);">🚩 Report</button>';
         }
 
         var storiesHtml = '';
-        if (stories.length === 0) {
-            storiesHtml = '<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">No stories to show.</p>'+(isSelf?'<a href="submit.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;margin-top:10px;">📝 Write Your First Story</a>':'')+'</div>';
-        } else {
-            storiesHtml = stories.map(story => {
-                var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
-                var st = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
-                var gearMenu = isSelf ? `
-                    <div class="gear-menu-container">
-                        <button class="gear-icon" onclick="event.stopPropagation(); toggleStoryGear('${story.id}')">⚙️</button>
-                        <div class="gear-dropdown" id="gear-${story.id}">
-                            <button onclick="event.stopPropagation(); editStory('${story.id}')">✏️ Edit</button>
-                            <button onclick="event.stopPropagation(); toggleStoryVisibility('${story.id}')">🔒 Visibility</button>
-                            <button class="danger" onclick="event.stopPropagation(); deleteStoryConfirm('${story.id}')">🗑️ Delete</button>
-                        </div>
-                    </div>` : '';
-                return '<div class="story-item" onclick="window.location.href=\'story.html?id='+story.id+'\'">'+
-                    gearMenu+
-                    '<div class="stitle">'+escapeHTML(story.title)+'</div>'+
-                    '<div class="smeta"><span class="scat">'+(catNames[story.category]||story.category)+'</span><span>📅 '+st+'</span><span>💬 '+(story.commentCount||0)+'</span>'+(story.isAnonymous?' 🕊️':'')+' '+(story.visibility==='private'?'🔒':'🌍')+'</div>'+
-                    '<div class="stext">'+escapeHTML((story.text||'').substring(0,120))+((story.text||'').length>120?'...':'')+'</div></div>';
-            }).join('');
+        if (canViewFullProfile) {
+            if (stories.length === 0) {
+                storiesHtml = '<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">No stories to show.</p>'+(isSelf?'<a href="submit.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;margin-top:10px;">📝 Write Your First Story</a>':'')+'</div>';
+            } else {
+                storiesHtml = stories.map(story => {
+                    var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
+                    var st = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
+                    var gearMenu = isSelf ? '<div class="gear-menu-container"><button class="gear-icon" onclick="event.stopPropagation(); toggleStoryGear(\''+story.id+'\')">⚙️</button><div class="gear-dropdown" id="gear-'+story.id+'"><button onclick="event.stopPropagation(); editStory(\''+story.id+'\')">✏️ Edit</button><button onclick="event.stopPropagation(); toggleStoryVisibility(\''+story.id+'\')">🔒 Visibility</button><button class="danger" onclick="event.stopPropagation(); deleteStoryConfirm(\''+story.id+'\')">🗑️ Delete</button></div></div>' : '';
+                    return '<div class="story-item" onclick="window.location.href=\'story.html?id='+story.id+'\'">'+gearMenu+'<div class="stitle">'+escapeHTML(story.title)+'</div><div class="smeta"><span class="scat">'+(catNames[story.category]||story.category)+'</span><span>📅 '+st+'</span><span>💬 '+(story.commentCount||0)+'</span>'+(story.isAnonymous?' 🕊️':'')+' '+(story.visibility==='private'?'🔒':'🌍')+'</div><div class="stext">'+escapeHTML((story.text||'').substring(0,120))+((story.text||'').length>120?'...':'')+'</div></div>';
+                }).join('');
+            }
         }
 
         var privacyBadge = currentProfileIsPrivate ? '<span class="privacy-badge private">🔒 Private</span>' : '<span class="privacy-badge public">🌍 Public</span>';
 
-        // Always show avatar, name, bio
-        var bioHtml = bio ? '<div class="profile-bio">'+escapeHTML(bio)+'</div>' : '';
+        // Bio: always visible (even when private)
+        var bioHtml = bio ? '<div class="profile-bio">📝 '+escapeHTML(bio)+'</div>' : (isSelf ? '<div class="profile-bio" style="color:var(--text-muted);font-size:0.85rem;cursor:pointer;" onclick="openEditProfileModal()">No bio yet — tap to add one</div>' : '');
 
-        var statsHtml = '<div class="stats-row">'+
-            '<div class="stat-item"><div class="num">'+stories.length+'</div><div class="lbl">📝 Stories</div></div>';
+        // Stats: hidden if private
+        var statsHtml = '';
         if (canViewFullProfile) {
-            statsHtml += '<div class="stat-item clickable" onclick="showUserList(\'followers\')"><div class="num">'+profileFollowers.length+'</div><div class="lbl">👥 Followers</div></div>'+
-            '<div class="stat-item clickable" onclick="showUserList(\'following\')"><div class="num">'+profileFollowing.length+'</div><div class="lbl">👤 Following</div></div>'+
-            (isSelf?'<div class="stat-item"><div class="num">'+(userData.goldBalance||0)+'</div><div class="lbl">🪙 Gold</div></div>':'')+
-            '<div class="stat-item"><div class="num">'+(userData.goldReceived||0)+'</div><div class="lbl">💰 Received</div></div>'+
-            '<div class="stat-item"><div class="num">'+(totalLikes||0)+'</div><div class="lbl">❤️ Likes</div></div>';
+            statsHtml = '<div class="stats-row">'+
+                '<div class="stat-item"><div class="num">'+stories.length+'</div><div class="lbl">📝 Stories</div></div>'+
+                '<div class="stat-item clickable" onclick="showUserList(\'followers\')"><div class="num">'+profileFollowers.length+'</div><div class="lbl">👥 Followers</div></div>'+
+                '<div class="stat-item clickable" onclick="showUserList(\'following\')"><div class="num">'+profileFollowing.length+'</div><div class="lbl">👤 Following</div></div>'+
+                (isSelf?'<div class="stat-item"><div class="num">'+(userData.goldBalance||0)+'</div><div class="lbl">🪙 Gold</div></div>':'')+
+                '<div class="stat-item"><div class="num">'+(userData.goldReceived||0)+'</div><div class="lbl">💰 Received</div></div>'+
+                '<div class="stat-item"><div class="num">'+(totalLikes||0)+'</div><div class="lbl">❤️ Likes</div></div>'+
+            '</div>';
         }
-        statsHtml += '</div>';
 
+        // Additional info (gender, country, favorites): hidden if private
         var additionalInfo = '';
         if (canViewFullProfile) {
-            additionalInfo = '<div class="profile-bio">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
-                             '<div class="profile-bio">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>';
+            additionalInfo = '<div class="profile-bio" style="font-size:0.85rem;">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
+                             '<div class="profile-bio" style="font-size:0.85rem;">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>';
+        }
+
+        // Locked message if private
+        var lockedMsg = '';
+        if (!canViewFullProfile && !isSelf) {
+            lockedMsg = '<div class="private-locked-msg">🔒 This profile is private. Follow to see more.</div>';
         }
 
         var customizeHtml = '';
@@ -470,6 +471,7 @@
             bioHtml+
             '<div class="profile-meta">Member since '+time+'</div>'+
             '<div class="badge-row">'+(isAdmin?'<span class="admin-badge">👑 Admin</span>':'')+privacyBadge+'</div>'+
+            lockedMsg+
             additionalInfo+
             customizeHtml+
             statsHtml+
