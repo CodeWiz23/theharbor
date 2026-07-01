@@ -29,7 +29,6 @@
     <link rel="stylesheet" href="css/style.css?v=5" />
 
     <style>
-        /* Profile page styles (with gear menu, privacy, responsive edit) */
         .profile-container { max-width: 680px; margin: 0 auto; padding: 1.5rem 0; }
         .profile-card { background: var(--bg-card); border-radius: var(--radius-xl); padding: 2rem; border: 1px solid var(--border-color); text-align: center; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; position: relative; }
         .avatar-section { position: relative; display: inline-block; margin-bottom: 12px; }
@@ -45,7 +44,7 @@
         .avatar-border.fifa { background: linear-gradient(135deg, #f39c12, #e74c3c, #2ecc71, #3498db); }
         .avatar-img { width: 100%; height: 100%; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; }
         .profile-name { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-top: 4px; }
-        .profile-bio { color: var(--text-secondary); font-size: 0.85rem; margin: 2px 0; }
+        .profile-bio { color: var(--text-secondary); font-size: 0.9rem; margin: 4px 0; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto; }
         .profile-meta { color: var(--text-muted); font-size: 0.78rem; }
         .customize-toggle { display: inline-block; margin-top: 8px; padding: 6px 18px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; }
         .customize-toggle:hover { background: var(--border-color); }
@@ -92,7 +91,7 @@
         .stories-section h3 { color: var(--text-primary); margin-bottom: 12px; font-size: 1.1rem; font-weight: 600; }
         .story-item { background: var(--bg-card); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 6px; cursor: pointer; transition: all 0.15s; position: relative; }
         .story-item:hover { border-color: var(--secondary); transform: translateX(2px); }
-        .story-item .stitle { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; padding-right: 30px; } /* space for gear */
+        .story-item .stitle { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; padding-right: 30px; }
         .story-item .smeta { font-size: 0.7rem; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 4px; }
         .story-item .smeta .scat { background: var(--bg-secondary); padding: 1px 8px; border-radius: 20px; font-weight: 600; }
         .story-item .stext { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
@@ -106,7 +105,14 @@
         .user-list-name { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; }
         .user-list-close { float: right; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
 
-        /* Gear menu on story items (#2) */
+        /* Toggle switch for privacy */
+        .toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: 0.3s; border-radius: 28px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+        .toggle-switch input:checked + .toggle-slider { background-color: var(--primary); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+
         .gear-menu-container { position: absolute; top: 10px; right: 10px; z-index: 10; }
         .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 5px; cursor: pointer; font-size: 0.9rem; color: var(--text-muted); transition: all 0.2s; }
         .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
@@ -154,7 +160,6 @@
         </div>
     </div>
 
-    <!-- User list modal (followers/following) -->
     <div class="user-list-modal" id="userListModal">
         <div class="user-list-content">
             <button class="user-list-close" onclick="closeUserList()">&times;</button>
@@ -163,18 +168,23 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal (improved UI #10, includes privacy toggle #8) -->
+    <!-- Edit Profile Modal (redesigned) -->
     <div class="modal" id="editProfileModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeEditProfileModal()" aria-label="Close">&times;</button>
             <h2>✏️ Edit Profile</h2>
-            <label for="editName">Username</label>
+            <label for="editName">👤 Username</label>
             <input type="text" id="editName" placeholder="Your unique username" style="margin-bottom:12px;" />
-            <label for="editFavorites">Favorite things</label>
+            <label for="editBio">📝 Bio</label>
+            <textarea id="editBio" placeholder="Tell the community about yourself..." rows="3" style="width:100%;padding:10px 14px;border:2px solid var(--border-color);border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical;margin-bottom:12px;background:var(--bg-primary);color:var(--text-primary);"></textarea>
+            <label for="editFavorites">❤️ Favorite things</label>
             <input type="text" id="editFavorites" placeholder="Hiking, reading, fishing..." style="margin-bottom:12px;" />
-            <div style="margin:15px 0; display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="editPrivacyToggle" style="width:20px;height:20px;cursor:pointer;" />
-                <label for="editPrivacyToggle" style="font-weight:500;font-size:0.9rem;cursor:pointer;">🔒 Private Profile</label>
+            <div style="margin:15px 0; display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-weight:600;color:var(--text-secondary);">🔒 Private Profile</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="editPrivacyToggle" />
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
             <div id="editError" class="error-msg"></div>
             <div id="editSuccess" class="success-msg"></div>
@@ -182,7 +192,7 @@
         </div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix #1) -->
+    <!-- Auth Modal -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -214,16 +224,14 @@
     </footer>
 
     <script>
-    // Global state for profile page
     var selectedAvatar = '👤';
     var selectedBorder = 'default';
     var profileFollowers = [];
     var profileFollowing = [];
     var currentProfileIsPrivate = false;
-    var profileUserId = null;  // The uid of the profile being viewed
+    var profileUserId = null;
     var profileData = null;
 
-    // Terms checkbox fix (#1)
     (function() {
         const termsCheckbox = document.getElementById('termsCheckbox');
         const authSubmitBtn = document.getElementById('authSubmitBtn');
@@ -257,28 +265,23 @@
         var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
     }
 
-    // ========== FOLLOW (with instant UI & persistence #5) ==========
     function profileFollowUser(targetUid) {
         if (!currentUser) { alert('Please log in.'); return; }
         if (targetUid === currentUser.uid) { alert('You cannot follow yourself.'); return; }
         var btn = document.querySelector('.follow-btn');
         var wasFollowing = isFollowingUser(targetUid);
-        // Optimistic UI
         if (btn) {
             btn.textContent = wasFollowing ? 'Follow' : 'Unfollow';
             btn.className = 'follow-btn ' + (wasFollowing ? 'follow' : 'unfollow');
             btn.disabled = true;
         }
-        // Update local state
         if (wasFollowing) {
             currentUserData.following = (currentUserData.following || []).filter(uid => uid !== targetUid);
         } else {
             if (!currentUserData.following) currentUserData.following = [];
             currentUserData.following.push(targetUid);
         }
-        // Persist to database
         if (typeof followUser === 'function') followUser(targetUid);
-        // Reload profile after short delay to ensure consistency
         setTimeout(function() { loadProfile(); }, 500);
     }
 
@@ -287,7 +290,6 @@
         return currentUserData.following && currentUserData.following.includes(targetUid);
     }
 
-    // ========== REPORT USER ==========
     function profileReportUser(userId) {
         if (!currentUser) { alert('Please log in.'); return; }
         if (userId === currentUser.uid) { alert('You cannot report yourself.'); return; }
@@ -299,20 +301,6 @@
             reason: reason.trim(), status: 'pending', type: 'user',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => alert('✅ Report submitted.')).catch(err => alert('❌ ' + err.message));
-    }
-
-    // ========== PRIVACY TOGGLE (moved to edit modal #8) ==========
-    // The toggle is now in the edit modal; this function is called from there.
-    function profileTogglePrivacy() {
-        if (!currentUser) return;
-        var newPrivacy = !currentProfileIsPrivate;
-        currentProfileIsPrivate = newPrivacy;
-        db.collection('users').doc(currentUser.uid).update({ isPublic: !newPrivacy })
-            .then(() => {
-                if (currentUserData) currentUserData.isPublic = !newPrivacy;
-                if (typeof updateSidebarData === 'function') updateSidebarData();
-            })
-            .catch(err => alert('❌ ' + err.message));
     }
 
     function showUserList(type) {
@@ -351,7 +339,6 @@
         else { panel.classList.add('show'); btn.classList.add('active'); btn.textContent = '✕ Close'; }
     }
 
-    // ========== LOAD PROFILE (with privacy enforcement #6) ==========
     function loadProfile() {
         var container = document.getElementById('profileContent');
         if (!container) return;
@@ -378,10 +365,7 @@
             profileFollowers = userData.followers || [];
             profileFollowing = userData.following || [];
 
-            // Privacy: if profile is private and viewer is not owner and not a follower, restrict visibility
             var isSelf = auth.currentUser && auth.currentUser.uid === userData.uid;
-            var isFollower = isSelf || (currentUserData && currentUserData.following && currentUserData.following.includes(userData.uid));
-            // Actually we need to check if currentUser follows the profile owner. That's the viewer's following list.
             var viewerFollowsProfileOwner = currentUserData && currentUserData.following && currentUserData.following.includes(userData.uid);
             var canViewFullProfile = isSelf || !currentProfileIsPrivate || viewerFollowsProfileOwner;
 
@@ -392,7 +376,6 @@
                     var sd = s.data(); sd.id = s.id;
                     var reactions = sd.reactions || {};
                     totalLikes += (reactions['❤️'] || 0);
-                    // Hide private stories if viewer is not owner
                     if (sd.visibility === 'private' && !isSelf) return;
                     stories.push(sd);
                 });
@@ -404,13 +387,13 @@
         }).catch(err => { container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p>'+err.message+'</p><button class="btn btn-primary" onclick="loadProfile()">🔄 Retry</button></div>'; });
     }
 
-    // ========== RENDER PROFILE (with privacy & gear menu) ==========
     function renderProfile(userData, stories, totalLikes, isSelf, canViewFullProfile) {
         var container = document.getElementById('profileContent');
         var gender = userData.gender || '';
         var isAdmin = userData.isAdmin || false;
         var time = userData.createdAt ? userData.createdAt.toDate().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : 'Recently';
         var borderClass = selectedBorder || 'default';
+        var bio = userData.bio || '';
 
         var followBtnHtml = '';
         if (!isSelf && auth.currentUser) {
@@ -422,7 +405,6 @@
             reportBtnHtml = '<button class="btn btn-ghost" onclick="profileReportUser(\''+userData.uid+'\')" style="color:var(--warning);">🚩 Report</button>';
         }
 
-        // Stories section with gear menu for own stories
         var storiesHtml = '';
         if (stories.length === 0) {
             storiesHtml = '<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">No stories to show.</p>'+(isSelf?'<a href="submit.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;margin-top:10px;">📝 Write Your First Story</a>':'')+'</div>';
@@ -447,12 +429,11 @@
             }).join('');
         }
 
-        // Privacy badge
-        var privacyBadge = canViewFullProfile ?
-            (currentProfileIsPrivate ? '<span class="privacy-badge private">🔒 Private</span>' : '<span class="privacy-badge public">🌍 Public</span>') :
-            '<span class="privacy-badge private">🔒 Private (hidden)</span>';
+        var privacyBadge = currentProfileIsPrivate ? '<span class="privacy-badge private">🔒 Private</span>' : '<span class="privacy-badge public">🌍 Public</span>';
 
-        // Stats: followers/following visible only if full profile or self
+        // Always show avatar, name, bio
+        var bioHtml = bio ? '<div class="profile-bio">'+escapeHTML(bio)+'</div>' : '';
+
         var statsHtml = '<div class="stats-row">'+
             '<div class="stat-item"><div class="num">'+stories.length+'</div><div class="lbl">📝 Stories</div></div>';
         if (canViewFullProfile) {
@@ -461,23 +442,15 @@
             (isSelf?'<div class="stat-item"><div class="num">'+(userData.goldBalance||0)+'</div><div class="lbl">🪙 Gold</div></div>':'')+
             '<div class="stat-item"><div class="num">'+(userData.goldReceived||0)+'</div><div class="lbl">💰 Received</div></div>'+
             '<div class="stat-item"><div class="num">'+(totalLikes||0)+'</div><div class="lbl">❤️ Likes</div></div>';
-        } else {
-            // Only show story count, hide others
-            statsHtml += '<div class="stat-item"><div class="num">'+(userData.goldReceived||0)+'</div><div class="lbl">💰 Received</div></div>'+
-            '<div class="stat-item"><div class="num">'+(totalLikes||0)+'</div><div class="lbl">❤️ Likes</div></div>';
         }
         statsHtml += '</div>';
 
-        // Sensitive info (bio, gender, country) hidden if private and not following
-        var bioHtml = '';
+        var additionalInfo = '';
         if (canViewFullProfile) {
-            bioHtml = '<div class="profile-bio">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
-                      '<div class="profile-bio">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>';
-        } else {
-            bioHtml = '<div class="profile-bio" style="color:var(--text-muted);">This profile is private.</div>';
+            additionalInfo = '<div class="profile-bio">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
+                             '<div class="profile-bio">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>';
         }
 
-        // Avatar customization (only for self)
         var customizeHtml = '';
         if (isSelf) {
             var maleAvatars = ['👨','🧑','👦','🧔','👨‍🦰','👨‍🦳','👨‍🦱','👨‍🦲','👴','🦸‍♂️','🧝‍♂️','🧙‍♂️'];
@@ -497,17 +470,17 @@
             bioHtml+
             '<div class="profile-meta">Member since '+time+'</div>'+
             '<div class="badge-row">'+(isAdmin?'<span class="admin-badge">👑 Admin</span>':'')+privacyBadge+'</div>'+
+            additionalInfo+
             customizeHtml+
             statsHtml+
             '<div class="action-row">'+followBtnHtml+reportBtnHtml+
                 (isSelf?'<button class="btn btn-secondary" onclick="openEditProfileModal()">✏️ Edit Profile</button>':'')+
                 (isSelf?'<a href="delete-account.html" class="btn btn-ghost" style="color:var(--danger);text-decoration:none;">🗑️ Delete Account</a>':'')+
             '</div></div>'+
-            '<div class="stories-section"><h3>📝 Stories ('+stories.length+')</h3>'+storiesHtml+'</div>'+
+            (canViewFullProfile ? '<div class="stories-section"><h3>📝 Stories ('+stories.length+')</h3>'+storiesHtml+'</div>' : '')+
             '<div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>';
     }
 
-    // Gear menu toggle for story items
     function toggleStoryGear(storyId) {
         document.querySelectorAll('.gear-dropdown.show').forEach(d => { if (d.id !== 'gear-'+storyId) d.classList.remove('show'); });
         var dropdown = document.getElementById('gear-'+storyId);
@@ -519,17 +492,13 @@
         }
     });
 
-    // Story management from gear menu
-    function editStory(storyId) {
-        window.location.href = 'story.html?id='+storyId; // or open edit modal, but for simplicity go to story page (which has edit)
-    }
+    function editStory(storyId) { window.location.href = 'story.html?id='+storyId; }
     function toggleStoryVisibility(storyId) {
         if (!currentUser) return;
-        var storyRef = db.collection('stories').doc(storyId);
-        storyRef.get().then(doc => {
+        db.collection('stories').doc(storyId).get().then(doc => {
             if (!doc.exists) return;
             var newVis = doc.data().visibility === 'public' ? 'private' : 'public';
-            storyRef.update({ visibility: newVis }).then(() => { loadProfile(); });
+            db.collection('stories').doc(storyId).update({ visibility: newVis }).then(() => { loadProfile(); });
         });
     }
     function deleteStoryConfirm(storyId) {
@@ -537,15 +506,14 @@
         db.collection('stories').doc(storyId).delete().then(() => { loadProfile(); });
     }
 
-    // Avatar & Border selection
     function selectAvatar(emoji) { selectedAvatar=emoji; document.getElementById('avatarImg').textContent=emoji; document.querySelectorAll('.avatar-option').forEach(el => el.classList.toggle('active', el.textContent.trim()===emoji)); saveAvatarAndBorder(); }
     function selectBorder(borderId) { selectedBorder=borderId; document.getElementById('avatarBorder').className='avatar-border '+borderId; document.querySelectorAll('.border-option').forEach(el => el.classList.toggle('active', el.classList.contains(borderId))); saveAvatarAndBorder(); }
     function saveAvatarAndBorder() { if(!currentUser)return; db.collection('users').doc(currentUser.uid).update({avatar:selectedAvatar,border:selectedBorder}).catch(()=>{}); }
 
-    // Edit Profile Modal (#10 improved layout, #8 privacy toggle)
     function openEditProfileModal() {
         if (!currentUserData) return;
         document.getElementById('editName').value = currentUserData.name || '';
+        document.getElementById('editBio').value = currentUserData.bio || '';
         document.getElementById('editFavorites').value = currentUserData.favorites || '';
         document.getElementById('editPrivacyToggle').checked = currentProfileIsPrivate;
         document.getElementById('editError').textContent = '';
@@ -555,16 +523,18 @@
     function closeEditProfileModal() { document.getElementById('editProfileModal').classList.remove('active'); }
     function saveProfile() {
         var name = document.getElementById('editName').value.trim();
+        var bio = document.getElementById('editBio').value.trim();
         var fav = document.getElementById('editFavorites').value.trim();
         var isPrivate = document.getElementById('editPrivacyToggle').checked;
         var err = document.getElementById('editError');
         var suc = document.getElementById('editSuccess');
         err.textContent = ''; suc.textContent = '';
         if (!name || name.length < 2) { err.textContent = 'Username must be at least 2 characters.'; return; }
-        var updates = { name: name, favorites: fav || 'Not specified', isPublic: !isPrivate };
+        var updates = { name: name, bio: bio, favorites: fav || 'Not specified', isPublic: !isPrivate };
         db.collection('users').doc(currentUser.uid).update(updates).then(() => {
             suc.textContent = '✅ Profile updated!';
             currentUserData.name = name;
+            currentUserData.bio = bio;
             currentUserData.favorites = fav;
             currentProfileIsPrivate = isPrivate;
             if (currentUserData) currentUserData.isPublic = !isPrivate;
@@ -574,7 +544,6 @@
         }).catch(e => { err.textContent = '❌ ' + e.message; });
     }
 
-    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
         var check = setInterval(function() {
             if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); loadProfile(); }
@@ -584,7 +553,7 @@
         document.getElementById('editProfileModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditProfileModal(); });
         document.getElementById('userListModal')?.addEventListener('click', function(e) { if(e.target===this)closeUserList(); });
         document.addEventListener('keydown', function(e) { if(e.key==='Escape'){ closeModal(); closeEditProfileModal(); closeUserList(); } });
-        console.log('✅ Profile page ready (privacy, gear menu, improved edit)');
+        console.log('✅ Profile page ready');
     });
     </script>
 </body>
