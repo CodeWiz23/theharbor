@@ -68,7 +68,14 @@
 </head>
 
 <body>
-    <!-- ✅ REMOVED: document.write flash hack -->
+    <script>
+    (function() {
+        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
+        if (wasLoggedIn === 'true') {
+            document.write('<style>#guestView{display:none!important}#loggedInView{display:block!important}.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+        }
+    })();
+    </script>
 
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
