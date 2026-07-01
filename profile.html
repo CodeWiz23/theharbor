@@ -22,11 +22,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="js/sidebar.js?v=3"></script>
+    <script src="js/gold.js?v=3"></script>
 
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css?v=3" />
 
     <style>
         .profile-container { max-width: 680px; margin: 0 auto; padding: 1.5rem 0; }
@@ -189,7 +189,6 @@
     <script>
     var selectedAvatar = '👤';
     var selectedBorder = 'default';
-    var viewedUserData = null;
     var profileFollowers = [];
     var profileFollowing = [];
 
@@ -287,25 +286,25 @@
             currentUserData = userData;
             selectedAvatar = userData.avatar || '👤';
             selectedBorder = userData.border || 'default';
-            viewedUserData = userData;
             return db.collection('stories').where('userId','==',uid).get().then(function(snap) {
                 var stories = [];
-                var totalReactions = 0;
+                var totalLikes = 0;
                 snap.forEach(function(s) {
                     var sd = s.data(); sd.id = s.id;
+                    // ONLY count ❤️ as likes received
                     var reactions = sd.reactions || {};
-                    Object.values(reactions).forEach(function(count) { totalReactions += count || 0; });
+                    totalLikes += (reactions['❤️'] || 0);
                     if (sd.visibility === 'private' && uid !== (auth.currentUser ? auth.currentUser.uid : null)) return;
                     stories.push(sd);
                 });
                 stories.sort(function(a, b) { return (b.createdAt?.toDate().getTime()||0)-(a.createdAt?.toDate().getTime()||0); });
-                return { userData: userData, stories: stories, totalReactions: totalReactions };
+                return { userData: userData, stories: stories, totalLikes: totalLikes };
             });
-        }).then(function(result) { if (result) renderProfile(result.userData, result.stories, result.totalReactions || 0); })
+        }).then(function(result) { if (result) renderProfile(result.userData, result.stories, result.totalLikes || 0); })
           .catch(function(err) { container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p>'+err.message+'</p><button class="btn btn-primary" onclick="loadProfile()">🔄 Retry</button></div>'; });
     }
 
-    function renderProfile(userData, stories, totalReactions) {
+    function renderProfile(userData, stories, totalLikes) {
         var container = document.getElementById('profileContent');
         var gender = userData.gender || '';
         var isAdmin = userData.isAdmin || false;
@@ -353,7 +352,7 @@
                 '<div class="stat-item clickable" onclick="showUserList(\'following\')"><div class="num">'+followingList.length+'</div><div class="lbl">👤 Following</div></div>'+
                 (isSelf?'<div class="stat-item"><div class="num">'+(userData.goldBalance||0)+'</div><div class="lbl">🪙 Gold</div></div>':'')+
                 '<div class="stat-item"><div class="num">'+(userData.goldReceived||0)+'</div><div class="lbl">💰 Received</div></div>'+
-                '<div class="stat-item"><div class="num">'+(totalReactions||0)+'</div><div class="lbl">❤️ Likes</div></div>'+
+                '<div class="stat-item"><div class="num">'+(totalLikes||0)+'</div><div class="lbl">❤️ Likes</div></div>'+
             '</div>'+
             '<div class="action-row">'+followBtn+reportBtn+
                 (isSelf?'<button class="btn btn-secondary" onclick="openEditModal()">✏️ Edit Profile</button>':'')+
@@ -392,6 +391,7 @@
         document.getElementById('editProfileModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
         document.getElementById('userListModal')?.addEventListener('click',function(e){if(e.target===this)closeUserList();});
         document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeUserList();}});
+        console.log('✅ Profile page ready');
     });
     </script>
 </body>
