@@ -140,12 +140,11 @@ function closeSidebar() {
 function toggleSidebar() { isSidebarOpen ? closeSidebar() : openSidebar(); }
 
 // ============================================
-// UPDATE DATA - WITH DYNAMIC LIKES COUNT
+// UPDATE DATA - ONLY ❤️ COUNTS AS LIKES
 // ============================================
 function updateSidebarData() {
     if (!currentUser || !currentUserData) return;
     
-    // Basic stats from userData
     const goldEl = document.getElementById('sidebarGoldBalance');
     if (goldEl) goldEl.textContent = currentUserData.goldBalance || 0;
     const storyEl = document.getElementById('sidebarStoryCount');
@@ -161,13 +160,13 @@ function updateSidebarData() {
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.textContent = getCurrentTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
-    // 🔥 DYNAMIC LIKES COUNT - Fetch from actual story reactions
+    // 🔥 ONLY count ❤️ as likes received
     db.collection('stories').where('userId', '==', currentUser.uid).get()
         .then(function(snap) {
             var total = 0;
             snap.forEach(function(doc) {
                 var reactions = doc.data().reactions || {};
-                Object.values(reactions).forEach(function(c) { total += c || 0; });
+                total += (reactions['❤️'] || 0);
             });
             const likesEl = document.getElementById('sidebarLikesReceived');
             if (likesEl) likesEl.textContent = total;
