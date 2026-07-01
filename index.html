@@ -1,57 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ✅ FIX #2: ANTI-FLASH CSS (ADDED) -->
-    <style>
-        /* ANTI-FLASH: Hide everything by default */
-        .guest-only, .auth-only, #userInfo, .nav-icon, .btn-login, .btn-signup,
-        #guestView, #loggedInView {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-        }
-        body.loaded .guest-only { 
-            display: inline-flex !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-        }
-        body.loaded .auth-only { 
-            display: inline-flex !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-        }
-        body.loaded #userInfo { 
-            display: flex !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-        }
-        body.loaded .nav-icon { 
-            display: inline-flex !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-        }
-        body.loaded .btn-login { 
-            display: inline-flex !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-        }
-        body.loaded .btn-signup { 
-            display: inline-flex !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-        }
-        body.loaded #guestView {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-        body.loaded #loggedInView {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-    </style>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Harbor — Share & Heal</title>
@@ -119,10 +68,7 @@
 </head>
 
 <body>
-    <!-- ✅ FIX #3: ADDED loaded class immediately -->
-    <script>document.body.classList.add('loaded');</script>
-
-    <!-- ✅ FIX #1: REMOVED document.write flash hack -->
+    <!-- ✅ REMOVED: document.write flash hack -->
 
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
@@ -280,16 +226,10 @@
             }
         })();
 
-        // ✅ FIX #4: UPDATED applyGuestRestrictions with admin link fix
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-            document.querySelectorAll('.guest-only').forEach(function(el) { 
-                if (el.hasAttribute('hidden')) return;
-                el.style.display = isLoggedIn ? '' : 'none'; 
-            });
-            document.querySelectorAll('.auth-only').forEach(function(el) { 
-                el.style.display = isLoggedIn ? 'none' : ''; 
-            });
+            document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+            document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
             var gv = document.getElementById('guestView');
             var lv = document.getElementById('loggedInView');
             if (gv) gv.style.display = isLoggedIn ? 'none' : 'block';
@@ -297,16 +237,6 @@
             var ui = document.getElementById('userInfo');
             if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
             if (isLoggedIn) { sessionStorage.setItem('harbor_was_logged_in', 'true'); }
-
-            // ✅ Admin link - only shows if user is admin
-            var adminLink = document.getElementById('adminNavLink');
-            if (adminLink) {
-                if (isLoggedIn && currentUserData && currentUserData.isAdmin === true) {
-                    adminLink.style.display = '';
-                } else {
-                    adminLink.style.display = 'none';
-                }
-            }
         }
 
         function updateGenderTabs() {
