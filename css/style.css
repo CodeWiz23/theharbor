@@ -1,5 +1,5 @@
 /* ============================================
-   THE HARBOR — COMPLETE STYLES (ENHANCED v5)
+   THE HARBOR — COMPLETE STYLES (FINAL v6)
    ============================================ */
 
 /* ===== DESIGN SYSTEM ===== */
@@ -56,7 +56,7 @@
     --z-dropdown: 100;
     --z-sticky: 200;
     --z-modal: 1000;
-    --z-tooltip: 500;
+    --z-tooltip: 9999;
 }
 
 [data-theme="dark"] {
@@ -168,7 +168,6 @@ body {
 }
 .header-right::-webkit-scrollbar { display: none; }
 
-/* Each icon in its own box */
 .nav-icon {
     display: inline-flex;
     align-items: center;
@@ -212,7 +211,6 @@ body {
     50% { box-shadow: 0 4px 24px rgba(26,74,74,0.5); }
 }
 
-/* Staggered entrance animation for nav icons */
 .nav-icon {
     animation: iconSlideIn 0.4s ease forwards;
     opacity: 0;
@@ -256,7 +254,6 @@ body {
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* Notification badge - pulsing */
 .notification-badge {
     position: absolute;
     top: -2px;
@@ -473,38 +470,37 @@ body {
 .feed-tab:hover { background: var(--border-color); border-color: var(--primary-light); }
 .feed-tab.active { background: var(--primary); color: white; font-weight: 600; border-color: var(--primary); }
 
+/* Category ? icon - FIXED Z-INDEX */
 .tab-info-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 17px; height: 17px; border-radius: 50%;
     background: rgba(0,0,0,0.12); color: var(--text-secondary);
     font-size: 10px; font-weight: 700;
     cursor: pointer; flex-shrink: 0; transition: all 0.2s;
-    border: none; position: relative;
+    border: none; position: relative; z-index: 1;
 }
 .feed-tab.active .tab-info-icon { background: rgba(255,255,255,0.3); color: white; }
 .tab-info-icon:hover { background: var(--secondary); color: white; transform: scale(1.2); }
 
+/* Category tooltip - FLOATS ABOVE EVERYTHING */
 .tab-info-tooltip {
     display: none;
-    position: absolute;
-    bottom: calc(100% + 10px);
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed;
     background: #1a1a2e;
     color: #ffffff;
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: var(--radius-sm);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 400;
     white-space: nowrap;
-    z-index: var(--z-tooltip);
+    z-index: 9999;
     pointer-events: none;
-    box-shadow: var(--shadow-lg);
-    max-width: 240px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    max-width: 280px;
     text-align: center;
     line-height: 1.4;
 }
-.tab-info-tooltip.show { display: block; animation: tooltipFade 0.2s ease; }
+.tab-info-tooltip.show { display: block; }
 
 /* ===== FOOTER ===== */
 .footer {
@@ -597,7 +593,7 @@ body {
     .feed-tab { font-size: 0.7rem; padding: 0.3rem 0.6rem; }
     .story-card { padding: 0.8rem; margin-bottom: 0.6rem; }
     .story-card-avatar { width: 34px; height: 34px; font-size: 0.85rem; }
-    .tab-info-tooltip { max-width: 180px; font-size: 0.65rem; bottom: calc(100% + 6px); }
+    .tab-info-tooltip { max-width: 200px; font-size: 0.7rem; }
 }
 
 @media (min-width: 1024px) { .story-card { padding: 1.4rem 1.8rem; } }
