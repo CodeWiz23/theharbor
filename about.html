@@ -5,395 +5,231 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
 
+    <!-- Theme -->
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('harbor_theme');
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/analytics.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .about-section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: var(--space-lg) 0;
-        }
+        .about-container { max-width: 760px; margin: 0 auto; padding: 1.5rem 0; }
 
-        .about-header {
+        .about-hero {
             text-align: center;
-            padding: var(--space-xl) 0 var(--space-lg);
+            padding: 2.5rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-xl);
+            color: white;
+            margin-bottom: 1.5rem;
         }
-        .about-header .big-icon {
-            font-size: 4rem;
-            display: block;
-            margin-bottom: var(--space-sm);
-        }
-        .about-header h1 {
-            font-weight: 300;
-            color: var(--text-primary);
-            font-size: 2.4rem;
-        }
-        .about-header h1 span {
-            font-weight: 700;
-            color: var(--secondary);
-        }
-        .about-header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-top: var(--space-xs);
-        }
+        .about-hero .big-icon { font-size: 3.5rem; display: block; margin-bottom: 8px; }
+        .about-hero h1 { font-size: 2.2rem; font-weight: 300; letter-spacing: -0.02em; }
+        .about-hero h1 span { font-weight: 700; color: var(--secondary); }
+        .about-hero p { font-size: 1rem; opacity: 0.85; margin-top: 6px; }
 
         .about-card {
             background: var(--bg-card);
-            padding: var(--space-xl);
+            padding: 1.5rem;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border-color);
-            margin-bottom: var(--space-lg);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-base);
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
         }
-        .about-card:hover {
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-
+        .about-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
         .about-card h2 {
             color: var(--text-primary);
             margin-top: 0;
-            margin-bottom: var(--space-md);
-            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.15rem;
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
+            gap: 8px;
         }
-
-        .about-card p {
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        .about-card ul {
-            list-style: none;
-            padding: 0;
-        }
+        .about-card p { color: var(--text-secondary); line-height: 1.7; }
+        .about-card ul { list-style: none; padding: 0; }
         .about-card ul li {
-            padding: var(--space-sm) 0;
+            padding: 8px 0;
             color: var(--text-secondary);
             display: flex;
             align-items: flex-start;
-            gap: var(--space-md);
+            gap: 12px;
             border-bottom: 1px solid var(--border-light);
         }
-        .about-card ul li:last-child {
-            border-bottom: none;
-        }
-        .about-card ul li .icon {
-            font-size: 1.2rem;
-            min-width: 30px;
-            margin-top: 2px;
-        }
-        .about-card ul li strong {
-            color: var(--text-primary);
-        }
-        .about-card ul li .desc {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            display: block;
-        }
+        .about-card ul li:last-child { border-bottom: none; }
+        .about-card ul li .icon { font-size: 1.1rem; min-width: 28px; margin-top: 2px; }
+        .about-card ul li strong { color: var(--text-primary); }
+        .about-card ul li .desc { color: var(--text-muted); font-size: 0.8rem; display: block; }
 
         .mission-quote {
             background: var(--bg-secondary);
-            padding: var(--space-lg) var(--space-xl);
+            padding: 1rem 1.2rem;
             border-radius: var(--radius-md);
             border-left: 4px solid var(--secondary);
             font-style: italic;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--text-secondary);
-            margin: var(--space-md) 0;
+            margin: 0.8rem 0;
         }
-        .mission-quote strong {
-            color: var(--primary);
-            font-style: normal;
-        }
+        .mission-quote strong { color: var(--primary); font-style: normal; }
 
         .values-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: var(--space-sm);
-            margin-top: var(--space-md);
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 0.8rem;
         }
         .value-item {
             background: var(--bg-secondary);
-            padding: var(--space-md);
+            padding: 0.8rem;
             border-radius: var(--radius-md);
             text-align: center;
             border: 1px solid var(--border-color);
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
         }
-        .value-item:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-sm);
-            border-color: var(--primary-light);
-        }
-        .value-item .emoji {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: var(--space-xs);
-        }
-        .value-item .label {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-        }
-
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: var(--space-md);
-            margin-top: var(--space-md);
-        }
-        .resource-card {
-            background: var(--bg-secondary);
-            padding: var(--space-lg);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            text-align: center;
-            transition: all var(--transition-fast);
-        }
-        .resource-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-sm);
-            border-color: var(--primary-light);
-        }
-        .resource-card .emoji {
-            font-size: 2.4rem;
-            display: block;
-            margin-bottom: var(--space-xs);
-        }
-        .resource-card a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-            display: block;
-            margin-top: var(--space-xs);
-        }
-        .resource-card a:hover {
-            color: var(--secondary);
-            text-decoration: underline;
-        }
-        .resource-card .desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: var(--space-xs);
-        }
+        .value-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--primary-light); }
+        .value-item .emoji { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+        .value-item .label { font-weight: 600; color: var(--text-primary); font-size: 0.82rem; }
 
         /* Emergency Search */
-        .emergency-search {
-            position: relative;
-            margin: var(--space-md) 0;
-        }
+        .emergency-search { position: relative; margin: 0.8rem 0; }
         .emergency-search input {
             width: 100%;
-            padding: var(--space-md) var(--space-lg);
+            padding: 10px 16px;
             border: 2px solid var(--border-color);
-            border-radius: var(--radius-full);
-            font-size: 1rem;
+            border-radius: 9999px;
+            font-size: 0.95rem;
             background: var(--bg-primary);
             color: var(--text-primary);
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
-        .emergency-search input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
-        }
-        .emergency-search input::placeholder {
-            color: var(--text-muted);
-        }
+        .emergency-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,74,74,0.1); }
 
         .emergency-result {
-            background: var(--bg-secondary);
-            padding: var(--space-lg);
+            background: var(--bg-card);
+            padding: 1.2rem;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
-            margin-top: var(--space-md);
+            margin-top: 0.8rem;
             display: none;
-            animation: fadeIn 0.3s ease;
             text-align: center;
         }
-        .emergency-result .country-name {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-        }
-        .emergency-result .number {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: var(--space-xs) 0;
-        }
-        .emergency-result .note {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
+        .emergency-result .country-name { font-size: 1rem; color: var(--text-secondary); }
+        .emergency-result .number { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 4px 0; }
+        .emergency-result .note { font-size: 0.85rem; color: var(--text-muted); }
         .emergency-result .call-btn {
             display: inline-block;
-            margin-top: var(--space-md);
-            padding: var(--space-sm) var(--space-xl);
+            margin-top: 8px;
+            padding: 8px 24px;
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: var(--radius-full);
-            font-size: 1rem;
+            border-radius: 9999px;
+            font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
             text-decoration: none;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
         }
-        .emergency-result .call-btn:hover {
-            background: var(--primary-light);
-            transform: scale(1.02);
-            box-shadow: var(--shadow-md);
-        }
+        .emergency-result .call-btn:hover { background: var(--primary-light); transform: scale(1.02); }
 
         .no-result {
             color: var(--danger);
-            font-size: 0.95rem;
-            margin-top: var(--space-md);
+            font-size: 0.9rem;
+            margin-top: 0.8rem;
             display: none;
             text-align: center;
-            padding: var(--space-md);
+            padding: 0.8rem;
             background: #fee2e2;
             border-radius: var(--radius-md);
         }
 
-        .quick-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: var(--space-sm);
-            margin: var(--space-md) 0;
-        }
+        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin: 0.8rem 0; }
         .quick-btn {
-            padding: var(--space-sm);
+            padding: 6px;
             background: var(--bg-secondary);
             border: 2px solid var(--border-color);
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
             text-align: center;
-            font-family: var(--font-family);
+            font-family: inherit;
             color: var(--text-secondary);
         }
-        .quick-btn:hover {
-            background: var(--border-color);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-        .quick-btn .num {
-            display: block;
-            font-size: 1.2rem;
-            color: var(--primary);
-            font-weight: 700;
-        }
-        .quick-btn .name {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
+        .quick-btn:hover { background: var(--border-color); transform: translateY(-1px); }
+        .quick-btn:active { transform: scale(0.96); }
+        .quick-btn .num { display: block; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
+        .quick-btn .name { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 600px) {
-            .about-card { padding: var(--space-lg); }
-            .about-header h1 { font-size: 1.8rem; }
+        @media (max-width: 768px) {
+            .about-hero { padding: 1.8rem 1.2rem; }
+            .about-hero h1 { font-size: 1.6rem; }
+            .about-hero .big-icon { font-size: 2.8rem; }
+            .about-card { padding: 1.2rem; }
             .values-grid { grid-template-columns: repeat(3, 1fr); }
-            .resources-grid { grid-template-columns: 1fr; }
-            .quick-grid { grid-template-columns: repeat(3, 1fr); }
-            .emergency-result .number { font-size: 2.2rem; }
         }
-        @media (max-width: 400px) {
+        @media (max-width: 480px) {
+            .about-hero { padding: 1.4rem 1rem; border-radius: var(--radius-lg); }
+            .about-hero h1 { font-size: 1.3rem; }
+            .about-card { padding: 1rem; }
             .values-grid { grid-template-columns: repeat(2, 1fr); }
-            .quick-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        /* ===== GUEST RESTRICTIONS ===== */
-        .guest-hidden {
-            display: none !important;
-        }
-        .logged-in-hidden {
-            display: none !important;
-        }
-
-        /* ===== CATEGORY INFO TOOLTIP FIX ===== */
-        .category-info-wrapper {
-            position: relative;
-            z-index: 9999;
-        }
-        .category-info-trigger {
-            position: relative;
-            z-index: 9999;
-        }
-        .category-info-tooltip {
-            z-index: 99999 !important;
+            .quick-grid { grid-template-columns: repeat(3, 1fr); }
+            .emergency-result .number { font-size: 2rem; }
         }
     </style>
 </head>
 
 <body>
-    <!-- ===== HEADER ===== -->
-    <header class="header">
-        <div class="header-left">
-            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
-        </div>
+    <!-- Header -->
+    <header class="header" role="banner">
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <!-- FEED - Only visible when logged in -->
-            <a href="index.html" class="btn btn-feed guest-hidden" onclick="location.reload(); return false;">🏠 Feed</a>
-
-            <!-- About - Always visible -->
-            <a href="about.html" class="btn btn-nav" style="background:var(--primary);color:white;">🌿 About</a>
-
-            <!-- Guest Restricted Elements - Only visible when logged in -->
-            <div class="guest-restricted guest-hidden">
-                <a href="submit.html" class="btn btn-nav">📝 Share</a>
-                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
-            </div>
-
-            <!-- Settings Gear - Only visible when logged in -->
-            <button class="btn-settings guest-hidden" onclick="if(typeof toggleSidebar === 'function') toggleSidebar(); else alert('⚙️ Settings loading...');" title="Settings">⚙️</button>
-
-            <!-- Auth Buttons - Only visible when NOT logged in -->
-            <div id="authButtons" class="logged-in-hidden">
-                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
-                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
-            </div>
-
-            <!-- User Info - Only visible when logged in -->
-            <div id="userInfo" class="guest-hidden">
+            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="about.html" class="btn btn-feed active" aria-current="page">🌿 About</a>
+            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
+            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
+            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
+                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- ===== EMERGENCY BANNER ===== -->
-    <div id="emergencyBanner"></div>
+    <div id="emergencyBanner" role="alert"></div>
 
-    <!-- ===== MAIN CONTENT ===== -->
+    <!-- Main Content -->
     <div class="container">
-        <div class="about-section">
-
-            <!-- Header -->
-            <div class="about-header">
+        <div class="about-container">
+            <!-- Hero -->
+            <div class="about-hero">
                 <span class="big-icon">⚓</span>
                 <h1>About <span>The Harbor</span></h1>
                 <p>A safe space for every story.</p>
@@ -403,55 +239,20 @@
             <div class="about-card">
                 <h2>🌿 Our Mission</h2>
                 <div class="mission-quote">
-                    "The Harbor is a compassionate online community where people can share their struggles,
-                    find support, and discover hope. We believe that <strong>every story matters</strong> and that
-                    no one should have to face their challenges alone."
+                    "The Harbor is a compassionate online community where people can share their struggles, find support, and discover hope. We believe that <strong>every story matters</strong> and that no one should have to face their challenges alone."
                 </div>
-                <p style="margin-top:var(--space-sm);">
-                    Whether you're navigating a difficult time, celebrating a victory, or just looking for a
-                    place to belong — you are welcome here.
-                </p>
+                <p>Whether you're navigating a difficult time, celebrating a victory, or just looking for a place to belong — you are welcome here.</p>
             </div>
 
             <!-- Categories -->
             <div class="about-card">
                 <h2>⚓ What We Offer</h2>
                 <ul>
-                    <li>
-                        <span class="icon">🧔</span>
-                        <div>
-                            <strong>Men's Harbor</strong>
-                            <span class="desc">A dedicated space for men to share and support each other</span>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="icon">👩</span>
-                        <div>
-                            <strong>Women's Harbor</strong>
-                            <span class="desc">A dedicated space for women to share and support each other</span>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="icon">🌊</span>
-                        <div>
-                            <strong>The Storm</strong>
-                            <span class="desc">For sharing struggles, depression, and difficult times</span>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="icon">☀️</span>
-                        <div>
-                            <strong>Sunny Skies</strong>
-                            <span class="desc">For sharing joy, fun moments, and positivity</span>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="icon">🧭</span>
-                        <div>
-                            <strong>The Compass</strong>
-                            <span class="desc">For learning, growth, and practical advice</span>
-                        </div>
-                    </li>
+                    <li><span class="icon">🧔</span><div><strong>Men's Harbor</strong><span class="desc">A dedicated space for men to share and support each other</span></div></li>
+                    <li><span class="icon">👩</span><div><strong>Women's Harbor</strong><span class="desc">A dedicated space for women to share and support each other</span></div></li>
+                    <li><span class="icon">🌊</span><div><strong>The Storm</strong><span class="desc">For sharing struggles, depression, and difficult times</span></div></li>
+                    <li><span class="icon">☀️</span><div><strong>Sunny Skies</strong><span class="desc">For sharing joy, fun moments, and positivity</span></div></li>
+                    <li><span class="icon">🧭</span><div><strong>The Compass</strong><span class="desc">For learning, growth, and practical advice</span></div></li>
                 </ul>
             </div>
 
@@ -459,26 +260,11 @@
             <div class="about-card">
                 <h2>💚 Our Values</h2>
                 <div class="values-grid">
-                    <div class="value-item">
-                        <span class="emoji">🤝</span>
-                        <span class="label">Compassion</span>
-                    </div>
-                    <div class="value-item">
-                        <span class="emoji">🕊️</span>
-                        <span class="label">Anonymity</span>
-                    </div>
-                    <div class="value-item">
-                        <span class="emoji">🔒</span>
-                        <span class="label">Privacy</span>
-                    </div>
-                    <div class="value-item">
-                        <span class="emoji">💪</span>
-                        <span class="label">Resilience</span>
-                    </div>
-                    <div class="value-item">
-                        <span class="emoji">❤️</span>
-                        <span class="label">Hope</span>
-                    </div>
+                    <div class="value-item"><span class="emoji">🤝</span><span class="label">Compassion</span></div>
+                    <div class="value-item"><span class="emoji">🕊️</span><span class="label">Anonymity</span></div>
+                    <div class="value-item"><span class="emoji">🔒</span><span class="label">Privacy</span></div>
+                    <div class="value-item"><span class="emoji">💪</span><span class="label">Resilience</span></div>
+                    <div class="value-item"><span class="emoji">❤️</span><span class="label">Hope</span></div>
                 </div>
             </div>
 
@@ -486,65 +272,27 @@
             <div class="about-card">
                 <h2>🛡️ Community Guidelines</h2>
                 <ul>
-                    <li>
-                        <span class="icon">🤝</span>
-                        <div><strong>Be kind and respectful</strong> — Treat others as you would like to be treated</div>
-                    </li>
-                    <li>
-                        <span class="icon">🕊️</span>
-                        <div><strong>Anonymous posting</strong> — Use it if you need to, but be genuine</div>
-                    </li>
-                    <li>
-                        <span class="icon">🚫</span>
-                        <div><strong>No hate speech</strong> — No bullying, harassment, or discrimination</div>
-                    </li>
-                    <li>
-                        <span class="icon">📵</span>
-                        <div><strong>No personal info</strong> — Don't share addresses, phone numbers, or real names</div>
-                    </li>
-                    <li>
-                        <span class="icon">💚</span>
-                        <div><strong>Supportive space</strong> — This is a community, not a crisis line</div>
-                    </li>
-                    <li>
-                        <span class="icon">🚨</span>
-                        <div><strong>Report issues</strong> — If you see something wrong, report it</div>
-                    </li>
+                    <li><span class="icon">🤝</span><div><strong>Be kind and respectful</strong> — Treat others as you would like to be treated</div></li>
+                    <li><span class="icon">🕊️</span><div><strong>Anonymous posting</strong> — Use it if you need to, but be genuine</div></li>
+                    <li><span class="icon">🚫</span><div><strong>No hate speech</strong> — No bullying, harassment, or discrimination</div></li>
+                    <li><span class="icon">📵</span><div><strong>No personal info</strong> — Don't share addresses, phone numbers, or real names</div></li>
+                    <li><span class="icon">💚</span><div><strong>Supportive space</strong> — This is a community, not a crisis line</div></li>
+                    <li><span class="icon">🚨</span><div><strong>Report issues</strong> — If you see something wrong, report it</div></li>
                 </ul>
             </div>
 
             <!-- Emergency Numbers -->
             <div class="about-card">
                 <h2>🆘 Emergency Numbers</h2>
-                <p style="color:var(--text-muted);margin-bottom:var(--space-md);">
-                    Search for emergency numbers in any country. You are not alone.
-                </p>
+                <p style="color:var(--text-muted);margin-bottom:0.8rem;">Search for emergency numbers in any country. You are not alone.</p>
 
                 <div class="quick-grid">
-                    <button class="quick-btn" onclick="searchCountry('United States')">
-                        <span class="num">911</span>
-                        <span class="name">🇺🇸 USA</span>
-                    </button>
-                    <button class="quick-btn" onclick="searchCountry('United Kingdom')">
-                        <span class="num">999</span>
-                        <span class="name">🇬🇧 UK</span>
-                    </button>
-                    <button class="quick-btn" onclick="searchCountry('Bangladesh')">
-                        <span class="num">999</span>
-                        <span class="name">🇧🇩 Bangladesh</span>
-                    </button>
-                    <button class="quick-btn" onclick="searchCountry('India')">
-                        <span class="num">112</span>
-                        <span class="name">🇮🇳 India</span>
-                    </button>
-                    <button class="quick-btn" onclick="searchCountry('Canada')">
-                        <span class="num">911</span>
-                        <span class="name">🇨🇦 Canada</span>
-                    </button>
-                    <button class="quick-btn" onclick="searchCountry('Australia')">
-                        <span class="num">000</span>
-                        <span class="name">🇦🇺 Australia</span>
-                    </button>
+                    <button class="quick-btn" onclick="searchCountry('United States')"><span class="num">911</span><span class="name">🇺🇸 USA</span></button>
+                    <button class="quick-btn" onclick="searchCountry('United Kingdom')"><span class="num">999</span><span class="name">🇬🇧 UK</span></button>
+                    <button class="quick-btn" onclick="searchCountry('Bangladesh')"><span class="num">999</span><span class="name">🇧🇩 Bangladesh</span></button>
+                    <button class="quick-btn" onclick="searchCountry('India')"><span class="num">112</span><span class="name">🇮🇳 India</span></button>
+                    <button class="quick-btn" onclick="searchCountry('Canada')"><span class="num">911</span><span class="name">🇨🇦 Canada</span></button>
+                    <button class="quick-btn" onclick="searchCountry('Australia')"><span class="num">000</span><span class="name">🇦🇺 Australia</span></button>
                 </div>
 
                 <div class="emergency-search">
@@ -553,78 +301,47 @@
                 </div>
 
                 <div id="emergencyResult" class="emergency-result">
-                    <div class="country-name" id="resultCountry">United States</div>
-                    <div class="number" id="resultNumber">911</div>
-                    <div class="note" id="resultNote">📞 Police, Fire, Ambulance</div>
-                    <a href="tel:911" id="callBtn" class="call-btn">📞 Call Now</a>
+                    <div class="country-name" id="resultCountry"></div>
+                    <div class="number" id="resultNumber"></div>
+                    <div class="note" id="resultNote"></div>
+                    <a href="#" id="callBtn" class="call-btn">📞 Call Now</a>
                 </div>
 
-                <div id="noResult" class="no-result">
-                    ❌ No emergency number found for this country. Please check your spelling or try a different country name.
-                </div>
-
-                <div style="margin-top:var(--space-md);font-size:0.85rem;color:var(--text-muted);">
-                    💡 <strong>Tip:</strong> Try "Bangladesh", "India", "United Kingdom", "Australia", "Canada", or "Germany".
-                </div>
+                <div id="noResult" class="no-result">❌ No emergency number found. Please check your spelling or try another country.</div>
             </div>
 
-            <!-- Privacy & Security -->
+            <!-- Privacy -->
             <div class="about-card">
                 <h2>🔒 Privacy & Security</h2>
                 <ul>
-                    <li>
-                        <span class="icon">✅</span>
-                        <div><strong>Your data is encrypted</strong> — Protected with industry-standard security</div>
-                    </li>
-                    <li>
-                        <span class="icon">🕊️</span>
-                        <div><strong>Anonymous posting</strong> — Share your story without revealing your identity</div>
-                    </li>
-                    <li>
-                        <span class="icon">🚫</span>
-                        <div><strong>No ads, no tracking</strong> — We don't sell or share your data</div>
-                    </li>
-                    <li>
-                        <span class="icon">🔐</span>
-                        <div><strong>You control your data</strong> — Edit or delete your stories and comments anytime</div>
-                    </li>
-                    <li>
-                        <span class="icon">🛡️</span>
-                        <div><strong>Secure authentication</strong> — Your password is hashed and protected</div>
-                    </li>
+                    <li><span class="icon">✅</span><div><strong>Your data is encrypted</strong> — Protected with industry-standard security</div></li>
+                    <li><span class="icon">🕊️</span><div><strong>Anonymous posting</strong> — Share your story without revealing your identity</div></li>
+                    <li><span class="icon">🚫</span><div><strong>No ads, no tracking</strong> — We don't sell or share your data</div></li>
+                    <li><span class="icon">🔐</span><div><strong>You control your data</strong> — Edit or delete your stories and comments anytime</div></li>
                 </ul>
             </div>
 
-            <!-- Back to Home -->
-            <div style="text-align:center;margin-top:var(--space-xl);">
-                <a href="index.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;">⚓ Return to The Harbor</a>
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn btn-primary" style="text-decoration:none;">⚓ Return to The Harbor</a>
             </div>
         </div>
     </div>
 
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal" id="authModal">
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
-
-            <div class="warning-box" id="genderWarning">
-                <span>⚠️</span>
-                <span id="genderWarningText">Your gender determines which sections you can see.</span>
-            </div>
-
+            <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
             <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" />
-
+            <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
             <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
             <div id="passwordStrength"></div>
-
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" />
-                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
-
+                <input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" />
+                <div id="usernameStatus"></div>
                 <label for="authGender">Gender</label>
                 <select id="authGender" onchange="updateGenderWarning()">
                     <option value="🧔 Man">🧔 Man</option>
@@ -632,289 +349,142 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
-
                 <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
                 <datalist id="country-list"></datalist>
-
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-
                 <div class="checkbox-group">
                     <input type="checkbox" id="termsCheckbox" />
-                    <label for="termsCheckbox">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
-                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
-                        <span style="color:var(--danger);">*</span>
-                    </label>
+                    <label for="termsCheckbox">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
-
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
-                Don't have an account? <strong>Sign Up</strong>
-            </div>
-
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
             <div class="error-msg" id="authError"></div>
             <div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html" class="guest-hidden">📊 Activity</a>
+            <a href="activity.html" class="guest-only">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html" class="guest-hidden">📝 Share Story</a>
-            <a href="profile.html" class="guest-hidden">👤 Profile</a>
+            <a href="submit.html" class="guest-only">📝 Share Story</a>
+            <a href="profile.html" class="guest-only">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html" class="guest-hidden">💡 Suggest</a>
+            <a href="suggest.html" class="guest-only">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
-        <div class="footer-copy">
-            © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community.
-        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <!-- ============================================
-    JAVASCRIPT
-    ============================================ -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
-
+    <!-- Page Script -->
     <script>
-    // ============================================
-    // ABOUT PAGE - COMPLETE
-    // ============================================
-
-    // Country data
-    const emergencyCountries = [
-        { name: 'Afghanistan', emergency: '119' },
-        { name: 'Albania', emergency: '112' },
-        { name: 'Algeria', emergency: '14' },
-        { name: 'Argentina', emergency: '911' },
-        { name: 'Australia', emergency: '000' },
-        { name: 'Austria', emergency: '112' },
-        { name: 'Bangladesh', emergency: '999' },
-        { name: 'Belgium', emergency: '112' },
-        { name: 'Brazil', emergency: '190' },
-        { name: 'Canada', emergency: '911' },
-        { name: 'China', emergency: '110' },
-        { name: 'Denmark', emergency: '112' },
-        { name: 'Egypt', emergency: '122' },
-        { name: 'Finland', emergency: '112' },
-        { name: 'France', emergency: '112' },
-        { name: 'Germany', emergency: '112' },
-        { name: 'Greece', emergency: '112' },
-        { name: 'India', emergency: '112' },
-        { name: 'Indonesia', emergency: '112' },
-        { name: 'Iran', emergency: '110' },
-        { name: 'Ireland', emergency: '112' },
-        { name: 'Israel', emergency: '112' },
-        { name: 'Italy', emergency: '112' },
-        { name: 'Japan', emergency: '110' },
-        { name: 'Malaysia', emergency: '999' },
-        { name: 'Mexico', emergency: '911' },
-        { name: 'Netherlands', emergency: '112' },
-        { name: 'New Zealand', emergency: '111' },
-        { name: 'Norway', emergency: '112' },
-        { name: 'Pakistan', emergency: '112' },
-        { name: 'Philippines', emergency: '911' },
-        { name: 'Poland', emergency: '112' },
-        { name: 'Portugal', emergency: '112' },
-        { name: 'Russia', emergency: '112' },
-        { name: 'Saudi Arabia', emergency: '911' },
-        { name: 'Singapore', emergency: '999' },
-        { name: 'South Africa', emergency: '112' },
-        { name: 'South Korea', emergency: '112' },
-        { name: 'Spain', emergency: '112' },
-        { name: 'Sweden', emergency: '112' },
-        { name: 'Switzerland', emergency: '112' },
-        { name: 'Turkey', emergency: '112' },
-        { name: 'United Arab Emirates', emergency: '999' },
-        { name: 'United Kingdom', emergency: '999' },
-        { name: 'United States', emergency: '911' },
-        { name: 'Vietnam', emergency: '113' }
+    var emergencyCountries = [
+        {name:'Afghanistan',emergency:'119'},{name:'Albania',emergency:'112'},{name:'Algeria',emergency:'14'},
+        {name:'Argentina',emergency:'911'},{name:'Australia',emergency:'000'},{name:'Austria',emergency:'112'},
+        {name:'Bangladesh',emergency:'999'},{name:'Belgium',emergency:'112'},{name:'Brazil',emergency:'190'},
+        {name:'Canada',emergency:'911'},{name:'China',emergency:'110'},{name:'Denmark',emergency:'112'},
+        {name:'Egypt',emergency:'122'},{name:'Finland',emergency:'112'},{name:'France',emergency:'112'},
+        {name:'Germany',emergency:'112'},{name:'Greece',emergency:'112'},{name:'India',emergency:'112'},
+        {name:'Indonesia',emergency:'112'},{name:'Iran',emergency:'110'},{name:'Ireland',emergency:'112'},
+        {name:'Israel',emergency:'112'},{name:'Italy',emergency:'112'},{name:'Japan',emergency:'110'},
+        {name:'Malaysia',emergency:'999'},{name:'Mexico',emergency:'911'},{name:'Netherlands',emergency:'112'},
+        {name:'New Zealand',emergency:'111'},{name:'Norway',emergency:'112'},{name:'Pakistan',emergency:'112'},
+        {name:'Philippines',emergency:'911'},{name:'Poland',emergency:'112'},{name:'Portugal',emergency:'112'},
+        {name:'Russia',emergency:'112'},{name:'Saudi Arabia',emergency:'911'},{name:'Singapore',emergency:'999'},
+        {name:'South Africa',emergency:'112'},{name:'South Korea',emergency:'112'},{name:'Spain',emergency:'112'},
+        {name:'Sweden',emergency:'112'},{name:'Switzerland',emergency:'112'},{name:'Turkey',emergency:'112'},
+        {name:'United Arab Emirates',emergency:'999'},{name:'United Kingdom',emergency:'999'},
+        {name:'United States',emergency:'911'},{name:'Vietnam',emergency:'113'}
     ];
 
-    // ============================================
-    // POPULATE DATALISTS
-    // ============================================
+    function applyGuestRestrictions() {
+        var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+        var guestOnly = document.querySelectorAll('.guest-only');
+        var authOnly = document.querySelectorAll('.auth-only');
+        guestOnly.forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+        authOnly.forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
+        var userInfo = document.getElementById('userInfo');
+        if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
+    }
+
     function populateEmergencyDatalist() {
-        const datalist = document.getElementById('emergency-list');
-        if (!datalist) return;
-        datalist.innerHTML = '';
-        emergencyCountries.forEach(c => {
-            const option = document.createElement('option');
-            option.value = c.name;
-            datalist.appendChild(option);
+        var dl = document.getElementById('emergency-list');
+        if (!dl) return;
+        dl.innerHTML = '';
+        emergencyCountries.forEach(function(c) {
+            var o = document.createElement('option');
+            o.value = c.name;
+            dl.appendChild(o);
         });
     }
 
-    // ============================================
-    // EMERGENCY SEARCH
-    // ============================================
     function searchCountry(name) {
         if (!name) return;
-
-        const input = document.getElementById('emergencySearch');
-        if (input) input.value = name;
-
-        const result = emergencyCountries.find(c => c.name.toLowerCase() === name.toLowerCase());
-
-        if (result) {
-            showEmergencyResult(result);
-        } else {
-            const partial = emergencyCountries.filter(c => c.name.toLowerCase().includes(name.toLowerCase()));
-            if (partial.length > 0) {
-                showEmergencyResult(partial[0]);
-            } else {
-                document.getElementById('emergencyResult').style.display = 'none';
-                document.getElementById('noResult').style.display = 'block';
-            }
-        }
+        document.getElementById('emergencySearch').value = name;
+        var result = emergencyCountries.find(function(c) { return c.name.toLowerCase() === name.toLowerCase(); });
+        if (result) { showEmergencyResult(result); return; }
+        var partial = emergencyCountries.filter(function(c) { return c.name.toLowerCase().indexOf(name.toLowerCase()) !== -1; });
+        if (partial.length > 0) { showEmergencyResult(partial[0]); }
+        else { document.getElementById('emergencyResult').style.display = 'none'; document.getElementById('noResult').style.display = 'block'; }
     }
 
     function showEmergencyResult(result) {
-        const resultDiv = document.getElementById('emergencyResult');
-        const noResult = document.getElementById('noResult');
-
         document.getElementById('resultCountry').textContent = result.name;
         document.getElementById('resultNumber').textContent = result.emergency;
         document.getElementById('resultNote').textContent = '📞 Emergency Services';
         document.getElementById('callBtn').href = 'tel:' + result.emergency;
-
-        resultDiv.style.display = 'block';
-        noResult.style.display = 'none';
+        document.getElementById('emergencyResult').style.display = 'block';
+        document.getElementById('noResult').style.display = 'none';
     }
 
-    // ============================================
-    // SETUP EMERGENCY SEARCH
-    // ============================================
-    function setupEmergencySearch() {
-        const input = document.getElementById('emergencySearch');
-        if (!input) return;
-
-        input.addEventListener('input', function() {
-            const query = this.value.trim();
-
-            if (!query) {
-                document.getElementById('emergencyResult').style.display = 'none';
-                document.getElementById('noResult').style.display = 'none';
-                return;
-            }
-
-            let result = emergencyCountries.find(c => c.name.toLowerCase() === query.toLowerCase());
-
-            if (!result) {
-                result = emergencyCountries.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
-            }
-
-            if (result) {
-                showEmergencyResult(result);
-            } else {
-                document.getElementById('emergencyResult').style.display = 'none';
-                document.getElementById('noResult').style.display = 'block';
-            }
-        });
-
-        setTimeout(() => {
-            const defaultResult = emergencyCountries.find(c => c.name === 'United States');
-            if (defaultResult) {
-                showEmergencyResult(defaultResult);
-            }
-        }, 500);
-    }
-
-    // ============================================
-    // APPLY GUEST RESTRICTIONS
-    // ============================================
-    function applyGuestRestrictions() {
-        const isLoggedIn = currentUser !== null && currentUser !== undefined && currentUser !== false;
-        const guestElements = document.querySelectorAll('.guest-hidden');
-        const loggedInElements = document.querySelectorAll('.logged-in-hidden');
-
-        guestElements.forEach(function(el) {
-            if (isLoggedIn) {
-                el.style.display = '';
-            } else {
-                el.style.display = 'none';
-            }
-        });
-
-        loggedInElements.forEach(function(el) {
-            if (isLoggedIn) {
-                el.style.display = 'none';
-            } else {
-                el.style.display = '';
-            }
-        });
-    }
-
-    // ============================================
-    // INIT
-    // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         populateEmergencyDatalist();
-        setupEmergencySearch();
 
-        // Apply guest restrictions
-        if (typeof currentUser !== 'undefined') {
-            applyGuestRestrictions();
-        }
-
-        // Watch for auth changes
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged(function(user) {
-                setTimeout(applyGuestRestrictions, 200);
+        var input = document.getElementById('emergencySearch');
+        if (input) {
+            input.addEventListener('input', function() {
+                var q = this.value.trim();
+                if (!q) { document.getElementById('emergencyResult').style.display = 'none'; document.getElementById('noResult').style.display = 'none'; return; }
+                var result = emergencyCountries.find(function(c) { return c.name.toLowerCase() === q.toLowerCase(); }) ||
+                             emergencyCountries.find(function(c) { return c.name.toLowerCase().indexOf(q.toLowerCase()) !== -1; });
+                if (result) showEmergencyResult(result);
+                else { document.getElementById('emergencyResult').style.display = 'none'; document.getElementById('noResult').style.display = 'block'; }
             });
+            setTimeout(function() {
+                var def = emergencyCountries.find(function(c) { return c.name === 'United States'; });
+                if (def) showEmergencyResult(def);
+            }, 400);
         }
 
-        // Modal close on outside click
-        document.getElementById('authModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+        var check = setInterval(function() {
+            if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); }
+        }, 100);
+        if (typeof auth !== 'undefined') {
+            auth.onAuthStateChanged(function() { setTimeout(applyGuestRestrictions, 200); });
+        }
 
-        // Password strength
+        document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
         document.getElementById('authPassword')?.addEventListener('input', function() {
-            const pwd = this.value;
-            const strengthDiv = document.getElementById('passwordStrength');
-            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-            const result = checkPasswordStrength(pwd);
-            strengthDiv.innerHTML = `
-                <div style="margin-top:6px;font-size:0.85rem;">
-                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                </div>
-            `;
+            var sd = document.getElementById('passwordStrength');
+            if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; }
+            if (typeof checkPasswordStrength === 'function') {
+                var r = checkPasswordStrength(this.value);
+                sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
+            }
         });
-
-        document.getElementById('authName')?.addEventListener('input', checkUsernameOnType);
-
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const modal = document.getElementById('authModal');
-                if (modal && modal.classList.contains('active')) handleAuth();
-            }
-            if (e.key === 'Escape') {
-                closeModal();
-            }
+            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); }
+            if (e.key === 'Escape') closeModal();
         });
-
-        populateCountryDatalist();
 
         console.log('✅ About page ready');
     });
-
-    console.log('📄 About page loaded');
     </script>
 </body>
 </html>
