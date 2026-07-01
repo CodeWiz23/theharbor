@@ -5,707 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Emergency Numbers — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
+
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('harbor_theme');
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/analytics.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .emergency-header {
-            text-align: center;
-            padding: var(--space-lg) 0 var(--space-md);
-        }
-        .emergency-header .big-icon {
-            font-size: 3.5rem;
-            display: block;
-            margin-bottom: var(--space-xs);
-        }
-        .emergency-header h1 {
-            font-weight: 300;
-            color: var(--text-primary);
-            font-size: 2.2rem;
-        }
-        .emergency-header p {
-            color: var(--text-muted);
-            font-size: 1rem;
-            margin-top: var(--space-xs);
-        }
+        .emergency-container { max-width: 600px; margin: 0 auto; padding: 1.5rem 0; }
+        .emergency-hero { text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--danger), #b91c1c); border-radius: var(--radius-xl); color: white; margin-bottom: 1.5rem; }
+        .emergency-hero .big-icon { font-size: 3rem; display: block; margin-bottom: 6px; }
+        .emergency-hero h1 { font-size: 2rem; font-weight: 300; }
+        .emergency-hero p { opacity: 0.9; margin-top: 4px; }
 
-        .emergency-search-container {
-            position: relative;
-            margin: var(--space-md) 0 var(--space-lg);
+        .search-box { position: relative; margin-bottom: 1rem; }
+        .search-box input {
+            width: 100%; padding: 12px 18px; border: 2px solid var(--border-color);
+            border-radius: 9999px; font-size: 1rem; background: var(--bg-card); color: var(--text-primary);
+            font-family: inherit; transition: all 0.2s;
         }
-        .emergency-search-container input {
-            width: 100%;
-            padding: var(--space-md) var(--space-lg);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-full);
-            font-size: 1.1rem;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all var(--transition-fast);
-            font-family: var(--font-family);
-        }
-        .emergency-search-container input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
-        }
-        .emergency-search-container input::placeholder {
-            color: var(--text-muted);
-        }
+        .search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,74,74,0.1); }
 
-        .emergency-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            max-height: 260px;
-            overflow-y: auto;
-            display: none;
-            z-index: 100;
-            margin-top: var(--space-xs);
-            box-shadow: var(--shadow-lg);
-            border-top: none;
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
-        }
-        .emergency-dropdown.show {
-            display: block;
-        }
-        .emergency-dropdown-item {
-            padding: var(--space-sm) var(--space-lg);
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all var(--transition-fast);
-        }
-        .emergency-dropdown-item:last-child {
-            border-bottom: none;
-        }
-        .emergency-dropdown-item:hover {
-            background: var(--bg-secondary);
-        }
-        .emergency-dropdown-item .country {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        .emergency-dropdown-item .emergency {
-            color: var(--secondary);
-            font-weight: 700;
-        }
-
-        .quick-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: var(--space-sm);
-            margin: var(--space-md) 0;
-        }
-        .quick-btn {
-            padding: var(--space-sm);
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 600;
-            transition: all var(--transition-fast);
-            text-align: center;
-            font-family: var(--font-family);
-            color: var(--text-secondary);
-        }
-        .quick-btn:hover {
-            background: var(--border-color);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-            border-color: var(--primary-light);
-        }
-        .quick-btn .num {
-            display: block;
-            font-size: 1.2rem;
-            color: var(--primary);
-            font-weight: 700;
-        }
-        .quick-btn .name {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
+        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin-bottom: 1rem; }
+        .quick-btn { padding: 8px; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; text-align: center; font-family: inherit; color: var(--text-secondary); transition: all 0.15s; }
+        .quick-btn:hover { background: var(--border-color); transform: translateY(-1px); }
+        .quick-btn .num { display: block; font-size: 1.2rem; color: var(--primary); font-weight: 700; }
+        .quick-btn .name { font-size: 0.7rem; color: var(--text-muted); }
 
         .result-card {
-            background: var(--bg-card);
-            padding: var(--space-xl);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            text-align: center;
-            margin-top: var(--space-md);
-            display: none;
-            animation: fadeIn 0.4s ease;
-            box-shadow: var(--shadow-sm);
+            background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color); text-align: center; display: none; margin-top: 0.8rem;
         }
-        .result-card:hover {
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .result-card .country-name {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
-        .result-card .number {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: var(--space-xs) 0;
-        }
-        .result-card .note {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-top: var(--space-xs);
-        }
+        .result-card .country { font-size: 1.1rem; color: var(--text-secondary); }
+        .result-card .number { font-size: 3rem; font-weight: 700; color: var(--primary); margin: 4px 0; }
+        .result-card .note { font-size: 0.9rem; color: var(--text-muted); }
         .result-card .call-btn {
-            display: inline-block;
-            margin-top: var(--space-md);
-            padding: var(--space-md) var(--space-xl);
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-full);
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all var(--transition-fast);
+            display: inline-block; margin-top: 10px; padding: 10px 28px;
+            background: var(--primary); color: white; border: none; border-radius: 9999px;
+            font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s;
         }
-        .result-card .call-btn:hover {
-            background: var(--primary-light);
-            transform: scale(1.02);
-            box-shadow: var(--shadow-md);
-        }
-        .result-card .call-btn:active {
-            transform: scale(0.98);
-        }
+        .result-card .call-btn:hover { background: var(--primary-light); transform: scale(1.02); }
 
-        .no-result {
-            text-align: center;
-            padding: var(--space-lg);
-            color: var(--danger);
-            display: none;
-            background: #fee2e2;
-            border-radius: var(--radius-md);
-            border: 1px solid #fecaca;
-            margin-top: var(--space-md);
-        }
-        .no-result .big-emoji {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: var(--space-xs);
-        }
+        .no-result { display: none; text-align: center; padding: 1rem; color: var(--danger); background: #fee2e2; border-radius: var(--radius-md); margin-top: 0.8rem; }
 
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            padding: 0.5rem 1.5rem;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-secondary:hover {
-            background: var(--border-color);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 600px) {
-            .result-card .number { font-size: 2.8rem; }
-            .quick-grid { grid-template-columns: repeat(3, 1fr); }
-            .emergency-header h1 { font-size: 1.8rem; }
-            .result-card { padding: var(--space-lg); }
-        }
-        @media (max-width: 400px) {
-            .quick-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 480px) {
+            .emergency-hero { padding: 1.2rem; border-radius: var(--radius-lg); }
+            .emergency-hero h1 { font-size: 1.5rem; }
+            .result-card .number { font-size: 2.2rem; }
         }
     </style>
 </head>
 
 <body>
-    <!-- ===== HEADER ===== -->
-    <header class="header">
-        <div class="header-left">
-            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
-        </div>
+    <header class="header" role="banner">
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
-            <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <div class="guest-restricted">
-                <a href="submit.html" class="btn btn-nav">📝 Share</a>
-                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
-            </div>
-            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
-            <div id="authButtons">
-                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
-                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
-            </div>
-            <div id="userInfo">
+            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="about.html" class="btn btn-ghost">🌿 About</a>
+            <a href="emergency.html" class="btn btn-feed active" aria-current="page" style="background:var(--danger);">🆘 Emergency</a>
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
+            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- ===== EMERGENCY BANNER ===== -->
-    <div id="emergencyBanner"></div>
-
-    <!-- ===== MAIN CONTENT ===== -->
     <div class="container">
-        <div class="emergency-header">
-            <span class="big-icon">🆘</span>
-            <h1>Emergency Numbers</h1>
-            <p>Find emergency numbers anywhere in the world</p>
-        </div>
+        <div class="emergency-container">
+            <div class="emergency-hero">
+                <span class="big-icon">🆘</span>
+                <h1>Emergency Numbers</h1>
+                <p>Find help anywhere in the world</p>
+            </div>
 
-        <!-- Search -->
-        <div class="emergency-search-container">
-            <input type="text" id="countrySearch" placeholder="🔍 Search for a country (e.g., Bangladesh, UK, USA)" autocomplete="off" />
-            <div class="emergency-dropdown" id="dropdown"></div>
-        </div>
+            <div class="quick-grid">
+                <button class="quick-btn" onclick="searchCountry('United States')"><span class="num">911</span><span class="name">🇺🇸 USA</span></button>
+                <button class="quick-btn" onclick="searchCountry('United Kingdom')"><span class="num">999</span><span class="name">🇬🇧 UK</span></button>
+                <button class="quick-btn" onclick="searchCountry('Bangladesh')"><span class="num">999</span><span class="name">🇧🇩 Bangladesh</span></button>
+                <button class="quick-btn" onclick="searchCountry('India')"><span class="num">112</span><span class="name">🇮🇳 India</span></button>
+                <button class="quick-btn" onclick="searchCountry('Canada')"><span class="num">911</span><span class="name">🇨🇦 Canada</span></button>
+                <button class="quick-btn" onclick="searchCountry('Australia')"><span class="num">000</span><span class="name">🇦🇺 Australia</span></button>
+            </div>
 
-        <!-- Quick Buttons -->
-        <div class="quick-grid">
-            <button class="quick-btn" onclick="searchCountry('United States')">
-                <span class="num">911</span>
-                <span class="name">🇺🇸 USA</span>
-            </button>
-            <button class="quick-btn" onclick="searchCountry('United Kingdom')">
-                <span class="num">999</span>
-                <span class="name">🇬🇧 UK</span>
-            </button>
-            <button class="quick-btn" onclick="searchCountry('Bangladesh')">
-                <span class="num">999</span>
-                <span class="name">🇧🇩 Bangladesh</span>
-            </button>
-            <button class="quick-btn" onclick="searchCountry('India')">
-                <span class="num">112</span>
-                <span class="name">🇮🇳 India</span>
-            </button>
-            <button class="quick-btn" onclick="searchCountry('Canada')">
-                <span class="num">911</span>
-                <span class="name">🇨🇦 Canada</span>
-            </button>
-            <button class="quick-btn" onclick="searchCountry('Australia')">
-                <span class="num">000</span>
-                <span class="name">🇦🇺 Australia</span>
-            </button>
-        </div>
+            <div class="search-box">
+                <input type="text" id="countrySearch" placeholder="🔍 Search for a country..." autocomplete="off" />
+            </div>
 
-        <!-- Result -->
-        <div id="resultCard" class="result-card">
-            <div class="country-name" id="resultCountry">United States</div>
-            <div class="number" id="resultNumber">911</div>
-            <div class="note" id="resultNote">📞 Police, Fire, Ambulance</div>
-            <a href="tel:911" id="callBtn" class="call-btn">📞 Call Now</a>
-        </div>
+            <div class="result-card" id="resultCard">
+                <div class="country" id="resultCountry"></div>
+                <div class="number" id="resultNumber"></div>
+                <div class="note" id="resultNote"></div>
+                <a href="#" id="callBtn" class="call-btn">📞 Call Now</a>
+            </div>
 
-        <!-- No Result -->
-        <div id="noResult" class="no-result">
-            <span class="big-emoji">🔍</span>
-            ❌ No emergency number found for this country.<br />
-            <span style="font-size:0.9rem;color:var(--text-muted);">Please check your spelling or try another country.</span>
-        </div>
+            <div class="no-result" id="noResult">🔍 No emergency number found for this country.</div>
 
-        <div style="text-align:center;margin-top:var(--space-xl);">
-            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
+            </div>
         </div>
     </div>
 
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            <h2 id="modalTitle">🔐 Welcome Back</h2>
-
-            <div class="warning-box" id="genderWarning">
-                <span>⚠️</span>
-                <span id="genderWarningText">Your gender determines which sections you can see.</span>
-            </div>
-
-            <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" />
-
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
-            <div id="passwordStrength"></div>
-
-            <div id="signupFields" style="display:none;">
-                <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" />
-                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
-
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
-
-                <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
-                <datalist id="country-list"></datalist>
-
-                <label for="authFavorites">Favorite things</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="termsCheckbox" />
-                    <label for="termsCheckbox">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
-                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
-                        <span style="color:var(--danger);">*</span>
-                    </label>
-                </div>
-            </div>
-
-            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
-                Don't have an account? <strong>Sign Up</strong>
-            </div>
-
-            <div class="error-msg" id="authError"></div>
-            <div class="success-msg" id="authSuccess"></div>
-        </div>
-    </div>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — Emergency Numbers</div>
         <div class="footer-links">
-            <a href="activity.html">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
-        <div class="footer-copy">
-            © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community.
-        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <!-- ============================================
-    JAVASCRIPT
-    ============================================ -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
-
     <script>
-    // ============================================
-    // EMERGENCY PAGE - COMPLETE
-    // ============================================
-
-    // Full country list with emergency numbers
-    const emergencyCountries = [
-        { name: 'Afghanistan', emergency: '119', note: 'Police' },
-        { name: 'Albania', emergency: '112', note: 'General Emergency' },
-        { name: 'Algeria', emergency: '14', note: 'Police' },
-        { name: 'Argentina', emergency: '911', note: 'General Emergency' },
-        { name: 'Australia', emergency: '000', note: 'Police, Fire, Ambulance' },
-        { name: 'Austria', emergency: '112', note: 'General Emergency' },
-        { name: 'Bangladesh', emergency: '999', note: 'Police, Fire, Ambulance' },
-        { name: 'Belgium', emergency: '112', note: 'General Emergency' },
-        { name: 'Brazil', emergency: '190', note: 'Police / 192 Ambulance / 193 Fire' },
-        { name: 'Canada', emergency: '911', note: 'Police, Fire, Ambulance' },
-        { name: 'China', emergency: '110', note: 'Police / 120 Ambulance / 119 Fire' },
-        { name: 'Denmark', emergency: '112', note: 'General Emergency' },
-        { name: 'Egypt', emergency: '122', note: 'Police / 123 Ambulance' },
-        { name: 'Finland', emergency: '112', note: 'General Emergency' },
-        { name: 'France', emergency: '112', note: 'General Emergency' },
-        { name: 'Germany', emergency: '112', note: 'General Emergency' },
-        { name: 'Greece', emergency: '112', note: 'General Emergency' },
-        { name: 'India', emergency: '112', note: 'General Emergency' },
-        { name: 'Indonesia', emergency: '112', note: 'General Emergency' },
-        { name: 'Iran', emergency: '110', note: 'Police / 115 Ambulance' },
-        { name: 'Ireland', emergency: '112', note: 'General Emergency' },
-        { name: 'Israel', emergency: '112', note: 'General Emergency' },
-        { name: 'Italy', emergency: '112', note: 'General Emergency' },
-        { name: 'Japan', emergency: '110', note: 'Police / 119 Ambulance & Fire' },
-        { name: 'Malaysia', emergency: '999', note: 'General Emergency' },
-        { name: 'Mexico', emergency: '911', note: 'General Emergency' },
-        { name: 'Netherlands', emergency: '112', note: 'General Emergency' },
-        { name: 'New Zealand', emergency: '111', note: 'Police, Fire, Ambulance' },
-        { name: 'Norway', emergency: '112', note: 'General Emergency' },
-        { name: 'Pakistan', emergency: '112', note: 'General Emergency' },
-        { name: 'Philippines', emergency: '911', note: 'General Emergency' },
-        { name: 'Poland', emergency: '112', note: 'General Emergency' },
-        { name: 'Portugal', emergency: '112', note: 'General Emergency' },
-        { name: 'Russia', emergency: '112', note: 'General Emergency' },
-        { name: 'Saudi Arabia', emergency: '911', note: 'General Emergency' },
-        { name: 'Singapore', emergency: '999', note: 'Police / 995 Ambulance & Fire' },
-        { name: 'South Africa', emergency: '112', note: 'General Emergency' },
-        { name: 'South Korea', emergency: '112', note: 'Police / 119 Ambulance & Fire' },
-        { name: 'Spain', emergency: '112', note: 'General Emergency' },
-        { name: 'Sweden', emergency: '112', note: 'General Emergency' },
-        { name: 'Switzerland', emergency: '112', note: 'General Emergency' },
-        { name: 'Turkey', emergency: '112', note: 'General Emergency' },
-        { name: 'United Arab Emirates', emergency: '999', note: 'General Emergency' },
-        { name: 'United Kingdom', emergency: '999', note: 'Police, Fire, Ambulance' },
-        { name: 'United States', emergency: '911', note: 'Police, Fire, Ambulance' },
-        { name: 'Vietnam', emergency: '113', note: 'Police / 114 Fire / 115 Ambulance' }
+    var emergencyCountries = [
+        {name:'Afghanistan',emergency:'119',note:'Police'},{name:'Australia',emergency:'000',note:'Police, Fire, Ambulance'},
+        {name:'Bangladesh',emergency:'999',note:'Police, Fire, Ambulance'},{name:'Brazil',emergency:'190',note:'Police'},
+        {name:'Canada',emergency:'911',note:'Police, Fire, Ambulance'},{name:'China',emergency:'110',note:'Police'},
+        {name:'France',emergency:'112',note:'General Emergency'},{name:'Germany',emergency:'112',note:'General Emergency'},
+        {name:'India',emergency:'112',note:'General Emergency'},{name:'Italy',emergency:'112',note:'General Emergency'},
+        {name:'Japan',emergency:'110',note:'Police / 119 Ambulance'},{name:'Mexico',emergency:'911',note:'General Emergency'},
+        {name:'New Zealand',emergency:'111',note:'Police, Fire, Ambulance'},{name:'Pakistan',emergency:'112',note:'General Emergency'},
+        {name:'Philippines',emergency:'911',note:'General Emergency'},{name:'Russia',emergency:'112',note:'General Emergency'},
+        {name:'Singapore',emergency:'999',note:'Police'},{name:'South Africa',emergency:'112',note:'General Emergency'},
+        {name:'South Korea',emergency:'112',note:'Police'},{name:'Spain',emergency:'112',note:'General Emergency'},
+        {name:'Sweden',emergency:'112',note:'General Emergency'},{name:'Turkey',emergency:'112',note:'General Emergency'},
+        {name:'United Arab Emirates',emergency:'999',note:'General Emergency'},
+        {name:'United Kingdom',emergency:'999',note:'Police, Fire, Ambulance'},
+        {name:'United States',emergency:'911',note:'Police, Fire, Ambulance'},{name:'Vietnam',emergency:'113',note:'Police'}
     ];
 
-    // ============================================
-    // DOM REFERENCES
-    // ============================================
-    const searchInput = document.getElementById('countrySearch');
-    const dropdown = document.getElementById('dropdown');
-    const resultCard = document.getElementById('resultCard');
-    const noResult = document.getElementById('noResult');
+    function applyGuestRestrictions() {
+        var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+        document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+        document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
+        var ui = document.getElementById('userInfo');
+        if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
+    }
 
-    // ============================================
-    // SEARCH FUNCTIONS
-    // ============================================
     function searchCountry(name) {
-        if (!name) return;
-
-        searchInput.value = name;
-
-        const result = emergencyCountries.find(c => c.name.toLowerCase() === name.toLowerCase());
-
-        if (result) {
-            showResult(result);
-            dropdown.classList.remove('show');
-        } else {
-            // Try partial match
-            const partial = emergencyCountries.filter(c => c.name.toLowerCase().includes(name.toLowerCase()));
-            if (partial.length > 0) {
-                showResult(partial[0]);
-                dropdown.classList.remove('show');
-            } else {
-                resultCard.style.display = 'none';
-                noResult.style.display = 'block';
-                dropdown.classList.remove('show');
-            }
-        }
+        document.getElementById('countrySearch').value = name;
+        var result = emergencyCountries.find(function(c) { return c.name.toLowerCase() === name.toLowerCase(); }) ||
+                     emergencyCountries.find(function(c) { return c.name.toLowerCase().indexOf(name.toLowerCase()) !== -1; });
+        if (result) showResult(result);
+        else { document.getElementById('resultCard').style.display = 'none'; document.getElementById('noResult').style.display = 'block'; }
     }
 
-    function showResult(result) {
-        const countryEl = document.getElementById('resultCountry');
-        const numberEl = document.getElementById('resultNumber');
-        const noteEl = document.getElementById('resultNote');
-        const callBtn = document.getElementById('callBtn');
-
-        if (countryEl) countryEl.textContent = result.name;
-        if (numberEl) numberEl.textContent = result.emergency;
-        if (noteEl) noteEl.textContent = '📞 ' + result.note;
-        if (callBtn) callBtn.href = 'tel:' + result.emergency;
-
-        resultCard.style.display = 'block';
-        noResult.style.display = 'none';
+    function showResult(r) {
+        document.getElementById('resultCountry').textContent = r.name;
+        document.getElementById('resultNumber').textContent = r.emergency;
+        document.getElementById('resultNote').textContent = '📞 ' + r.note;
+        document.getElementById('callBtn').href = 'tel:' + r.emergency;
+        document.getElementById('resultCard').style.display = 'block';
+        document.getElementById('noResult').style.display = 'none';
     }
 
-    // ============================================
-    // SEARCH INPUT HANDLER
-    // ============================================
-    let searchTimeout;
-
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.toLowerCase().trim();
-
-        if (!query) {
-            dropdown.classList.remove('show');
-            // Show default result when cleared
-            const defaultCountry = emergencyCountries.find(c => c.name === 'United States');
-            if (defaultCountry) showResult(defaultCountry);
-            return;
-        }
-
-        searchTimeout = setTimeout(() => {
-            const matches = emergencyCountries.filter(c => c.name.toLowerCase().includes(query));
-
-            if (matches.length > 0) {
-                dropdown.innerHTML = '';
-                matches.slice(0, 10).forEach(c => {
-                    const div = document.createElement('div');
-                    div.className = 'emergency-dropdown-item';
-                    div.innerHTML = `
-                        <span class="country">${c.name}</span>
-                        <span class="emergency">${c.emergency}</span>
-                    `;
-                    div.onclick = function() {
-                        searchInput.value = c.name;
-                        showResult(c);
-                        dropdown.classList.remove('show');
-                    };
-                    dropdown.appendChild(div);
-                });
-                dropdown.classList.add('show');
-                resultCard.style.display = 'none';
-                noResult.style.display = 'none';
-            } else {
-                dropdown.classList.remove('show');
-                resultCard.style.display = 'none';
-                noResult.style.display = 'block';
-            }
-        }, 200);
-    });
-
-    // ============================================
-    // CLOSE DROPDOWN ON CLICK OUTSIDE
-    // ============================================
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.emergency-search-container')) {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    // ============================================
-    // ENTER KEY SUPPORT
-    // ============================================
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            const query = this.value.trim();
-            if (query) {
-                // Try exact match first
-                let result = emergencyCountries.find(c => c.name.toLowerCase() === query.toLowerCase());
-                if (result) {
-                    showResult(result);
-                    dropdown.classList.remove('show');
-                    return;
-                }
-                // Try partial match
-                const partial = emergencyCountries.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
-                if (partial.length > 0) {
-                    showResult(partial[0]);
-                    dropdown.classList.remove('show');
-                } else {
-                    resultCard.style.display = 'none';
-                    noResult.style.display = 'block';
-                    dropdown.classList.remove('show');
-                }
-            }
-        }
-        // Escape key to close dropdown
-        if (e.key === 'Escape') {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    // ============================================
-    // KEYBOARD NAVIGATION (Arrow keys)
-    // ============================================
-    let selectedIndex = -1;
-
-    searchInput.addEventListener('keydown', function(e) {
-        const items = dropdown.querySelectorAll('.emergency-dropdown-item');
-        if (items.length === 0) return;
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-            highlightItem(items, selectedIndex);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            selectedIndex = Math.max(selectedIndex - 1, -1);
-            highlightItem(items, selectedIndex);
-        } else if (e.key === 'Enter' && selectedIndex >= 0) {
-            e.preventDefault();
-            items[selectedIndex].click();
-        }
-    });
-
-    function highlightItem(items, index) {
-        items.forEach((item, i) => {
-            item.style.background = i === index ? 'var(--bg-secondary)' : '';
-        });
-        if (index >= 0 && items[index]) {
-            items[index].scrollIntoView({ block: 'nearest' });
-        }
-    }
-
-    // ============================================
-    // SHOW DEFAULT RESULT
-    // ============================================
-    function showDefaultResult() {
-        const defaultCountry = emergencyCountries.find(c => c.name === 'United States');
-        if (defaultCountry) {
-            showResult(defaultCountry);
-        }
-    }
-
-    // ============================================
-    // INIT
-    // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Modal close on outside click
-        document.getElementById('authModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+        var input = document.getElementById('countrySearch');
+        input?.addEventListener('input', function() {
+            var q = this.value.trim();
+            if (!q) { document.getElementById('resultCard').style.display='none'; document.getElementById('noResult').style.display='none'; return; }
+            var result = emergencyCountries.find(function(c) { return c.name.toLowerCase().indexOf(q.toLowerCase()) !== -1; });
+            if (result) showResult(result);
+            else { document.getElementById('resultCard').style.display='none'; document.getElementById('noResult').style.display='block'; }
+        });
+        input?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') searchCountry(this.value);
         });
 
-        // Password strength
-        document.getElementById('authPassword')?.addEventListener('input', function() {
-            const pwd = this.value;
-            const strengthDiv = document.getElementById('passwordStrength');
-            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-            const result = checkPasswordStrength(pwd);
-            strengthDiv.innerHTML = `
-                <div style="margin-top:6px;font-size:0.85rem;">
-                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                </div>
-            `;
-        });
+        setTimeout(function() {
+            var def = emergencyCountries.find(function(c) { return c.name === 'United States'; });
+            if (def) showResult(def);
+        }, 300);
 
-        document.getElementById('authName')?.addEventListener('input', checkUsernameOnType);
+        var check = setInterval(function() {
+            if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); }
+        }, 100);
+        if (typeof auth !== 'undefined') auth.onAuthStateChanged(function() { setTimeout(applyGuestRestrictions, 200); });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const modal = document.getElementById('authModal');
-                if (modal && modal.classList.contains('active')) handleAuth();
-            }
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        populateCountryDatalist();
-
-        // Show default result after a small delay
-        setTimeout(showDefaultResult, 300);
-
-        console.log('🆘 Emergency numbers loaded:', emergencyCountries.length, 'countries');
+        console.log('✅ Emergency page ready');
     });
-
-    console.log('🆘 Emergency numbers page loaded');
     </script>
 </body>
 </html>
