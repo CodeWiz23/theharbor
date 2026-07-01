@@ -48,7 +48,6 @@
         .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .reaction-btn .count { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
 
-        /* Gear menu on story card (#2) */
         .gear-menu-container { position: absolute; top: 12px; right: 12px; z-index: 10; }
         .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; }
         .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
@@ -59,7 +58,6 @@
         .gear-dropdown button.danger { color: var(--danger); }
         .gear-dropdown button.danger:hover { background: #fee2e2; }
 
-        /* Comment section (#3) */
         .comment-section { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); }
         .comment-section h3 { margin-bottom: 14px; color: var(--text-primary); font-size: 1.15rem; font-weight: 600; }
         .comment-input-area { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color); }
@@ -145,7 +143,7 @@
         </div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix) -->
+    <!-- Auth Modal -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -198,23 +196,18 @@
 
     <script>
         // ============================================
-        // STORY PAGE – FIXED COMMENTS, REACTIONS, GEAR MENU
+        // STORY PAGE – FULLY FIXED
         // ============================================
 
-        // Global state (some may be re-declared from app.js; careful)
         var currentStory = null;
-        var selectedGoldAmount = 0;
-        var currentEditStoryId = null;
         var reactionLocks = {};
-        var commentsUnsubscribe = null; // For real-time listener
+        var commentsUnsubscribe = null;
 
-        // Helper: view profile
         function viewProfile(userId) {
             if (userId) window.location.href = 'profile.html?uid=' + userId;
         }
         window.viewProfile = viewProfile;
 
-        // Apply guest restrictions
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
             document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
@@ -222,30 +215,32 @@
             var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
         }
 
-        // Terms checkbox fix (#1)
-        const termsCheckbox = document.getElementById('termsCheckbox');
-        const authSubmitBtn = document.getElementById('authSubmitBtn');
-        if (termsCheckbox && authSubmitBtn) {
-            const toggleBtn = () => {
-                const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                if (isSignup) {
-                    authSubmitBtn.disabled = !termsCheckbox.checked;
-                    authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                    authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
-                } else {
-                    authSubmitBtn.disabled = false;
-                    authSubmitBtn.style.opacity = '1';
-                    authSubmitBtn.style.cursor = 'pointer';
-                }
-            };
-            termsCheckbox.addEventListener('change', toggleBtn);
-            const originalToggle = toggleAuthMode;
-            window.toggleAuthMode = function() {
-                originalToggle();
-                setTimeout(toggleBtn, 100);
-            };
-            toggleBtn();
-        }
+        // Terms checkbox fix
+        (function() {
+            const termsCheckbox = document.getElementById('termsCheckbox');
+            const authSubmitBtn = document.getElementById('authSubmitBtn');
+            if (termsCheckbox && authSubmitBtn) {
+                const toggleBtn = () => {
+                    const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
+                    if (isSignup) {
+                        authSubmitBtn.disabled = !termsCheckbox.checked;
+                        authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
+                        authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
+                    } else {
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.style.opacity = '1';
+                        authSubmitBtn.style.cursor = 'pointer';
+                    }
+                };
+                termsCheckbox.addEventListener('change', toggleBtn);
+                const originalToggle = toggleAuthMode;
+                window.toggleAuthMode = function() {
+                    originalToggle();
+                    setTimeout(toggleBtn, 100);
+                };
+                toggleBtn();
+            }
+        })();
 
         // ========== LOAD STORY ==========
         function loadStory() {
@@ -265,11 +260,11 @@
                 if (!currentUser.emailVerified) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button></div>'; return; }
                 content.innerHTML = renderFullStory(story);
                 loadUserReactionsForStory(storyId);
-                loadCommentsRealtime(storyId);  // (#3) real-time comments
+                loadCommentsRealtime(storyId);
             }).catch(err => { content.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p>'+err.message+'</p><button class="btn btn-primary" onclick="loadStory()">🔄 Retry</button></div>'; });
         }
 
-        // ========== RENDER FULL STORY (WITH GEAR MENU) ==========
+        // ========== RENDER FULL STORY ==========
         function renderFullStory(story) {
             var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
             var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
@@ -295,7 +290,6 @@
             if (showMore) textHtml += '<span class="full-text">'+escapeHTML(fullText.substring(300))+'</span> <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>';
 
             return '<div class="story-full" id="storyCard">'+
-                // Gear menu (#2)
                 '<div class="gear-menu-container">'+
                     '<button class="gear-icon" onclick="toggleGearMenu(event)" title="Options">⚙️</button>'+
                     '<div class="gear-dropdown" id="gearDropdown">'+
@@ -321,13 +315,11 @@
                 '</div></div>';
         }
 
-        // Gear menu toggle
         function toggleGearMenu(event) {
             event.stopPropagation();
             var dropdown = document.getElementById('gearDropdown');
             if (dropdown) dropdown.classList.toggle('show');
         }
-        // Close gear menu when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.gear-menu-container')) {
                 var d = document.getElementById('gearDropdown');
@@ -343,7 +335,7 @@
             else { full.classList.add('show'); btn.textContent = 'Show Less ▲'; }
         }
 
-        // ========== REACTIONS (from app.js + local animation) ==========
+        // ========== REACTIONS ==========
         function storyToggleReaction(storyId, emoji) {
             if (!currentUser) { alert('Please log in.'); return; }
             if (!currentUser.emailVerified) { alert('Please verify email.'); return; }
@@ -373,10 +365,6 @@
                 var cs = document.getElementById('count-'+storyId+'-'+emoji);
                 if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent)||0)-1 : (parseInt(cs.textContent)||0)+1;
                 if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); }
-                // Notification for like (#16)
-                if (!hasReacted && emoji === '❤️' && currentStory && currentStory.userId !== currentUser.uid) {
-                    addNotification(currentStory.userId, 'like', { storyId });
-                }
                 reactionLocks[lockKey] = false;
             }).catch(function() { if (btn) btn.disabled = false; reactionLocks[lockKey] = false; });
         }
@@ -409,11 +397,10 @@
             }).catch(()=>{});
         }
 
-        // ========== COMMENTS (REAL-TIME, OPTIMISTIC, NO DUPLICATES) (#3) ==========
+        // ========== COMMENTS (REAL-TIME) ==========
         function loadCommentsRealtime(storyId) {
             var container = document.getElementById('commentsContainer');
             if (!container) return;
-            // Unsubscribe previous listener
             if (commentsUnsubscribe) commentsUnsubscribe();
 
             container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
@@ -426,8 +413,7 @@
                         return;
                     }
                     var comments = [];
-                    snapshot.forEach(doc => { var c=doc.data();c.id=doc.id;comments.push(c); });
-                    // Sort: pinned first, then by likes desc
+                    snapshot.forEach(doc => { var c = doc.data(); c.id = doc.id; comments.push(c); });
                     comments.sort((a,b) => {
                         if (a.isPinned && !b.isPinned) return -1;
                         if (!a.isPinned && b.isPinned) return 1;
@@ -475,23 +461,27 @@
             var bad = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
             var flagged = bad.some(w => rawText.toLowerCase().indexOf(w)!==-1);
             db.collection('comments').add({
-                storyId:currentStoryId, text:text, userId:currentUser.uid,
-                authorName:currentUserData?currentUserData.name:'Someone',
-                isAnonymous:anonymousCheck?anonymousCheck.checked:false,
-                createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-                likes:0, isPinned:false, approved:!flagged, flagged:flagged
+                storyId: currentStoryId,
+                text: text,
+                userId: currentUser.uid,
+                authorName: currentUserData ? currentUserData.name : 'Someone',
+                isAnonymous: anonymousCheck ? anonymousCheck.checked : false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                likes: 0,
+                isPinned: false,
+                approved: !flagged,
+                flagged: flagged
             }).then(() => {
-                return db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)});
+                return db.collection('stories').doc(currentStoryId).update({commentCount: firebase.firestore.FieldValue.increment(1)});
             }).then(() => {
                 if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
-                textInput.value = ''; document.getElementById('commentCountDisplay').textContent = '0';
+                textInput.value = '';
+                document.getElementById('commentCountDisplay').textContent = '0';
                 if (flagged) alert('⚠️ Sent for review.');
-                // Notification (#16)
-                if (currentStory && currentStory.userId !== currentUser.uid) {
-                    addNotification(currentStory.userId, 'comment', { storyId: currentStoryId });
-                }
-                // Real-time listener will update automatically
-            }).catch(err => { error.textContent = err.message; if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; } });
+            }).catch(err => {
+                error.textContent = err.message;
+                if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
+            });
         }
 
         function likeComment(cid) {
@@ -520,21 +510,21 @@
             }).then(()=>alert('✅ Reported')).catch(()=>{});
         }
 
-        // Story management functions
+        // Story management
         function reportThisStory() { if(!currentStory)return; var r=prompt('Reason?');if(!r||r.length<3)return; db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message)); }
-        function openEditStoryModal() { if(!currentStory||currentStory.userId!==currentUser.uid)return; currentEditStoryId=currentStory.id; document.getElementById('editTitle').value=currentStory.title||''; document.getElementById('editContent').value=currentStory.text||''; document.getElementById('editError').textContent=''; document.getElementById('editModal').classList.add('active'); }
-        function closeEditModal() { document.getElementById('editModal').classList.remove('active'); currentEditStoryId=null; }
-        function saveEdit() { var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim(); if(!t||!c){document.getElementById('editError').textContent='Required.';return;} db.collection('stories').doc(currentEditStoryId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message); }
+        function openEditStoryModal() { if(!currentStory||currentStory.userId!==currentUser.uid)return; currentEditId = currentStory.id; document.getElementById('editTitle').value=currentStory.title||''; document.getElementById('editContent').value=currentStory.text||''; document.getElementById('editError').textContent=''; document.getElementById('editModal').classList.add('active'); }
+        function closeEditModal() { document.getElementById('editModal').classList.remove('active'); currentEditId = null; }
+        function saveEdit() { var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim(); if(!t||!c){document.getElementById('editError').textContent='Required.';return;} db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message); }
         function deleteCurrentStory() { if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return; db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message)); }
         function toggleStoryVisibility() { if(!currentStory||currentStory.userId!==currentUser.uid)return; var v=currentStory.visibility==='public'?'private':'public'; db.collection('stories').doc(currentStory.id).update({visibility:v}).then(()=>{alert('✅ '+(v==='public'?'Public':'Private'));loadStory();}).catch(e=>alert('❌ '+e.message)); }
 
-        // Gold donation (unchanged)
-        function openGoldDonation(storyId) { if(!currentUser)return; if(!currentUserData)return; var b=currentUserData.goldBalance||0; if(b<1){alert('No gold!');return;} document.getElementById('goldBalanceAmount').textContent=b; document.getElementById('goldModal').classList.add('active'); currentStoryId=storyId; selectedGoldAmount=0; document.getElementById('customGoldAmount').value=''; document.getElementById('goldMessage').value=''; document.getElementById('goldError').textContent=''; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); }
+        // Gold donation
+        function openGoldDonation(storyId) { if(!currentUser)return; if(!currentUserData)return; var b=currentUserData.goldBalance||0; if(b<1){alert('No gold!');return;} document.getElementById('goldBalanceAmount').textContent=b; document.getElementById('goldModal').classList.add('active'); currentStoryId=storyId; window.selectedGoldAmount=0; document.getElementById('customGoldAmount').value=''; document.getElementById('goldMessage').value=''; document.getElementById('goldError').textContent=''; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); }
         function closeGoldModal() { document.getElementById('goldModal').classList.remove('active'); }
-        function selectGoldAmount(a) { selectedGoldAmount=a; document.getElementById('customGoldAmount').value=a; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); if(event&&event.target)event.target.classList.add('selected'); }
-        function confirmGoldDonation() { var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=selectedGoldAmount; if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;} var b=currentUserData?currentUserData.goldBalance||0:0; if(!a||a<1){ed.textContent='Enter amount.';return;} if(a>b){ed.textContent='Not enough! Balance: '+b;return;} var msg=mi?mi.value.trim():''; closeGoldModal(); if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;} var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid); db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId; t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)}); t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)}); t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);}); }
+        function selectGoldAmount(a) { window.selectedGoldAmount=a; document.getElementById('customGoldAmount').value=a; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); if(event&&event.target)event.target.classList.add('selected'); }
+        function confirmGoldDonation() { var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount; if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;} var b=currentUserData?currentUserData.goldBalance||0:0; if(!a||a<1){ed.textContent='Enter amount.';return;} if(a>b){ed.textContent='Not enough! Balance: '+b;return;} var msg=mi?mi.value.trim():''; closeGoldModal(); if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;} var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid); db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId; t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)}); t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)}); t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);}); }
 
-        // Scroll preservation before leaving page (#7)
+        // Scroll preservation
         window.addEventListener('beforeunload', function() {
             sessionStorage.setItem('feedScrollPos', window.scrollY);
             sessionStorage.setItem('feedCategory', currentCategory || 'all');
@@ -548,7 +538,7 @@
             document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
             document.getElementById('goldModal')?.addEventListener('click',function(e){if(e.target===this)closeGoldModal();});
             document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();}});
-            console.log('✅ Story page ready (with real-time comments, gear menu, scroll preservation)');
+            console.log('✅ Story page ready');
         });
     </script>
 </body>
