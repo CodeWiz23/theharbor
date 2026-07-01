@@ -43,23 +43,45 @@
         .submit-card textarea { min-height: 180px; resize: vertical; }
         .submit-card .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
         .submit-card .form-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
-        .gender-notice { padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.88rem; margin: 12px 0; display: none; line-height: 1.6; }
+        
+        /* ✅ FIX #6: Hidden by default to prevent flash */
+        .gender-notice { 
+            padding: 10px 14px; 
+            border-radius: var(--radius-md); 
+            font-size: 0.88rem; 
+            margin: 12px 0; 
+            display: none; 
+            line-height: 1.6; 
+        }
         .gender-notice.warning { background: #fef3c7; border-left: 4px solid var(--warning); color: #92400e; }
         .gender-notice.success { background: #dcfce7; border-left: 4px solid var(--success); color: #166534; }
+        
+        /* Hide auth elements by default to prevent flash */
+        .auth-only { display: none !important; }
+        .guest-only { display: none !important; }
+        body.loaded .auth-only { display: inline !important; }
+        body.loaded .guest-only { display: inline-flex !important; }
+        body.loaded .btn-login.auth-only { display: inline-flex !important; }
+        body.loaded .btn-signup.auth-only { display: inline-flex !important; }
+        body.loaded #userInfo { display: flex !important; }
+        
         @media (max-width: 768px) { .submit-hero { padding: 1.5rem 1rem; } .submit-hero h1 { font-size: 1.5rem; } .submit-card { padding: 1.2rem; } }
         @media (max-width: 480px) { .submit-hero { padding: 1.2rem 0.8rem; border-radius: var(--radius-lg); } .submit-hero h1 { font-size: 1.3rem; } .submit-card { padding: 1rem; } .submit-card textarea { min-height: 140px; } }
     </style>
 </head>
 
 <body>
-    <script>
-    (function() {
-        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
-        if (wasLoggedIn === 'true') {
-            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
-        }
-    })();
-    </script>
+    <!-- ✅ FIX #6: Removed document.write flash hack -->
+    <style>
+        /* Hide auth-only elements by default to prevent flash */
+        .auth-only { display: none !important; }
+        .guest-only { display: none !important; }
+        body.loaded .auth-only { display: inline !important; }
+        body.loaded .guest-only { display: inline-flex !important; }
+        body.loaded .btn-login.auth-only { display: inline-flex !important; }
+        body.loaded .btn-signup.auth-only { display: inline-flex !important; }
+        body.loaded #userInfo { display: flex !important; }
+    </style>
 
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
@@ -92,7 +114,8 @@
                 <p>Your story could be the hope someone else needs.</p>
             </div>
             <div class="submit-card">
-                <div id="genderRestrictionNotice" class="gender-notice warning">
+                <!-- ✅ FIX #6: genderNotice hidden by default -->
+                <div id="genderRestrictionNotice" class="gender-notice warning" style="display:none;">
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
                 <label for="storyTitle">📌 Title <span style="color:var(--danger);">*</span></label>
@@ -162,96 +185,240 @@
     </footer>
 
     <script>
-    var categoryDescriptions = {
-        'men': '🧔 A dedicated space for men to share their journey, struggles, and growth. Men only.',
-        'women': '👩 A safe harbor for women to connect, share, and support each other. Women only.',
-        'struggles': '🌊 Share your struggles, challenges, and difficult moments. Open to everyone.',
-        'fun': '☀️ Celebrate victories, share happiness, and spread positivity. Open to everyone.',
-        'learning': '🧭 Life lessons, wisdom, and guidance. Open to everyone.'
-    };
+        var categoryDescriptions = {
+            'men': '🧔 A dedicated space for men to share their journey, struggles, and growth. Men only.',
+            'women': '👩 A safe harbor for women to connect, share, and support each other. Women only.',
+            'struggles': '🌊 Share your struggles, challenges, and difficult moments. Open to everyone.',
+            'fun': '☀️ Celebrate victories, share happiness, and spread positivity. Open to everyone.',
+            'learning': '🧭 Life lessons, wisdom, and guidance. Open to everyone.'
+        };
 
-    function applyGuestRestrictions() {
-        var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-        var guestOnly = document.querySelectorAll('.guest-only');
-        var authOnly = document.querySelectorAll('.auth-only');
-        guestOnly.forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
-        authOnly.forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
-        var userInfo = document.getElementById('userInfo');
-        if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
-    }
+        // ✅ FIX #6: No document.write flash hack
+        function applyGuestRestrictions() {
+            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+            
+            // Add loaded class to body to show elements
+            document.body.classList.add('loaded');
+            
+            var guestOnly = document.querySelectorAll('.guest-only');
+            var authOnly = document.querySelectorAll('.auth-only');
+            guestOnly.forEach(function(el) { 
+                if (el.hasAttribute('hidden')) return;
+                el.style.display = isLoggedIn ? '' : 'none'; 
+            });
+            authOnly.forEach(function(el) { 
+                el.style.display = isLoggedIn ? 'none' : ''; 
+            });
+            var userInfo = document.getElementById('userInfo');
+            if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
+            
+            // Hide admin link by default
+            var adminLink = document.getElementById('adminNavLink');
+            if (adminLink) {
+                if (isLoggedIn && currentUserData && currentUserData.isAdmin === true) {
+                    adminLink.style.display = '';
+                } else {
+                    adminLink.style.display = 'none';
+                }
+            }
+        }
 
-    function checkCategoryRestriction() {
-        var cat = document.getElementById('storyCategory').value;
-        var notice = document.getElementById('genderRestrictionNotice');
-        var msg = document.getElementById('restrictionMessage');
-        var descDiv = document.getElementById('categoryDescription');
-        var descText = document.getElementById('categoryDescText');
-        if (cat && categoryDescriptions[cat]) { descDiv.style.display = 'block'; descText.textContent = categoryDescriptions[cat]; }
-        else { descDiv.style.display = 'none'; }
-        if (!currentUser || !currentUserData) { notice.style.display = 'block'; msg.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.'; notice.className = 'gender-notice warning'; return; }
-        if (!currentUser.emailVerified) { notice.style.display = 'block'; msg.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting.'; notice.className = 'gender-notice warning'; return; }
-        var gender = currentUserData.gender;
-        if (cat === 'struggles' || cat === 'fun' || cat === 'learning') { notice.style.display = 'block'; msg.innerHTML = '✅ Open to everyone. You can post here!'; notice.className = 'gender-notice success'; }
-        else if (cat === 'men') {
-            if (gender === '🧔 Man') { notice.style.display = 'block'; msg.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You can post here.'; notice.className = 'gender-notice success'; }
-            else { notice.style.display = 'block'; msg.innerHTML = '⚠️ <strong>Men\'s Harbor</strong> is for men only.'; notice.className = 'gender-notice warning'; }
-        } else if (cat === 'women') {
-            if (gender === '👩 Woman') { notice.style.display = 'block'; msg.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You can post here.'; notice.className = 'gender-notice success'; }
-            else { notice.style.display = 'block'; msg.innerHTML = '⚠️ <strong>Women\'s Harbor</strong> is for women only.'; notice.className = 'gender-notice warning'; }
-        } else { notice.style.display = 'none'; }
-    }
+        // ✅ FIX #6: genderNotice hidden by default, only shown when needed
+        function checkCategoryRestriction() {
+            var cat = document.getElementById('storyCategory').value;
+            var notice = document.getElementById('genderRestrictionNotice');
+            var msg = document.getElementById('restrictionMessage');
+            var descDiv = document.getElementById('categoryDescription');
+            var descText = document.getElementById('categoryDescText');
+            
+            if (cat && categoryDescriptions[cat]) { 
+                descDiv.style.display = 'block'; 
+                descText.textContent = categoryDescriptions[cat]; 
+            } else { 
+                descDiv.style.display = 'none'; 
+            }
+            
+            if (!currentUser || !currentUserData) { 
+                notice.style.display = 'block'; 
+                msg.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.'; 
+                notice.className = 'gender-notice warning'; 
+                return; 
+            }
+            if (!currentUser.emailVerified) { 
+                notice.style.display = 'block'; 
+                msg.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting.'; 
+                notice.className = 'gender-notice warning'; 
+                return; 
+            }
+            
+            var gender = currentUserData.gender;
+            if (cat === 'struggles' || cat === 'fun' || cat === 'learning') { 
+                notice.style.display = 'block'; 
+                msg.innerHTML = '✅ Open to everyone. You can post here!'; 
+                notice.className = 'gender-notice success'; 
+            } else if (cat === 'men') {
+                if (gender === '🧔 Man') { 
+                    notice.style.display = 'block'; 
+                    msg.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You can post here.'; 
+                    notice.className = 'gender-notice success'; 
+                } else { 
+                    notice.style.display = 'block'; 
+                    msg.innerHTML = '⚠️ <strong>Men\'s Harbor</strong> is for men only.'; 
+                    notice.className = 'gender-notice warning'; 
+                }
+            } else if (cat === 'women') {
+                if (gender === '👩 Woman') { 
+                    notice.style.display = 'block'; 
+                    msg.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You can post here.'; 
+                    notice.className = 'gender-notice success'; 
+                } else { 
+                    notice.style.display = 'block'; 
+                    msg.innerHTML = '⚠️ <strong>Women\'s Harbor</strong> is for women only.'; 
+                    notice.className = 'gender-notice warning'; 
+                }
+            } else { 
+                notice.style.display = 'none'; 
+            }
+        }
 
-    function updateCategoryOptions() {
-        var gender = currentUserData ? currentUserData.gender : null;
-        var catMen = document.getElementById('catMen');
-        var catWomen = document.getElementById('catWomen');
-        if (catMen) catMen.style.display = (gender === '🧔 Man') ? '' : 'none';
-        if (catWomen) catWomen.style.display = (gender === '👩 Woman') ? '' : 'none';
-    }
+        function updateCategoryOptions() {
+            var gender = currentUserData ? currentUserData.gender : null;
+            var catMen = document.getElementById('catMen');
+            var catWomen = document.getElementById('catWomen');
+            if (catMen) catMen.style.display = (gender === '🧔 Man') ? '' : 'none';
+            if (catWomen) catWomen.style.display = (gender === '👩 Woman') ? '' : 'none';
+        }
 
-    function submitStory() {
-        if (!currentUser) { alert('Please log in to share.'); openModal('login'); return; }
-        if (!currentUser.emailVerified) { alert('Please verify your email first.'); return; }
-        var titleInput = document.getElementById('storyTitle'), textInput = document.getElementById('storyText'), categorySelect = document.getElementById('storyCategory'), anonymousCheck = document.getElementById('storyAnonymous'), errorDiv = document.getElementById('submitError'), successDiv = document.getElementById('submitSuccess'), submitBtn = document.getElementById('submitBtn');
-        var title = titleInput ? titleInput.value.trim() : '', text = textInput ? textInput.value.trim() : '', category = categorySelect ? categorySelect.value : '', isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
-        if (errorDiv) errorDiv.textContent = ''; if (successDiv) successDiv.textContent = '';
-        if (!title || title.length < 3) { if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.'; return; }
-        if (title.length > 100) { if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.'; return; }
-        if (!text || text.length < 10) { if (errorDiv) errorDiv.textContent = '📖 Story must be at least 10 characters.'; return; }
-        if (text.length > 5000) { if (errorDiv) errorDiv.textContent = '📖 Story must be under 5000 characters.'; return; }
-        if (!category) { if (errorDiv) errorDiv.textContent = '📂 Please select a category.'; return; }
-        var gender = currentUserData ? currentUserData.gender : null;
-        if (category === 'men' && gender !== '🧔 Man') { if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.'; return; }
-        if (category === 'women' && gender !== '👩 Woman') { if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only.'; return; }
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Posting...'; }
-        var inappropriateWords = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
-        var containsInappropriate = inappropriateWords.some(function(w) { return text.toLowerCase().indexOf(w) !== -1 || title.toLowerCase().indexOf(w) !== -1; });
-        db.collection('stories').add({ title: title, text: text, category: category, userId: currentUser.uid, authorName: currentUserData ? currentUserData.name : 'Someone', isAnonymous: isAnonymous, visibility: 'public', createdAt: firebase.firestore.FieldValue.serverTimestamp(), reactions: {}, commentCount: 0, goldReceived: 0, approved: !containsInappropriate, flagged: containsInappropriate, flagReason: containsInappropriate ? 'Inappropriate content detected' : '' })
-        .then(function(docRef) { return db.collection('users').doc(currentUser.uid).update({ storyCount: firebase.firestore.FieldValue.increment(1) }).then(function() { return docRef.id; }); })
-        .then(function() {
-            if (containsInappropriate) { if (successDiv) { successDiv.textContent = '⚠️ Your story has been sent for review.'; successDiv.style.color = '#d97706'; } }
-            else { if (successDiv) { successDiv.textContent = '✅ Your story has been shared!'; successDiv.style.color = '#16a34a'; } }
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✅ Posted!'; }
-            if (titleInput) titleInput.value = ''; if (textInput) textInput.value = ''; if (categorySelect) categorySelect.value = ''; if (anonymousCheck) anonymousCheck.checked = false;
-            document.getElementById('titleCount').textContent = '0'; document.getElementById('textCount').textContent = '0';
-            document.getElementById('categoryDescription').style.display = 'none'; document.getElementById('genderRestrictionNotice').style.display = 'none';
-            setTimeout(function() { window.location.href = 'index.html'; }, 2000);
-        })
-        .catch(function(err) { console.error('Submit error:', err); if (errorDiv) errorDiv.textContent = '❌ Error: ' + err.message; if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '📤 Post Story'; } });
-    }
+        function submitStory() {
+            if (!currentUser) { alert('Please log in to share.'); openModal('login'); return; }
+            if (!currentUser.emailVerified) { alert('Please verify your email first.'); return; }
+            var titleInput = document.getElementById('storyTitle'), textInput = document.getElementById('storyText'), categorySelect = document.getElementById('storyCategory'), anonymousCheck = document.getElementById('storyAnonymous'), errorDiv = document.getElementById('submitError'), successDiv = document.getElementById('submitSuccess'), submitBtn = document.getElementById('submitBtn');
+            var title = titleInput ? titleInput.value.trim() : '', text = textInput ? textInput.value.trim() : '', category = categorySelect ? categorySelect.value : '', isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
+            if (errorDiv) errorDiv.textContent = ''; if (successDiv) successDiv.textContent = '';
+            if (!title || title.length < 3) { if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.'; return; }
+            if (title.length > 100) { if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.'; return; }
+            if (!text || text.length < 10) { if (errorDiv) errorDiv.textContent = '📖 Story must be at least 10 characters.'; return; }
+            if (text.length > 5000) { if (errorDiv) errorDiv.textContent = '📖 Story must be under 5000 characters.'; return; }
+            if (!category) { if (errorDiv) errorDiv.textContent = '📂 Please select a category.'; return; }
+            var gender = currentUserData ? currentUserData.gender : null;
+            if (category === 'men' && gender !== '🧔 Man') { if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.'; return; }
+            if (category === 'women' && gender !== '👩 Woman') { if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only.'; return; }
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Posting...'; }
+            var inappropriateWords = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
+            var containsInappropriate = inappropriateWords.some(function(w) { return text.toLowerCase().indexOf(w) !== -1 || title.toLowerCase().indexOf(w) !== -1; });
+            db.collection('stories').add({ 
+                title: title, text: text, category: category, 
+                userId: currentUser.uid, authorName: currentUserData ? currentUserData.name : 'Someone', 
+                isAnonymous: isAnonymous, visibility: 'public', 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+                reactions: {}, commentCount: 0, goldReceived: 0, 
+                approved: !containsInappropriate, flagged: containsInappropriate, 
+                flagReason: containsInappropriate ? 'Inappropriate content detected' : '' 
+            })
+            .then(function(docRef) { 
+                return db.collection('users').doc(currentUser.uid).update({ 
+                    storyCount: firebase.firestore.FieldValue.increment(1) 
+                }).then(function() { return docRef.id; }); 
+            })
+            .then(function() {
+                if (containsInappropriate) { 
+                    if (successDiv) { 
+                        successDiv.textContent = '⚠️ Your story has been sent for review.'; 
+                        successDiv.style.color = '#d97706'; 
+                    } 
+                } else { 
+                    if (successDiv) { 
+                        successDiv.textContent = '✅ Your story has been shared!'; 
+                        successDiv.style.color = '#16a34a'; 
+                    } 
+                }
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✅ Posted!'; }
+                if (titleInput) titleInput.value = ''; 
+                if (textInput) textInput.value = ''; 
+                if (categorySelect) categorySelect.value = ''; 
+                if (anonymousCheck) anonymousCheck.checked = false;
+                document.getElementById('titleCount').textContent = '0'; 
+                document.getElementById('textCount').textContent = '0';
+                document.getElementById('categoryDescription').style.display = 'none'; 
+                document.getElementById('genderRestrictionNotice').style.display = 'none';
+                setTimeout(function() { window.location.href = 'index.html'; }, 2000);
+            })
+            .catch(function(err) { 
+                console.error('Submit error:', err); 
+                if (errorDiv) errorDiv.textContent = '❌ Error: ' + err.message; 
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '📤 Post Story'; } 
+            });
+        }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('storyTitle')?.addEventListener('input', function() { document.getElementById('titleCount').textContent = this.value.length; });
-        document.getElementById('storyText')?.addEventListener('input', function() { document.getElementById('textCount').textContent = this.value.length; });
-        document.getElementById('storyCategory')?.addEventListener('change', checkCategoryRestriction);
-        var check = setInterval(function() { if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); updateCategoryOptions(); checkCategoryRestriction(); } }, 100);
-        if (typeof auth !== 'undefined') { auth.onAuthStateChanged(function(user) { setTimeout(function() { applyGuestRestrictions(); updateCategoryOptions(); checkCategoryRestriction(); }, 300); }); }
-        document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
-        document.getElementById('authPassword')?.addEventListener('input', function() { var sd = document.getElementById('passwordStrength'); if (!sd) return; if (!this.value) { sd.innerHTML=''; return; } if (typeof checkPasswordStrength === 'function') { var r = checkPasswordStrength(this.value); sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>'; } });
-        document.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); } if (e.key === 'Escape') closeModal(); });
-        (function() { const tc = document.getElementById('termsCheckbox'), sb = document.getElementById('authSubmitBtn'); if (tc && sb) { var t = function() { var isSignup = document.getElementById('signupFields')?.style.display !== 'none'; sb.disabled = isSignup ? !tc.checked : false; sb.style.opacity = isSignup && !tc.checked ? '0.5' : '1'; }; tc.addEventListener('change', t); var orig = toggleAuthMode; window.toggleAuthMode = function() { orig(); setTimeout(t, 100); }; t(); } })();
-        console.log('✅ Submit page ready');
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            // ✅ FIX #6: Show loaded state immediately
+            document.body.classList.add('loaded');
+            
+            document.getElementById('storyTitle')?.addEventListener('input', function() { 
+                document.getElementById('titleCount').textContent = this.value.length; 
+            });
+            document.getElementById('storyText')?.addEventListener('input', function() { 
+                document.getElementById('textCount').textContent = this.value.length; 
+            });
+            document.getElementById('storyCategory')?.addEventListener('change', checkCategoryRestriction);
+            
+            var check = setInterval(function() { 
+                if (typeof currentUser !== 'undefined') { 
+                    clearInterval(check); 
+                    applyGuestRestrictions(); 
+                    updateCategoryOptions(); 
+                    checkCategoryRestriction(); 
+                } 
+            }, 100);
+            
+            if (typeof auth !== 'undefined') { 
+                auth.onAuthStateChanged(function(user) { 
+                    setTimeout(function() { 
+                        applyGuestRestrictions(); 
+                        updateCategoryOptions(); 
+                        checkCategoryRestriction(); 
+                    }, 300); 
+                }); 
+            }
+            
+            document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
+            document.getElementById('authPassword')?.addEventListener('input', function() { 
+                var sd = document.getElementById('passwordStrength'); 
+                if (!sd) return; 
+                if (!this.value) { sd.innerHTML=''; return; } 
+                if (typeof checkPasswordStrength === 'function') { 
+                    var r = checkPasswordStrength(this.value); 
+                    sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>'; 
+                } 
+            });
+            document.addEventListener('keydown', function(e) { 
+                if (e.key === 'Enter') { 
+                    var m = document.getElementById('authModal'); 
+                    if(m&&m.classList.contains('active'))handleAuth(); 
+                } 
+                if (e.key === 'Escape') closeModal(); 
+            });
+            
+            (function() { 
+                const tc = document.getElementById('termsCheckbox'), sb = document.getElementById('authSubmitBtn'); 
+                if (tc && sb) { 
+                    var t = function() { 
+                        var isSignup = document.getElementById('signupFields')?.style.display !== 'none'; 
+                        sb.disabled = isSignup ? !tc.checked : false; 
+                        sb.style.opacity = isSignup && !tc.checked ? '0.5' : '1'; 
+                    }; 
+                    tc.addEventListener('change', t); 
+                    var orig = toggleAuthMode; 
+                    window.toggleAuthMode = function() { 
+                        orig(); 
+                        setTimeout(t, 100); 
+                    }; 
+                    t(); 
+                } 
+            })();
+            
+            console.log('✅ Submit page ready (FIX #6: no flash)');
+        });
     </script>
 </body>
 </html>
