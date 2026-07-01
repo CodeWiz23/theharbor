@@ -1,12 +1,12 @@
 // ============================================
-// SIDEBAR CONTROLS - FULLY FIXED
+// SIDEBAR CONTROLS - FINAL FIXED
 // ============================================
 
 let isSidebarOpen = false;
 let sidebarOverlay = null;
 
 // ============================================
-// THEME MANAGEMENT - FIX #11, #12
+// THEME MANAGEMENT
 // ============================================
 function getCurrentTheme() {
     const saved = localStorage.getItem('harbor_theme');
@@ -140,10 +140,12 @@ function closeSidebar() {
 function toggleSidebar() { isSidebarOpen ? closeSidebar() : openSidebar(); }
 
 // ============================================
-// UPDATE DATA
+// UPDATE DATA - WITH DYNAMIC LIKES COUNT
 // ============================================
 function updateSidebarData() {
     if (!currentUser || !currentUserData) return;
+    
+    // Basic stats from userData
     const goldEl = document.getElementById('sidebarGoldBalance');
     if (goldEl) goldEl.textContent = currentUserData.goldBalance || 0;
     const storyEl = document.getElementById('sidebarStoryCount');
@@ -154,12 +156,26 @@ function updateSidebarData() {
     if (followingEl) followingEl.textContent = (currentUserData.following || []).length;
     const goldRecEl = document.getElementById('sidebarGoldReceived');
     if (goldRecEl) goldRecEl.textContent = currentUserData.goldReceived || 0;
-    const likesEl = document.getElementById('sidebarLikesReceived');
-    if (likesEl) likesEl.textContent = currentUserData.likesReceived || 0;
     const privacyBtn = document.getElementById('privacyToggleBtn');
     if (privacyBtn) privacyBtn.textContent = currentUserData.isPublic !== false ? '🔒 Make Private' : '🌍 Make Public';
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.textContent = getCurrentTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // 🔥 DYNAMIC LIKES COUNT - Fetch from actual story reactions
+    db.collection('stories').where('userId', '==', currentUser.uid).get()
+        .then(function(snap) {
+            var total = 0;
+            snap.forEach(function(doc) {
+                var reactions = doc.data().reactions || {};
+                Object.values(reactions).forEach(function(c) { total += c || 0; });
+            });
+            const likesEl = document.getElementById('sidebarLikesReceived');
+            if (likesEl) likesEl.textContent = total;
+        })
+        .catch(function() {
+            const likesEl = document.getElementById('sidebarLikesReceived');
+            if (likesEl) likesEl.textContent = currentUserData.likesReceived || 0;
+        });
 }
 
 // ============================================
@@ -214,7 +230,7 @@ function openSettingsModal(type) {
                     currentUserData.language = langLower;
                     localStorage.setItem('harbor_language', langLower);
                     const names = {en:'English',es:'Español',fr:'Français'};
-                    alert('✅ Language set to ' + (names[langLower] || langLower) + '!\n\n📌 Full translation coming soon.');
+                    alert('✅ Language set to ' + (names[langLower] || langLower) + '!');
                 })
                 .catch(err => alert('❌ ' + err.message));
         } else if (lang) {
