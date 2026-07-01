@@ -22,11 +22,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <script src="js/app.js?v=3"></script>
-    <script src="js/sidebar.js?v=3"></script>
-    <script src="js/gold.js?v=3"></script>
+    <script src="js/app.js?v=5"></script>
+    <script src="js/sidebar.js?v=5"></script>
+    <script src="js/gold.js?v=5"></script>
 
-    <link rel="stylesheet" href="css/style.css?v=3" />
+    <link rel="stylesheet" href="css/style.css?v=5" />
 
     <style>
         .profile-container { max-width: 680px; margin: 0 auto; padding: 1.5rem 0; }
@@ -104,6 +104,7 @@
         .user-list-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
         .user-list-name { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; }
         .user-list-close { float: right; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+        .private-hidden { display: none; }
         @media (max-width: 480px) { .profile-card { padding: 1.2rem 1rem; } .avatar-border { width: 80px; height: 80px; } .avatar-img { font-size: 2.2rem; } .profile-name { font-size: 1.3rem; } .stats-row { grid-template-columns: repeat(3, 1fr); } .avatar-option { width: 30px; height: 30px; font-size: 1rem; } .border-option { width: 22px; height: 22px; } }
     </style>
 </head>
@@ -191,6 +192,7 @@
     var selectedBorder = 'default';
     var profileFollowers = [];
     var profileFollowing = [];
+    var currentProfileIsPrivate = false;
 
     function applyGuestRestrictions() {
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
@@ -199,10 +201,41 @@
         var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
     }
 
+    // FIXED: Follow/Unfollow with instant UI update
     function profileFollowUser(targetUid) {
         if (!currentUser) { alert('Please log in.'); return; }
         if (targetUid === currentUser.uid) { alert('You cannot follow yourself.'); return; }
-        if (typeof followUser === 'function') { followUser(targetUid); }
+        
+        var btn = document.querySelector('.follow-btn');
+        var wasFollowing = isFollowingUser(targetUid);
+        
+        // Update UI instantly
+        if (btn) {
+            if (wasFollowing) {
+                btn.textContent = 'Follow';
+                btn.className = 'follow-btn follow';
+            } else {
+                btn.textContent = 'Unfollow';
+                btn.className = 'follow-btn unfollow';
+            }
+            btn.disabled = true;
+        }
+        
+        // Update local data instantly
+        if (wasFollowing) {
+            currentUserData.following = (currentUserData.following || []).filter(function(uid) { return uid !== targetUid; });
+        } else {
+            if (!currentUserData.following) currentUserData.following = [];
+            currentUserData.following.push(targetUid);
+        }
+        
+        // Call app.js followUser
+        if (typeof followUser === 'function') {
+            followUser(targetUid);
+        }
+        
+        // Reload after short delay
+        setTimeout(function() { loadProfile(); }, 500);
     }
 
     function isFollowingUser(targetUid) {
@@ -221,6 +254,34 @@
             reason: reason.trim(), status: 'pending', type: 'user',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(function() { alert('✅ Report submitted.'); }).catch(function(err) { alert('❌ ' + err.message); });
+    }
+
+    // FIXED: Toggle privacy with instant update
+    function profileTogglePrivacy() {
+        if (!currentUser) return;
+        var newPrivacy = !currentProfileIsPrivate;
+        var badge = document.querySelector('.privacy-badge');
+        
+        // Update UI instantly
+        currentProfileIsPrivate = newPrivacy;
+        if (badge) {
+            badge.textContent = newPrivacy ? '🔒 Private' : '🌍 Public';
+            badge.className = 'privacy-badge ' + (newPrivacy ? 'private' : 'public');
+        }
+        
+        // Hide/show private sections
+        var privateSections = document.querySelectorAll('.private-sensitive');
+        privateSections.forEach(function(el) {
+            el.style.display = newPrivacy ? 'none' : '';
+        });
+        
+        // Update Firestore
+        db.collection('users').doc(currentUser.uid).update({ isPublic: !newPrivacy })
+            .then(function() {
+                if (currentUserData) currentUserData.isPublic = !newPrivacy;
+                if (typeof updateSidebarData === 'function') updateSidebarData();
+            })
+            .catch(function(err) { alert('❌ ' + err.message); });
     }
 
     function showUserList(type) {
@@ -286,12 +347,12 @@
             currentUserData = userData;
             selectedAvatar = userData.avatar || '👤';
             selectedBorder = userData.border || 'default';
+            currentProfileIsPrivate = userData.isPublic === false;
             return db.collection('stories').where('userId','==',uid).get().then(function(snap) {
                 var stories = [];
                 var totalLikes = 0;
                 snap.forEach(function(s) {
                     var sd = s.data(); sd.id = s.id;
-                    // ONLY count ❤️ as likes received
                     var reactions = sd.reactions || {};
                     totalLikes += (reactions['❤️'] || 0);
                     if (sd.visibility === 'private' && uid !== (auth.currentUser ? auth.currentUser.uid : null)) return;
@@ -317,11 +378,22 @@
         var followingList = userData.following || [];
         profileFollowers = followers;
         profileFollowing = followingList;
+        currentProfileIsPrivate = isPrivate;
 
         var followBtn = '';
-        if (!isSelf && auth.currentUser) { followBtn = '<button class="follow-btn '+(following?'unfollow':'follow')+'" onclick="profileFollowUser(\''+userData.uid+'\')">'+(following?'Unfollow':'Follow')+'</button>'; }
+        if (!isSelf && auth.currentUser) { 
+            followBtn = '<button class="follow-btn '+(following?'unfollow':'follow')+'" onclick="profileFollowUser(\''+userData.uid+'\')">'+(following?'Unfollow':'Follow')+'</button>'; 
+        }
         var reportBtn = '';
-        if (!isSelf && auth.currentUser) { reportBtn = '<button class="btn btn-ghost" onclick="profileReportUser(\''+userData.uid+'\')" style="color:var(--warning);">🚩 Report</button>'; }
+        if (!isSelf && auth.currentUser) { 
+            reportBtn = '<button class="btn btn-ghost" onclick="profileReportUser(\''+userData.uid+'\')" style="color:var(--warning);">🚩 Report</button>'; 
+        }
+
+        // Privacy toggle button for own profile
+        var privacyToggleBtn = '';
+        if (isSelf) {
+            privacyToggleBtn = '<button class="btn btn-ghost" onclick="profileTogglePrivacy()" style="color:'+(isPrivate?'var(--success)':'var(--warning)')+';margin-top:4px;">'+(isPrivate?'🌍 Make Public':'🔒 Make Private')+'</button>';
+        }
 
         var storiesHtml = '';
         if (stories.length === 0) {
@@ -340,10 +412,11 @@
         container.innerHTML = '<div class="profile-card">'+
             '<div class="avatar-section"><div class="avatar-border '+borderClass+'" id="avatarBorder"><div class="avatar-img" id="avatarImg">'+selectedAvatar+'</div></div></div>'+
             '<h2 class="profile-name">'+escapeHTML(userData.name)+'</h2>'+
-            '<div class="profile-bio">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
-            '<div class="profile-bio">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>'+
+            '<div class="profile-bio private-sensitive">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
+            '<div class="profile-bio private-sensitive">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>'+
             '<div class="profile-meta">Member since '+time+'</div>'+
             '<div class="badge-row">'+(isAdmin?'<span class="admin-badge">👑 Admin</span>':'')+'<span class="privacy-badge '+(isPrivate?'private':'public')+'">'+(isPrivate?'🔒 Private':'🌍 Public')+'</span></div>'+
+            privacyToggleBtn+
             (isSelf ? '<button class="customize-toggle" id="customizeToggle" onclick="toggleCustomize()">🎨 Customize</button>' : '')+
             (isSelf ? '<div class="customize-panel" id="customizePanel"><h4>Choose Avatar</h4><div class="avatar-selector" id="avatarSelector"></div><h4 style="margin-top:10px;">Choose Border</h4><div class="border-selector" id="borderSelector"></div></div>' : '')+
             '<div class="stats-row">'+
@@ -360,6 +433,12 @@
             '</div></div>'+
             '<div class="stories-section"><h3>📝 Stories ('+stories.length+')</h3>'+storiesHtml+'</div>'+
             '<div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>';
+
+        // Hide sensitive info if private and viewer is not owner
+        if (isPrivate && !isSelf) {
+            var sensitive = document.querySelectorAll('.private-sensitive');
+            sensitive.forEach(function(el) { el.style.display = 'none'; });
+        }
 
         if (isSelf) {
             var maleAvatars = ['👨','🧑','👦','🧔','👨‍🦰','👨‍🦳','👨‍🦱','👨‍🦲','👴','🦸‍♂️','🧝‍♂️','🧙‍♂️'];
