@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* ===== FEED HERO (unchanged) ===== */
         .feed-hero { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 2.2rem 2rem; text-align: center; border-radius: var(--radius-xl); margin: 1.2rem 0; }
         .feed-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
         .feed-hero h1 span { font-weight: 700; color: var(--secondary); }
@@ -51,8 +50,6 @@
         .feed-tab.active { background: var(--primary); color: white; font-weight: 600; }
         .tab-info-icon { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,0.25); font-size: 9px; font-weight: 700; cursor: help; flex-shrink: 0; }
         .feed-tab.active .tab-info-icon { background: rgba(255,255,255,0.35); }
-
-        /* ===== STORY CARD (unchanged) ===== */
         .story-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.3rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--border-color); transition: all 0.2s ease; position: relative; }
         .story-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
         .story-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -91,7 +88,6 @@
         .card-btn-gold { background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; }
         .guest-message { display: none; background: #fef9e7; border-left: 4px solid var(--warning); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 16px; color: #92400e; font-size: 0.9rem; }
 
-        /* ===== GEAR MENU (#2) ===== */
         .gear-menu-container { position: absolute; top: 12px; right: 12px; z-index: 10; }
         .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; }
         .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
@@ -114,7 +110,7 @@
             <a href="index.html" class="btn btn-feed active guest-only" aria-current="page">🏠 Feed</a>
             <a href="about.html" class="btn btn-ghost">🌿 About</a>
             <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" onclick="window.location.href='profile.html';return false;" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
             <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
             <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
             <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
@@ -151,19 +147,19 @@
 
     <div class="container">
         <div class="feed-tabs guest-only" id="categoryTabs">
-            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All <span class="tab-info-icon" title="All stories from every harbor category">?</span></button>
-            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men's Harbor <span class="tab-info-icon" title="A dedicated space for men">?</span></button>
-            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women's Harbor <span class="tab-info-icon" title="A safe harbor for women">?</span></button>
-            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm <span class="tab-info-icon" title="Share your struggles">?</span></button>
-            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies <span class="tab-info-icon" title="Celebrate and share joy">?</span></button>
-            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass <span class="tab-info-icon" title="Life lessons and wisdom">?</span></button>
+            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All</button>
+            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men's Harbor</button>
+            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women's Harbor</button>
+            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm</button>
+            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies</button>
+            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass</button>
         </div>
 
         <div id="storiesContainer"><div class="loading"><div class="loading-spinner"></div> Loading stories...</div></div>
         <div class="pagination guest-only" id="paginationContainer"></div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix #1) -->
+    <!-- Auth Modal -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -175,7 +171,6 @@
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div>
                 <label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">📌 Men see Men's Harbor. Women see Women's Harbor.</div>
                 <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
                 <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
                 <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
@@ -196,8 +191,8 @@
         <div class="modal-content">
             <button class="modal-close" onclick="closeEditModal()" aria-label="Close">&times;</button>
             <h2>✏️ Edit Story</h2>
-            <label for="editTitle">Title</label><input type="text" id="editTitle" placeholder="Enter title..." />
-            <label for="editContent">Content</label><textarea id="editContent" rows="6" placeholder="Write your story..."></textarea>
+            <label for="editTitle">Title</label><input type="text" id="editTitle" />
+            <label for="editContent">Content</label><textarea id="editContent" rows="6"></textarea>
             <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
             <div class="error-msg" id="editError"></div>
         </div>
@@ -212,11 +207,24 @@
     </footer>
 
     <script>
-        // ============================================
-        // INDEX PAGE – GEAR MENU, SCROLL, TERMS FIX
-        // ============================================
+        function toggleGearMenu(storyId, event) {
+            event.stopPropagation();
+            document.querySelectorAll('.gear-dropdown.show').forEach(d => { if (d.dataset.storyId !== storyId) d.classList.remove('show'); });
+            const dropdown = document.querySelector(`.gear-dropdown[data-story-id="${storyId}"]`);
+            if (dropdown) dropdown.classList.toggle('show');
+        }
 
-        // ---- Terms Checkbox Enable/Disable Button (#1) ----
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.gear-menu-container')) {
+                document.querySelectorAll('.gear-dropdown.show').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.setItem('feedScrollPos', window.scrollY);
+            sessionStorage.setItem('feedCategory', currentCategory || 'all');
+        });
+
         const termsCheckbox = document.getElementById('termsCheckbox');
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         if (termsCheckbox && authSubmitBtn) {
@@ -225,25 +233,15 @@
                 if (isSignup) {
                     authSubmitBtn.disabled = !termsCheckbox.checked;
                     authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                    authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
                 } else {
                     authSubmitBtn.disabled = false;
                     authSubmitBtn.style.opacity = '1';
-                    authSubmitBtn.style.cursor = 'pointer';
                 }
             };
             termsCheckbox.addEventListener('change', toggleBtn);
-            // Also trigger when switching modes
-            const originalToggle = toggleAuthMode;
-            window.toggleAuthMode = function() {
-                originalToggle();
-                setTimeout(toggleBtn, 100);
-            };
-            // Initial state
             toggleBtn();
         }
 
-        // ---- Apply Guest Restrictions ----
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
             document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
@@ -252,112 +250,8 @@
             if (gm) gm.style.display = isLoggedIn ? 'none' : 'block';
             var ui = document.getElementById('userInfo');
             if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
-            if (!isLoggedIn) {
-                var c = document.getElementById('storiesContainer');
-                if (c) c.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
-            }
         }
 
-        // ---- GEAR MENU TOGGLE (#2) ----
-        function toggleGearMenu(storyId, event) {
-            event.stopPropagation();
-            // Close all other gear menus first
-            document.querySelectorAll('.gear-dropdown.show').forEach(d => {
-                if (d.dataset.storyId !== storyId) d.classList.remove('show');
-            });
-            const dropdown = document.querySelector(`.gear-dropdown[data-story-id="${storyId}"]`);
-            if (dropdown) dropdown.classList.toggle('show');
-        }
-
-        // Close gear menus when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.gear-menu-container')) {
-                document.querySelectorAll('.gear-dropdown.show').forEach(d => d.classList.remove('show'));
-            }
-        });
-
-        // ---- SCROLL PRESERVATION (#7) ----
-        window.addEventListener('beforeunload', function() {
-            sessionStorage.setItem('feedScrollPos', window.scrollY);
-        });
-
-        // Restore scroll after stories load
-        const observer = new MutationObserver(function(mutations) {
-            if (document.getElementById('storiesContainer') && document.querySelector('.story-card')) {
-                const saved = sessionStorage.getItem('feedScrollPos');
-                if (saved) {
-                    window.scrollTo({ top: parseInt(saved), behavior: 'instant' });
-                    sessionStorage.removeItem('feedScrollPos');
-                }
-                observer.disconnect();
-            }
-        });
-        observer.observe(document.getElementById('storiesContainer') || document.body, { childList: true, subtree: true });
-
-        // ---- OVERRIDE renderStoryCard TO ADD GEAR MENU ----
-        // We keep the global renderStoryCard from app.js, but we need to inject the gear menu HTML.
-        // The app.js function creates the card; we'll monkey-patch it to add the gear icon after the fact.
-        const originalRenderStoryCard = window.renderStoryCard;
-        window.renderStoryCard = function(story) {
-            let cardHTML = originalRenderStoryCard(story);
-            // Parse cardHTML to insert gear menu after story-card-top
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = cardHTML;
-            const card = tempDiv.querySelector('.story-card');
-            if (card) {
-                // Remove old action buttons that we want in gear menu
-                const actions = card.querySelector('.story-card-actions');
-                if (actions) {
-                    // Remove edit, delete, visibility, report buttons; keep reaction buttons and comment link
-                    const toRemove = actions.querySelectorAll('.card-btn-edit, .card-btn-delete, .card-btn-visibility, .card-btn-report');
-                    toRemove.forEach(btn => btn.remove());
-                }
-                // Create gear menu
-                const gearContainer = document.createElement('div');
-                gearContainer.className = 'gear-menu-container';
-                gearContainer.innerHTML = `
-                    <button class="gear-icon" onclick="toggleGearMenu('${story.id}', event)" title="Options">⚙️</button>
-                    <div class="gear-dropdown" data-story-id="${story.id}">
-                        ${(currentUser && story.userId === currentUser.uid) ? `
-                            <button onclick="event.stopPropagation(); openEditModal('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">✏️ Edit Story</button>
-                            <button onclick="event.stopPropagation(); toggleVisibility('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🔒 Change Visibility</button>
-                            <button class="danger" onclick="event.stopPropagation(); deleteStory('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🗑️ Delete Story</button>
-                        ` : ''}
-                        ${(currentUser && currentUserData?.isAdmin && story.userId !== currentUser.uid) ? `
-                            <button class="danger" onclick="event.stopPropagation(); deleteStory('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🗑️ Admin Delete</button>
-                        ` : ''}
-                        ${(currentUser && story.userId !== currentUser.uid) ? `
-                            <button onclick="event.stopPropagation(); reportStory('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🚩 Report Story</button>
-                        ` : ''}
-                    </div>
-                `;
-                card.appendChild(gearContainer);
-            }
-            return tempDiv.innerHTML;
-        };
-
-        // ---- INIT ----
-        document.addEventListener('DOMContentLoaded', function() {
-            var check = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(check);
-                    applyGuestRestrictions();
-                    updateGenderTabs();
-                    if (currentUser && typeof loadStories === 'function') loadStories();
-                }
-            }, 100);
-            if (typeof auth !== 'undefined') auth.onAuthStateChanged(function(user) {
-                setTimeout(function(){ applyGuestRestrictions(); updateGenderTabs(); if(user && typeof loadStories === 'function') loadStories(); }, 300);
-            });
-            setTimeout(function() { if (typeof currentUser !== 'undefined') applyGuestRestrictions(); }, 2000);
-
-            document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this) closeModal(); });
-            document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this) closeEditModal(); });
-            document.addEventListener('keydown', function(e) { if(e.key==='Escape'){closeModal();closeEditModal();} });
-            console.log('✅ Index ready (with gear menu & scroll preservation)');
-        });
-
-        // Helper: update gender tabs
         function updateGenderTabs() {
             if (!currentUserData) return;
             var g = currentUserData.gender;
@@ -365,6 +259,17 @@
             if (tm) tm.style.display = (g === '🧔 Man') ? '' : 'none';
             if (tw) tw.style.display = (g === '👩 Woman') ? '' : 'none';
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var check = setInterval(function() {
+                if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); updateGenderTabs(); if (currentUser && typeof loadStories === 'function') loadStories(); }
+            }, 100);
+            if (typeof auth !== 'undefined') auth.onAuthStateChanged(function(user) { setTimeout(function(){applyGuestRestrictions();updateGenderTabs();if(user&&typeof loadStories==='function')loadStories();},300); });
+            document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
+            document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditModal(); });
+            document.addEventListener('keydown', function(e) { if(e.key==='Escape'){closeModal();closeEditModal();} });
+            console.log('✅ Index ready');
+        });
     </script>
 </body>
 </html>
