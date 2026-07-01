@@ -553,10 +553,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        applyGuestRestrictions();
         var check = setInterval(function() {
-            if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); loadProfile(); }
+            if (typeof currentUser !== 'undefined') { clearInterval(check); loadProfile(); }
         }, 100);
-        if (typeof auth !== 'undefined') auth.onAuthStateChanged(function() { setTimeout(function(){applyGuestRestrictions();loadProfile();},300); });
+        if (typeof auth !== 'undefined') auth.onAuthStateChanged(function() { applyGuestRestrictions(); loadProfile(); });
         document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
         document.getElementById('editProfileModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditProfileModal(); });
         document.getElementById('userListModal')?.addEventListener('click', function(e) { if(e.target===this)closeUserList(); });
