@@ -1,60 +1,6 @@
 // ============================================
 // THE HARBOR - MAIN APPLICATION (FINAL v9)
 // ============================================
-(function() {
-    var style = document.createElement('style');
-    style.id = 'global-anti-flash';
-    style.textContent = `
-        .guest-only, .auth-only, #userInfo, .nav-icon, .btn-login, .btn-signup,
-        .nav-icon.guest-only, .btn-login.auth-only, .btn-signup.auth-only,
-        #guestView, #loggedInView, [class*="guest"], [class*="auth"] {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-        body.loaded .guest-only, body.loaded .auth-only, body.loaded #userInfo,
-        body.loaded .nav-icon, body.loaded .btn-login, body.loaded .btn-signup,
-        body.loaded #guestView, body.loaded #loggedInView {
-            display: inline-flex !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-        }
-        body:not(.loaded) .header-right > * {
-            display: none !important;
-        }
-    `;
-    document.head.insertBefore(style, document.head.firstChild);
-
-    function addLoaded() {
-        if (document.body) document.body.classList.add('loaded');
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', addLoaded);
-    } else {
-        addLoaded();
-    }
-    var check = setInterval(function() {
-        if (document.body) {
-            document.body.classList.add('loaded');
-            clearInterval(check);
-        }
-    }, 10);
-    var originalWrite = document.write;
-    document.write = function(str) {
-        if (str && str.includes('style') && str.includes('guest-only')) return;
-        originalWrite.call(document, str);
-    };
-    setTimeout(function() {
-        document.querySelectorAll('style').forEach(function(el) {
-            if (el.textContent && el.textContent.includes('guest-only') && el.textContent.includes('display:block')) {
-                el.remove();
-            }
-        });
-    }, 50);
-    console.log('✅ Anti-flash loaded');
-})();
 
 const firebaseConfig = {
     apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
