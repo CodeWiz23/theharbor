@@ -1,1 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications — The Harbor</title>
 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
+
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('harbor_theme');
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .notif-container { max-width: 700px; margin: 0 auto; padding: 1.5rem 0; }
+
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1.2rem;
+        }
+        .notif-header h1 { font-weight: 300; color: var(--text-primary); font-size: 1.8rem; letter-spacing: -0.02em; }
+        .notif-header h1 span { font-weight: 700; color: var(--secondary); }
+
+        .mark-all-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            padding: 6px 16px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            font-family: inherit;
+        }
+        .mark-all-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .notif-item {
+            background: var(--bg-card);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            position: relative;
+        }
+        .notif-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
+        .notif-item.unread { background: #f0f9ff; border-left: 3px solid var(--primary); }
+
+        .notif-icon {
+            font-size: 1.5rem;
+            min-width: 36px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-content .message { color: var(--text-primary); font-size: 0.95rem; font-weight: 500; }
+        .notif-content .time { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .notif-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            flex-shrink: 0;
+            margin-top: 6px;
+            display: none;
+        }
+        .notif-item.unread .notif-dot { display: block; }
+
+        @media (max-width: 768px) {
+            .notif-header h1 { font-size: 1.4rem; }
+            .notif-item { padding: 10px 14px; }
+            .notif-icon { font-size: 1.3rem; min-width: 30px; }
+            .notif-content .message { font-size: 0.9rem; }
+        }
+        @media (max-width: 480px) {
+            .notif-header { flex-direction: column; align-items: flex-start; }
+            .notif-header h1 { font-size: 1.2rem; }
+            .mark-all-btn { font-size: 0.8rem; padding: 4px 12px; }
+            .notif-item { padding: 8px 10px; gap: 8px; }
+            .notif-icon { font-size: 1.2rem; min-width: 26px; }
+            .notif-content .message { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header" role="banner">
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
+        <div class="header-right">
+            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="about.html" class="btn btn-ghost">🌿 About</a>
+            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
+            <a href="notifications.html" class="btn btn-feed active guest-only" aria-current="page">🔔 Notifications</a>
+            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
+            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
+            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
+            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span id="userName">Friend</span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="emergencyBanner" role="alert"></div>
+
+    <div class="container">
+        <div class="notif-container">
+            <div class="notif-header">
+                <h1>🔔 <span>Notifications</span></h1>
+                <button class="mark-all-btn" onclick="markAllRead()">✅ Mark All Read</button>
+            </div>
+            <div id="notificationsContainer">
+                <div class="loading"><div class="loading-spinner"></div> Loading notifications...</div>
+            </div>
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+        <div>⚓ The Harbor — Notifications</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
+    </footer>
+
+    <script>
+        let notificationsUnsubscribe = null;
+
+        function applyGuestRestrictions() {
+            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+            var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
+        }
+
+        function loadNotifications() {
+            var container = document.getElementById('notificationsContainer');
+            if (!container) return;
+
+            if (!currentUser) {
+                container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in to view notifications.</p><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button></div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading notifications...</div>';
+
+            // Unsubscribe previous listener
+            if (notificationsUnsubscribe) notificationsUnsubscribe();
+
+            notificationsUnsubscribe = db.collection('notifications')
+                .where('toUid', '==', currentUser.uid)
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .onSnapshot(snapshot => {
+                    if (snapshot.empty) {
+                        container.innerHTML = '<div class="empty-state" style="padding:30px;"><div class="big-emoji">🔔</div><h3>No Notifications</h3><p style="color:var(--text-muted);">You\'re all caught up!</p></div>';
+                        return;
+                    }
+                    var html = '';
+                    snapshot.forEach(doc => {
+                        var notif = doc.data();
+                        notif.id = doc.id;
+                        html += renderNotification(notif);
+                    });
+                    container.innerHTML = html;
+                }, err => {
+                    console.error('Notification listener error:', err);
+                    container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error loading notifications</p><button class="btn btn-primary" onclick="loadNotifications()">🔄 Retry</button></div>';
+                });
+        }
+
+        function renderNotification(notif) {
+            var icon = '🔔', message = '', linkUrl = '#';
+            var timeStr = notif.createdAt ? notif.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : 'Recently';
+            var fromName = escapeHTML(notif.fromName || 'Someone');
+
+            switch (notif.type) {
+                case 'follow':
+                    icon = '👤';
+                    message = `<strong>${fromName}</strong> started following you`;
+                    linkUrl = `profile.html?uid=${notif.fromUid}`;
+                    break;
+                case 'like':
+                    icon = '❤️';
+                    message = `<strong>${fromName}</strong> ❤️ your story`;
+                    linkUrl = notif.data && notif.data.storyId ? `story.html?id=${notif.data.storyId}` : '#';
+                    break;
+                case 'comment':
+                    icon = '💬';
+                    message = `<strong>${fromName}</strong> commented on your story`;
+                    linkUrl = notif.data && notif.data.storyId ? `story.html?id=${notif.data.storyId}` : '#';
+                    break;
+                case 'report':
+                    icon = '🚩';
+                    message = `Your content was reported`;
+                    linkUrl = '#';
+                    break;
+                case 'gold':
+                    icon = '🪙';
+                    message = `<strong>${fromName}</strong> sent you gold`;
+                    linkUrl = notif.data && notif.data.storyId ? `story.html?id=${notif.data.storyId}` : '#';
+                    break;
+                case 'daily':
+                    icon = '🎁';
+                    message = 'Your daily reward is available!';
+                    linkUrl = 'daily-rewards.html';
+                    break;
+                default:
+                    message = notif.message || 'New notification';
+            }
+
+            return `<div class="notif-item ${notif.read ? '' : 'unread'}" onclick="handleNotifClick('${notif.id}', '${linkUrl}')">
+                <div class="notif-icon">${icon}</div>
+                <div class="notif-content">
+                    <div class="message">${message}</div>
+                    <div class="time">${timeStr}</div>
+                </div>
+                <div class="notif-dot"></div>
+            </div>`;
+        }
+
+        function handleNotifClick(notifId, linkUrl) {
+            // Mark as read
+            db.collection('notifications').doc(notifId).update({ read: true }).catch(() => {});
+            // Navigate
+            if (linkUrl && linkUrl !== '#') {
+                window.location.href = linkUrl;
+            }
+        }
+
+        function markAllRead() {
+            if (!currentUser) return;
+            // Get all unread notifications and update them
+            db.collection('notifications')
+                .where('toUid', '==', currentUser.uid)
+                .where('read', '==', false)
+                .get()
+                .then(snapshot => {
+                    var batch = db.batch();
+                    snapshot.forEach(doc => {
+                        batch.update(doc.ref, { read: true });
+                    });
+                    return batch.commit();
+                })
+                .then(() => {
+                    // The real-time listener will update the UI automatically
+                })
+                .catch(err => console.error('Mark all read error:', err));
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            applyGuestRestrictions();
+            var check = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(check);
+                    if (currentUser) loadNotifications();
+                }
+            }, 100);
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function(user) {
+                    if (user) { currentUser = user; loadNotifications(); }
+                    applyGuestRestrictions();
+                });
+            }
+            console.log('✅ Notifications page ready');
+        });
+    </script>
+</body>
+</html>
