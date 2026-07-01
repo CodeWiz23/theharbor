@@ -33,167 +33,41 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* ===== WELCOME HERO ===== */
-        .welcome-hero {
-            background: linear-gradient(135deg, #1a4a4a 0%, #2d6a6a 30%, #c47a5a 70%, #e8a87c 100%);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-            border-radius: var(--radius-xl);
-            margin: 1rem 0;
-            position: relative;
-            overflow: hidden;
-            min-height: 380px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .welcome-hero::before {
-            content: '';
-            position: absolute;
-            top: -60%; right: -30%;
-            width: 500px; height: 500px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.04);
-            animation: floatBubble 8s ease-in-out infinite;
-        }
-        .welcome-hero::after {
-            content: '';
-            position: absolute;
-            bottom: -40%; left: -20%;
-            width: 400px; height: 400px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.03);
-            animation: floatBubble 10s ease-in-out infinite reverse;
-        }
-        @keyframes floatBubble {
-            0%,100% { transform: translate(0,0) scale(1); }
-            33% { transform: translate(30px,-20px) scale(1.05); }
-            66% { transform: translate(-20px,10px) scale(0.95); }
-        }
-        .welcome-hero .hero-icon {
-            font-size: 4rem; display: block; margin-bottom: 12px;
-            animation: bounce 2s ease-in-out infinite;
-            position: relative; z-index: 1;
-        }
-        @keyframes bounce {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-18px); }
-        }
-        .welcome-hero h1 {
-            font-size: 2.4rem; font-weight: 300;
-            position: relative; z-index: 1; letter-spacing: -0.02em;
-        }
+        .welcome-hero { background: linear-gradient(135deg, #1a4a4a 0%, #2d6a6a 30%, #c47a5a 70%, #e8a87c 100%); color: white; padding: 3rem 2rem; text-align: center; border-radius: var(--radius-xl); margin: 1rem 0; position: relative; overflow: hidden; min-height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .welcome-hero::before { content: ''; position: absolute; top: -60%; right: -30%; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,255,255,0.04); animation: floatBubble 8s ease-in-out infinite; }
+        .welcome-hero::after { content: ''; position: absolute; bottom: -40%; left: -20%; width: 400px; height: 400px; border-radius: 50%; background: rgba(255,255,255,0.03); animation: floatBubble 10s ease-in-out infinite reverse; }
+        @keyframes floatBubble { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-20px) scale(1.05); } 66% { transform: translate(-20px,10px) scale(0.95); } }
+        .welcome-hero .hero-icon { font-size: 4rem; display: block; margin-bottom: 12px; animation: bounce 2s ease-in-out infinite; position: relative; z-index: 1; }
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+        .welcome-hero h1 { font-size: 2.4rem; font-weight: 300; position: relative; z-index: 1; letter-spacing: -0.02em; }
         .welcome-hero h1 span { font-weight: 700; color: #f1c40f; }
-        .welcome-hero .tagline {
-            font-size: 1.1rem; opacity: 0.9; margin: 8px 0 20px;
-            position: relative; z-index: 1;
-        }
-        .welcome-hero .hero-actions {
-            display: flex; gap: 12px; flex-wrap: wrap;
-            justify-content: center; position: relative; z-index: 1;
-        }
-        .welcome-hero .btn-hero {
-            padding: 0.7rem 2rem; border-radius: 9999px;
-            font-weight: 700; font-size: 1rem; cursor: pointer;
-            border: none; transition: all 0.3s; text-decoration: none;
-            display: inline-flex; align-items: center; gap: 6px;
-            font-family: inherit;
-        }
-        .btn-hero-primary {
-            background: #f1c40f; color: #1a1a2e;
-            box-shadow: 0 4px 20px rgba(241,196,15,0.4);
-        }
-        .btn-hero-primary:hover {
-            background: #f39c12; transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(241,196,15,0.5);
-        }
-        .btn-hero-secondary {
-            background: rgba(255,255,255,0.15); color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        .btn-hero-secondary:hover {
-            background: rgba(255,255,255,0.25); transform: translateY(-3px);
-        }
-
-        /* ===== FEATURES SECTION ===== */
-        .features-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
-            gap: 12px; margin: 1.5rem 0;
-        }
-        .feature-card {
-            background: var(--bg-card); padding: 1.2rem;
-            border-radius: var(--radius-lg); border: 1px solid var(--border-color);
-            text-align: center; transition: all 0.3s; cursor: default;
-            animation: fadeInUp 0.6s ease forwards; opacity: 0;
-        }
-        .feature-card:nth-child(1) { animation-delay: 0.1s; }
-        .feature-card:nth-child(2) { animation-delay: 0.2s; }
-        .feature-card:nth-child(3) { animation-delay: 0.3s; }
-        .feature-card:nth-child(4) { animation-delay: 0.4s; }
-        .feature-card:nth-child(5) { animation-delay: 0.5s; }
-        .feature-card:nth-child(6) { animation-delay: 0.6s; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .feature-card:hover {
-            transform: translateY(-4px); box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-        .feature-card .feat-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; }
-        .feature-card .feat-title { font-weight: 700; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 4px; }
-        .feature-card .feat-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
-
-        /* ===== FEED STYLES ===== */
-        .feed-hero {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white; padding: 1.8rem; text-align: center;
-            border-radius: var(--radius-xl); margin: 1rem 0;
-        }
-        .feed-hero h1 { font-size: 1.6rem; font-weight: 400; }
-        .feed-hero h1 span { font-weight: 700; color: var(--secondary); }
-        .feed-hero p { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
-
+        .welcome-hero .tagline { font-size: 1.1rem; opacity: 0.9; margin: 8px 0 20px; position: relative; z-index: 1; }
+        .welcome-hero .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+        .welcome-hero .btn-hero { padding: 0.7rem 2rem; border-radius: 9999px; font-weight: 700; font-size: 1rem; cursor: pointer; border: none; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+        .btn-hero-primary { background: #f1c40f; color: #1a1a2e; box-shadow: 0 4px 20px rgba(241,196,15,0.4); }
+        .btn-hero-primary:hover { background: #f39c12; transform: translateY(-3px); box-shadow: 0 8px 30px rgba(241,196,15,0.5); }
+        .btn-hero-secondary { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); }
+        .btn-hero-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px); }
+        .features-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; margin: 1.5rem 0; }
+        .feature-card { background: var(--bg-card); padding: 1.2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center; transition: all 0.3s; cursor: default; animation: fadeInUp 0.6s ease forwards; opacity: 0; }
+        .feature-card:nth-child(1) { animation-delay: 0.1s; } .feature-card:nth-child(2) { animation-delay: 0.2s; } .feature-card:nth-child(3) { animation-delay: 0.3s; } .feature-card:nth-child(4) { animation-delay: 0.4s; } .feature-card:nth-child(5) { animation-delay: 0.5s; } .feature-card:nth-child(6) { animation-delay: 0.6s; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+        .feature-card .feat-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; } .feature-card .feat-title { font-weight: 700; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 4px; } .feature-card .feat-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+        .feed-hero { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 1.8rem; text-align: center; border-radius: var(--radius-xl); margin: 1rem 0; }
+        .feed-hero h1 { font-size: 1.6rem; font-weight: 400; } .feed-hero h1 span { font-weight: 700; color: var(--secondary); } .feed-hero p { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
         .feed-search { max-width: 500px; margin: -8px auto 16px; padding: 0 1rem; }
-        .feed-search input {
-            width: 100%; padding: 11px 18px; border: 2px solid var(--border-color);
-            border-radius: 9999px; font-size: 0.9rem; outline: none;
-            background: var(--bg-card); color: var(--text-primary);
-            transition: all 0.2s; font-family: inherit;
-        }
+        .feed-search input { width: 100%; padding: 11px 18px; border: 2px solid var(--border-color); border-radius: 9999px; font-size: 0.9rem; outline: none; background: var(--bg-card); color: var(--text-primary); transition: all 0.2s; font-family: inherit; }
         .feed-search input:focus { border-color: var(--primary); box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-
         .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin: var(--space-xl) 0; flex-wrap: wrap; }
         .pagination button { padding: 0.4rem 0.9rem; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); font-family: inherit; }
-        .pagination button.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .page-info { padding: 0.4rem 0.8rem; color: var(--text-muted); font-size: 0.85rem; }
-
-        @media (max-width: 768px) {
-            .welcome-hero { padding: 2rem 1rem; min-height: 300px; }
-            .welcome-hero h1 { font-size: 1.8rem; }
-            .welcome-hero .hero-icon { font-size: 3rem; }
-            .features-row { grid-template-columns: repeat(2,1fr); }
-            .feed-hero { padding: 1.2rem 1rem; }
-        }
-        @media (max-width: 480px) {
-            .welcome-hero { padding: 1.5rem 0.8rem; min-height: 260px; border-radius: var(--radius-lg); }
-            .welcome-hero h1 { font-size: 1.4rem; }
-            .welcome-hero .hero-icon { font-size: 2.5rem; }
-            .welcome-hero .tagline { font-size: 0.9rem; }
-            .btn-hero { padding: 0.5rem 1.4rem; font-size: 0.85rem; }
-            .features-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .feature-card { padding: 0.9rem; }
-            .feed-hero { padding: 1rem 0.8rem; margin: 0.4rem 0; }
-        }
+        .pagination button.active { background: var(--primary); color: white; border-color: var(--primary); } .pagination button:disabled { opacity: 0.4; cursor: not-allowed; } .page-info { padding: 0.4rem 0.8rem; color: var(--text-muted); font-size: 0.85rem; }
+        @media (max-width: 768px) { .welcome-hero { padding: 2rem 1rem; min-height: 300px; } .welcome-hero h1 { font-size: 1.8rem; } .welcome-hero .hero-icon { font-size: 3rem; } .features-row { grid-template-columns: repeat(2,1fr); } .feed-hero { padding: 1.2rem 1rem; } }
+        @media (max-width: 480px) { .welcome-hero { padding: 1.5rem 0.8rem; min-height: 260px; border-radius: var(--radius-lg); } .welcome-hero h1 { font-size: 1.4rem; } .welcome-hero .hero-icon { font-size: 2.5rem; } .welcome-hero .tagline { font-size: 0.9rem; } .btn-hero { padding: 0.5rem 1.4rem; font-size: 0.85rem; } .features-row { grid-template-columns: 1fr 1fr; gap: 8px; } .feature-card { padding: 0.9rem; } .feed-hero { padding: 1rem 0.8rem; margin: 0.4rem 0; } }
     </style>
 </head>
 
 <body>
-    <!-- IMMEDIATE LOGIN CHECK - NO FLASH -->
     <script>
     (function() {
         var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
@@ -203,7 +77,6 @@
     })();
     </script>
 
-    <!-- HEADER WITH ICON DOCK -->
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
@@ -229,7 +102,6 @@
     <div id="emergencyBanner" role="alert"></div>
 
     <div class="container">
-        <!-- GUEST VIEW -->
         <div id="guestView">
             <div class="welcome-hero">
                 <span class="hero-icon">⚓</span>
@@ -250,7 +122,6 @@
             </div>
         </div>
 
-        <!-- LOGGED-IN VIEW -->
         <div id="loggedInView" style="display:none;">
             <section class="feed-hero">
                 <h1>⚓ Welcome to <span>The Harbor</span></h1>
@@ -270,7 +141,6 @@
         </div>
     </div>
 
-    <!-- Auth Modal -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -295,7 +165,6 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
     <div class="modal" id="editModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeEditModal()">&times;</button>
@@ -318,20 +187,23 @@
     <script>
         function showCategoryTooltip(event, text) {
             event.stopPropagation();
-            const icon = event.target;
-            const existing = icon.querySelector('.tab-info-tooltip');
+            var existing = document.querySelector('.tab-info-tooltip');
             if (existing) { existing.remove(); return; }
-            const tooltip = document.createElement('span');
+            var icon = event.target;
+            var rect = icon.getBoundingClientRect();
+            var tooltip = document.createElement('span');
             tooltip.className = 'tab-info-tooltip show';
             tooltip.textContent = text;
-            icon.style.position = 'relative';
-            icon.appendChild(tooltip);
-            setTimeout(() => tooltip.remove(), 2500);
-            document.querySelectorAll('.tab-info-tooltip').forEach(t => { if (t !== tooltip) t.remove(); });
+            tooltip.style.left = rect.left + (rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - 10) + 'px';
+            tooltip.style.transform = 'translate(-50%, -100%)';
+            document.body.appendChild(tooltip);
+            setTimeout(function() { tooltip.remove(); }, 2500);
         }
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.tab-info-icon')) {
-                document.querySelectorAll('.tab-info-tooltip').forEach(t => t.remove());
+                var t = document.querySelector('.tab-info-tooltip');
+                if (t) t.remove();
             }
         });
 
@@ -340,32 +212,31 @@
             sessionStorage.setItem('feedCategory', currentCategory || 'all');
         });
 
-        const termsCheckbox = document.getElementById('termsCheckbox');
-        const authSubmitBtn = document.getElementById('authSubmitBtn');
-        if (termsCheckbox && authSubmitBtn) {
-            const toggleBtn = () => {
-                const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                authSubmitBtn.disabled = isSignup ? !termsCheckbox.checked : false;
-                authSubmitBtn.style.opacity = isSignup && !termsCheckbox.checked ? '0.5' : '1';
-            };
-            termsCheckbox.addEventListener('change', toggleBtn);
-            toggleBtn();
-        }
+        (function() {
+            var tc = document.getElementById('termsCheckbox');
+            var sb = document.getElementById('authSubmitBtn');
+            if (tc && sb) {
+                var toggle = function() {
+                    var isSignup = document.getElementById('signupFields') && document.getElementById('signupFields').style.display !== 'none';
+                    sb.disabled = isSignup ? !tc.checked : false;
+                    sb.style.opacity = isSignup && !tc.checked ? '0.5' : '1';
+                };
+                tc.addEventListener('change', toggle);
+                toggle();
+            }
+        })();
 
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
-            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
-            var guestView = document.getElementById('guestView');
-            var loggedInView = document.getElementById('loggedInView');
-            if (guestView) guestView.style.display = isLoggedIn ? 'none' : 'block';
-            if (loggedInView) loggedInView.style.display = isLoggedIn ? 'block' : 'none';
+            document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+            document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
+            var gv = document.getElementById('guestView');
+            var lv = document.getElementById('loggedInView');
+            if (gv) gv.style.display = isLoggedIn ? 'none' : 'block';
+            if (lv) lv.style.display = isLoggedIn ? 'block' : 'none';
             var ui = document.getElementById('userInfo');
             if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
-            // Save state to prevent flash
-            if (isLoggedIn) {
-                sessionStorage.setItem('harbor_was_logged_in', 'true');
-            }
+            if (isLoggedIn) { sessionStorage.setItem('harbor_was_logged_in', 'true'); }
         }
 
         function updateGenderTabs() {
@@ -378,13 +249,11 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             applyGuestRestrictions();
-            if (typeof currentUser !== 'undefined' && currentUser) {
-                if (typeof loadStories === 'function') loadStories();
-            }
+            if (typeof currentUser !== 'undefined' && currentUser && typeof loadStories === 'function') loadStories();
             if (typeof auth !== 'undefined') {
                 auth.onAuthStateChanged(function(user) {
                     if (!user) sessionStorage.removeItem('harbor_was_logged_in');
-                    setTimeout(function(){
+                    setTimeout(function() {
                         applyGuestRestrictions();
                         updateGenderTabs();
                         if (user && typeof loadStories === 'function') loadStories();
@@ -394,7 +263,6 @@
             document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
             document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditModal(); });
             document.addEventListener('keydown', function(e) { if(e.key==='Escape'){closeModal();closeEditModal();} });
-            console.log('✅ Index ready');
         });
     </script>
 </body>
