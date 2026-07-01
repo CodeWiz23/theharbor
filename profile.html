@@ -5,6 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Profile — The Harbor</title>
 
+    <!-- ✅ ANTI-FLASH: MUST BE FIRST - BEFORE ANY OTHER STYLES -->
+    <style>
+        /* Hide EVERYTHING auth-related by default */
+        .guest-only, .auth-only, #userInfo, .nav-icon, .btn-login, .btn-signup,
+        .nav-icon.guest-only, .btn-login.auth-only, .btn-signup.auth-only {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        /* Show when body has 'loaded' class */
+        body.loaded .guest-only { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .auth-only { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded #userInfo { 
+            display: flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .nav-icon { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .btn-login { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .btn-signup { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        /* Hide profile content until loaded */
+        #profileContent .loading,
+        #profileContent .empty-state {
+            display: block !important;
+        }
+        body.loaded #profileContent .loading,
+        body.loaded #profileContent .empty-state {
+            display: block !important;
+        }
+    </style>
+
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://www.gstatic.com; img-src 'self' data: https:;">
 
     <script>
@@ -130,20 +181,6 @@
 </head>
 
 <body>
-    <!-- ✅ FIX #5: Removed document.write flash hack, using CSS to hide initially -->
-    <style>
-        /* Hide auth-only elements by default to prevent flash */
-        .auth-only { display: none !important; }
-        .guest-only { display: none !important; }
-        /* Show only after JS loads */
-        body.loaded .auth-only { display: inline !important; }
-        body.loaded .guest-only { display: inline-flex !important; }
-        body.loaded #userInfo { display: flex !important; }
-        /* Buttons in header need special handling */
-        body.loaded .btn-login.auth-only { display: inline-flex !important; }
-        body.loaded .btn-signup.auth-only { display: inline-flex !important; }
-    </style>
-
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
@@ -242,6 +279,9 @@
     </footer>
 
     <script>
+        // ✅ ADD THIS FIRST - BEFORE ANYTHING ELSE
+        document.body.classList.add('loaded');
+
         var selectedAvatar = '👤';
         var selectedBorder = 'default';
         var profileFollowers = [];
@@ -276,12 +316,10 @@
             }
         })();
 
-        // ✅ FIX #5: No document.write flash hack - using CSS + JS class toggle
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
             
-            // Add loaded class to body to show elements
-            document.body.classList.add('loaded');
+            // ✅ Already loaded class added at top of script
             
             // Manual toggle for elements that need it
             document.querySelectorAll('.guest-only').forEach(function(el) {
@@ -295,7 +333,6 @@
             var ui = document.getElementById('userInfo');
             if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
             
-            // Hide admin link by default, will be shown if user is admin
             var adminLink = document.getElementById('adminNavLink');
             if (adminLink) {
                 if (isLoggedIn && currentUserData && currentUserData.isAdmin === true) {
@@ -306,7 +343,6 @@
             }
         }
 
-        // ✅ FIX #13: Follow button with proper state management
         function profileFollowUser(targetUid) {
             if (!currentUser) { alert('Please log in.'); return; }
             if (targetUid === currentUser.uid) { alert('You cannot follow yourself.'); return; }
@@ -330,7 +366,6 @@
                     var following = userDoc.data().following || [];
                     
                     if (following.includes(targetUid)) {
-                        // UNFOLLOW
                         transaction.update(userRef, {
                             following: firebase.firestore.FieldValue.arrayRemove(targetUid)
                         });
@@ -339,14 +374,12 @@
                         });
                         return 'unfollowed';
                     } else {
-                        // FOLLOW
                         transaction.update(userRef, {
                             following: firebase.firestore.FieldValue.arrayUnion(targetUid)
                         });
                         transaction.update(targetRef, {
                             followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
                         });
-                        // Send notification
                         if (typeof addNotification === 'function') {
                             addNotification(targetUid, 'follow', {});
                         }
@@ -497,7 +530,6 @@
             var isFollowingStatus = false;
             if (!isSelf && auth.currentUser && canViewFullProfile) {
                 isFollowingStatus = isFollowingUser(userData.uid);
-                // ✅ FIX #13: Show "Following" in red when following
                 followBtnHtml = '<button class="follow-btn '+(isFollowingStatus ? 'following' : 'follow')+'" onclick="profileFollowUser(\''+userData.uid+'\')" id="followBtn">'+(isFollowingStatus ? '✅ Following' : '➕ Follow')+'</button>';
             }
 
@@ -642,8 +674,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ FIX #5: Show loaded state immediately
-            document.body.classList.add('loaded');
+            // ✅ Already loaded class added at top of script
             
             applyGuestRestrictions();
             var check = setInterval(function() {
