@@ -1,5 +1,5 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION (FINAL v8)
+// THE HARBOR - MAIN APPLICATION (FINAL v9)
 // ============================================
 
 const firebaseConfig = {
@@ -232,6 +232,107 @@ function reportStory(storyId) {
 }
 
 // ============================================
+// ✅ FIX #7 & #8: FLOATING EMOJI & FIREWORK CLEANUP
+// ============================================
+
+// ✅ FIX #7: Floating emoji animation (now usable from any page)
+function createFloatingEmoji(emoji, x, y) {
+    var el = document.createElement('div');
+    el.className = 'floating-emoji';
+    el.textContent = emoji;
+    el.style.cssText = 'left:' + (x + (Math.random() - 0.5) * 180) + 'px;top:' + (y + (Math.random() - 0.5) * 80) + 'px;font-size:' + (2 + Math.random() * 2) + 'rem;position:fixed;pointer-events:none;z-index:9999;animation:floatUpAnim 1.5s ease-out forwards;';
+    
+    // Add keyframes if not already present
+    if (!document.getElementById('floatingEmojiStyles')) {
+        var style = document.createElement('style');
+        style.id = 'floatingEmojiStyles';
+        style.textContent = `
+            @keyframes floatUpAnim {
+                0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
+                50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); }
+                100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(el);
+    
+    // ✅ FIX #8: Proper cleanup with timeout
+    var cleanupTimeout = setTimeout(function() {
+        if (el.parentNode) el.remove();
+    }, 1600);
+    
+    // Store timeout ID for potential early cleanup
+    el.dataset.cleanupTimeout = cleanupTimeout;
+    
+    // ✅ FIX #8: Firework particles with proper cleanup
+    var colors = ['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];
+    var particles = [];
+    var particleCount = 8 + Math.floor(Math.random() * 8);
+    
+    for (var i = 0; i < particleCount; i++) {
+        var p = document.createElement('div');
+        p.className = 'firework-particle';
+        var a = Math.random() * Math.PI * 2;
+        var d = 30 + Math.random() * 80;
+        var size = 3 + Math.random() * 5;
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;background:' + color + ';border-radius:50%;left:' + x + 'px;top:' + y + 'px;position:fixed;pointer-events:none;z-index:9998;transition:all 0.8s ease-out;opacity:1;';
+        document.body.appendChild(p);
+        particles.push(p);
+        
+        // Trigger animation
+        requestAnimationFrame(function(p, a, d) {
+            return function() {
+                p.style.transform = 'translate(' + Math.cos(a) * d + 'px,' + Math.sin(a) * d + 'px) scale(0)';
+                p.style.opacity = '0';
+            };
+        }(p, a, d));
+    }
+    
+    // ✅ FIX #8: Clean up particles after animation
+    var particleCleanup = setTimeout(function() {
+        particles.forEach(function(p) {
+            if (p.parentNode) p.remove();
+        });
+    }, 1000);
+    
+    // Store cleanup IDs
+    el.dataset.particleCleanup = particleCleanup;
+    
+    // Return cleanup function for manual cleanup if needed
+    return function() {
+        clearTimeout(cleanupTimeout);
+        clearTimeout(particleCleanup);
+        if (el.parentNode) el.remove();
+        particles.forEach(function(p) {
+            if (p.parentNode) p.remove();
+        });
+    };
+}
+
+// Clean up any orphaned floating elements (safety net)
+function cleanupOrphanedFloatingElements() {
+    document.querySelectorAll('.floating-emoji, .firework-particle').forEach(function(el) {
+        // Check if element is orphaned (not in animation or stuck)
+        if (el.classList.contains('floating-emoji')) {
+            var style = window.getComputedStyle(el);
+            var opacity = parseFloat(style.opacity);
+            if (opacity < 0.01 && el.parentNode) {
+                el.remove();
+            }
+        }
+    });
+}
+
+// Run orphan cleanup periodically
+setInterval(cleanupOrphanedFloatingElements, 5000);
+
+// Expose createFloatingEmoji globally for use in story.html and other pages
+window.createFloatingEmoji = createFloatingEmoji;
+
+// ============================================
 // LOAD STORIES (WITH SCROLL RESTORE)
 // ============================================
 function loadStories() {
@@ -366,7 +467,7 @@ function renderStoryCard(story) {
     emojis.forEach(emoji => {
         const count = reactions[emoji] || 0;
         const hasReacted = userReactions[story.id] && userReactions[story.id].includes(emoji);
-        reactionBtns += '<button class="reaction-mini'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="addReaction(\''+story.id+'\',\''+emoji+'\')">'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
+        reactionBtns += '<button class="reaction-mini'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="addReaction(\''+story.id+'\',\''+emoji+'\', event)">'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
     });
     const isOwner = currentUser && story.userId === currentUser.uid;
     return '<div class="story-card" data-story-id="'+story.id+'">'+
@@ -492,9 +593,9 @@ function toggleVisibility(storyId) {
 }
 
 // ============================================
-// REACTIONS (with notification)
+// ✅ FIX #7: REACTIONS WITH FLOATING EMOJI ANIMATION
 // ============================================
-function addReaction(storyId, emoji) {
+function addReaction(storyId, emoji, event) {
     if (!currentUser) { alert('Please log in to react.'); return; }
     if (!currentUser.emailVerified) { alert('Please verify your email first.'); return; }
     if (!userReactions[storyId]) userReactions[storyId] = [];
@@ -503,6 +604,18 @@ function addReaction(storyId, emoji) {
     const hasReacted = userReactions[storyId].includes(emoji);
     const btn = document.getElementById('reaction-'+storyId+'-'+emoji);
     if (btn) btn.disabled = true;
+    
+    // ✅ FIX #7: Create floating emoji animation on reaction
+    var card = document.getElementById('storyCard') || event?.target?.closest('.story-card') || document.querySelector('.story-card');
+    var rect = card ? card.getBoundingClientRect() : null;
+    var x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    var y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+    
+    // Use the shared createFloatingEmoji function
+    if (typeof createFloatingEmoji === 'function') {
+        createFloatingEmoji(emoji, x, y);
+    }
+    
     db.runTransaction(transaction => {
         return transaction.get(storyRef).then(doc => {
             if (!doc.exists) return;
@@ -519,14 +632,21 @@ function addReaction(storyId, emoji) {
                 }
             }
             transaction.update(storyRef, { reactions });
-            transaction.set(userReactionRef, { emojis: userReactions[storyId], timestamp: firebase.firestore.FieldValue.serverTimestamp(), storyId }, { merge: true });
+            transaction.set(userReactionRef, { 
+                emojis: userReactions[storyId], 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
+                storyId 
+            }, { merge: true });
         });
     }).then(() => {
         if (btn) btn.disabled = false;
         const countSpan = document.getElementById('count-'+storyId+'-'+emoji);
         if (countSpan) countSpan.textContent = hasReacted ? (parseInt(countSpan.textContent)||0)-1 : (parseInt(countSpan.textContent)||0)+1;
         if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); }
-    }).catch(err => { console.error('Reaction error:', err); if (btn) btn.disabled = false; });
+    }).catch(err => { 
+        console.error('Reaction error:', err); 
+        if (btn) btn.disabled = false; 
+    });
 }
 
 function loadAllUserReactions() {
@@ -673,7 +793,6 @@ auth.onAuthStateChanged(user => {
 
     if (user) {
         currentUser = user;
-        // ✅ IMMEDIATE: Save state to prevent flash
         sessionStorage.setItem('harbor_was_logged_in', 'true');
         
         if (authButtons) authButtons.style.display = 'none';
@@ -693,7 +812,7 @@ auth.onAuthStateChanged(user => {
                     db.collection('users').doc(user.uid).update({ emailVerified: true });
                 }
                 updateEmergencyBanner();
-                updateAdminLink(); // ✅ ONLY shows 👑 if isAdmin === true
+                updateAdminLink();
 
                 loadAllUserReactions().then(() => {
                     updateCategoryTabs();
@@ -723,13 +842,12 @@ auth.onAuthStateChanged(user => {
         currentUser = null;
         currentUserData = null;
         userReactions = {};
-        // ✅ IMMEDIATE: Clear state on logout
         sessionStorage.removeItem('harbor_was_logged_in');
         
         if (authButtons) authButtons.style.display = 'flex';
         if (userInfo) userInfo.style.display = 'none';
         const adminLink = document.getElementById('adminNavLink');
-        if (adminLink) adminLink.style.display = 'none'; // ✅ Force hide admin icon
+        if (adminLink) adminLink.style.display = 'none';
         const container = document.getElementById('storiesContainer');
         if (container) {
             container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
@@ -747,7 +865,6 @@ function updateEmergencyBanner() {
     banner.style.display = 'block';
 }
 
-// ✅ STRICT ADMIN CHECK - Only shows 👑 if isAdmin is exactly true
 function updateAdminLink() {
     const adminLink = document.getElementById('adminNavLink');
     if (adminLink) {
@@ -774,7 +891,7 @@ function updateCategoryTabs() {
 // INIT
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM Ready — The Harbor');
+    console.log('📄 DOM Ready — The Harbor (v9 with FIX #7 & #8)');
 
     document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this) closeModal(); });
     document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this) closeEditModal(); });
@@ -814,7 +931,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('activity.html') && typeof loadActivity === 'function') loadActivity();
     if (window.location.pathname.includes('suggest.html') && typeof loadSuggestions === 'function') setTimeout(loadSuggestions, 500);
 
-    console.log('✅ App ready');
+    console.log('✅ App ready (v9)');
 });
 
 // ============================================
@@ -844,5 +961,7 @@ window.resendVerification = resendVerification;
 window.checkPasswordStrength = checkPasswordStrength;
 window.populateCountryDatalist = populateCountryDatalist;
 window.addNotification = addNotification;
+window.createFloatingEmoji = createFloatingEmoji;
+window.cleanupOrphanedFloatingElements = cleanupOrphanedFloatingElements;
 
-console.log('✅ The Harbor app loaded');
+console.log('✅ The Harbor app loaded (FIX #7: reaction animation on feed, FIX #8: firework cleanup)');
