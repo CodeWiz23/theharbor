@@ -28,7 +28,7 @@ db.enablePersistence().catch(err => console.warn('Firestore persistence error:',
 let currentUser = null;
 let currentUserData = null;
 let currentCategory = 'all';
-let userReactions = {};          // { storyId: [emojis] }
+let userReactions = {};
 let allStories = [];
 let filteredStories = [];
 let currentPage = 1;
@@ -36,11 +36,8 @@ const STORIES_PER_PAGE = 10;
 let currentEditId = null;
 let currentStoryId = null;
 
-// Caching for stories (for performance #15, #20)
-const storyCache = {};          // { category: { stories: [], timestamp: Date } }
-const CACHE_DURATION = 30000;   // 30 seconds
-
-// Scroll position preservation (#7)
+const storyCache = {};
+const CACHE_DURATION = 30000;
 let savedScrollPosition = 0;
 
 // ============================================
@@ -85,7 +82,7 @@ function sanitizeInput(text) {
     if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
-    return div.textContent.replace(/<[^>]*>/g, ''); // strip any residual HTML
+    return div.textContent.replace(/<[^>]*>/g, '');
 }
 
 function checkPasswordStrength(password) {
@@ -145,16 +142,16 @@ function resendVerification() {
 }
 
 // ============================================
-// NOTIFICATION SYSTEM (#16)
+// NOTIFICATION SYSTEM
 // ============================================
 function addNotification(toUid, type, data) {
-    if (!toUid || toUid === currentUser?.uid) return; // don't notify self
+    if (!toUid || toUid === currentUser?.uid) return;
     db.collection('notifications').add({
         toUid,
         fromUid: currentUser?.uid || null,
         fromName: currentUserData?.name || 'Someone',
-        type,               // 'follow', 'like', 'comment', 'report', 'gold', 'daily'
-        data,               // { storyId, commentId, etc. }
+        type,
+        data: data || {},
         read: false,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.warn('Notification error:', err));
@@ -179,12 +176,12 @@ function followUser(targetUid) {
             } else {
                 transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
                 transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
+                // ✅ NOTIFICATION: Someone followed you
                 addNotification(targetUid, 'follow', {});
                 return 'followed';
             }
         });
     }).then(action => {
-        // Update local data
         if (currentUserData) {
             if (action === 'followed') {
                 if (!currentUserData.following) currentUserData.following = [];
@@ -198,7 +195,7 @@ function followUser(targetUid) {
         alert(action === 'followed' ? '✅ You are now following this user!' : '✅ You have unfollowed this user.');
     }).catch(err => {
         console.error('Follow error:', err);
-        alert('❌ Error: ' + err.message + '\n\nCheck Firestore security rules.');
+        alert('❌ Error: ' + err.message);
     });
 }
 
@@ -241,41 +238,25 @@ function reportStory(storyId) {
 }
 
 // ============================================
-// LOAD STORIES (WITH CACHING, PRIVACY FILTER)
+// LOAD STORIES
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
 
     if (!currentUser) {
-        container.innerHTML = `
-            <div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);">
-                <div class="big-emoji">🔒</div><h3>Login Required</h3>
-                <p style="color:var(--text-muted);">Please log in or join to read and share stories.</p>
-                <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;">
-                    <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                    <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
-                </div></div>`;
+        container.innerHTML = `<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join to read and share stories.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button></div></div>`;
         return;
     }
     if (!currentUser.emailVerified) {
-        container.innerHTML = `
-            <div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);">
-                <div class="big-emoji">📧</div><h3>Email Not Verified</h3>
-                <p style="color:var(--text-muted);">Please check your inbox for the verification link.</p>
-                <button class="btn btn-primary" onclick="resendVerification()" style="margin-top:10px;">🔄 Resend Verification</button></div>`;
+        container.innerHTML = `<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><p style="color:var(--text-muted);">Please check your inbox for the verification link.</p><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:10px;">🔄 Resend Verification</button></div>`;
         return;
     }
     if (!canSeeCategory(currentCategory)) {
-        container.innerHTML = `
-            <div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);">
-                <div class="big-emoji">🔒</div><h3>Access Restricted</h3>
-                <p style="color:var(--text-muted);">You don't have permission to view this section.</p>
-                <button class="btn btn-primary" onclick="switchCategory('all')" style="margin-top:10px;">← Go to All Stories</button></div>`;
+        container.innerHTML = `<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Access Restricted</h3><p style="color:var(--text-muted);">You don't have permission to view this section.</p><button class="btn btn-primary" onclick="switchCategory('all')" style="margin-top:10px;">← Go to All Stories</button></div>`;
         return;
     }
 
-    // Check cache
     const cacheKey = currentCategory;
     const cached = storyCache[cacheKey];
     if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
@@ -303,34 +284,25 @@ function loadStories() {
 
     query.get().then(snapshot => {
         if (snapshot.empty) {
-            container.innerHTML = `
-                <div class="empty-state"><div class="big-emoji">🌊</div><h3>No stories yet</h3>
-                <p style="color:var(--text-muted);">Be the first to share!</p>
-                ${canPostInCategory(currentCategory) ? '<a href="submit.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;margin-top:10px;">📝 Share Your Story</a>' : ''}</div>`;
+            container.innerHTML = `<div class="empty-state"><div class="big-emoji">🌊</div><h3>No stories yet</h3><p style="color:var(--text-muted);">Be the first to share!</p>${canPostInCategory(currentCategory) ? '<a href="submit.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;margin-top:10px;">📝 Share Your Story</a>' : ''}</div>`;
             return;
         }
         allStories = [];
         snapshot.forEach(doc => {
             const story = doc.data();
             story.id = doc.id;
-            // Privacy filter (#6): hide private stories not owned by current user
             if (story.visibility === 'private' && story.userId !== currentUser.uid) return;
             allStories.push(story);
         });
-        // Update cache
         storyCache[cacheKey] = { stories: [...allStories], timestamp: Date.now() };
         applyFilters();
-        // Restore scroll position (#7)
         if (savedScrollPosition) {
             window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
             savedScrollPosition = 0;
         }
     }).catch(err => {
         console.error('Error loading stories:', err);
-        container.innerHTML = `
-            <div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error Loading Stories</h3>
-            <p style="color:var(--text-muted);">${err.message}</p>
-            <button class="btn btn-primary" onclick="loadStories()" style="margin-top:10px;">🔄 Retry</button></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error Loading Stories</h3><p style="color:var(--text-muted);">${err.message}</p><button class="btn btn-primary" onclick="loadStories()" style="margin-top:10px;">🔄 Retry</button></div>`;
     });
 }
 
@@ -388,7 +360,6 @@ function renderStoryCard(story) {
         reactionBtns += `<button class="reaction-mini${hasReacted?' reacted':''}" id="reaction-${story.id}-${emoji}" onclick="addReaction('${story.id}','${emoji}')">${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span></button>`;
     });
     const isOwner = currentUser && story.userId === currentUser.uid;
-    // Gear menu HTML (for later integration) – we'll add it in index.html update; here we keep the old buttons for now, but the gear menu will be in the index.html page script.
     return `<div class="story-card" data-story-id="${story.id}">
         <div class="story-card-top">
             <div class="story-card-avatar" onclick="viewProfile('${story.userId}')" style="cursor:pointer;">${initial}</div>
@@ -431,7 +402,6 @@ function switchCategory(category) {
         return;
     }
     if (!canSeeCategory(category)) { alert("⚠️ You don't have permission to view this category."); return; }
-    // Save scroll position before switching
     savedScrollPosition = window.scrollY;
     currentCategory = category;
     currentPage = 1;
@@ -539,7 +509,7 @@ function addReaction(storyId, emoji) {
             } else {
                 reactions[emoji] = (reactions[emoji]||0)+1;
                 userReactions[storyId].push(emoji);
-                // Send notification for like/love
+                // ✅ NOTIFICATION: Someone reacted with ❤️ to your story
                 if (emoji === '❤️' && data.userId !== currentUser.uid) {
                     addNotification(data.userId, 'like', { storyId });
                 }
@@ -609,7 +579,6 @@ function handleAuth() {
     const submitBtn = document.getElementById('authSubmitBtn');
     error.textContent = '';
 
-    // Email validation (#1)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
         error.textContent = 'Please enter a valid email address.';
@@ -660,7 +629,7 @@ function handleAuth() {
                 name, email, gender, favorites: favorites || 'Not specified',
                 country, emergencyNumber: countryData?.emergency || '911',
                 emailVerified: false, isAdmin: false, isPublic: true,
-                goldBalance: 100,   // #1: 100 Gold Coins
+                goldBalance: 100,
                 goldReceived: 0, goldGiven: 0,
                 followers: [], following: [], storyCount: 0, commentCount: 0, likesReceived: 0,
                 language: 'en', avatar: '👤', border: 'default',
@@ -755,13 +724,7 @@ auth.onAuthStateChanged(user => {
         if (adminLink) adminLink.style.display = 'none';
         const container = document.getElementById('storiesContainer');
         if (container) {
-            container.innerHTML = `
-                <div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);">
-                    <div class="big-emoji">🔒</div><h3>Login Required</h3>
-                    <p style="color:var(--text-muted);">Please log in or join.</p>
-                    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;">
-                        <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                        <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button></div></div>`;
+            container.innerHTML = `<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button></div></div>`;
         }
     }
 });
@@ -846,11 +809,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ App ready');
 });
 
-// ============================================
-// EXPOSE TO GLOBAL SCOPE
-// ============================================
-window.currentUser = currentUser; // already a global var, but ensure
-window.currentUserData = currentUserData;
 window.escapeHTML = escapeHTML;
 window.sanitizeInput = sanitizeInput;
 window.followUser = followUser;
@@ -874,7 +832,6 @@ window.logout = logout;
 window.resendVerification = resendVerification;
 window.checkPasswordStrength = checkPasswordStrength;
 window.populateCountryDatalist = populateCountryDatalist;
-window.updateSidebarData = updateSidebarData; // defined in sidebar.js, but reference
-window.toggleSidebar = toggleSidebar;
+window.addNotification = addNotification;
 
 console.log('✅ The Harbor app loaded');
