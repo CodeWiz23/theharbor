@@ -1,21 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Harbor — Share & Heal</title>
-
-    <!-- ✅ ANTI-FLASH: MUST BE FIRST - BEFORE ANY OTHER STYLES -->
+    <!-- ✅ FIX #2: ANTI-FLASH CSS (ADDED) -->
     <style>
-        /* Hide EVERYTHING auth-related by default */
+        /* ANTI-FLASH: Hide everything by default */
         .guest-only, .auth-only, #userInfo, .nav-icon, .btn-login, .btn-signup,
-        .nav-icon.guest-only, .btn-login.auth-only, .btn-signup.auth-only,
         #guestView, #loggedInView {
             display: none !important;
             opacity: 0 !important;
             visibility: hidden !important;
         }
-        /* Show when body has 'loaded' class */
         body.loaded .guest-only { 
             display: inline-flex !important; 
             opacity: 1 !important; 
@@ -57,6 +51,10 @@
             visibility: visible !important;
         }
     </style>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Harbor — Share & Heal</title>
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net https://www.gstatic.com; img-src 'self' data: https:;">
 
@@ -121,10 +119,10 @@
 </head>
 
 <body>
-    <!-- ✅ ANTI-FLASH: Add loaded class immediately -->
+    <!-- ✅ FIX #3: ADDED loaded class immediately -->
     <script>document.body.classList.add('loaded');</script>
 
-    <!-- ✅ REMOVED: document.write flash hack -->
+    <!-- ✅ FIX #1: REMOVED document.write flash hack -->
 
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
@@ -190,35 +188,6 @@
         </div>
     </div>
 
-    <!-- ✅ GOLD MODAL - Updated with message field -->
-    <div class="modal" id="goldModal" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeGoldModal()" aria-label="Close">&times;</button>
-            <h2>💰 Donate Gold</h2>
-            <div class="gold-balance-display" style="padding:12px;background:#fef3c7;border-radius:var(--radius-sm);margin-bottom:14px;text-align:center;font-weight:600;">
-                Your Balance: <span id="goldBalanceAmount" style="font-size:1.2rem;color:var(--secondary-dark);">0</span> 🪙
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-                <button class="gold-amount-btn" onclick="selectGoldAmount(1)">1 🪙</button>
-                <button class="gold-amount-btn" onclick="selectGoldAmount(5)">5 🪙</button>
-                <button class="gold-amount-btn" onclick="selectGoldAmount(10)">10 🪙</button>
-                <button class="gold-amount-btn" onclick="selectGoldAmount(25)">25 🪙</button>
-                <button class="gold-amount-btn" onclick="selectGoldAmount(50)">50 🪙</button>
-            </div>
-            <div style="margin-bottom:10px;">
-                <label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label>
-                <input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:inherit;" />
-            </div>
-            <div style="margin-bottom:10px;">
-                <label style="font-weight:600;display:block;margin-bottom:4px;">💬 Message (optional):</label>
-                <textarea id="goldMessage" placeholder="Say something nice to the author..." rows="2" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;resize:vertical;"></textarea>
-            </div>
-            <div id="goldError" class="error-msg"></div>
-            <div id="goldSuccess" class="success-msg" style="display:none;"></div>
-            <button class="btn-modal" onclick="confirmGoldDonation()" style="background:var(--secondary);">💎 Send Gold</button>
-        </div>
-    </div>
-
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -263,110 +232,6 @@
     </footer>
 
     <script>
-        // ✅ Gold donation functions with message
-        var selectedGoldAmount = 0;
-        var currentGoldStoryId = null;
-
-        function openGoldModal(storyId) {
-            if (!currentUser) { alert('Please log in.'); return; }
-            if (!currentUserData) { alert('Loading...'); return; }
-            var balance = currentUserData.goldBalance || 0;
-            if (balance < 1) { alert('⚠️ No gold!'); return; }
-            var modal = document.getElementById('goldModal');
-            if (!modal) return;
-            document.getElementById('goldBalanceAmount').textContent = balance;
-            modal.classList.add('active');
-            currentGoldStoryId = storyId;
-            selectedGoldAmount = 0;
-            document.getElementById('customGoldAmount').value = '';
-            document.getElementById('goldMessage').value = '';
-            document.getElementById('goldError').textContent = '';
-            document.getElementById('goldSuccess').style.display = 'none';
-            document.querySelectorAll('.gold-amount-btn').forEach(function(b) { b.classList.remove('selected'); });
-        }
-
-        function selectGoldAmount(amount) {
-            selectedGoldAmount = amount;
-            document.getElementById('customGoldAmount').value = amount;
-            document.querySelectorAll('.gold-amount-btn').forEach(function(b) { b.classList.remove('selected'); });
-            if (event && event.target) event.target.classList.add('selected');
-        }
-
-        function closeGoldModal() { 
-            var m = document.getElementById('goldModal'); 
-            if (m) m.classList.remove('active'); 
-        }
-
-        function confirmGoldDonation() {
-            var customInput = document.getElementById('customGoldAmount');
-            var messageInput = document.getElementById('goldMessage');
-            var errorDiv = document.getElementById('goldError');
-            var amount = selectedGoldAmount;
-            if (customInput && customInput.value) {
-                var c = parseInt(customInput.value);
-                if (c > 0) amount = c;
-            }
-            var balance = currentUserData ? currentUserData.goldBalance || 0 : 0;
-            if (!amount || amount < 1) { 
-                errorDiv.textContent = 'Enter a valid amount (minimum 1).'; 
-                return; 
-            }
-            if (amount > balance) { 
-                errorDiv.textContent = 'Not enough gold! Balance: ' + balance; 
-                return; 
-            }
-            var message = messageInput ? messageInput.value.trim() : '';
-            errorDiv.textContent = '';
-            closeGoldModal();
-
-            // Call donateGold from gold.js or use fallback
-            if (typeof donateGold === 'function') {
-                donateGold(currentGoldStoryId, amount, message);
-            } else {
-                // Fallback transaction
-                var storyRef = db.collection('stories').doc(currentGoldStoryId);
-                var userRef = db.collection('users').doc(currentUser.uid);
-                db.runTransaction(function(t) {
-                    return t.get(storyRef).then(function(sd) {
-                        if (!sd.exists) throw new Error('Story not found');
-                        var authorId = sd.data().userId;
-                        t.update(userRef, {
-                            goldBalance: firebase.firestore.FieldValue.increment(-amount),
-                            goldGiven: firebase.firestore.FieldValue.increment(amount)
-                        });
-                        t.update(db.collection('users').doc(authorId), {
-                            goldBalance: firebase.firestore.FieldValue.increment(amount),
-                            goldReceived: firebase.firestore.FieldValue.increment(amount)
-                        });
-                        t.update(storyRef, {
-                            goldReceived: firebase.firestore.FieldValue.increment(amount)
-                        });
-                        var txRef = db.collection('goldTransactions').doc();
-                        t.set(txRef, {
-                            fromUid: currentUser.uid,
-                            toUid: authorId,
-                            storyId: currentGoldStoryId,
-                            amount: amount,
-                            message: message || '',
-                            fromName: currentUserData ? currentUserData.name : 'Anonymous',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    });
-                }).then(function() {
-                    if (currentUserData) {
-                        currentUserData.goldBalance = (currentUserData.goldBalance || 0) - amount;
-                    }
-                    if (typeof updateSidebarData === 'function') updateSidebarData();
-                    if (typeof loadStories === 'function') loadStories();
-                    var msgText = '✅ Donated ' + amount + ' 🪙!';
-                    if (message) msgText += '\n\n💬 "' + message + '"';
-                    alert(msgText);
-                }).catch(function(e) {
-                    alert('❌ Error: ' + e.message);
-                });
-            }
-        }
-
         function showCategoryTooltip(event, text) {
             event.stopPropagation();
             var existing = document.querySelector('.tab-info-tooltip');
@@ -376,11 +241,14 @@
             var tooltip = document.createElement('span');
             tooltip.className = 'tab-info-tooltip show';
             tooltip.textContent = text;
+            // Position above the icon, centered
             tooltip.style.left = rect.left + (rect.width / 2) + 'px';
             tooltip.style.top = (rect.top - 12) + 'px';
             tooltip.style.transform = 'translate(-50%, -100%)';
+            // Keep tooltip within screen edges
             tooltip.style.maxWidth = Math.min(260, window.innerWidth - 20) + 'px';
             document.body.appendChild(tooltip);
+            // Adjust if goes off left/right edges
             var tooltipRect = tooltip.getBoundingClientRect();
             if (tooltipRect.left < 5) { tooltip.style.left = '5px'; tooltip.style.transform = 'translate(0, -100%)'; }
             if (tooltipRect.right > window.innerWidth - 5) { tooltip.style.left = (window.innerWidth - 5) + 'px'; tooltip.style.transform = 'translate(-100%, -100%)'; }
@@ -412,7 +280,7 @@
             }
         })();
 
-        // ✅ Updated applyGuestRestrictions with admin link fix
+        // ✅ FIX #4: UPDATED applyGuestRestrictions with admin link fix
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
             document.querySelectorAll('.guest-only').forEach(function(el) { 
@@ -429,7 +297,7 @@
             var ui = document.getElementById('userInfo');
             if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
             if (isLoggedIn) { sessionStorage.setItem('harbor_was_logged_in', 'true'); }
-            
+
             // ✅ Admin link - only shows if user is admin
             var adminLink = document.getElementById('adminNavLink');
             if (adminLink) {
@@ -450,8 +318,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ Already loaded class added at top of script
-            
             applyGuestRestrictions();
             if (typeof currentUser !== 'undefined' && currentUser && typeof loadStories === 'function') loadStories();
             if (typeof auth !== 'undefined') {
@@ -466,16 +332,7 @@
             }
             document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
             document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditModal(); });
-            document.getElementById('goldModal')?.addEventListener('click', function(e) { if(e.target===this)closeGoldModal(); });
-            document.addEventListener('keydown', function(e) { if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();} });
-            
-            // Expose gold functions
-            window.openGoldModal = openGoldModal;
-            window.selectGoldAmount = selectGoldAmount;
-            window.closeGoldModal = closeGoldModal;
-            window.confirmGoldDonation = confirmGoldDonation;
-            
-            console.log('✅ Index page ready');
+            document.addEventListener('keydown', function(e) { if(e.key==='Escape'){closeModal();closeEditModal();} });
         });
     </script>
 </body>
