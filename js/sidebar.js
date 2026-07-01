@@ -1,366 +1,258 @@
 // ============================================
-// SIDEBAR — COMPLETE FIXED
+// SIDEBAR CONTROLS - FULLY FIXED
 // ============================================
 
-function toggleSidebar() {
-    const overlay = document.getElementById('sidebarOverlay');
-    if (overlay) {
-        overlay.classList.toggle('active');
+let isSidebarOpen = false;
+let sidebarOverlay = null;
+
+// ============================================
+// THEME MANAGEMENT - FIX #11, #12
+// ============================================
+function getCurrentTheme() {
+    const saved = localStorage.getItem('harbor_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('harbor_theme', 'dark');
     } else {
-        // If sidebar doesn't exist, create it
-        createSidebar();
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('harbor_theme', 'light');
     }
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) themeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 }
 
-function closeSidebar() {
-    const overlay = document.getElementById('sidebarOverlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-    }
-}
-
-function createSidebar() {
-    // Check if sidebar already exists
-    if (document.getElementById('sidebarOverlay')) return;
-
-    const sidebarHTML = `
-        <div id="sidebarOverlay" class="sidebar-overlay">
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <h2>⚙️ Settings</h2>
-                    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-                </div>
-                <div class="sidebar-content">
-                    <!-- Profile Section -->
-                    <div class="sidebar-section">
-                        <h3>👤 Profile</h3>
-                        <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
-                        <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
-                        <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Change Language</button>
-                        <button class="sidebar-btn" id="privacyToggleBtn" onclick="toggleProfilePrivacy()">
-                            🔒 Make Private
-                        </button>
-                    </div>
-
-                    <!-- Appearance Section -->
-                    <div class="sidebar-section">
-                        <h3>🎨 Appearance</h3>
-                        <button class="sidebar-btn" id="themeToggleBtn" onclick="toggleTheme()">
-                            🌙 Dark Mode
-                        </button>
-                    </div>
-
-                    <!-- Gold Section -->
-                    <div class="sidebar-section">
-                        <h3>💰 Harbor Gold</h3>
-                        <div class="gold-balance">
-                            Balance: <span id="sidebarGoldBalance">0</span> 🪙
-                        </div>
-                        <button class="sidebar-btn" onclick="viewGoldHistory()">📊 Transaction History</button>
-                    </div>
-
-                    <!-- Stats Section -->
-                    <div class="sidebar-section">
-                        <h3>📊 My Stats</h3>
-                        <div class="stat-item">📝 Stories: <span id="sidebarStoryCount">0</span></div>
-                        <div class="stat-item">👥 Followers: <span id="sidebarFollowerCount">0</span></div>
-                        <div class="stat-item">👤 Following: <span id="sidebarFollowingCount">0</span></div>
-                        <div class="stat-item">🪙 Gold Received: <span id="sidebarGoldReceived">0</span></div>
-                        <div class="stat-item">❤️ Likes Received: <span id="sidebarLikesReceived">0</span></div>
-                    </div>
-
-                    <!-- Logout -->
-                    <div class="sidebar-section sidebar-logout">
-                        <button class="sidebar-btn btn-danger" onclick="logout()">🚪 Logout</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', sidebarHTML);
-
-    // Add styles if not present
-    if (!document.getElementById('sidebarStyles')) {
-        const styles = document.createElement('style');
-        styles.id = 'sidebarStyles';
-        styles.textContent = `
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                right: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 9999;
-                justify-content: flex-end;
-                animation: fadeIn 0.3s ease;
-            }
-            .sidebar-overlay.active {
-                display: flex;
-            }
-            .sidebar {
-                background: var(--bg-card, #ffffff);
-                width: 320px;
-                max-width: 90%;
-                height: 100%;
-                overflow-y: auto;
-                box-shadow: -4px 0 32px rgba(0,0,0,0.15);
-                animation: slideIn 0.3s ease;
-                padding: 20px;
-            }
-            @keyframes slideIn {
-                from { transform: translateX(100%); }
-                to { transform: translateX(0); }
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            .sidebar-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding-bottom: 16px;
-                border-bottom: 2px solid var(--border-color, #e2e8f0);
-                margin-bottom: 16px;
-            }
-            .sidebar-header h2 {
-                color: var(--text-primary, #1a1a2e);
-                margin: 0;
-                font-size: 1.4rem;
-            }
-            .sidebar-close {
-                background: none;
-                border: none;
-                font-size: 1.8rem;
-                cursor: pointer;
-                color: var(--text-muted, #718096);
-                padding: 0 8px;
-            }
-            .sidebar-close:hover {
-                color: var(--text-primary, #1a1a2e);
-            }
-            .sidebar-section {
-                margin-bottom: 20px;
-                padding-bottom: 16px;
-                border-bottom: 1px solid var(--border-color, #e2e8f0);
-            }
-            .sidebar-section:last-child {
-                border-bottom: none;
-            }
-            .sidebar-section h3 {
-                color: var(--text-secondary, #4a5568);
-                font-size: 0.85rem;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-                margin-bottom: 8px;
-            }
-            .sidebar-btn {
-                display: block;
-                width: 100%;
-                padding: 10px 14px;
-                background: var(--bg-secondary, #f0f4f8);
-                border: none;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 0.9rem;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                color: var(--text-secondary, #4a5568);
-                text-align: left;
-                margin-bottom: 4px;
-            }
-            .sidebar-btn:hover {
-                background: var(--border-color, #e2e8f0);
-                transform: translateX(4px);
-            }
-            .sidebar-btn.btn-danger {
-                background: #fee2e2;
-                color: #dc2626;
-            }
-            .sidebar-btn.btn-danger:hover {
-                background: #fecaca;
-            }
-            .gold-balance {
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: var(--text-primary, #1a1a2e);
-                padding: 8px 0;
-            }
-            .stat-item {
-                padding: 4px 0;
-                font-size: 0.9rem;
-                color: var(--text-secondary, #4a5568);
-            }
-            .stat-item span {
-                font-weight: 600;
-                color: var(--text-primary, #1a1a2e);
-            }
-            .sidebar-logout {
-                margin-top: 20px;
-                padding-top: 16px;
-                border-top: 2px solid var(--border-color, #e2e8f0);
-            }
-        `;
-        document.head.appendChild(styles);
-    }
-
-    // Update sidebar with user data
+function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    applyTheme(isDark ? 'light' : 'dark');
     updateSidebarData();
 }
 
+// ============================================
+// CREATE SIDEBAR
+// ============================================
+function createSidebar() {
+    if (document.getElementById('sidebarOverlay')) return;
+    const currentTheme = getCurrentTheme();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'sidebarOverlay';
+    overlay.className = 'sidebar-overlay';
+    overlay.innerHTML = `
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>⚙️ Settings</h2>
+                <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <h3>👤 Profile</h3>
+                    <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
+                    <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
+                    <button class="sidebar-btn" id="privacyToggleBtn" onclick="toggleProfilePrivacy()">🔒 Make Private</button>
+                </div>
+                <div class="sidebar-section">
+                    <h3>🎨 Appearance</h3>
+                    <button class="sidebar-btn" id="themeToggleBtn" onclick="toggleTheme()">${currentTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}</button>
+                </div>
+                <div class="sidebar-section">
+                    <h3>💰 Harbor Gold</h3>
+                    <div class="gold-balance">Balance: <span id="sidebarGoldBalance">0</span> 🪙</div>
+                    <button class="sidebar-btn" onclick="viewGoldHistory()">📊 Transaction History</button>
+                </div>
+                <div class="sidebar-section">
+                    <h3>📊 My Stats</h3>
+                    <div class="stat-item">📝 Stories: <span id="sidebarStoryCount">0</span></div>
+                    <div class="stat-item">👥 Followers: <span id="sidebarFollowerCount">0</span></div>
+                    <div class="stat-item">👤 Following: <span id="sidebarFollowingCount">0</span></div>
+                    <div class="stat-item">🪙 Gold Received: <span id="sidebarGoldReceived">0</span></div>
+                    <div class="stat-item">❤️ Likes Received: <span id="sidebarLikesReceived">0</span></div>
+                </div>
+                <div class="sidebar-section sidebar-logout">
+                    <button class="sidebar-btn btn-danger" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    sidebarOverlay = overlay;
+
+    overlay.addEventListener('click', function(e) { if (e.target === this) closeSidebar(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && isSidebarOpen) closeSidebar(); });
+    addSidebarStyles();
+}
+
+function addSidebarStyles() {
+    if (document.getElementById('sidebarStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'sidebarStyles';
+    style.textContent = `
+        .sidebar-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:flex-end; backdrop-filter:blur(4px); }
+        .sidebar-overlay.active { display:flex; }
+        .sidebar { width:25%; min-width:280px; max-width:400px; height:100%; background:var(--bg-card); box-shadow:-8px 0 32px rgba(0,0,0,0.15); overflow-y:auto; display:flex; flex-direction:column; }
+        .sidebar-header { padding:20px 24px; border-bottom:2px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:var(--primary); color:white; flex-shrink:0; }
+        .sidebar-header h2 { font-weight:300; font-size:1.3rem; margin:0; }
+        .sidebar-close { background:none; border:none; font-size:1.6rem; cursor:pointer; color:white; padding:4px 8px; border-radius:8px; transition:0.2s; }
+        .sidebar-close:hover { background:rgba(255,255,255,0.15); }
+        .sidebar-content { padding:16px 20px; flex:1; overflow-y:auto; }
+        .sidebar-section { margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border-color); }
+        .sidebar-section:last-child { border-bottom:none; margin-bottom:0; }
+        .sidebar-section h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:8px; font-weight:600; }
+        .sidebar-btn { display:block; width:100%; padding:9px 12px; margin-bottom:5px; background:var(--bg-secondary); border:none; border-radius:8px; font-size:0.85rem; font-weight:500; color:var(--text-primary); cursor:pointer; transition:all 0.15s; text-align:left; font-family:inherit; }
+        .sidebar-btn:hover { background:var(--border-color); transform:translateX(3px); }
+        .sidebar-btn:active { transform:scale(0.98); }
+        .sidebar-btn.btn-danger { background:#dc2626; color:white; text-align:center; font-weight:600; }
+        .sidebar-btn.btn-danger:hover { background:#b91c1c; }
+        .gold-balance { background:#fef3c7; padding:10px 14px; border-radius:8px; margin-bottom:6px; font-weight:600; color:var(--text-primary); font-size:1rem; }
+        .stat-item { padding:3px 0; font-size:0.85rem; color:var(--text-secondary); }
+        .stat-item span { font-weight:600; color:var(--text-primary); }
+        [data-theme="dark"] .sidebar { background:#161b22; }
+        [data-theme="dark"] .sidebar-header { background:#0d1117; border-bottom-color:#2d3548; }
+        [data-theme="dark"] .sidebar-section { border-bottom-color:#2d3548; }
+        [data-theme="dark"] .sidebar-btn { background:#2d3548; color:#e8edf5; }
+        [data-theme="dark"] .sidebar-btn:hover { background:#3d4558; }
+        [data-theme="dark"] .gold-balance { background:#1a4a4a; color:#e8edf5; }
+        @media (max-width:768px) { .sidebar { width:80%; min-width:0; } }
+        @media (max-width:480px) { .sidebar { width:100%; } }`;
+    document.head.appendChild(style);
+}
+
+// ============================================
+// OPEN / CLOSE
+// ============================================
+function openSidebar() {
+    if (!currentUser) { alert('Please log in to access settings.'); return; }
+    if (!sidebarOverlay) createSidebar();
+    updateSidebarData();
+    sidebarOverlay.classList.add('active');
+    isSidebarOpen = true;
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    if (sidebarOverlay) { sidebarOverlay.classList.remove('active'); isSidebarOpen = false; document.body.style.overflow = ''; }
+}
+
+function toggleSidebar() { isSidebarOpen ? closeSidebar() : openSidebar(); }
+
+// ============================================
+// UPDATE DATA
+// ============================================
 function updateSidebarData() {
-    if (!currentUserData) return;
-
-    const goldBalance = document.getElementById('sidebarGoldBalance');
-    const storyCount = document.getElementById('sidebarStoryCount');
-    const followerCount = document.getElementById('sidebarFollowerCount');
-    const followingCount = document.getElementById('sidebarFollowingCount');
-    const goldReceived = document.getElementById('sidebarGoldReceived');
-    const likesReceived = document.getElementById('sidebarLikesReceived');
-
-    if (goldBalance) goldBalance.textContent = currentUserData.goldBalance || 0;
-    if (storyCount) storyCount.textContent = currentUserData.storyCount || 0;
-    if (followerCount) followerCount.textContent = (currentUserData.followers || []).length;
-    if (followingCount) followingCount.textContent = (currentUserData.following || []).length;
-    if (goldReceived) goldReceived.textContent = currentUserData.goldReceived || 0;
-    if (likesReceived) likesReceived.textContent = currentUserData.likesReceived || 0;
-
-    // Privacy toggle
+    if (!currentUser || !currentUserData) return;
+    const goldEl = document.getElementById('sidebarGoldBalance');
+    if (goldEl) goldEl.textContent = currentUserData.goldBalance || 0;
+    const storyEl = document.getElementById('sidebarStoryCount');
+    if (storyEl) storyEl.textContent = currentUserData.storyCount || 0;
+    const followerEl = document.getElementById('sidebarFollowerCount');
+    if (followerEl) followerEl.textContent = (currentUserData.followers || []).length;
+    const followingEl = document.getElementById('sidebarFollowingCount');
+    if (followingEl) followingEl.textContent = (currentUserData.following || []).length;
+    const goldRecEl = document.getElementById('sidebarGoldReceived');
+    if (goldRecEl) goldRecEl.textContent = currentUserData.goldReceived || 0;
+    const likesEl = document.getElementById('sidebarLikesReceived');
+    if (likesEl) likesEl.textContent = currentUserData.likesReceived || 0;
     const privacyBtn = document.getElementById('privacyToggleBtn');
-    if (privacyBtn) {
-        privacyBtn.textContent = currentUserData.isPublic ? '🔒 Make Private' : '🌍 Make Public';
-    }
-
-    // Theme toggle
+    if (privacyBtn) privacyBtn.textContent = currentUserData.isPublic !== false ? '🔒 Make Private' : '🌍 Make Public';
     const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) {
-        const theme = document.documentElement.getAttribute('data-theme');
-        themeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-    }
+    if (themeBtn) themeBtn.textContent = getCurrentTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 }
 
+// ============================================
+// TOGGLE PRIVACY
+// ============================================
 function toggleProfilePrivacy() {
-    if (!currentUser) {
-        alert('Please log in.');
-        return;
-    }
-
-    const newPrivacy = !currentUserData?.isPublic;
-    db.collection('users').doc(currentUser.uid).update({
-        isPublic: newPrivacy
-    }).then(() => {
-        if (currentUserData) currentUserData.isPublic = newPrivacy;
-        updateSidebarData();
-        alert(`Profile is now ${newPrivacy ? 'Public' : 'Private'}.`);
-    }).catch((err) => {
-        alert('❌ Error: ' + err.message);
-    });
+    if (!currentUser || !currentUserData) return;
+    const newPrivacy = currentUserData.isPublic !== false;
+    db.collection('users').doc(currentUser.uid).update({ isPublic: newPrivacy })
+        .then(() => { currentUserData.isPublic = newPrivacy; updateSidebarData(); alert(newPrivacy ? '✅ Profile is now Public' : '🔒 Profile is now Private'); })
+        .catch(err => alert('❌ ' + err.message));
 }
 
+// ============================================
+// SETTINGS MODALS
+// ============================================
 function openSettingsModal(type) {
-    closeSidebar();
+    if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
     if (type === 'name') {
-        const newName = prompt('Enter new username:', currentUserData?.name || '');
+        const newName = prompt('Enter new username:', currentUserData.name || '');
         if (newName && newName.trim().length >= 2) {
-            db.collection('users').doc(currentUser.uid).update({
-                name: newName.trim()
+            db.collection('users').where('name','==',newName.trim()).get().then(snap => {
+                if (!snap.empty && snap.docs[0].id !== currentUser.uid) { alert('❌ Username taken.'); return; }
+                return db.collection('users').doc(currentUser.uid).update({ name: newName.trim() });
             }).then(() => {
-                if (currentUserData) currentUserData.name = newName.trim();
-                document.getElementById('userName').textContent = newName.trim();
-                alert('✅ Username updated!');
+                if (!currentUserData) return;
+                currentUserData.name = newName.trim();
+                const el = document.getElementById('userName');
+                if (el) el.textContent = newName.trim();
                 updateSidebarData();
-            }).catch((err) => {
-                alert('❌ Error: ' + err.message);
-            });
+                alert('✅ Username updated!');
+            }).catch(err => alert('❌ ' + err.message));
         }
     } else if (type === 'password') {
-        const currentPassword = prompt('Enter current password:');
-        if (!currentPassword) return;
-        const newPassword = prompt('Enter new password (min 6 characters):');
-        if (!newPassword || newPassword.length < 6) {
-            alert('Password must be at least 6 characters.');
-            return;
-        }
-        const confirmPassword = prompt('Confirm new password:');
-        if (newPassword !== confirmPassword) {
-            alert('Passwords do not match.');
-            return;
-        }
-
-        const credential = firebase.auth.EmailAuthProvider.credential(
-            currentUser.email,
-            currentPassword
-        );
+        const currentPwd = prompt('Enter current password:');
+        if (!currentPwd) return;
+        const newPwd = prompt('Enter new password (min 6 chars):');
+        if (!newPwd || newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+        const confirmPwd = prompt('Confirm new password:');
+        if (newPwd !== confirmPwd) { alert('Passwords do not match.'); return; }
+        const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPwd);
         currentUser.reauthenticateWithCredential(credential)
-            .then(() => {
-                return currentUser.updatePassword(newPassword);
-            })
-            .then(() => {
-                alert('✅ Password updated successfully!');
-            })
-            .catch((err) => {
-                alert('❌ Error: ' + err.message);
-            });
-    } else if (type === 'language') {
-        const lang = prompt('Select language (en, es, fr):', 'en');
-        if (lang && ['en', 'es', 'fr'].includes(lang)) {
-            db.collection('users').doc(currentUser.uid).update({
-                language: lang
-            }).then(() => {
-                localStorage.setItem('language', lang);
-                alert('✅ Language updated!');
-                location.reload();
-            }).catch((err) => {
-                alert('❌ Error: ' + err.message);
-            });
-        } else if (lang) {
-            alert('Invalid language. Use: en, es, fr');
-        }
+            .then(() => currentUser.updatePassword(newPwd))
+            .then(() => alert('✅ Password updated!'))
+            .catch(err => alert('❌ ' + (err.code === 'auth/wrong-password' ? 'Incorrect current password.' : err.message)));
     }
 }
 
+// ============================================
+// GOLD HISTORY - FIX #30: Better info
+// ============================================
 function viewGoldHistory() {
-    closeSidebar();
-    if (!currentUser) {
-        alert('Please log in.');
-        return;
-    }
-
+    if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
     db.collection('goldTransactions')
         .where('fromUid', '==', currentUser.uid)
+        .orderBy('createdAt', 'desc')
+        .limit(10)
         .get()
-        .then((snapshot) => {
-            if (snapshot.empty) {
-                alert('📊 No gold transactions yet.');
-                return;
+        .then(snap => {
+            let msg = '💰 Recent Gold Activity\n\n';
+            msg += 'Balance: ' + (currentUserData.goldBalance||0) + ' 🪙 | Received: ' + (currentUserData.goldReceived||0) + ' | Given: ' + (currentUserData.goldGiven||0) + '\n\n';
+            if (snap.empty) { msg += 'No transactions yet.'; }
+            else {
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const time = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : 'Recently';
+                    msg += `• ${d.amount}🪙 to ${d.toName||'Someone'} — ${time}\n  "${d.message||'No message'}"\n\n`;
+                });
             }
-            let message = '📊 Gold Transaction History:\n\n';
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const time = data.createdAt ? data.createdAt.toDate().toLocaleString() : 'Recently';
-                message += `💰 ${data.amount} 🪙 → ${data.toName} (${time})\n`;
-                if (data.message) message += `   💬 ${data.message}\n`;
-            });
-            alert(message);
+            alert(msg);
         })
-        .catch((err) => {
-            alert('❌ Error: ' + err.message);
+        .catch(() => {
+            alert('💰 Gold Summary\n\nBalance: '+(currentUserData.goldBalance||0)+' 🪙\nReceived: '+(currentUserData.goldReceived||0)+' 🪙\nGiven: '+(currentUserData.goldGiven||0)+' 🪙\n\n📊 Full history coming soon!');
         });
 }
 
-// Update sidebar data when user data changes
+// ============================================
+// INIT
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Listen for auth changes to update sidebar
+    createSidebar();
     if (typeof auth !== 'undefined') {
         auth.onAuthStateChanged(function(user) {
-            if (user) {
-                setTimeout(updateSidebarData, 500);
-            }
+            setTimeout(function() {
+                const btn = document.querySelector('.btn-settings');
+                if (btn) btn.style.display = user ? '' : 'none';
+            }, 200);
         });
     }
 });
 
-console.log('✅ Sidebar loaded');
+window.toggleSidebar = toggleSidebar;
+window.toggleTheme = toggleTheme;
+window.toggleProfilePrivacy = toggleProfilePrivacy;
+window.openSettingsModal = openSettingsModal;
+window.viewGoldHistory = viewGoldHistory;
+window.updateSidebarData = updateSidebarData;
