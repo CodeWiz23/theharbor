@@ -1,5 +1,5 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION (FULLY FIXED)
+// THE HARBOR - MAIN APPLICATION (FULLY FIXED & ENHANCED)
 // ============================================
 
 // ============================================
@@ -28,13 +28,20 @@ db.enablePersistence().catch(err => console.warn('Firestore persistence error:',
 let currentUser = null;
 let currentUserData = null;
 let currentCategory = 'all';
-let userReactions = {};
+let userReactions = {};          // { storyId: [emojis] }
 let allStories = [];
 let filteredStories = [];
 let currentPage = 1;
 const STORIES_PER_PAGE = 10;
 let currentEditId = null;
 let currentStoryId = null;
+
+// Caching for stories (for performance #15, #20)
+const storyCache = {};          // { category: { stories: [], timestamp: Date } }
+const CACHE_DURATION = 30000;   // 30 seconds
+
+// Scroll position preservation (#7)
+let savedScrollPosition = 0;
 
 // ============================================
 // COUNTRY DATA
@@ -78,7 +85,7 @@ function sanitizeInput(text) {
     if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
-    return div.textContent;
+    return div.textContent.replace(/<[^>]*>/g, ''); // strip any residual HTML
 }
 
 function checkPasswordStrength(password) {
@@ -138,6 +145,22 @@ function resendVerification() {
 }
 
 // ============================================
+// NOTIFICATION SYSTEM (#16)
+// ============================================
+function addNotification(toUid, type, data) {
+    if (!toUid || toUid === currentUser?.uid) return; // don't notify self
+    db.collection('notifications').add({
+        toUid,
+        fromUid: currentUser?.uid || null,
+        fromName: currentUserData?.name || 'Someone',
+        type,               // 'follow', 'like', 'comment', 'report', 'gold', 'daily'
+        data,               // { storyId, commentId, etc. }
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(err => console.warn('Notification error:', err));
+}
+
+// ============================================
 // FOLLOW SYSTEM
 // ============================================
 function followUser(targetUid) {
@@ -156,20 +179,26 @@ function followUser(targetUid) {
             } else {
                 transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
                 transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
+                addNotification(targetUid, 'follow', {});
                 return 'followed';
             }
         });
     }).then(action => {
-        if (window.location.pathname.includes('profile.html')) loadProfile();
-        if (typeof updateSidebarData === 'function') updateSidebarData();
-        if (action === 'followed') {
-            alert('✅ You are now following this user!');
-        } else {
-            alert('✅ You have unfollowed this user.');
+        // Update local data
+        if (currentUserData) {
+            if (action === 'followed') {
+                if (!currentUserData.following) currentUserData.following = [];
+                currentUserData.following.push(targetUid);
+            } else {
+                currentUserData.following = (currentUserData.following || []).filter(uid => uid !== targetUid);
+            }
         }
+        if (window.location.pathname.includes('profile.html') && typeof loadProfile === 'function') loadProfile();
+        if (typeof updateSidebarData === 'function') updateSidebarData();
+        alert(action === 'followed' ? '✅ You are now following this user!' : '✅ You have unfollowed this user.');
     }).catch(err => {
         console.error('Follow error:', err);
-        alert('❌ Error: ' + err.message + '\n\nThis may be due to Firestore security rules. Make sure rules allow updating followers/following arrays.');
+        alert('❌ Error: ' + err.message + '\n\nCheck Firestore security rules.');
     });
 }
 
@@ -212,7 +241,7 @@ function reportStory(storyId) {
 }
 
 // ============================================
-// LOAD STORIES
+// LOAD STORIES (WITH CACHING, PRIVACY FILTER)
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
@@ -246,6 +275,15 @@ function loadStories() {
         return;
     }
 
+    // Check cache
+    const cacheKey = currentCategory;
+    const cached = storyCache[cacheKey];
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        allStories = cached.stories;
+        applyFilters();
+        return;
+    }
+
     container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading stories...</div>';
 
     const gender = getUserGender();
@@ -275,10 +313,18 @@ function loadStories() {
         snapshot.forEach(doc => {
             const story = doc.data();
             story.id = doc.id;
+            // Privacy filter (#6): hide private stories not owned by current user
             if (story.visibility === 'private' && story.userId !== currentUser.uid) return;
             allStories.push(story);
         });
+        // Update cache
+        storyCache[cacheKey] = { stories: [...allStories], timestamp: Date.now() };
         applyFilters();
+        // Restore scroll position (#7)
+        if (savedScrollPosition) {
+            window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
+            savedScrollPosition = 0;
+        }
     }).catch(err => {
         console.error('Error loading stories:', err);
         container.innerHTML = `
@@ -295,7 +341,8 @@ function applyFilters() {
         filteredStories = filteredStories.filter(s =>
             (s.title && s.title.toLowerCase().includes(searchTerm)) ||
             (s.text && s.text.toLowerCase().includes(searchTerm)) ||
-            (s.authorName && s.authorName.toLowerCase().includes(searchTerm))
+            (s.authorName && s.authorName.toLowerCase().includes(searchTerm)) ||
+            (s.category && s.category.toLowerCase().includes(searchTerm))
         );
     }
     renderStories();
@@ -341,6 +388,7 @@ function renderStoryCard(story) {
         reactionBtns += `<button class="reaction-mini${hasReacted?' reacted':''}" id="reaction-${story.id}-${emoji}" onclick="addReaction('${story.id}','${emoji}')">${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span></button>`;
     });
     const isOwner = currentUser && story.userId === currentUser.uid;
+    // Gear menu HTML (for later integration) – we'll add it in index.html update; here we keep the old buttons for now, but the gear menu will be in the index.html page script.
     return `<div class="story-card" data-story-id="${story.id}">
         <div class="story-card-top">
             <div class="story-card-avatar" onclick="viewProfile('${story.userId}')" style="cursor:pointer;">${initial}</div>
@@ -383,13 +431,14 @@ function switchCategory(category) {
         return;
     }
     if (!canSeeCategory(category)) { alert("⚠️ You don't have permission to view this category."); return; }
+    // Save scroll position before switching
+    savedScrollPosition = window.scrollY;
     currentCategory = category;
     currentPage = 1;
     document.querySelectorAll('.feed-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.category === category));
     const url = new URL(window.location);
     url.searchParams.set('cat', category);
     window.history.pushState({ category }, '', url);
-    // FIX #26: Refresh reactions when switching categories
     loadAllUserReactions().then(() => loadStories());
 }
 
@@ -430,7 +479,6 @@ function openEditModal(storyId) {
 
 function closeEditModal() { document.getElementById('editModal').classList.remove('active'); currentEditId = null; }
 
-// FIX #27: Update local state without full reload
 function saveEdit() {
     const title = document.getElementById('editTitle').value.trim();
     const content = document.getElementById('editContent').value.trim();
@@ -439,7 +487,6 @@ function saveEdit() {
     db.collection('stories').doc(currentEditId).update({
         title, text: content, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-        // Update local array
         const idx = allStories.findIndex(s => s.id === currentEditId);
         if (idx !== -1) { allStories[idx].title = title; allStories[idx].text = content; }
         closeEditModal();
@@ -492,6 +539,10 @@ function addReaction(storyId, emoji) {
             } else {
                 reactions[emoji] = (reactions[emoji]||0)+1;
                 userReactions[storyId].push(emoji);
+                // Send notification for like/love
+                if (emoji === '❤️' && data.userId !== currentUser.uid) {
+                    addNotification(data.userId, 'like', { storyId });
+                }
             }
             transaction.update(storyRef, { reactions });
             transaction.set(userReactionRef, { emojis: userReactions[storyId], timestamp: firebase.firestore.FieldValue.serverTimestamp(), storyId }, { merge: true });
@@ -557,8 +608,18 @@ function handleAuth() {
     const error = document.getElementById('authError');
     const submitBtn = document.getElementById('authSubmitBtn');
     error.textContent = '';
-    if (!email || !email.includes('@')) { error.textContent = 'Please enter a valid email.'; return; }
-    if (!password || password.length < 6) { error.textContent = 'Password must be at least 6 characters.'; return; }
+
+    // Email validation (#1)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        error.textContent = 'Please enter a valid email address.';
+        return;
+    }
+    if (!password || password.length < 6) {
+        error.textContent = 'Password must be at least 6 characters.';
+        return;
+    }
+
     const isLogin = submitBtn.textContent.includes('Log In');
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Please wait...';
@@ -593,14 +654,14 @@ function handleAuth() {
         }).then(userCredential => {
             return userCredential.user.sendEmailVerification().then(() => userCredential.user);
         }).then(user => {
-            // FIX #5: Store uid field
             const countryData = countries.find(c => c.name === country);
             return db.collection('users').doc(user.uid).set({
-                uid: user.uid,  // ✅ UID STORED
+                uid: user.uid,
                 name, email, gender, favorites: favorites || 'Not specified',
                 country, emergencyNumber: countryData?.emergency || '911',
                 emailVerified: false, isAdmin: false, isPublic: true,
-                goldBalance: 10, goldReceived: 0, goldGiven: 0,
+                goldBalance: 100,   // #1: 100 Gold Coins
+                goldReceived: 0, goldGiven: 0,
                 followers: [], following: [], storyCount: 0, commentCount: 0, likesReceived: 0,
                 language: 'en', avatar: '👤', border: 'default',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -611,7 +672,7 @@ function handleAuth() {
             submitBtn.disabled = false;
             submitBtn.textContent = '🚀 Create Account';
             auth.signOut();
-            alert('✅ Verification email sent to ' + email + '!\n\n📧 Check your inbox and click the verification link.\n💰 You received 10 🪙 gold as a welcome gift!');
+            alert('✅ Verification email sent to ' + email + '!\n\n📧 Check your inbox and click the verification link.\n💰 You received 100 🪙 gold as a welcome gift!');
         }).catch(err => {
             if (err !== 'taken') error.textContent = err.message;
             submitBtn.disabled = false;
@@ -629,7 +690,8 @@ function logout() {
 }
 
 // ============================================
-// AUTH STATE LISTENER - FIX #11, #12// ============================================
+// AUTH STATE LISTENER
+// ============================================
 auth.onAuthStateChanged(user => {
     const authButtons = document.getElementById('authButtons');
     const userInfo = document.getElementById('userInfo');
@@ -650,7 +712,6 @@ auth.onAuthStateChanged(user => {
         db.collection('users').doc(user.uid).get().then(doc => {
             if (doc.exists) {
                 currentUserData = doc.data();
-                // FIX #5: Ensure uid exists
                 if (!currentUserData.uid) currentUserData.uid = doc.id;
                 if (userName) userName.textContent = currentUserData.name || 'Friend';
                 if (userGenderBadge) userGenderBadge.textContent = currentUserData.gender || '';
@@ -659,10 +720,6 @@ auth.onAuthStateChanged(user => {
                 }
                 updateEmergencyBanner();
                 updateAdminLink();
-
-                // FIX #11, #12: DO NOT override theme from Firestore
-                // Theme is managed by localStorage only
-                // Removed: if (currentUserData.theme === 'dark')... 
 
                 loadAllUserReactions().then(() => {
                     updateCategoryTabs();
@@ -748,11 +805,9 @@ function updateCategoryTabs() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 DOM Ready — The Harbor');
 
-    // Modals
     document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this) closeModal(); });
     document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this) closeEditModal(); });
 
-    // Password strength
     document.getElementById('authPassword')?.addEventListener('input', function() {
         const sd = document.getElementById('passwordStrength');
         if (!sd || !this.value) { if(sd) sd.innerHTML = ''; return; }
@@ -760,7 +815,6 @@ document.addEventListener('DOMContentLoaded', function() {
         sd.innerHTML = `<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:${r.color};font-weight:700;">${r.strength}</span></div>`;
     });
 
-    // Username check
     document.getElementById('authName')?.addEventListener('input', async function() {
         const status = document.getElementById('usernameStatus');
         if (!status) return;
@@ -770,23 +824,19 @@ document.addEventListener('DOMContentLoaded', function() {
         status.innerHTML = avail ? '<span style="color:#16a34a;">✅ Available!</span>' : '<span style="color:#dc2626;">❌ Taken</span>';
     });
 
-    // Keyboard
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { const m = document.getElementById('authModal'); if(m&&m.classList.contains('active')) handleAuth(); }
         if (e.key === 'Escape') { closeModal(); closeEditModal(); }
     });
 
-    // Counters
     document.getElementById('storyTitle')?.addEventListener('input', function() { document.getElementById('titleCount').textContent = this.value.length; });
     document.getElementById('storyText')?.addEventListener('input', function() { document.getElementById('textCount').textContent = this.value.length; });
     document.getElementById('commentText')?.addEventListener('input', function() { document.getElementById('commentCount').textContent = this.value.length; });
 
-    // Search
     document.getElementById('searchInput')?.addEventListener('keydown', function(e) { if(e.key==='Enter') searchStories(); });
 
     populateCountryDatalist();
 
-    // Page-specific loads
     if (window.location.pathname.includes('profile.html') && typeof loadProfile === 'function') loadProfile();
     if (window.location.pathname.includes('story.html') && typeof loadStory === 'function') loadStory();
     if (window.location.pathname.includes('admin.html') && typeof loadAdminPanel === 'function') loadAdminPanel();
@@ -795,5 +845,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('✅ App ready');
 });
+
+// ============================================
+// EXPOSE TO GLOBAL SCOPE
+// ============================================
+window.currentUser = currentUser; // already a global var, but ensure
+window.currentUserData = currentUserData;
+window.escapeHTML = escapeHTML;
+window.sanitizeInput = sanitizeInput;
+window.followUser = followUser;
+window.isFollowing = isFollowing;
+window.reportStory = reportStory;
+window.reportUser = reportUser;
+window.loadStories = loadStories;
+window.switchCategory = switchCategory;
+window.searchStories = searchStories;
+window.openEditModal = openEditModal;
+window.closeEditModal = closeEditModal;
+window.saveEdit = saveEdit;
+window.deleteStory = deleteStory;
+window.toggleVisibility = toggleVisibility;
+window.addReaction = addReaction;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.toggleAuthMode = toggleAuthMode;
+window.handleAuth = handleAuth;
+window.logout = logout;
+window.resendVerification = resendVerification;
+window.checkPasswordStrength = checkPasswordStrength;
+window.populateCountryDatalist = populateCountryDatalist;
+window.updateSidebarData = updateSidebarData; // defined in sidebar.js, but reference
+window.toggleSidebar = toggleSidebar;
 
 console.log('✅ The Harbor app loaded');
