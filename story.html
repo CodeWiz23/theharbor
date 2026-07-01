@@ -248,7 +248,13 @@
 
         function loadUserReactionsForStory(storyId){if(!currentUser)return;db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc=>{if(doc.exists){userReactions[storyId]=doc.data().emojis||[];['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e=>{var btn=document.getElementById('reaction-'+storyId+'-'+e);if(btn&&userReactions[storyId].indexOf(e)!==-1)btn.classList.add('reacted');});}}).catch(()=>{});}
 
-        // ===== COMMENTS WITH REPLIES, PERMISSIONS, ANTI-SPAM =====
+        // ============================================
+        // ✅ FIX #2: NESTED REPLIES - RECURSIVE
+        // ✅ FIX #1: @MENTIONS IN REPLIES
+        // ✅ FIX #3: COMMENT LIKE ANTI-SPAM
+        // ✅ FIX #4: COMMENT LIKE NOTIFICATION
+        // ============================================
+
         function loadCommentsRealtime(storyId){
             var container=document.getElementById('commentsContainer');if(!container)return;if(commentsUnsubscribe)commentsUnsubscribe();
             container.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
@@ -256,40 +262,86 @@
                 if(snapshot.empty){container.innerHTML='<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet.</p></div>';document.getElementById('commentCountHeader').textContent='0';return;}
                 var allComments=[];snapshot.forEach(doc=>{var c=doc.data();c.id=doc.id;allComments.push(c);});
                 allComments=allComments.filter(c=>c.approved!==false);
-                // Separate parent comments and replies
                 var parents=allComments.filter(c=>!c.parentId);
                 var replies=allComments.filter(c=>c.parentId);
                 parents.sort((a,b)=>{if(a.isPinned&&!b.isPinned)return-1;if(!a.isPinned&&b.isPinned)return 1;return(b.likes||0)-(a.likes||0);});
                 document.getElementById('commentCountHeader').textContent=parents.length;
-                container.innerHTML=parents.map(c=>renderCommentWithReplies(c,replies)).join('');
+                // ✅ FIX #2: Recursive rendering for unlimited nesting
+                container.innerHTML=parents.map(function(c){ return renderCommentTree(c, allComments); }).join('');
             },err=>{container.innerHTML='<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p></div>';});
         }
 
-        function renderCommentWithReplies(comment,allReplies){
-            var childReplies=allReplies.filter(r=>r.parentId===comment.id);
-            childReplies.sort((a,b)=>(a.createdAt?.toDate().getTime()||0)-(b.createdAt?.toDate().getTime()||0));
-            var repliesHtml=childReplies.length>0?'<div class="reply-thread">'+childReplies.map(r=>renderSingleComment(r,true)).join('')+'</div>':'';
-            return renderSingleComment(comment,false)+repliesHtml;
+        // ✅ FIX #2: Recursive function to render comment with all nested replies
+        function renderCommentTree(comment, allComments, depth){
+            if(depth === undefined) depth = 0;
+            // Limit depth to prevent infinite loops (max 10 levels)
+            if(depth > 10) return '';
+            var childReplies = allComments.filter(function(r){ return r.parentId === comment.id; });
+            childReplies.sort(function(a,b){
+                return (a.createdAt?.toDate().getTime()||0) - (b.createdAt?.toDate().getTime()||0);
+            });
+            var repliesHtml = '';
+            if(childReplies.length > 0){
+                repliesHtml = '<div class="reply-thread" style="margin-left:'+Math.min(20 + depth * 4, 40)+'px;">'+
+                    childReplies.map(function(r){ return renderCommentTree(r, allComments, depth + 1); }).join('')+
+                '</div>';
+            }
+            return renderSingleComment(comment, depth > 0) + repliesHtml;
         }
 
-        function renderSingleComment(comment,isReply){
-            var author=comment.isAnonymous?'🕊️ Anonymous':escapeHTML(comment.authorName||'Someone');
-            var time=comment.createdAt?comment.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'Recently';
-            var likes=comment.likes||0;
-            // PERMISSIONS: comment owner, story author, admin
-            var isCommentOwner=currentUser&&comment.userId===currentUser.uid;
-            var isStoryAuthor=currentUser&&currentStory&&currentStory.userId===currentUser.uid;
-            var isAdmin=currentUserData&&currentUserData.isAdmin===true;
-            var canDelete=isCommentOwner||isStoryAuthor||isAdmin;
-            var badges='';if(comment.isPinned)badges+='<span class="comment-badge pinned">📌 Pinned</span>';
-            if(isReply)badges+='<span class="comment-badge" style="background:#e0e7ff;color:#3730a3;">↩️ Reply</span>';
-            var replyCount=comment.replyCount||0;
-            return '<div class="comment" id="comment-'+comment.id+'"><div class="comment-header"><div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+comment.userId+'\')">'+author+'</span> '+badges+'</div><div class="comment-time">📅 '+time+'</div></div><div class="comment-text">'+escapeHTML(comment.text)+'</div><div class="comment-actions"><button class="comment-like-btn" id="like-btn-'+comment.id+'" onclick="likeComment(\''+comment.id+'\')">❤️ <span id="like-count-'+comment.id+'">'+likes+'</span></button>'+(isReply?'':'<button class="reply-toggle" onclick="toggleReplyBox(\''+comment.id+'\')">💬 Reply'+(replyCount>0?' ('+replyCount+')':'')+'</button>')+(canDelete?'<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>':'')+(isAdmin?'<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+(currentUser&&!isCommentOwner?'<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>':'')+'</div>'+(isReply?'':'<div class="reply-input-area" id="reply-area-'+comment.id+'"><textarea id="reply-text-'+comment.id+'" placeholder="Write a reply..." maxlength="500"></textarea><button class="btn btn-primary" onclick="postReply(\''+comment.id+'\')" style="margin-top:4px;padding:4px 12px;font-size:0.8rem;">📤 Reply</button></div>')+'</div>';
+        // ✅ FIX #1: renderSingleComment with @mention support
+        function renderSingleComment(comment, isReply){
+            var author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
+            var time = comment.createdAt ? comment.createdAt.toDate().toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true}) : 'Recently';
+            var likes = comment.likes || 0;
+            var isCommentOwner = currentUser && comment.userId === currentUser.uid;
+            var isStoryAuthor = currentUser && currentStory && currentStory.userId === currentUser.uid;
+            var isAdmin = currentUserData && currentUserData.isAdmin === true;
+            var canDelete = isCommentOwner || isStoryAuthor || isAdmin;
+            var badges = '';
+            if(comment.isPinned) badges += '<span class="comment-badge pinned">📌 Pinned</span>';
+            if(isReply) badges += '<span class="comment-badge" style="background:#e0e7ff;color:#3730a3;">↩️ Reply</span>';
+            var replyCount = comment.replyCount || 0;
+            var cleanAuthor = comment.isAnonymous ? '' : escapeHTML(comment.authorName || '');
+            
+            return '<div class="comment" id="comment-'+comment.id+'">'+
+                '<div class="comment-header">'+
+                    '<div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+comment.userId+'\')">'+author+'</span> '+badges+'</div>'+
+                    '<div class="comment-time">📅 '+time+'</div>'+
+                '</div>'+
+                '<div class="comment-text">'+escapeHTML(comment.text)+'</div>'+
+                '<div class="comment-actions">'+
+                    '<button class="comment-like-btn" id="like-btn-'+comment.id+'" onclick="likeComment(\''+comment.id+'\')">❤️ <span id="like-count-'+comment.id+'">'+likes+'</span></button>'+
+                    (isReply ? '' : '<button class="reply-toggle" onclick="toggleReplyBox(\''+comment.id+'\', \''+cleanAuthor+'\')">💬 Reply'+(replyCount>0?' ('+replyCount+')':'')+'</button>')+
+                    (canDelete ? '<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>' : '')+
+                    (isAdmin ? '<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>' : '')+
+                    (currentUser && !isCommentOwner ? '<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>' : '')+
+                '</div>'+
+                (isReply ? '' : '<div class="reply-input-area" id="reply-area-'+comment.id+'">'+
+                    '<textarea id="reply-text-'+comment.id+'" placeholder="Write a reply... (use @username to mention)" maxlength="500"></textarea>'+
+                    '<button class="btn btn-primary" onclick="postReply(\''+comment.id+'\')" style="margin-top:4px;padding:4px 12px;font-size:0.8rem;">📤 Reply</button>'+
+                '</div>')+
+            '</div>';
         }
 
-        function toggleReplyBox(commentId){
-            var area=document.getElementById('reply-area-'+commentId);
-            if(area){area.classList.toggle('active');if(area.classList.contains('active')){document.getElementById('reply-text-'+commentId).focus();}}
+        // ✅ FIX #1: toggleReplyBox with @mention pre-fill
+        function toggleReplyBox(commentId, authorName){
+            var area = document.getElementById('reply-area-'+commentId);
+            if(area){
+                area.classList.toggle('active');
+                if(area.classList.contains('active')){
+                    var textarea = document.getElementById('reply-text-'+commentId);
+                    if(textarea){
+                        if(authorName && authorName.trim() !== ''){
+                            textarea.value = '@' + authorName + ' ';
+                            textarea.focus();
+                            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                        } else {
+                            textarea.focus();
+                        }
+                    }
+                }
+            }
         }
 
         function postReply(parentId){
@@ -322,23 +374,57 @@
             }).catch(err=>{error.textContent=err.message;if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}});
         }
 
-        // ✅ ANTI-SPAM LIKE WITH NOTIFICATION
+        // ✅ FIX #3 & #4: likeComment with anti-spam + notification
         function likeComment(cid){
             if(!currentUser)return;
             if(commentLikeLocks[cid])return;commentLikeLocks[cid]=true;
             var btn=document.getElementById('like-btn-'+cid);if(btn)btn.disabled=true;
-            db.collection('comments').doc(cid).get().then(doc=>{
-                if(!doc.exists){commentLikeLocks[cid]=false;if(btn)btn.disabled=false;return;}
-                var data=doc.data();
-                db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).then(()=>{
-                    var countSpan=document.getElementById('like-count-'+cid);
-                    if(countSpan)countSpan.textContent=(data.likes||0)+1;
-                    // ✅ NOTIFICATION: someone liked your comment
-                    if(data.userId&&data.userId!==currentUser.uid){addNotification(data.userId,'like',{commentId:cid,storyId:currentStoryId});}
-                }).catch(()=>{});
-                commentLikeLocks[cid]=false;if(btn)btn.disabled=false;
-            }).catch(()=>{commentLikeLocks[cid]=false;if(btn)btn.disabled=false;});
+            
+            var userLikeRef = db.collection('users').doc(currentUser.uid).collection('commentLikes').doc(cid);
+            
+            userLikeRef.get().then(likeDoc => {
+                if(likeDoc.exists){
+                    return db.collection('comments').doc(cid).update({
+                        likes: firebase.firestore.FieldValue.increment(-1)
+                    }).then(() => {
+                        return userLikeRef.delete();
+                    }).then(() => {
+                        var countSpan = document.getElementById('like-count-'+cid);
+                        if(countSpan) countSpan.textContent = Math.max((parseInt(countSpan.textContent)||0) - 1, 0);
+                        commentLikeLocks[cid]=false; if(btn)btn.disabled=false;
+                    });
+                } else {
+                    return db.collection('comments').doc(cid).get().then(doc => {
+                        if(!doc.exists) throw new Error('Comment not found');
+                        var data = doc.data();
+                        return db.collection('comments').doc(cid).update({
+                            likes: firebase.firestore.FieldValue.increment(1)
+                        }).then(() => {
+                            return userLikeRef.set({
+                                commentId: cid,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }).then(() => {
+                            var countSpan = document.getElementById('like-count-'+cid);
+                            if(countSpan) countSpan.textContent = (parseInt(countSpan.textContent)||0) + 1;
+                            
+                            // ✅ FIX #4: Send notification to comment owner
+                            if(data.userId && data.userId !== currentUser.uid){
+                                addNotification(data.userId, 'like', {
+                                    commentId: cid,
+                                    storyId: currentStoryId
+                                });
+                            }
+                            commentLikeLocks[cid]=false; if(btn)btn.disabled=false;
+                        });
+                    });
+                }
+            }).catch(err => {
+                console.error('Like error:', err);
+                commentLikeLocks[cid]=false; if(btn)btn.disabled=false;
+            });
         }
+
         function deleteComment(cid){
             if(!currentUser||!confirm('Delete this comment?'))return;
             db.collection('comments').doc(cid).get().then(doc=>{
@@ -377,7 +463,7 @@
             document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
             document.getElementById('goldModal')?.addEventListener('click',function(e){if(e.target===this)closeGoldModal();});
             document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();}});
-            console.log('✅ Story page ready');
+            console.log('✅ Story page ready (FIX #1, #2, #3, #4 applied)');
         });
     </script>
 </body>
