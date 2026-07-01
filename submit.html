@@ -5,6 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Share Your Story — The Harbor</title>
 
+    <!-- ✅ ANTI-FLASH: MUST BE FIRST - BEFORE ANY OTHER STYLES -->
+    <style>
+        /* Hide EVERYTHING auth-related by default */
+        .guest-only, .auth-only, #userInfo, .nav-icon, .btn-login, .btn-signup,
+        .nav-icon.guest-only, .btn-login.auth-only, .btn-signup.auth-only {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        /* Show when body has 'loaded' class */
+        body.loaded .guest-only { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .auth-only { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded #userInfo { 
+            display: flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .nav-icon { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .btn-login { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        body.loaded .btn-signup { 
+            display: inline-flex !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+        }
+        /* Hide gender notice by default */
+        #genderRestrictionNotice {
+            display: none !important;
+        }
+        body.loaded #genderRestrictionNotice {
+            display: block !important;
+        }
+    </style>
+
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
 
     <script>
@@ -44,7 +93,6 @@
         .submit-card .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
         .submit-card .form-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
         
-        /* ✅ FIX #6: Hidden by default to prevent flash */
         .gender-notice { 
             padding: 10px 14px; 
             border-radius: var(--radius-md); 
@@ -56,33 +104,12 @@
         .gender-notice.warning { background: #fef3c7; border-left: 4px solid var(--warning); color: #92400e; }
         .gender-notice.success { background: #dcfce7; border-left: 4px solid var(--success); color: #166534; }
         
-        /* Hide auth elements by default to prevent flash */
-        .auth-only { display: none !important; }
-        .guest-only { display: none !important; }
-        body.loaded .auth-only { display: inline !important; }
-        body.loaded .guest-only { display: inline-flex !important; }
-        body.loaded .btn-login.auth-only { display: inline-flex !important; }
-        body.loaded .btn-signup.auth-only { display: inline-flex !important; }
-        body.loaded #userInfo { display: flex !important; }
-        
         @media (max-width: 768px) { .submit-hero { padding: 1.5rem 1rem; } .submit-hero h1 { font-size: 1.5rem; } .submit-card { padding: 1.2rem; } }
         @media (max-width: 480px) { .submit-hero { padding: 1.2rem 0.8rem; border-radius: var(--radius-lg); } .submit-hero h1 { font-size: 1.3rem; } .submit-card { padding: 1rem; } .submit-card textarea { min-height: 140px; } }
     </style>
 </head>
 
 <body>
-    <!-- ✅ FIX #6: Removed document.write flash hack -->
-    <style>
-        /* Hide auth-only elements by default to prevent flash */
-        .auth-only { display: none !important; }
-        .guest-only { display: none !important; }
-        body.loaded .auth-only { display: inline !important; }
-        body.loaded .guest-only { display: inline-flex !important; }
-        body.loaded .btn-login.auth-only { display: inline-flex !important; }
-        body.loaded .btn-signup.auth-only { display: inline-flex !important; }
-        body.loaded #userInfo { display: flex !important; }
-    </style>
-
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
@@ -114,8 +141,7 @@
                 <p>Your story could be the hope someone else needs.</p>
             </div>
             <div class="submit-card">
-                <!-- ✅ FIX #6: genderNotice hidden by default -->
-                <div id="genderRestrictionNotice" class="gender-notice warning" style="display:none;">
+                <div id="genderRestrictionNotice" class="gender-notice warning">
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
                 <label for="storyTitle">📌 Title <span style="color:var(--danger);">*</span></label>
@@ -185,6 +211,9 @@
     </footer>
 
     <script>
+        // ✅ ADD THIS FIRST - BEFORE ANYTHING ELSE
+        document.body.classList.add('loaded');
+
         var categoryDescriptions = {
             'men': '🧔 A dedicated space for men to share their journey, struggles, and growth. Men only.',
             'women': '👩 A safe harbor for women to connect, share, and support each other. Women only.',
@@ -193,12 +222,10 @@
             'learning': '🧭 Life lessons, wisdom, and guidance. Open to everyone.'
         };
 
-        // ✅ FIX #6: No document.write flash hack
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
             
-            // Add loaded class to body to show elements
-            document.body.classList.add('loaded');
+            // ✅ Already loaded class added at top of script
             
             var guestOnly = document.querySelectorAll('.guest-only');
             var authOnly = document.querySelectorAll('.auth-only');
@@ -212,7 +239,6 @@
             var userInfo = document.getElementById('userInfo');
             if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
             
-            // Hide admin link by default
             var adminLink = document.getElementById('adminNavLink');
             if (adminLink) {
                 if (isLoggedIn && currentUserData && currentUserData.isAdmin === true) {
@@ -223,7 +249,6 @@
             }
         }
 
-        // ✅ FIX #6: genderNotice hidden by default, only shown when needed
         function checkCategoryRestriction() {
             var cat = document.getElementById('storyCategory').value;
             var notice = document.getElementById('genderRestrictionNotice');
@@ -351,8 +376,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ FIX #6: Show loaded state immediately
-            document.body.classList.add('loaded');
+            // ✅ Already loaded class added at top of script
             
             document.getElementById('storyTitle')?.addEventListener('input', function() { 
                 document.getElementById('titleCount').textContent = this.value.length; 
