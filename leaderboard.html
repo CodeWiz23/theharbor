@@ -1,1 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard — The Harbor</title>
 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
+
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('harbor_theme');
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .leaderboard-container { max-width: 760px; margin: 0 auto; padding: 1.5rem 0; }
+
+        .leaderboard-hero {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-xl);
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        .leaderboard-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
+        .leaderboard-hero p { opacity: 0.85; margin-top: 4px; }
+
+        .leaderboard-tabs {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .leaderboard-tab {
+            padding: 0.4rem 1rem;
+            border: none;
+            border-radius: 9999px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            font-size: 0.82rem;
+            font-family: inherit;
+        }
+        .leaderboard-tab:hover { background: var(--border-color); }
+        .leaderboard-tab.active { background: var(--primary); color: white; font-weight: 600; }
+
+        .leaderboard-list {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s;
+        }
+        .leaderboard-item:last-child { border-bottom: none; }
+        .leaderboard-item:hover { background: var(--bg-secondary); }
+
+        .rank {
+            font-weight: 700;
+            font-size: 1.2rem;
+            min-width: 32px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .rank.top-1 { color: #f1c40f; font-size: 1.5rem; }
+        .rank.top-2 { color: #bdc3c7; font-size: 1.3rem; }
+        .rank.top-3 { color: #cd7f32; font-size: 1.3rem; }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .user-avatar:hover { transform: scale(1.1); }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        .user-name:hover { text-decoration: underline; }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .auto-refresh {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 480px) {
+            .leaderboard-hero { padding: 1.2rem; border-radius: var(--radius-lg); }
+            .leaderboard-hero h1 { font-size: 1.5rem; }
+            .leaderboard-tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+            .leaderboard-tabs::-webkit-scrollbar { display: none; }
+            .leaderboard-tab { flex-shrink: 0; font-size: 0.7rem; }
+            .leaderboard-item { padding: 8px 12px; gap: 8px; }
+            .rank { font-size: 1rem; min-width: 24px; }
+            .user-avatar { width: 30px; height: 30px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header" role="banner">
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
+        <div class="header-right">
+            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="about.html" class="btn btn-ghost">🌿 About</a>
+            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
+            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
+            <a href="leaderboard.html" class="btn btn-feed active guest-only" aria-current="page">🏆 Leaderboard</a>
+            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
+            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
+            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span id="userName">Friend</span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="emergencyBanner" role="alert"></div>
+
+    <div class="container">
+        <div class="leaderboard-container">
+            <div class="leaderboard-hero">
+                <h1>🏆 Leaderboard</h1>
+                <p>Top 100 users by ❤️ Love or 🪙 Gold</p>
+            </div>
+
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" onclick="switchLeaderboard('love')">❤️ Love Leaderboard</button>
+                <button class="leaderboard-tab" onclick="switchLeaderboard('gold')">🪙 Gold Leaderboard</button>
+            </div>
+
+            <div id="leaderboardList" class="leaderboard-list">
+                <div class="loading"><div class="loading-spinner"></div> Loading leaderboard...</div>
+            </div>
+
+            <div class="auto-refresh" id="refreshTimer">Auto‑refresh in 10s</div>
+
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+        <div>⚓ The Harbor — Leaderboard</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
+    </footer>
+
+    <script>
+        var currentLeaderboard = 'love';
+        var countdown = 10;
+        var refreshInterval, countdownInterval;
+
+        function applyGuestRestrictions() {
+            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+            var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
+        }
+
+        function switchLeaderboard(type) {
+            currentLeaderboard = type;
+            document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.toggle('active', t.textContent.includes(type === 'love' ? 'Love' : 'Gold')));
+            loadLeaderboard();
+        }
+
+        function loadLeaderboard() {
+            var container = document.getElementById('leaderboardList');
+            if (!container) return;
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading leaderboard...</div>';
+
+            if (currentLeaderboard === 'love') {
+                // Aggregate total ❤️ reactions per user across all their stories
+                db.collection('stories').get().then(snapshot => {
+                    var userLoveMap = {};   // { userId: totalLoves }
+                    snapshot.forEach(doc => {
+                        var data = doc.data();
+                        var userId = data.userId;
+                        if (!userId) return;
+                        var loves = (data.reactions && data.reactions['❤️']) || 0;
+                        if (!userLoveMap[userId]) {
+                            userLoveMap[userId] = { loves: 0, authorName: data.authorName || 'Someone' };
+                        }
+                        userLoveMap[userId].loves += loves;
+                    });
+                    var sorted = Object.entries(userLoveMap)
+                        .sort((a, b) => b[1].loves - a[1].loves)
+                        .slice(0, 100);
+                    renderLeaderboard(sorted, 'loves', '❤️');
+                }).catch(err => {
+                    container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">Error loading leaderboard: ' + err.message + '</p></div>';
+                });
+            } else {
+                // Gold leaderboard: sum of goldReceived from user documents
+                db.collection('users')
+                    .orderBy('goldReceived', 'desc')
+                    .limit(100)
+                    .get()
+                    .then(snapshot => {
+                        var users = [];
+                        snapshot.forEach(doc => {
+                            var data = doc.data();
+                            users.push({
+                                uid: doc.id,
+                                name: data.name || 'Someone',
+                                gold: data.goldReceived || 0
+                            });
+                        });
+                        renderLeaderboard(users, 'gold', '🪙');
+                    }).catch(err => {
+                        container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">Error loading leaderboard: ' + err.message + '</p></div>';
+                    });
+            }
+        }
+
+        function renderLeaderboard(items, valueKey, emoji) {
+            var container = document.getElementById('leaderboardList');
+            if (!items.length) {
+                container.innerHTML = '<div class="empty-state" style="padding:30px;"><p style="color:var(--text-muted);">No data yet. Start sharing to appear on the leaderboard!</p></div>';
+                return;
+            }
+            var html = '';
+            items.forEach((item, index) => {
+                var rank = index + 1;
+                var rankClass = rank === 1 ? 'top-1' : rank === 2 ? 'top-2' : rank === 3 ? 'top-3' : '';
+                var uid = item.uid || item[0]; // handles both array formats
+                var name = item.name || (item[1] && item[1].authorName) || 'Someone';
+                var value = item[valueKey] || (item[1] && item[1][valueKey]) || 0;
+                var initial = (name || '?')[0].toUpperCase();
+                html += '<div class="leaderboard-item">'+
+                    '<div class="rank '+rankClass+'">#'+rank+'</div>'+
+                    '<div class="user-avatar" onclick="viewProfile(\''+uid+'\')">'+initial+'</div>'+
+                    '<div class="user-info"><span class="user-name" onclick="viewProfile(\''+uid+'\')">'+escapeHTML(name)+'</span></div>'+
+                    '<div class="stat-value">'+emoji+' '+value.toLocaleString()+'</div>'+
+                '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function viewProfile(uid) {
+            if (uid) window.location.href = 'profile.html?uid=' + uid;
+        }
+
+        function startCountdown() {
+            countdown = 10;
+            document.getElementById('refreshTimer').textContent = 'Auto‑refresh in ' + countdown + 's';
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(function() {
+                countdown--;
+                document.getElementById('refreshTimer').textContent = 'Auto‑refresh in ' + countdown + 's';
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    loadLeaderboard();
+                    startCountdown();
+                }
+            }, 1000);
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            applyGuestRestrictions();
+            loadLeaderboard();
+            startCountdown();
+
+            // Re-apply auth state
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function() {
+                    setTimeout(applyGuestRestrictions, 200);
+                });
+            }
+            console.log('✅ Leaderboard ready');
+        });
+    </script>
+</body>
+</html>
