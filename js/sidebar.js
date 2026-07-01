@@ -1,5 +1,5 @@
 // ============================================
-// SIDEBAR CONTROLS - FINAL FIXED
+// SIDEBAR CONTROLS - FINAL FIXED (v2)
 // ============================================
 
 let isSidebarOpen = false;
@@ -33,7 +33,7 @@ function toggleTheme() {
 }
 
 // ============================================
-// CREATE SIDEBAR
+// CREATE SIDEBAR (WITHOUT PRIVACY TOGGLE)
 // ============================================
 function createSidebar() {
     if (document.getElementById('sidebarOverlay')) return;
@@ -54,7 +54,7 @@ function createSidebar() {
                     <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
                     <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
                     <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Change Language</button>
-                    <button class="sidebar-btn" id="privacyToggleBtn" onclick="toggleProfilePrivacy()">🔒 Make Private</button>
+                    <!-- Privacy toggle removed (#8) – now in Edit Profile modal -->
                 </div>
                 <div class="sidebar-section">
                     <h3>🎨 Appearance</h3>
@@ -155,8 +155,6 @@ function updateSidebarData() {
     if (followingEl) followingEl.textContent = (currentUserData.following || []).length;
     const goldRecEl = document.getElementById('sidebarGoldReceived');
     if (goldRecEl) goldRecEl.textContent = currentUserData.goldReceived || 0;
-    const privacyBtn = document.getElementById('privacyToggleBtn');
-    if (privacyBtn) privacyBtn.textContent = currentUserData.isPublic !== false ? '🔒 Make Private' : '🌍 Make Public';
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.textContent = getCurrentTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
@@ -178,18 +176,7 @@ function updateSidebarData() {
 }
 
 // ============================================
-// TOGGLE PRIVACY
-// ============================================
-function toggleProfilePrivacy() {
-    if (!currentUser || !currentUserData) return;
-    const newPrivacy = currentUserData.isPublic !== false;
-    db.collection('users').doc(currentUser.uid).update({ isPublic: newPrivacy })
-        .then(() => { currentUserData.isPublic = newPrivacy; updateSidebarData(); alert(newPrivacy ? '✅ Profile is now Public' : '🔒 Profile is now Private'); })
-        .catch(err => alert('❌ ' + err.message));
-}
-
-// ============================================
-// SETTINGS MODALS
+// SETTINGS MODALS (LANGUAGE SWITCHING UPDATED)
 // ============================================
 function openSettingsModal(type) {
     if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
@@ -221,19 +208,23 @@ function openSettingsModal(type) {
             .then(() => alert('✅ Password updated!'))
             .catch(err => alert('❌ ' + (err.code === 'auth/wrong-password' ? 'Incorrect current password.' : err.message)));
     } else if (type === 'language') {
-        const lang = prompt('Select language:\n\nen = English\nes = Español\nfr = Français', currentUserData.language || 'en');
-        if (lang && ['en','es','fr'].includes(lang.toLowerCase())) {
-            const langLower = lang.toLowerCase();
-            db.collection('users').doc(currentUser.uid).update({ language: langLower })
-                .then(() => {
-                    currentUserData.language = langLower;
-                    localStorage.setItem('harbor_language', langLower);
-                    const names = {en:'English',es:'Español',fr:'Français'};
-                    alert('✅ Language set to ' + (names[langLower] || langLower) + '!');
-                })
-                .catch(err => alert('❌ ' + err.message));
-        } else if (lang) {
-            alert('❌ Invalid language. Use: en, es, or fr');
+        // Use the new language module
+        if (typeof changeLanguage === 'function') {
+            // Simple dropdown-like prompt with current language
+            const currentLang = localStorage.getItem('harbor_language') || 'en';
+            const choice = prompt('Select language:\n\nen = English\nes = Español\nfr = Français', currentLang);
+            if (choice && ['en','es','fr'].includes(choice.toLowerCase())) {
+                changeLanguage(choice.toLowerCase());
+            } else if (choice) {
+                alert('Invalid language. Use: en, es, or fr');
+            }
+        } else {
+            // Fallback if language.js not loaded
+            const lang = prompt('Select language:\n\nen = English\nes = Español\nfr = Français', currentUserData.language || 'en');
+            if (lang && ['en','es','fr'].includes(lang.toLowerCase())) {
+                localStorage.setItem('harbor_language', lang.toLowerCase());
+                alert('Language set to ' + lang + '. Please refresh the page.');
+            }
         }
     }
 }
@@ -283,9 +274,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 window.toggleSidebar = toggleSidebar;
 window.toggleTheme = toggleTheme;
-window.toggleProfilePrivacy = toggleProfilePrivacy;
 window.openSettingsModal = openSettingsModal;
 window.viewGoldHistory = viewGoldHistory;
 window.updateSidebarData = updateSidebarData;
 
-console.log('📂 Sidebar module loaded');
+console.log('📂 Sidebar module loaded (v2, privacy toggle removed)');
