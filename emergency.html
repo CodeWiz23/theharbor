@@ -24,6 +24,7 @@
 
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
+    <script src="js/language.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -78,7 +79,14 @@
         <div class="header-right">
             <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
             <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="emergency.html" class="btn btn-feed active" aria-current="page" style="background:var(--danger);">🆘 Emergency</a>
+            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
+            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
+            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
+            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
+            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
             <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
             <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
             <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
@@ -122,6 +130,47 @@
             <div style="text-align:center;margin-top:20px;">
                 <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
             </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Terms checkbox fix #1) -->
+    <div class="modal" id="authModal" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+            <h2 id="modalTitle">🔐 Welcome Back</h2>
+            <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
+            <div id="passwordStrength"></div>
+            <div id="signupFields" style="display:none;">
+                <label for="authName">Username</label>
+                <input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" />
+                <div id="usernameStatus"></div>
+                <label for="authGender">Gender</label>
+                <select id="authGender" onchange="updateGenderWarning()">
+                    <option value="🧔 Man">🧔 Man</option>
+                    <option value="👩 Woman">👩 Woman</option>
+                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
+                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
+                </select>
+                <label for="authCountry">Country</label>
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
+                <datalist id="country-list"></datalist>
+                <label for="authFavorites">Favorite things</label>
+                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
+                    <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--primary);" />
+                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">
+                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
+            <div class="error-msg" id="authError"></div>
+            <div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
@@ -201,6 +250,47 @@
             if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); }
         }, 100);
         if (typeof auth !== 'undefined') auth.onAuthStateChanged(function() { setTimeout(applyGuestRestrictions, 200); });
+
+        document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
+        document.getElementById('authPassword')?.addEventListener('input', function() {
+            var sd = document.getElementById('passwordStrength');
+            if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; }
+            if (typeof checkPasswordStrength === 'function') {
+                var r = checkPasswordStrength(this.value);
+                sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); }
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ===== TERMS CHECKBOX FIX (#1) =====
+        (function() {
+            const termsCheckbox = document.getElementById('termsCheckbox');
+            const authSubmitBtn = document.getElementById('authSubmitBtn');
+            if (termsCheckbox && authSubmitBtn) {
+                const toggleBtn = () => {
+                    const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
+                    if (isSignup) {
+                        authSubmitBtn.disabled = !termsCheckbox.checked;
+                        authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
+                        authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
+                    } else {
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.style.opacity = '1';
+                        authSubmitBtn.style.cursor = 'pointer';
+                    }
+                };
+                termsCheckbox.addEventListener('change', toggleBtn);
+                const originalToggle = toggleAuthMode;
+                window.toggleAuthMode = function() {
+                    originalToggle();
+                    setTimeout(toggleBtn, 100);
+                };
+                toggleBtn();
+            }
+        })();
 
         console.log('✅ Emergency page ready');
     });
