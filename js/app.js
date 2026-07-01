@@ -1,5 +1,5 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION (FULLY FIXED v7)
+// THE HARBOR - MAIN APPLICATION (FULLY FIXED v8)
 // ============================================
 
 // ============================================
@@ -131,6 +131,21 @@ function checkUsernameAvailability(username) {
 }
 
 // ============================================
+// RATE LIMITER (PREVENT SPAM)
+// ============================================
+function checkRateLimit(action, seconds) {
+    var key = 'rate_' + action;
+    var lastTime = sessionStorage.getItem(key);
+    if (lastTime && Date.now() - parseInt(lastTime) < seconds * 1000) {
+        var remaining = Math.ceil((seconds * 1000 - (Date.now() - parseInt(lastTime))) / 1000);
+        alert('⚠️ Please wait ' + remaining + ' seconds before ' + action + ' again.');
+        return false;
+    }
+    sessionStorage.setItem(key, Date.now());
+    return true;
+}
+
+// ============================================
 // RESEND VERIFICATION
 // ============================================
 function resendVerification() {
@@ -176,7 +191,6 @@ function followUser(targetUid) {
             } else {
                 transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
                 transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
-                // ✅ NOTIFICATION: someone followed you
                 addNotification(targetUid, 'follow', {});
                 return 'followed';
             }
@@ -334,9 +348,7 @@ function renderStories() {
         ? '<div class="empty-state"><div class="big-emoji">🌊</div><h3>No stories found</h3></div>'
         : pageStories.map(story => renderStoryCard(story)).join('');
     renderPagination(totalPages);
-}
-
-function renderStoryCard(story) {
+    function renderStoryCard(story) {
     const author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
     const initial = (story.authorName || 'A')[0].toUpperCase();
     let timeStr = 'Recently';
@@ -485,11 +497,12 @@ function toggleVisibility(storyId) {
 }
 
 // ============================================
-// REACTIONS (with notification)
+// REACTIONS (with notification + rate limit)
 // ============================================
 function addReaction(storyId, emoji) {
     if (!currentUser) { alert('Please log in to react.'); return; }
     if (!currentUser.emailVerified) { alert('Please verify your email first.'); return; }
+    if (!checkRateLimit('reaction', 3)) return;
     if (!userReactions[storyId]) userReactions[storyId] = [];
     const storyRef = db.collection('stories').doc(storyId);
     const userReactionRef = db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
@@ -507,7 +520,6 @@ function addReaction(storyId, emoji) {
             } else {
                 reactions[emoji] = (reactions[emoji]||0)+1;
                 userReactions[storyId].push(emoji);
-                // ✅ NOTIFICATION: someone ❤️ your story
                 if (emoji === '❤️' && data.userId !== currentUser.uid) {
                     addNotification(data.userId, 'like', { storyId });
                 }
@@ -668,7 +680,6 @@ auth.onAuthStateChanged(user => {
 
     if (user) {
         currentUser = user;
-        // ✅ IMMEDIATE: Save state to prevent flash on next page load
         sessionStorage.setItem('harbor_was_logged_in', 'true');
         
         if (authButtons) authButtons.style.display = 'none';
@@ -719,7 +730,6 @@ auth.onAuthStateChanged(user => {
         currentUser = null;
         currentUserData = null;
         userReactions = {};
-        // ✅ IMMEDIATE: Clear state on logout
         sessionStorage.removeItem('harbor_was_logged_in');
         
         if (authButtons) authButtons.style.display = 'flex';
@@ -745,13 +755,10 @@ function updateEmergencyBanner() {
 
 function updateAdminLink() {
     const adminLink = document.getElementById('adminNavLink');
-    const adminBadge = document.getElementById('adminBadge');
     if (currentUser && currentUserData?.isAdmin) {
         if (adminLink) adminLink.style.display = '';
-        if (adminBadge) adminBadge.style.display = '';
     } else {
         if (adminLink) adminLink.style.display = 'none';
-        if (adminBadge) adminBadge.style.display = 'none';
     }
 }
 
@@ -840,5 +847,7 @@ window.resendVerification = resendVerification;
 window.checkPasswordStrength = checkPasswordStrength;
 window.populateCountryDatalist = populateCountryDatalist;
 window.addNotification = addNotification;
+window.checkRateLimit = checkRateLimit;
 
 console.log('✅ The Harbor app loaded');
+}
