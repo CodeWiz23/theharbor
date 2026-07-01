@@ -1,5 +1,5 @@
 /* ============================================
-   THE HARBOR — COMPLETE STYLES (FINAL v6)
+   THE HARBOR — COMPLETE STYLES (FINAL v7)
    ============================================ */
 
 /* ===== DESIGN SYSTEM ===== */
@@ -470,7 +470,7 @@ body {
 .feed-tab:hover { background: var(--border-color); border-color: var(--primary-light); }
 .feed-tab.active { background: var(--primary); color: white; font-weight: 600; border-color: var(--primary); }
 
-/* Category ? icon - FIXED Z-INDEX */
+/* Category ? icon */
 .tab-info-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 17px; height: 17px; border-radius: 50%;
@@ -482,25 +482,30 @@ body {
 .feed-tab.active .tab-info-icon { background: rgba(255,255,255,0.3); color: white; }
 .tab-info-icon:hover { background: var(--secondary); color: white; transform: scale(1.2); }
 
-/* Category tooltip - FLOATS ABOVE EVERYTHING */
+/* Category tooltip - POLISHED & CONTAINED */
 .tab-info-tooltip {
     display: none;
     position: fixed;
     background: #1a1a2e;
     color: #ffffff;
-    padding: 8px 16px;
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 0.78rem;
     font-weight: 400;
-    white-space: nowrap;
+    text-align: center;
+    line-height: 1.5;
     z-index: 9999;
     pointer-events: none;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    max-width: 280px;
-    text-align: center;
-    line-height: 1.4;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+    max-width: 260px;
+    white-space: normal;
+    word-wrap: break-word;
 }
-.tab-info-tooltip.show { display: block; }
+.tab-info-tooltip.show { display: block; animation: tooltipIn 0.2s ease; }
+@keyframes tooltipIn {
+    from { opacity: 0; transform: translate(-50%, -90%) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
 
 /* ===== FOOTER ===== */
 .footer {
@@ -581,6 +586,7 @@ body {
     .story-card { padding: 1rem; border-radius: var(--radius-md); }
     .story-card-title { font-size: 1rem; }
     .footer { padding: 1rem; }
+    .tab-info-tooltip { max-width: 220px; font-size: 0.72rem; padding: 8px 12px; }
 }
 
 @media (max-width: 480px) {
@@ -593,7 +599,7 @@ body {
     .feed-tab { font-size: 0.7rem; padding: 0.3rem 0.6rem; }
     .story-card { padding: 0.8rem; margin-bottom: 0.6rem; }
     .story-card-avatar { width: 34px; height: 34px; font-size: 0.85rem; }
-    .tab-info-tooltip { max-width: 200px; font-size: 0.7rem; }
+    .tab-info-tooltip { max-width: 200px; font-size: 0.7rem; padding: 8px 12px; }
 }
 
 @media (min-width: 1024px) { .story-card { padding: 1.4rem 1.8rem; } }
