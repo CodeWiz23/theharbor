@@ -1,5 +1,5 @@
 /* ============================================
-   THE HARBOR — COMPLETE STYLES (FINAL v8)
+   THE HARBOR — COMPLETE STYLES (FINAL v7)
    ============================================ */
 
 /* ===== DESIGN SYSTEM ===== */
@@ -436,46 +436,8 @@ body {
 }
 .card-action-btn:hover { transform: translateY(-1px); }
 .card-btn-comment { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); }
-
-/* ✅ FIX #9: UNIFIED GOLD BUTTON STYLES */
-.card-btn-gold, .gold-btn {
-    background: linear-gradient(135deg, #f1c40f, #f39c12);
-    color: white;
-    font-weight: 700;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    box-shadow: 0 2px 8px rgba(241, 196, 15, 0.3);
-}
-.card-btn-gold:hover, .gold-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(241, 196, 15, 0.5);
-}
-.card-btn-gold:active, .gold-btn:active {
-    transform: scale(0.95);
-}
-.card-btn-gold:disabled, .gold-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-@media (max-width: 480px) {
-    .card-btn-gold, .gold-btn {
-        padding: 3px 7px;
-        font-size: 0.65rem;
-    }
-    .card-btn-gold .gold-label, .gold-btn .gold-label {
-        display: none;
-    }
-}
+.card-btn-gold { background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; }
+.card-btn-gold:hover { box-shadow: 0 4px 12px rgba(241,196,15,0.4); }
 
 /* ===== FEED HERO ===== */
 .feed-hero {
@@ -508,6 +470,7 @@ body {
 .feed-tab:hover { background: var(--border-color); border-color: var(--primary-light); }
 .feed-tab.active { background: var(--primary); color: white; font-weight: 600; border-color: var(--primary); }
 
+/* Category ? icon */
 .tab-info-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 17px; height: 17px; border-radius: 50%;
@@ -519,6 +482,7 @@ body {
 .feed-tab.active .tab-info-icon { background: rgba(255,255,255,0.3); color: white; }
 .tab-info-icon:hover { background: var(--secondary); color: white; transform: scale(1.2); }
 
+/* Category tooltip - POLISHED & CONTAINED */
 .tab-info-tooltip {
     display: none;
     position: fixed;
@@ -608,49 +572,6 @@ body {
 @keyframes spin { to{transform:rotate(360deg);} }
 
 .text-center { text-align:center; }
-
-/* ============================================
-   ✅ FIX #10: COMMENT TEXTAREA - DARKER BACKGROUND
-   ============================================ */
-
-.comment-input-area textarea,
-.reply-input-area textarea,
-#commentText,
-#reply-text-*,
-.comment-section textarea {
-    background: var(--bg-secondary) !important;
-    border: 2px solid var(--border-color) !important;
-    color: var(--text-primary) !important;
-    border-radius: var(--radius-md);
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    font-family: var(--font-family);
-    resize: vertical;
-    transition: border 0.2s ease;
-    min-height: 65px;
-    width: 100%;
-}
-
-.comment-input-area textarea:focus,
-.reply-input-area textarea:focus,
-#commentText:focus,
-.comment-section textarea:focus {
-    outline: none;
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.1);
-}
-
-/* Dark theme textarea */
-[data-theme="dark"] .comment-input-area textarea,
-[data-theme="dark"] .reply-input-area textarea,
-[data-theme="dark"] #commentText,
-[data-theme="dark"] .comment-section textarea {
-    background: var(--bg-primary) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-primary) !important;
-}
-
-/* ============================================ */
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
