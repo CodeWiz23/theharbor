@@ -1,1 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Rewards — The Harbor</title>
 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
+
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('harbor_theme');
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/gold.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        .daily-container { max-width: 520px; margin: 0 auto; padding: 1.5rem 0; text-align: center; }
+
+        .daily-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+        .daily-card .big-icon { font-size: 4rem; display: block; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        .daily-card h1 { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+        .daily-card h1 span { color: var(--secondary); }
+        .daily-card .subtitle { color: var(--text-muted); margin: 8px 0 16px; font-size: 0.95rem; }
+
+        .reward-amount {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin: 12px 0;
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .countdown {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        .countdown .time { font-size: 1.4rem; color: var(--primary); }
+
+        .claim-btn {
+            display: inline-block;
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 16px 0;
+            box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4);
+            font-family: inherit;
+        }
+        .claim-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 6px 28px rgba(243, 156, 18, 0.5); }
+        .claim-btn:active:not(:disabled) { transform: scale(0.96); }
+        .claim-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .last-claimed { font-size: 0.85rem; color: var(--text-muted); }
+        .last-claimed strong { color: var(--text-primary); }
+
+        .gold-shower { position: fixed; pointer-events: none; z-index: 9999; }
+        .gold-particle {
+            position: fixed;
+            font-size: 2rem;
+            animation: goldFall 2s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes goldFall {
+            0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+            100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
+        }
+
+        @media (max-width: 480px) {
+            .daily-card { padding: 1.5rem 1rem; }
+            .daily-card h1 { font-size: 1.5rem; }
+            .reward-amount { font-size: 2.5rem; }
+            .claim-btn { padding: 12px 36px; font-size: 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header" role="banner">
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
+        <div class="header-right">
+            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="about.html" class="btn btn-ghost">🌿 About</a>
+            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
+            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
+            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
+            <a href="daily-rewards.html" class="btn btn-feed active guest-only" aria-current="page">🎁 Daily</a>
+            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
+            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span id="userName">Friend</span>
+                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="emergencyBanner" role="alert"></div>
+
+    <div class="container">
+        <div class="daily-container">
+            <div class="daily-card">
+                <span class="big-icon">🎁</span>
+                <h1>Daily <span>Reward</span></h1>
+                <p class="subtitle">Claim your free gold every day!</p>
+
+                <div class="reward-amount">+10 🪙</div>
+
+                <div id="claimStatus">
+                    <div class="countdown" id="countdownContainer">
+                        Next reward in: <span class="time" id="countdownTimer">--:--:--</span>
+                    </div>
+                    <button class="claim-btn" id="claimBtn" onclick="claimDailyReward()" disabled>🎁 Claim 10 Gold</button>
+                </div>
+
+                <div class="last-claimed" id="lastClaimedInfo">
+                    Last claimed: <strong id="lastClaimedDate">Never</strong>
+                </div>
+
+                <div id="claimError" class="error-msg"></div>
+                <div id="claimSuccess" class="success-msg"></div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+        <div>⚓ The Harbor — Daily Rewards</div>
+        <div class="footer-links">
+            <a href="about.html">🌿 About</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
+        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
+    </footer>
+
+    <script>
+        var canClaim = false;
+        var nextClaimTime = null;
+        var timerInterval = null;
+
+        function applyGuestRestrictions() {
+            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+            var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
+        }
+
+        // Calculate next reset time at UTC+6 midnight (Bangladesh time)
+        function getNextResetTime() {
+            var now = new Date();
+            // Bangladesh time = UTC+6
+            var bdOffset = 6 * 60; // minutes
+            var localOffset = now.getTimezoneOffset(); // minutes
+            var bdNow = new Date(now.getTime() + (bdOffset + localOffset) * 60000);
+            var bdMidnight = new Date(bdNow);
+            bdMidnight.setHours(24, 0, 0, 0); // next midnight BD time
+            // Convert back to local time
+            var nextResetLocal = new Date(bdMidnight.getTime() - (bdOffset + localOffset) * 60000);
+            return nextResetLocal;
+        }
+
+        function updateTimerDisplay() {
+            if (!nextClaimTime) {
+                document.getElementById('countdownTimer').textContent = '--:--:--';
+                return;
+            }
+            var now = new Date();
+            var diff = nextClaimTime.getTime() - now.getTime();
+            if (diff <= 0) {
+                canClaim = true;
+                document.getElementById('claimBtn').disabled = false;
+                document.getElementById('countdownContainer').style.display = 'none';
+                document.getElementById('claimBtn').textContent = '🎁 Claim 10 Gold';
+                clearInterval(timerInterval);
+                document.getElementById('countdownTimer').textContent = '00:00:00';
+                return;
+            }
+            canClaim = false;
+            document.getElementById('claimBtn').disabled = true;
+            document.getElementById('countdownContainer').style.display = 'block';
+            var hours = Math.floor(diff / 3600000);
+            var minutes = Math.floor((diff % 3600000) / 60000);
+            var seconds = Math.floor((diff % 60000) / 1000);
+            document.getElementById('countdownTimer').textContent =
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+        }
+
+        function loadDailyRewardState() {
+            if (!currentUser) return;
+
+            var today = new Date();
+            var bdOffset = 6 * 60;
+            var localOffset = today.getTimezoneOffset();
+            var bdNow = new Date(today.getTime() + (bdOffset + localOffset) * 60000);
+            var bdTodayStr = bdNow.toISOString().split('T')[0]; // YYYY-MM-DD in BD time
+
+            // Check if user claimed today (store claim date as string YYYY-MM-DD BD time)
+            db.collection('dailyClaims').doc(currentUser.uid).get().then(doc => {
+                var lastClaimed = null;
+                if (doc.exists) {
+                    var data = doc.data();
+                    lastClaimed = data.lastClaimedDate; // stored as 'YYYY-MM-DD' BD time
+                    document.getElementById('lastClaimedDate').textContent = data.lastClaimedDate || 'Unknown';
+                } else {
+                    document.getElementById('lastClaimedDate').textContent = 'Never';
+                }
+
+                // Determine if already claimed today
+                if (lastClaimed === bdTodayStr) {
+                    canClaim = false;
+                    document.getElementById('claimBtn').disabled = true;
+                    document.getElementById('claimBtn').textContent = '✅ Claimed Today';
+                } else {
+                    canClaim = true;
+                    document.getElementById('claimBtn').disabled = false;
+                    document.getElementById('claimBtn').textContent = '🎁 Claim 10 Gold';
+                    document.getElementById('countdownContainer').style.display = 'none';
+                }
+
+                // Always calculate next reset time
+                nextClaimTime = getNextResetTime();
+                updateTimerDisplay();
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+            }).catch(err => {
+                console.error('Error loading daily reward state:', err);
+                document.getElementById('lastClaimedDate').textContent = 'Error';
+            });
+        }
+
+        function claimDailyReward() {
+            if (!currentUser) { alert('Please log in.'); return; }
+            if (!canClaim) return;
+
+            var btn = document.getElementById('claimBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Claiming...';
+
+            var today = new Date();
+            var bdOffset = 6 * 60;
+            var localOffset = today.getTimezoneOffset();
+            var bdNow = new Date(today.getTime() + (bdOffset + localOffset) * 60000);
+            var bdTodayStr = bdNow.toISOString().split('T')[0];
+
+            var userRef = db.collection('users').doc(currentUser.uid);
+            var claimRef = db.collection('dailyClaims').doc(currentUser.uid);
+
+            // Use transaction to ensure atomic update
+            db.runTransaction(transaction => {
+                return transaction.get(userRef).then(userDoc => {
+                    if (!userDoc.exists) throw new Error('User not found');
+                    var currentGold = userDoc.data().goldBalance || 0;
+                    transaction.update(userRef, { goldBalance: currentGold + 10 });
+                    transaction.set(claimRef, {
+                        lastClaimedDate: bdTodayStr,
+                        claimedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    return currentGold + 10;
+                });
+            }).then(newBalance => {
+                // Update local data
+                if (currentUserData) currentUserData.goldBalance = newBalance;
+                if (typeof updateSidebarData === 'function') updateSidebarData();
+
+                document.getElementById('lastClaimedDate').textContent = bdTodayStr;
+                btn.textContent = '✅ Claimed Today';
+                btn.disabled = true;
+                canClaim = false;
+                document.getElementById('claimSuccess').textContent = '✅ +10 Gold added! New balance: ' + newBalance + ' 🪙';
+
+                // Trigger gold shower animation
+                createGoldShower();
+
+                // Refresh state
+                loadDailyRewardState();
+            }).catch(err => {
+                console.error('Claim error:', err);
+                document.getElementById('claimError').textContent = '❌ ' + err.message;
+                btn.disabled = false;
+                btn.textContent = '🎁 Claim 10 Gold';
+            });
+        }
+
+        function createGoldShower() {
+            var emojis = ['🪙', '💰', '✨', '⭐', '💛'];
+            for (var i = 0; i < 40; i++) {
+                setTimeout(function() {
+                    var particle = document.createElement('div');
+                    particle.className = 'gold-particle';
+                    particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = -(Math.random() * 40) + 'px';
+                    particle.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+                    particle.style.fontSize = (1.5 + Math.random() * 2.5) + 'rem';
+                    document.body.appendChild(particle);
+                    setTimeout(function() { particle.remove(); }, 3500);
+                }, i * 50);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            applyGuestRestrictions();
+            var check = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(check);
+                    if (currentUser) loadDailyRewardState();
+                }
+            }, 100);
+
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(function(user) {
+                    if (user) { currentUser = user; loadDailyRewardState(); }
+                    applyGuestRestrictions();
+                });
+            }
+            console.log('✅ Daily rewards page ready');
+        });
+    </script>
+</body>
+</html>
