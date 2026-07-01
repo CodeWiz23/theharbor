@@ -25,6 +25,7 @@
     <script src="js/app.js?v=5"></script>
     <script src="js/sidebar.js?v=5"></script>
     <script src="js/gold.js?v=5"></script>
+    <script src="js/notifications.js"></script>
 
     <link rel="stylesheet" href="css/style.css?v=5" />
 
@@ -128,26 +129,33 @@
 </head>
 
 <body>
+    <script>
+    (function() {
+        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
+        if (wasLoggedIn === 'true') {
+            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+        }
+    })();
+    </script>
+
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-feed active guest-only" aria-current="page">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon active guest-only" aria-current="page" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
+            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
@@ -168,7 +176,6 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
     <div class="modal" id="editProfileModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeEditProfileModal()" aria-label="Close">&times;</button>
@@ -192,7 +199,6 @@
         </div>
     </div>
 
-    <!-- Auth Modal -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -217,10 +223,16 @@
     </div>
 
     <footer class="footer" role="contentinfo">
-        <div style="max-width:680px;margin:0 auto;text-align:center;">
-            <div class="footer-links"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="emergency.html">Emergency</a></div>
-            <div class="footer-copy">© 2026 The Harbor — Built with ❤️ for the community.</div>
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
+        <div class="footer-links">
+            <a href="profile.html" class="guest-only">👤 Profile</a>
+            <a href="about.html">🌿 About</a>
+            <a href="emergency.html">🆘 Emergency</a>
+            <a href="suggest.html" class="guest-only">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
         </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
     <script>
@@ -394,14 +406,12 @@
         var borderClass = selectedBorder || 'default';
         var bio = userData.bio || '';
 
-        // Follow button: show only if NOT self AND canViewFullProfile (public or follower)
         var followBtnHtml = '';
         if (!isSelf && auth.currentUser && canViewFullProfile) {
             var following = isFollowingUser(userData.uid);
             followBtnHtml = '<button class="follow-btn '+(following?'unfollow':'follow')+'" onclick="profileFollowUser(\''+userData.uid+'\')">'+(following?'Unfollow':'Follow')+'</button>';
         }
 
-        // Report button: always show if not self
         var reportBtnHtml = '';
         if (!isSelf && auth.currentUser) {
             reportBtnHtml = '<button class="btn btn-ghost" onclick="profileReportUser(\''+userData.uid+'\')" style="color:var(--warning);">🚩 Report</button>';
@@ -423,10 +433,8 @@
 
         var privacyBadge = currentProfileIsPrivate ? '<span class="privacy-badge private">🔒 Private</span>' : '<span class="privacy-badge public">🌍 Public</span>';
 
-        // Bio: always visible (even when private)
         var bioHtml = bio ? '<div class="profile-bio">📝 '+escapeHTML(bio)+'</div>' : (isSelf ? '<div class="profile-bio" style="color:var(--text-muted);font-size:0.85rem;cursor:pointer;" onclick="openEditProfileModal()">No bio yet — tap to add one</div>' : '');
 
-        // Stats: hidden if private
         var statsHtml = '';
         if (canViewFullProfile) {
             statsHtml = '<div class="stats-row">'+
@@ -439,14 +447,12 @@
             '</div>';
         }
 
-        // Additional info (gender, country, favorites): hidden if private
         var additionalInfo = '';
         if (canViewFullProfile) {
             additionalInfo = '<div class="profile-bio" style="font-size:0.85rem;">'+escapeHTML(gender)+' · 📍 '+escapeHTML(userData.country||'N/A')+'</div>'+
                              '<div class="profile-bio" style="font-size:0.85rem;">❤️ '+escapeHTML(userData.favorites||'Not specified')+'</div>';
         }
 
-        // Locked message if private
         var lockedMsg = '';
         if (!canViewFullProfile && !isSelf) {
             lockedMsg = '<div class="private-locked-msg">🔒 This profile is private. Follow to see more.</div>';
