@@ -1,5 +1,5 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION (FULLY FIXED & ENHANCED)
+// THE HARBOR - MAIN APPLICATION (FULLY FIXED v7)
 // ============================================
 
 // ============================================
@@ -142,7 +142,7 @@ function resendVerification() {
 }
 
 // ============================================
-// NOTIFICATION SYSTEM (#16)
+// NOTIFICATION SYSTEM
 // ============================================
 function addNotification(toUid, type, data) {
     if (!toUid || toUid === currentUser?.uid) return;
@@ -158,7 +158,7 @@ function addNotification(toUid, type, data) {
 }
 
 // ============================================
-// FOLLOW SYSTEM
+// FOLLOW SYSTEM (with notification)
 // ============================================
 function followUser(targetUid) {
     if (!currentUser) { alert('Please log in to follow users.'); return; }
@@ -176,6 +176,7 @@ function followUser(targetUid) {
             } else {
                 transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
                 transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
+                // ✅ NOTIFICATION: someone followed you
                 addNotification(targetUid, 'follow', {});
                 return 'followed';
             }
@@ -484,7 +485,7 @@ function toggleVisibility(storyId) {
 }
 
 // ============================================
-// REACTIONS
+// REACTIONS (with notification)
 // ============================================
 function addReaction(storyId, emoji) {
     if (!currentUser) { alert('Please log in to react.'); return; }
@@ -506,6 +507,7 @@ function addReaction(storyId, emoji) {
             } else {
                 reactions[emoji] = (reactions[emoji]||0)+1;
                 userReactions[storyId].push(emoji);
+                // ✅ NOTIFICATION: someone ❤️ your story
                 if (emoji === '❤️' && data.userId !== currentUser.uid) {
                     addNotification(data.userId, 'like', { storyId });
                 }
@@ -648,14 +650,14 @@ function handleAuth() {
 
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
+        sessionStorage.removeItem('harbor_was_logged_in');
         auth.signOut();
-        sessionStorage.removeItem('hasSeenWelcome');
         window.location.href = 'index.html';
     }
 }
 
 // ============================================
-// AUTH STATE LISTENER
+// AUTH STATE LISTENER (NO FLASH FIX)
 // ============================================
 auth.onAuthStateChanged(user => {
     const authButtons = document.getElementById('authButtons');
@@ -666,6 +668,9 @@ auth.onAuthStateChanged(user => {
 
     if (user) {
         currentUser = user;
+        // ✅ IMMEDIATE: Save state to prevent flash on next page load
+        sessionStorage.setItem('harbor_was_logged_in', 'true');
+        
         if (authButtons) authButtons.style.display = 'none';
         if (userInfo) userInfo.style.display = 'flex';
         if (user.emailVerified) {
@@ -714,6 +719,9 @@ auth.onAuthStateChanged(user => {
         currentUser = null;
         currentUserData = null;
         userReactions = {};
+        // ✅ IMMEDIATE: Clear state on logout
+        sessionStorage.removeItem('harbor_was_logged_in');
+        
         if (authButtons) authButtons.style.display = 'flex';
         if (userInfo) userInfo.style.display = 'none';
         const adminLink = document.getElementById('adminNavLink');
