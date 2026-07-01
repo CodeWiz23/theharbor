@@ -3,493 +3,74 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Terms of Service — The Harbor</title>
-
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/analytics.js"></script>
-
-    <link rel="stylesheet" href="css/style.css" />
+    <title>Welcome — The Harbor</title>
 
     <style>
-        .legal-section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: var(--space-lg) 0;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a4a4a, #2d6a6a);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
         }
-        .legal-section h1 {
-            font-weight: 300;
-            color: var(--text-primary);
-            font-size: 2.2rem;
-            margin-bottom: var(--space-xs);
+        .welcome-container { text-align: center; color: #f5f0eb; z-index: 10; padding: 20px; }
+        .welcome-container .emoji { font-size: 5rem; display: block; margin-bottom: 16px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .welcome-container h1 { font-size: 3rem; font-weight: 300; }
+        .welcome-container h1 span { font-weight: 700; color: #c47a5a; }
+        .welcome-container p { font-size: 1.1rem; opacity: 0.85; margin-top: 8px; }
+        .btn-continue {
+            display: inline-block; margin-top: 28px; padding: 14px 44px;
+            background: #c47a5a; border: none; border-radius: 50px;
+            color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 20px rgba(196,122,90,0.4);
         }
-        .legal-section .subtitle {
-            color: var(--text-muted);
-            font-size: 1rem;
-            margin-bottom: var(--space-xl);
-        }
-        .legal-section h2 {
-            color: var(--text-primary);
-            font-size: 1.3rem;
-            margin-top: var(--space-xl);
-            margin-bottom: var(--space-sm);
-            padding-bottom: var(--space-xs);
-            border-bottom: 2px solid var(--border-color);
-        }
-        .legal-section h2:first-of-type {
-            margin-top: 0;
-        }
-        .legal-section p {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            margin-bottom: var(--space-sm);
-        }
-        .legal-section ul {
-            list-style: none;
-            padding: 0;
-        }
-        .legal-section ul li {
-            padding: var(--space-sm) 0;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: flex-start;
-            gap: var(--space-md);
-            border-bottom: 1px solid var(--border-light);
-        }
-        .legal-section ul li:last-child {
-            border-bottom: none;
-        }
-        .legal-section ul li .icon {
-            font-size: 1.2rem;
-            min-width: 30px;
-            margin-top: 2px;
-        }
-        .legal-section .last-updated {
-            background: var(--bg-secondary);
-            padding: var(--space-md) var(--space-lg);
-            border-radius: var(--radius-md);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: var(--space-md) 0;
-            border-left: 4px solid var(--secondary);
-        }
-        .legal-section .highlight-box {
-            background: #fef3c7;
-            padding: var(--space-md) var(--space-lg);
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--warning);
-            margin: var(--space-md) 0;
-            color: #92400e;
-        }
-
-        .card {
-            background: var(--bg-card);
-            padding: var(--space-xl);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-        .card:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            padding: 0.5rem 1.5rem;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-secondary:hover {
-            background: var(--border-color);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 600px) {
-            .card { padding: var(--space-lg); }
-            .legal-section h1 { font-size: 1.6rem; }
-            .legal-section h2 { font-size: 1.1rem; }
-        }
+        .btn-continue:hover { transform: scale(1.05); background: #a85a3a; }
+        .star { position: fixed; width: 3px; height: 3px; background: white; border-radius: 50%; pointer-events: none; z-index: 0; }
+        @keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:1} }
+        @media (max-width: 480px) { .welcome-container h1 { font-size: 2rem; } .welcome-container .emoji { font-size: 3.5rem; } }
     </style>
 </head>
 
 <body>
-    <!-- ===== HEADER ===== -->
-    <header class="header">
-        <div class="header-left">
-            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
-        </div>
-        <div class="header-right">
-            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
-            <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <div class="guest-restricted">
-                <a href="submit.html" class="btn btn-nav">📝 Share</a>
-                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
-            </div>
-            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
-            <div id="authButtons">
-                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
-                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
-            </div>
-            <div id="userInfo">
-                <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
-            </div>
-        </div>
-    </header>
+    <div id="stars"></div>
 
-    <!-- ===== EMERGENCY BANNER ===== -->
-    <div id="emergencyBanner"></div>
-
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="container">
-        <div class="legal-section">
-            <div class="card">
-                <h1>📜 Terms of Service</h1>
-                <p class="subtitle">By using The Harbor, you agree to these terms.</p>
-
-                <div class="last-updated">
-                    📅 Last Updated: June 29, 2026
-                </div>
-
-                <div class="highlight-box">
-                    ⚠️ <strong>Please read these terms carefully.</strong> By accessing or using The Harbor, you agree to be bound by these Terms of Service.
-                </div>
-
-                <h2>1. Acceptance of Terms</h2>
-                <p>By creating an account, posting content, or using The Harbor in any way, you agree to these Terms of Service. If you do not agree, please do not use our platform.</p>
-
-                <h2>2. Eligibility</h2>
-                <ul>
-                    <li>
-                        <span class="icon">🧒</span>
-                        <div><strong>Age Requirement</strong> — You must be at least 13 years old to use The Harbor.</div>
-                    </li>
-                    <li>
-                        <span class="icon">✅</span>
-                        <div><strong>Account Responsibility</strong> — You are responsible for all activity under your account.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🚫</span>
-                        <div><strong>One Account</strong> — You may only have one active account.</div>
-                    </li>
-                </ul>
-
-                <h2>3. User Conduct</h2>
-                <ul>
-                    <li>
-                        <span class="icon">🤝</span>
-                        <div><strong>Be Kind</strong> — Treat others with respect and compassion.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🕊️</span>
-                        <div><strong>Respect Anonymity</strong> — Do not try to identify other users unless they choose to share.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🚫</span>
-                        <div><strong>No Hate Speech</strong> — No bullying, harassment, discrimination, or hateful content.</div>
-                    </li>
-                    <li>
-                        <span class="icon">📵</span>
-                        <div><strong>No Personal Info</strong> — Do not share personal contact information (address, phone, real name).</div>
-                    </li>
-                    <li>
-                        <span class="icon">⚠️</span>
-                        <div><strong>No Harmful Content</strong> — Do not post content that promotes self-harm, violence, or illegal activities.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🛡️</span>
-                        <div><strong>Report Issues</strong> — If you see inappropriate content, use the Report button.</div>
-                    </li>
-                </ul>
-
-                <h2>4. Content Ownership</h2>
-                <ul>
-                    <li>
-                        <span class="icon">✍️</span>
-                        <div><strong>Your Content</strong> — You retain ownership of the stories and comments you post.</div>
-                    </li>
-                    <li>
-                        <span class="icon">📢</span>
-                        <div><strong>License to Us</strong> — By posting, you grant The Harbor a license to display, store, and moderate your content.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🗑️</span>
-                        <div><strong>Removal</strong> — You may delete your content anytime. We may remove content that violates these terms.</div>
-                    </li>
-                    <li>
-                        <span class="icon">©️</span>
-                        <div><strong>Copyright</strong> — Do not post content you do not own or have permission to share.</div>
-                    </li>
-                </ul>
-
-                <h2>5. Prohibited Activities</h2>
-                <ul>
-                    <li>
-                        <span class="icon">🚫</span>
-                        <div><strong>No Hacking</strong> — Do not attempt to access, interfere with, or disrupt the platform.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🔄</span>
-                        <div><strong>No Spam</strong> — Do not post excessive repetitive content or promotional material.</div>
-                    </li>
-                    <li>
-                        <span class="icon">👤</span>
-                        <div><strong>No Impersonation</strong> — Do not impersonate other users or staff members.</div>
-                    </li>
-                    <li>
-                        <span class="icon">📊</span>
-                        <div><strong>No Data Scraping</strong> — Do not use bots or scripts to collect data from the platform.</div>
-                    </li>
-                </ul>
-
-                <h2>6. Moderation & Enforcement</h2>
-                <ul>
-                    <li>
-                        <span class="icon">🛡️</span>
-                        <div><strong>Moderation</strong> — We reserve the right to moderate, edit, or remove any content.</div>
-                    </li>
-                    <li>
-                        <span class="icon">⏳</span>
-                        <div><strong>Temporary Suspension</strong> — Violating these terms may result in temporary suspension.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🚫</span>
-                        <div><strong>Permanent Ban</strong> — Severe or repeated violations may result in permanent account termination.</div>
-                    </li>
-                    <li>
-                        <span class="icon">📧</span>
-                        <div><strong>Notification</strong> — We will notify you of moderation actions via email.</div>
-                    </li>
-                </ul>
-
-                <h2>7. Disclaimer of Warranties</h2>
-                <ul>
-                    <li>
-                        <span class="icon">⚠️</span>
-                        <div><strong>No Professional Advice</strong> — The Harbor is a peer support community, not a crisis or professional mental health service.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🆘</span>
-                        <div><strong>Emergency</strong> — If you are in crisis, call your local emergency number immediately.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🔧</span>
-                        <div><strong>As-Is Service</strong> — The Harbor is provided "as is" without warranties of any kind.</div>
-                    </li>
-                </ul>
-
-                <h2>8. Limitation of Liability</h2>
-                <ul>
-                    <li>
-                        <span class="icon">⚖️</span>
-                        <div><strong>No Liability</strong> — The Harbor is not liable for any damages arising from use of the platform.</div>
-                    </li>
-                    <li>
-                        <span class="icon">📝</span>
-                        <div><strong>User Responsibility</strong> — You are responsible for your own content and interactions.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🔗</span>
-                        <div><strong>External Links</strong> — We are not responsible for third-party content linked from the platform.</div>
-                    </li>
-                </ul>
-
-                <h2>9. Termination</h2>
-                <ul>
-                    <li>
-                        <span class="icon">🚪</span>
-                        <div><strong>By You</strong> — You may delete your account at any time.</div>
-                    </li>
-                    <li>
-                        <span class="icon">🛑</span>
-                        <div><strong>By Us</strong> — We may terminate accounts that violate these terms.</div>
-                    </li>
-                    <li>
-                        <span class="icon">📤</span>
-                        <div><strong>Data Retention</strong> — Upon termination, we will delete your personal data in accordance with our Privacy Policy.</div>
-                    </li>
-                </ul>
-
-                <h2>10. Changes to Terms</h2>
-                <ul>
-                    <li>
-                        <span class="icon">📝</span>
-                        <div><strong>Updates</strong> — We may update these terms occasionally. We will notify you of significant changes.</div>
-                    </li>
-                    <li>
-                        <span class="icon">✅</span>
-                        <div><strong>Continued Use</strong> — Continuing to use The Harbor after changes means you accept the new terms.</div>
-                    </li>
-                </ul>
-
-                <h2>11. Contact Us</h2>
-                <ul>
-                    <li>
-                        <span class="icon">📧</span>
-                        <div><strong>Email</strong> — theharbor.community@gmail.com</div>
-                    </li>
-                    <li>
-                        <span class="icon">🐛</span>
-                        <div><strong>Report Issues</strong> — Use the "Report" button on any post or comment.</div>
-                    </li>
-                </ul>
-
-                <div style="margin-top:var(--space-xl);padding-top:var(--space-lg);border-top:2px solid var(--border-color);text-align:center;">
-                    <p style="color:var(--text-muted);font-size:0.85rem;">
-                        © 2026 The Harbor — All Rights Reserved.
-                    </p>
-                    <div style="margin-top:var(--space-md);">
-                        <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="welcome-container">
+        <span class="emoji">🎉</span>
+        <h1>Welcome to <span>The Harbor</span></h1>
+        <p>⚓ A safe place to share, heal, and grow</p>
+        <a href="index.html" class="btn-continue">Continue to The Harbor →</a>
     </div>
-
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            <h2 id="modalTitle">🔐 Welcome Back</h2>
-
-            <div class="warning-box" id="genderWarning">
-                <span>⚠️</span>
-                <span id="genderWarningText">Your gender determines which sections you can see.</span>
-            </div>
-
-            <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" />
-
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
-            <div id="passwordStrength"></div>
-
-            <div id="signupFields" style="display:none;">
-                <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" />
-                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
-
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
-
-                <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
-                <datalist id="country-list"></datalist>
-
-                <label for="authFavorites">Favorite things</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="termsCheckbox" />
-                    <label for="termsCheckbox">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
-                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
-                        <span style="color:var(--danger);">*</span>
-                    </label>
-                </div>
-            </div>
-
-            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
-                Don't have an account? <strong>Sign Up</strong>
-            </div>
-
-            <div class="error-msg" id="authError"></div>
-            <div class="success-msg" id="authSuccess"></div>
-        </div>
-    </div>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
-        <div class="footer-links">
-            <a href="activity.html">📊 Activity</a>
-            <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
-            <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
-            <a href="privacy.html">🔒 Privacy</a>
-            <a href="terms.html">📜 Terms</a>
-        </div>
-        <div class="footer-copy">
-            © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community.
-        </div>
-    </footer>
-
-    <!-- ============================================
-    JAVASCRIPT
-    ============================================ -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
 
     <script>
-    // ============================================
-    // INIT
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-        // Modal close on outside click
-        document.getElementById('authModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+    // Stars
+    for (var i=0; i<80; i++) {
+        var s = document.createElement('div');
+        s.className = 'star';
+        s.style.cssText = 'left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation:twinkle '+(1.5+Math.random()*2)+'s infinite;animation-delay:'+Math.random()*3+'s;';
+        document.getElementById('stars').appendChild(s);
+    }
 
-        // Password strength
-        document.getElementById('authPassword')?.addEventListener('input', function() {
-            const pwd = this.value;
-            const strengthDiv = document.getElementById('passwordStrength');
-            if (pwd.length === 0) { strengthDiv.innerHTML = ''; return; }
-            const result = checkPasswordStrength(pwd);
-            strengthDiv.innerHTML = `
-                <div style="margin-top:6px;font-size:0.85rem;">
-                    Strength: <span style="color:${result.color};font-weight:700;">${result.strength}</span>
-                </div>
-            `;
-        });
+    // Fireworks
+    function createFirework() {
+        var colors = ['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43','#27ae60'];
+        var cx = 50 + Math.random() * (window.innerWidth - 100);
+        var cy = 20 + Math.random() * (window.innerHeight * 0.5);
+        for (var i=0; i<30; i++) {
+            var p = document.createElement('div');
+            var angle = Math.random()*Math.PI*2;
+            var dist = 50+Math.random()*150;
+            p.style.cssText = 'position:fixed;width:'+(3+Math.random()*6)+'px;height:'+(3+Math.random()*6)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+cx+'px;top:'+cy+'px;pointer-events:none;z-index:5;transition:all 1s ease-out;';
+            document.body.appendChild(p);
+            requestAnimationFrame(function(){ p.style.transform='translate('+Math.cos(angle)*dist+'px,'+Math.sin(angle)*dist+'px) scale(0)'; p.style.opacity='0'; });
+            setTimeout(function(){ p.remove(); }, 1100);
+        }
+    }
 
-        document.getElementById('authName')?.addEventListener('input', checkUsernameOnType);
+    var interval = setInterval(function() { createFirework(); }, 600);
+    setTimeout(function() { clearInterval(interval); }, 8000);
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const modal = document.getElementById('authModal');
-                if (modal && modal.classList.contains('active')) handleAuth();
-            }
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        populateCountryDatalist();
-
-        console.log('✅ Terms page ready');
-    });
-
-    console.log('📜 Terms page loaded');
+    document.addEventListener('click', function() { for(var i=0;i<3;i++) setTimeout(createFirework,i*80); });
     </script>
 </body>
 </html>
