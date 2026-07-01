@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Story — The Harbor</title>
+    <title>The Harbor — Share & Heal</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://www.gstatic.com; img-src 'self' data: https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net https://www.gstatic.com; img-src 'self' data: https:;">
+
+    <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
+    <meta property="og:title" content="The Harbor — Share & Heal" />
 
     <script>
     (function() {
@@ -29,26 +32,66 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .story-full { background: var(--bg-card); padding: 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); position: relative; }
-        .story-full .story-title { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1.3; }
-        .story-full .story-meta-row { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; align-items: center; }
-        .story-full .category-badge { background: var(--bg-secondary); padding: 3px 14px; border-radius: 9999px; color: var(--text-secondary); font-weight: 600; font-size: 0.75rem; border: 1px solid var(--border-color); }
-        .story-full .gold-badge { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; padding: 3px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
-        .story-full .story-text { font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; color: var(--text-secondary); }
-        .story-full .story-text .excerpt-text { display: inline; }
-        .story-full .story-text .full-text { display: none; }
-        .story-full .story-text .full-text.show { display: inline; }
-        .read-more-btn { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; padding: 4px 0; font-size: 0.9rem; transition: color 0.2s ease; font-family: inherit; }
-        .read-more-btn:hover { color: var(--secondary-dark); text-decoration: underline; }
-        .story-action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-        .reaction-btn { padding: 5px 14px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.95rem; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; }
-        .reaction-btn:hover { background: var(--border-color); transform: scale(1.04); }
-        .reaction-btn:active { transform: scale(0.95); }
-        .reaction-btn.reacted { background: #dcfce7; border-color: #16a34a; }
-        .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .reaction-btn .count { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+        /* ===== FEED HERO (unchanged) ===== */
+        .feed-hero { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 2.2rem 2rem; text-align: center; border-radius: var(--radius-xl); margin: 1.2rem 0; }
+        .feed-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
+        .feed-hero h1 span { font-weight: 700; color: var(--secondary); }
+        .feed-hero p { font-size: 1rem; opacity: 0.85; margin-top: 4px; }
+        .feed-hero-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .feed-hero-actions .btn { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .feed-hero-actions .btn:hover { background: rgba(255,255,255,0.22); }
+        .feed-hero-actions .btn-primary-action { background: var(--secondary); border-color: var(--secondary); font-weight: 600; }
+        .feed-search { max-width: 520px; margin: -14px auto 20px; padding: 0 1rem; position: relative; z-index: 10; }
+        .feed-search input { width: 100%; padding: 13px 20px; border: 2px solid var(--border-color); border-radius: 9999px; font-size: 0.9rem; outline: none; background: var(--bg-card); color: var(--text-primary); transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.04); font-family: inherit; }
+        .feed-search input:focus { border-color: var(--primary); box-shadow: 0 4px 28px rgba(0,0,0,0.08); }
+        .feed-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin: 1.2rem 0 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); }
+        .feed-tab { padding: 0.45rem 1rem; border: none; background: transparent; border-radius: 9999px; font-weight: 500; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary); font-family: inherit; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+        .feed-tab:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .feed-tab:active { transform: scale(0.96); }
+        .feed-tab.active { background: var(--primary); color: white; font-weight: 600; }
+        .tab-info-icon { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,0.25); font-size: 9px; font-weight: 700; cursor: help; flex-shrink: 0; }
+        .feed-tab.active .tab-info-icon { background: rgba(255,255,255,0.35); }
 
-        /* Gear menu on story card (#2) */
+        /* ===== STORY CARD (unchanged) ===== */
+        .story-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.3rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--border-color); transition: all 0.2s ease; position: relative; }
+        .story-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
+        .story-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .story-card-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; cursor: pointer; transition: transform 0.15s; z-index: 2; position: relative; }
+        .story-card-avatar:hover { transform: scale(1.1); }
+        .story-card-author-info { flex: 1; min-width: 0; }
+        .story-card-author-name { font-weight: 600; color: var(--primary); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; z-index: 2; position: relative; }
+        .story-card-author-name:hover { text-decoration: underline; }
+        .story-card-time { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .story-card-badges { display: flex; gap: 5px; flex-shrink: 0; }
+        .badge-visibility { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; white-space: nowrap; }
+        .badge-visibility.public { background: #dcfce7; color: #16a34a; }
+        .badge-visibility.followers { background: #dbeafe; color: #1e40af; }
+        .badge-visibility.private { background: #fef3c7; color: #d97706; }
+        .badge-gold { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; white-space: nowrap; }
+        .badge-yours { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; background: var(--bg-secondary); color: var(--secondary); font-weight: 600; white-space: nowrap; }
+        .story-card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3; cursor: pointer; transition: color 0.2s; z-index: 2; position: relative; }
+        .story-card-title:hover { color: var(--primary); }
+        .story-card-category { display: inline-block; font-size: 0.7rem; padding: 2px 10px; border-radius: 9999px; background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; border: 1px solid var(--border-color); }
+        .story-card-excerpt { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.65; margin-bottom: 8px; word-wrap: break-word; }
+        .story-card-readmore { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; font-size: 0.82rem; padding: 0; font-family: inherit; z-index: 2; position: relative; }
+        .story-card-readmore:hover { text-decoration: underline; }
+        .story-card-full { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); }
+        .story-card-full.show { display: block; }
+        .story-card-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); position: relative; z-index: 2; }
+        .reaction-mini { padding: 3px 9px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.85rem; transition: all 0.15s ease; font-family: inherit; display: inline-flex; align-items: center; gap: 3px; }
+        .reaction-mini:hover { background: var(--border-color); transform: scale(1.03); }
+        .reaction-mini:active { transform: scale(0.95); }
+        .reaction-mini:disabled { opacity: 0.5; cursor: not-allowed; }
+        .reaction-mini.reacted { background: #dcfce7; border-color: #16a34a; }
+        .reaction-mini .count { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+        .card-action-btn { padding: 3px 10px; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; position: relative; z-index: 2; }
+        .card-action-btn:hover { transform: translateY(-1px); }
+        .card-action-btn:active { transform: scale(0.95); }
+        .card-btn-comment { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; }
+        .card-btn-gold { background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; }
+        .guest-message { display: none; background: #fef9e7; border-left: 4px solid var(--warning); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 16px; color: #92400e; font-size: 0.9rem; }
+
+        /* ===== GEAR MENU (#2) ===== */
         .gear-menu-container { position: absolute; top: 12px; right: 12px; z-index: 10; }
         .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; }
         .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
@@ -59,34 +102,8 @@
         .gear-dropdown button.danger { color: var(--danger); }
         .gear-dropdown button.danger:hover { background: #fee2e2; }
 
-        /* Comment section (#3) */
-        .comment-section { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); }
-        .comment-section h3 { margin-bottom: 14px; color: var(--text-primary); font-size: 1.15rem; font-weight: 600; }
-        .comment-input-area { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color); }
-        .comment-input-area textarea { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.95rem; font-family: inherit; resize: vertical; min-height: 80px; background: var(--bg-primary); color: var(--text-primary); transition: border 0.2s ease; }
-        .comment-input-area textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,74,74,0.1); }
-        .comment { background: var(--bg-secondary); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 10px; border: 1px solid var(--border-color); transition: all 0.2s ease; animation: fadeInComment 0.3s ease; }
-        @keyframes fadeInComment { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .comment:hover { border-color: var(--primary-light); }
-        .comment-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
-        .comment-author { font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .comment-author-link { cursor: pointer; color: var(--primary); }
-        .comment-author-link:hover { text-decoration: underline; }
-        .comment-time { font-size: 0.78rem; color: var(--text-muted); }
-        .comment-text { color: var(--text-secondary); line-height: 1.6; word-wrap: break-word; }
-        .comment-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-        .comment-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
-        .comment-badge.pinned { background: #fef3c7; color: #d97706; }
-        .comment-badge.star { background: #fde68a; color: #b45309; }
-
-        .floating-emoji { position: fixed; font-size: 3rem; pointer-events: none; z-index: 9999; animation: floatUpAnim 1.5s ease-out forwards; }
-        @keyframes floatUpAnim { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); } 100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); } }
-        .firework-particle { position: fixed; pointer-events: none; z-index: 9998; }
-        .meta-author-link { cursor: pointer; color: var(--primary); font-weight: 600; }
-        .meta-author-link:hover { text-decoration: underline; }
-
-        @media (max-width: 768px) { .story-full { padding: 1.2rem; } .story-full .story-title { font-size: 1.4rem; } .story-full .story-text { font-size: 0.95rem; } }
-        @media (max-width: 480px) { .story-full { padding: 1rem; border-radius: var(--radius-lg); } .story-full .story-title { font-size: 1.2rem; } .reaction-btn { font-size: 0.85rem; padding: 4px 10px; } .story-action-bar { gap: 4px; } .comment { padding: 10px 12px; } }
+        @media (max-width: 768px) { .feed-hero { padding: 1.5rem 1rem; } .feed-hero h1 { font-size: 1.5rem; } .story-card { padding: 1rem 1.1rem; } .story-card-title { font-size: 1rem; } }
+        @media (max-width: 480px) { .feed-hero { padding: 1.2rem 0.8rem; margin: 0.6rem 0; border-radius: var(--radius-lg); } .feed-hero h1 { font-size: 1.3rem; } .feed-tabs { overflow-x: auto; flex-wrap: nowrap; gap: 3px; -webkit-overflow-scrolling: touch; scrollbar-width: none; } .feed-tabs::-webkit-scrollbar { display: none; } .feed-tab { font-size: 0.7rem; padding: 0.3rem 0.7rem; flex-shrink: 0; } .story-card { padding: 0.8rem 0.9rem; margin-bottom: 0.7rem; } .story-card-avatar { width: 34px; height: 34px; font-size: 0.85rem; } .story-card-title { font-size: 0.95rem; } .story-card-actions { gap: 4px; } .reaction-mini { font-size: 0.78rem; padding: 2px 7px; } .card-action-btn { font-size: 0.68rem; padding: 2px 7px; } }
     </style>
 </head>
 
@@ -94,10 +111,10 @@
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="index.html" class="btn btn-feed active guest-only" aria-current="page">🏠 Feed</a>
             <a href="about.html" class="btn btn-ghost">🌿 About</a>
             <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" onclick="event.preventDefault();window.location.href='profile.html';" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="profile.html" onclick="window.location.href='profile.html';return false;" class="btn btn-ghost guest-only">👤 Profile</a>
             <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
             <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
             <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
@@ -109,43 +126,44 @@
             <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
             <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span id="userName">Friend</span>
+                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
             </div>
         </div>
     </header>
 
     <div id="emergencyBanner" role="alert"></div>
+    <div class="container"><div class="guest-message" id="guestMessage">🔒 <strong>Welcome!</strong> Please <a onclick="openModal('login')" style="cursor:pointer;color:var(--primary);font-weight:600;">Log In</a> or <a onclick="openModal('signup')" style="cursor:pointer;color:var(--primary);font-weight:600;">Join</a> to read and share stories.</div></div>
 
     <div class="container">
-        <div id="storyContent"><div class="loading"><div class="loading-spinner"></div> Loading story...</div></div>
-        <div class="comment-section">
-            <h3>💬 Comments (<span id="commentCountHeader">0</span>)</h3>
-            <div id="commentsContainer"><div class="loading"><div class="loading-spinner"></div> Loading comments...</div></div>
-            <div class="comment-input-area">
-                <label style="font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">Share your thoughts</label>
-                <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
-                <div style="font-size:0.75rem;color:var(--text-muted);text-align:right;margin-top:4px;"><span id="commentCountDisplay">0</span>/1000</div>
-                <div class="checkbox-group"><input type="checkbox" id="commentAnonymous" /><label for="commentAnonymous">🕊️ Post anonymously</label></div>
-                <div id="commentError" class="error-msg"></div>
-                <button class="btn btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:6px;">💬 Post Comment</button>
+        <section class="feed-hero">
+            <h1>⚓ Welcome to <span>The Harbor</span></h1>
+            <p>A safe place to share, heal, and grow — together.</p>
+            <div class="feed-hero-actions">
+                <a href="activity.html" class="btn guest-only">📊 Activity</a>
+                <a href="submit.html" class="btn btn-primary-action guest-only">📝 Share Your Story</a>
+                <a href="about.html" class="btn">🌿 Learn More</a>
             </div>
-        </div>
-        <div style="text-align:center;margin-top:24px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
+        </section>
     </div>
 
-    <!-- Edit Modal -->
-    <div class="modal" id="editModal" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeEditModal()" aria-label="Close">&times;</button>
-            <h2>✏️ Edit Story</h2>
-            <label for="editTitle">Title</label><input type="text" id="editTitle" />
-            <label for="editContent">Content</label><textarea id="editContent" rows="6"></textarea>
-            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
-            <div class="error-msg" id="editError"></div>
+    <div class="feed-search guest-only"><input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter')searchStories()" /></div>
+
+    <div class="container">
+        <div class="feed-tabs guest-only" id="categoryTabs">
+            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All <span class="tab-info-icon" title="All stories from every harbor category">?</span></button>
+            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men's Harbor <span class="tab-info-icon" title="A dedicated space for men">?</span></button>
+            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women's Harbor <span class="tab-info-icon" title="A safe harbor for women">?</span></button>
+            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm <span class="tab-info-icon" title="Share your struggles">?</span></button>
+            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies <span class="tab-info-icon" title="Celebrate and share joy">?</span></button>
+            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass <span class="tab-info-icon" title="Life lessons and wisdom">?</span></button>
         </div>
+
+        <div id="storiesContainer"><div class="loading"><div class="loading-spinner"></div> Loading stories...</div></div>
+        <div class="pagination guest-only" id="paginationContainer"></div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix) -->
+    <!-- Auth Modal (Terms checkbox fix #1) -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -157,6 +175,7 @@
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div>
                 <label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">📌 Men see Men's Harbor. Women see Women's Harbor.</div>
                 <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
                 <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
                 <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
@@ -172,19 +191,15 @@
         </div>
     </div>
 
-    <!-- Gold Modal -->
-    <div class="modal" id="goldModal" role="dialog" aria-modal="true">
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeGoldModal()" aria-label="Close">&times;</button>
-            <h2>💰 Donate Gold</h2>
-            <div class="gold-balance-display" style="padding:12px;background:#fef3c7;border-radius:var(--radius-sm);margin-bottom:14px;text-align:center;font-weight:600;">Your Balance: <span id="goldBalanceAmount" style="font-size:1.2rem;color:var(--secondary-dark);">0</span> 🪙</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-                <button class="gold-amount-btn" onclick="selectGoldAmount(1)">1 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(5)">5 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(10)">10 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(25)">25 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(50)">50 🪙</button>
-            </div>
-            <div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label><input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:inherit;" /></div>
-            <div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label><textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;resize:vertical;"></textarea></div>
-            <div id="goldError" class="error-msg"></div>
-            <button class="btn-modal" onclick="confirmGoldDonation()" style="background:var(--secondary);">💎 Send Gold</button>
+            <button class="modal-close" onclick="closeEditModal()" aria-label="Close">&times;</button>
+            <h2>✏️ Edit Story</h2>
+            <label for="editTitle">Title</label><input type="text" id="editTitle" placeholder="Enter title..." />
+            <label for="editContent">Content</label><textarea id="editContent" rows="6" placeholder="Write your story..."></textarea>
+            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
+            <div class="error-msg" id="editError"></div>
         </div>
     </div>
 
@@ -198,31 +213,10 @@
 
     <script>
         // ============================================
-        // STORY PAGE – FIXED COMMENTS, REACTIONS, GEAR MENU
+        // INDEX PAGE – GEAR MENU, SCROLL, TERMS FIX
         // ============================================
 
-        // Global state (some may be re-declared from app.js; careful)
-        var currentStory = null;
-        var selectedGoldAmount = 0;
-        var currentEditStoryId = null;
-        var reactionLocks = {};
-        var commentsUnsubscribe = null; // For real-time listener
-
-        // Helper: view profile
-        function viewProfile(userId) {
-            if (userId) window.location.href = 'profile.html?uid=' + userId;
-        }
-        window.viewProfile = viewProfile;
-
-        // Apply guest restrictions
-        function applyGuestRestrictions() {
-            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
-            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
-            var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
-        }
-
-        // Terms checkbox fix (#1)
+        // ---- Terms Checkbox Enable/Disable Button (#1) ----
         const termsCheckbox = document.getElementById('termsCheckbox');
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         if (termsCheckbox && authSubmitBtn) {
@@ -239,317 +233,138 @@
                 }
             };
             termsCheckbox.addEventListener('change', toggleBtn);
+            // Also trigger when switching modes
             const originalToggle = toggleAuthMode;
             window.toggleAuthMode = function() {
                 originalToggle();
                 setTimeout(toggleBtn, 100);
             };
+            // Initial state
             toggleBtn();
         }
 
-        // ========== LOAD STORY ==========
-        function loadStory() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var storyId = urlParams.get('id');
-            currentStoryId = storyId;
-            var content = document.getElementById('storyContent');
-            if (!content) return;
-            if (!storyId) { content.innerHTML = '<div class="empty-state"><div class="big-emoji">📭</div><h3>No story selected</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
-            content.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading story...</div>';
-
-            db.collection('stories').doc(storyId).get().then(doc => {
-                if (!doc.exists) { content.innerHTML = '<div class="empty-state"><div class="big-emoji">🔍</div><h3>Story not found</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
-                var story = doc.data(); story.id = doc.id; currentStory = story;
-                if (story.visibility === 'private' && (!currentUser || story.userId !== currentUser.uid)) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Private Story</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
-                if (!currentUser) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><div style="margin-top:12px;display:flex;gap:12px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>'; return; }
-                if (!currentUser.emailVerified) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button></div>'; return; }
-                content.innerHTML = renderFullStory(story);
-                loadUserReactionsForStory(storyId);
-                loadCommentsRealtime(storyId);  // (#3) real-time comments
-            }).catch(err => { content.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p>'+err.message+'</p><button class="btn btn-primary" onclick="loadStory()">🔄 Retry</button></div>'; });
+        // ---- Apply Guest Restrictions ----
+        function applyGuestRestrictions() {
+            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+            var gm = document.getElementById('guestMessage');
+            if (gm) gm.style.display = isLoggedIn ? 'none' : 'block';
+            var ui = document.getElementById('userInfo');
+            if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
+            if (!isLoggedIn) {
+                var c = document.getElementById('storiesContainer');
+                if (c) c.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
+            }
         }
 
-        // ========== RENDER FULL STORY (WITH GEAR MENU) ==========
-        function renderFullStory(story) {
-            var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
-            var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
-            var catDisp = catNames[story.category] || story.category;
-            var time = story.createdAt ? story.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : 'Recently';
-            var reactions = story.reactions || {};
-            var emojis = ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'];
-            var isOwner = currentUser && story.userId === currentUser.uid;
-            var isAdmin = currentUserData && currentUserData.isAdmin === true;
-
-            var reactionBtns = '';
-            emojis.forEach(function(emoji) {
-                var count = reactions[emoji] || 0;
-                var hasReacted = userReactions[story.id] && userReactions[story.id].indexOf(emoji) !== -1;
-                var locked = reactionLocks[story.id+'_'+emoji];
-                reactionBtns += '<button class="reaction-btn'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="storyToggleReaction(\''+story.id+'\',\''+emoji+'\')" '+(locked?'disabled':'')+'>'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span>'+(hasReacted?' ✅':'')+'</button>';
-            });
-
-            var fullText = story.text || '';
-            var showMore = fullText.length > 300;
-            var excerpt = showMore ? fullText.substring(0, 300) : fullText;
-            var textHtml = '<span class="excerpt-text">'+escapeHTML(excerpt)+'</span>';
-            if (showMore) textHtml += '<span class="full-text">'+escapeHTML(fullText.substring(300))+'</span> <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>';
-
-            return '<div class="story-full" id="storyCard">'+
-                // Gear menu (#2)
-                '<div class="gear-menu-container">'+
-                    '<button class="gear-icon" onclick="toggleGearMenu(event)" title="Options">⚙️</button>'+
-                    '<div class="gear-dropdown" id="gearDropdown">'+
-                        (isOwner ? '<button onclick="openEditStoryModal()">✏️ Edit Story</button>' : '')+
-                        (isOwner ? '<button onclick="toggleStoryVisibility()">🔒 Change Visibility</button>' : '')+
-                        (isOwner ? '<button class="danger" onclick="deleteCurrentStory()">🗑️ Delete Story</button>' : '')+
-                        (isAdmin && !isOwner ? '<button class="danger" onclick="deleteCurrentStory()">🗑️ Admin Delete</button>' : '')+
-                        (currentUser && !isOwner ? '<button onclick="reportThisStory()">🚩 Report Story</button>' : '')+
-                    '</div>'+
-                '</div>'+
-                '<h1 class="story-title">'+escapeHTML(story.title)+'</h1>'+
-                '<div class="story-meta-row">'+
-                    '<span>✍️ <span class="meta-author-link" onclick="event.stopPropagation();viewProfile(\''+story.userId+'\')">'+author+'</span></span>'+
-                    '<span class="category-badge">'+catDisp+'</span>'+
-                    '<span>📅 '+time+'</span>'+
-                    (story.flagged?'<span style="color:var(--warning);">⚠️ Content Warning</span>':'')+
-                    '<span class="gold-badge">'+(story.goldReceived||0)+' 🪙</span>'+
-                '</div>'+
-                '<div class="story-text" id="storyContentText">'+textHtml+'</div>'+
-                '<div class="story-action-bar">'+
-                    reactionBtns+
-                    (currentUser&&story.userId!==currentUser.uid?'<button class="btn btn-secondary" onclick="openGoldDonation(\''+story.id+'\')" style="font-weight:700;background:linear-gradient(135deg,#f1c40f,#f39c12);color:white;border:none;">🪙 Donate Gold</button>':'')+
-                '</div></div>';
-        }
-
-        // Gear menu toggle
-        function toggleGearMenu(event) {
+        // ---- GEAR MENU TOGGLE (#2) ----
+        function toggleGearMenu(storyId, event) {
             event.stopPropagation();
-            var dropdown = document.getElementById('gearDropdown');
+            // Close all other gear menus first
+            document.querySelectorAll('.gear-dropdown.show').forEach(d => {
+                if (d.dataset.storyId !== storyId) d.classList.remove('show');
+            });
+            const dropdown = document.querySelector(`.gear-dropdown[data-story-id="${storyId}"]`);
             if (dropdown) dropdown.classList.toggle('show');
         }
-        // Close gear menu when clicking outside
+
+        // Close gear menus when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.gear-menu-container')) {
-                var d = document.getElementById('gearDropdown');
-                if (d) d.classList.remove('show');
+                document.querySelectorAll('.gear-dropdown.show').forEach(d => d.classList.remove('show'));
             }
         });
 
-        function toggleReadMore() {
-            var full = document.querySelector('.full-text');
-            var btn = document.getElementById('readMoreBtn');
-            if (!full || !btn) return;
-            if (full.classList.contains('show')) { full.classList.remove('show'); btn.textContent = 'Read More ▼'; }
-            else { full.classList.add('show'); btn.textContent = 'Show Less ▲'; }
-        }
-
-        // ========== REACTIONS (from app.js + local animation) ==========
-        function storyToggleReaction(storyId, emoji) {
-            if (!currentUser) { alert('Please log in.'); return; }
-            if (!currentUser.emailVerified) { alert('Please verify email.'); return; }
-            var lockKey = storyId+'_'+emoji;
-            if (reactionLocks[lockKey]) return;
-            reactionLocks[lockKey] = true;
-            if (!userReactions[storyId]) userReactions[storyId] = [];
-            var storyRef = db.collection('stories').doc(storyId);
-            var userRef = db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
-            var hasReacted = userReactions[storyId].indexOf(emoji) !== -1;
-            var card = document.getElementById('storyCard');
-            var rect = card ? card.getBoundingClientRect() : null;
-            storyCreateFloatingEmoji(emoji, rect?rect.left+rect.width/2:window.innerWidth/2, rect?rect.top+rect.height/2:window.innerHeight/2);
-            var btn = document.getElementById('reaction-'+storyId+'-'+emoji);
-            if (btn) btn.disabled = true;
-            db.runTransaction(function(t) {
-                return t.get(storyRef).then(function(doc) {
-                    if (!doc.exists) return;
-                    var reactions = doc.data().reactions || {};
-                    if (hasReacted) { reactions[emoji] = Math.max((reactions[emoji]||0)-1,0); userReactions[storyId] = userReactions[storyId].filter(function(e){return e!==emoji;}); }
-                    else { reactions[emoji] = (reactions[emoji]||0)+1; userReactions[storyId].push(emoji); }
-                    t.update(storyRef, {reactions:reactions});
-                    t.set(userRef, {emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
-                });
-            }).then(function() {
-                if (btn) btn.disabled = false;
-                var cs = document.getElementById('count-'+storyId+'-'+emoji);
-                if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent)||0)-1 : (parseInt(cs.textContent)||0)+1;
-                if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); }
-                // Notification for like (#16)
-                if (!hasReacted && emoji === '❤️' && currentStory && currentStory.userId !== currentUser.uid) {
-                    addNotification(currentStory.userId, 'like', { storyId });
-                }
-                reactionLocks[lockKey] = false;
-            }).catch(function() { if (btn) btn.disabled = false; reactionLocks[lockKey] = false; });
-        }
-
-        function storyCreateFloatingEmoji(emoji, x, y) {
-            var el = document.createElement('div'); el.className = 'floating-emoji'; el.textContent = emoji;
-            el.style.cssText = 'left:'+(x+(Math.random()-0.5)*180)+'px;top:'+(y+(Math.random()-0.5)*80)+'px;font-size:'+(2+Math.random()*2)+'rem;';
-            document.body.appendChild(el); setTimeout(function(){el.remove();},1600);
-            var colors = ['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];
-            for (var i=0;i<12;i++) {
-                var p = document.createElement('div'); p.className = 'firework-particle';
-                var a = Math.random()*Math.PI*2, d = 40+Math.random()*100;
-                p.style.cssText = 'width:'+(3+Math.random()*5)+'px;height:'+(3+Math.random()*5)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+x+'px;top:'+y+'px;transition:all 0.8s ease-out;opacity:1;';
-                document.body.appendChild(p);
-                requestAnimationFrame(function(){ p.style.transform='translate('+Math.cos(a)*d+'px,'+Math.sin(a)*d+'px) scale(0)'; p.style.opacity='0'; });
-                setTimeout(function(){p.remove();},900);
-            }
-        }
-
-        function loadUserReactionsForStory(storyId) {
-            if (!currentUser) return;
-            db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc => {
-                if (doc.exists) {
-                    userReactions[storyId] = doc.data().emojis || [];
-                    ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e => {
-                        var btn = document.getElementById('reaction-'+storyId+'-'+e);
-                        if (btn && userReactions[storyId].indexOf(e) !== -1) btn.classList.add('reacted');
-                    });
-                }
-            }).catch(()=>{});
-        }
-
-        // ========== COMMENTS (REAL-TIME, OPTIMISTIC, NO DUPLICATES) (#3) ==========
-        function loadCommentsRealtime(storyId) {
-            var container = document.getElementById('commentsContainer');
-            if (!container) return;
-            // Unsubscribe previous listener
-            if (commentsUnsubscribe) commentsUnsubscribe();
-
-            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
-            commentsUnsubscribe = db.collection('comments')
-                .where('storyId','==',storyId)
-                .onSnapshot(snapshot => {
-                    if (snapshot.empty) {
-                        container.innerHTML = '<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet. Be the first!</p></div>';
-                        document.getElementById('commentCountHeader').textContent = '0';
-                        return;
-                    }
-                    var comments = [];
-                    snapshot.forEach(doc => { var c=doc.data();c.id=doc.id;comments.push(c); });
-                    // Sort: pinned first, then by likes desc
-                    comments.sort((a,b) => {
-                        if (a.isPinned && !b.isPinned) return -1;
-                        if (!a.isPinned && b.isPinned) return 1;
-                        return (b.likes||0) - (a.likes||0);
-                    });
-                    document.getElementById('commentCountHeader').textContent = comments.length;
-                    container.innerHTML = comments.map(c => renderSingleComment(c)).join('');
-                }, err => {
-                    container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error loading comments</p><button class="btn btn-primary" onclick="loadCommentsRealtime(\''+storyId+'\')">🔄 Retry</button></div>';
-                });
-        }
-
-        function renderSingleComment(comment) {
-            var author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
-            var time = comment.createdAt ? comment.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : 'Recently';
-            var likes = comment.likes || 0;
-            var isOwner = currentUser && comment.userId === currentUser.uid;
-            var isAdmin = currentUserData && currentUserData.isAdmin === true;
-            var badges = '';
-            if (comment.isPinned) badges += '<span class="comment-badge pinned">📌 Pinned</span>';
-            return '<div class="comment">'+
-                '<div class="comment-header"><div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+comment.userId+'\')">'+author+'</span> '+badges+'</div><div class="comment-time">📅 '+time+'</div></div>'+
-                '<div class="comment-text">'+escapeHTML(comment.text)+'</div>'+
-                '<div class="comment-actions">'+
-                    '<button class="comment-like-btn" onclick="likeComment(\''+comment.id+'\')">❤️ <span>'+likes+'</span></button>'+
-                    (isOwner?'<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>':'')+
-                    (isAdmin?'<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+
-                    (currentUser?'<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>':'')+
-                '</div></div>';
-        }
-
-        function postComment() {
-            if (!currentUser) { alert('Please log in.'); return; }
-            var textInput = document.getElementById('commentText');
-            var anonymousCheck = document.getElementById('commentAnonymous');
-            var error = document.getElementById('commentError');
-            if (!textInput) return;
-            var rawText = textInput.value.trim();
-            var text = typeof sanitizeInput === 'function' ? sanitizeInput(rawText) : escapeHTML(rawText);
-            error.textContent = '';
-            if (!text) { error.textContent = 'Please write a comment.'; return; }
-            if (rawText.length > 1000) { error.textContent = 'Under 1000 characters.'; return; }
-            var btn = document.getElementById('commentSubmitBtn');
-            if (btn) { btn.disabled = true; btn.textContent = '⏳ Posting...'; }
-            var bad = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
-            var flagged = bad.some(w => rawText.toLowerCase().indexOf(w)!==-1);
-            db.collection('comments').add({
-                storyId:currentStoryId, text:text, userId:currentUser.uid,
-                authorName:currentUserData?currentUserData.name:'Someone',
-                isAnonymous:anonymousCheck?anonymousCheck.checked:false,
-                createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-                likes:0, isPinned:false, approved:!flagged, flagged:flagged
-            }).then(() => {
-                return db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)});
-            }).then(() => {
-                if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
-                textInput.value = ''; document.getElementById('commentCountDisplay').textContent = '0';
-                if (flagged) alert('⚠️ Sent for review.');
-                // Notification (#16)
-                if (currentStory && currentStory.userId !== currentUser.uid) {
-                    addNotification(currentStory.userId, 'comment', { storyId: currentStoryId });
-                }
-                // Real-time listener will update automatically
-            }).catch(err => { error.textContent = err.message; if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; } });
-        }
-
-        function likeComment(cid) {
-            if(!currentUser)return;
-            db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
-        }
-        function deleteComment(cid) {
-            if(!currentUser||!confirm('Delete?'))return;
-            db.collection('comments').doc(cid).delete().catch(()=>{});
-        }
-        function pinComment(cid) {
-            if(!currentUserData||!currentUserData.isAdmin)return;
-            db.collection('comments').doc(cid).get().then(d=>{
-                if(!d.exists)return;
-                return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});
-            }).catch(()=>{});
-        }
-        function reportComment(cid,sid) {
-            if(!currentUser)return;
-            var r=prompt('Reason?');if(!r||r.length<3)return;
-            db.collection('reports').add({
-                commentId:cid, storyId:sid, reportedBy:currentUser.uid,
-                reporterName:currentUserData?currentUserData.name:'Anonymous',
-                reason:r.trim(), status:'pending', type:'comment',
-                createdAt:firebase.firestore.FieldValue.serverTimestamp()
-            }).then(()=>alert('✅ Reported')).catch(()=>{});
-        }
-
-        // Story management functions
-        function reportThisStory() { if(!currentStory)return; var r=prompt('Reason?');if(!r||r.length<3)return; db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message)); }
-        function openEditStoryModal() { if(!currentStory||currentStory.userId!==currentUser.uid)return; currentEditStoryId=currentStory.id; document.getElementById('editTitle').value=currentStory.title||''; document.getElementById('editContent').value=currentStory.text||''; document.getElementById('editError').textContent=''; document.getElementById('editModal').classList.add('active'); }
-        function closeEditModal() { document.getElementById('editModal').classList.remove('active'); currentEditStoryId=null; }
-        function saveEdit() { var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim(); if(!t||!c){document.getElementById('editError').textContent='Required.';return;} db.collection('stories').doc(currentEditStoryId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message); }
-        function deleteCurrentStory() { if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return; db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message)); }
-        function toggleStoryVisibility() { if(!currentStory||currentStory.userId!==currentUser.uid)return; var v=currentStory.visibility==='public'?'private':'public'; db.collection('stories').doc(currentStory.id).update({visibility:v}).then(()=>{alert('✅ '+(v==='public'?'Public':'Private'));loadStory();}).catch(e=>alert('❌ '+e.message)); }
-
-        // Gold donation (unchanged)
-        function openGoldDonation(storyId) { if(!currentUser)return; if(!currentUserData)return; var b=currentUserData.goldBalance||0; if(b<1){alert('No gold!');return;} document.getElementById('goldBalanceAmount').textContent=b; document.getElementById('goldModal').classList.add('active'); currentStoryId=storyId; selectedGoldAmount=0; document.getElementById('customGoldAmount').value=''; document.getElementById('goldMessage').value=''; document.getElementById('goldError').textContent=''; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); }
-        function closeGoldModal() { document.getElementById('goldModal').classList.remove('active'); }
-        function selectGoldAmount(a) { selectedGoldAmount=a; document.getElementById('customGoldAmount').value=a; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); if(event&&event.target)event.target.classList.add('selected'); }
-        function confirmGoldDonation() { var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=selectedGoldAmount; if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;} var b=currentUserData?currentUserData.goldBalance||0:0; if(!a||a<1){ed.textContent='Enter amount.';return;} if(a>b){ed.textContent='Not enough! Balance: '+b;return;} var msg=mi?mi.value.trim():''; closeGoldModal(); if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;} var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid); db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId; t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)}); t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)}); t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);}); }
-
-        // Scroll preservation before leaving page (#7)
+        // ---- SCROLL PRESERVATION (#7) ----
         window.addEventListener('beforeunload', function() {
             sessionStorage.setItem('feedScrollPos', window.scrollY);
-            sessionStorage.setItem('feedCategory', currentCategory || 'all');
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var check = setInterval(function() { if(typeof currentUser!=='undefined'){clearInterval(check);applyGuestRestrictions();loadStory();} },100);
-            if(typeof auth!=='undefined') auth.onAuthStateChanged(function(){setTimeout(function(){applyGuestRestrictions();loadStory();},300);});
-            document.getElementById('commentText')?.addEventListener('input',function(){document.getElementById('commentCountDisplay').textContent=this.value.length;});
-            document.getElementById('authModal')?.addEventListener('click',function(e){if(e.target===this)closeModal();});
-            document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
-            document.getElementById('goldModal')?.addEventListener('click',function(e){if(e.target===this)closeGoldModal();});
-            document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();}});
-            console.log('✅ Story page ready (with real-time comments, gear menu, scroll preservation)');
+        // Restore scroll after stories load
+        const observer = new MutationObserver(function(mutations) {
+            if (document.getElementById('storiesContainer') && document.querySelector('.story-card')) {
+                const saved = sessionStorage.getItem('feedScrollPos');
+                if (saved) {
+                    window.scrollTo({ top: parseInt(saved), behavior: 'instant' });
+                    sessionStorage.removeItem('feedScrollPos');
+                }
+                observer.disconnect();
+            }
         });
+        observer.observe(document.getElementById('storiesContainer') || document.body, { childList: true, subtree: true });
+
+        // ---- OVERRIDE renderStoryCard TO ADD GEAR MENU ----
+        // We keep the global renderStoryCard from app.js, but we need to inject the gear menu HTML.
+        // The app.js function creates the card; we'll monkey-patch it to add the gear icon after the fact.
+        const originalRenderStoryCard = window.renderStoryCard;
+        window.renderStoryCard = function(story) {
+            let cardHTML = originalRenderStoryCard(story);
+            // Parse cardHTML to insert gear menu after story-card-top
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = cardHTML;
+            const card = tempDiv.querySelector('.story-card');
+            if (card) {
+                // Remove old action buttons that we want in gear menu
+                const actions = card.querySelector('.story-card-actions');
+                if (actions) {
+                    // Remove edit, delete, visibility, report buttons; keep reaction buttons and comment link
+                    const toRemove = actions.querySelectorAll('.card-btn-edit, .card-btn-delete, .card-btn-visibility, .card-btn-report');
+                    toRemove.forEach(btn => btn.remove());
+                }
+                // Create gear menu
+                const gearContainer = document.createElement('div');
+                gearContainer.className = 'gear-menu-container';
+                gearContainer.innerHTML = `
+                    <button class="gear-icon" onclick="toggleGearMenu('${story.id}', event)" title="Options">⚙️</button>
+                    <div class="gear-dropdown" data-story-id="${story.id}">
+                        ${(currentUser && story.userId === currentUser.uid) ? `
+                            <button onclick="event.stopPropagation(); openEditModal('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">✏️ Edit Story</button>
+                            <button onclick="event.stopPropagation(); toggleVisibility('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🔒 Change Visibility</button>
+                            <button class="danger" onclick="event.stopPropagation(); deleteStory('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🗑️ Delete Story</button>
+                        ` : ''}
+                        ${(currentUser && currentUserData?.isAdmin && story.userId !== currentUser.uid) ? `
+                            <button class="danger" onclick="event.stopPropagation(); deleteStory('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🗑️ Admin Delete</button>
+                        ` : ''}
+                        ${(currentUser && story.userId !== currentUser.uid) ? `
+                            <button onclick="event.stopPropagation(); reportStory('${story.id}'); document.querySelector('.gear-dropdown[data-story-id=\\'${story.id}\\']')?.classList.remove('show')">🚩 Report Story</button>
+                        ` : ''}
+                    </div>
+                `;
+                card.appendChild(gearContainer);
+            }
+            return tempDiv.innerHTML;
+        };
+
+        // ---- INIT ----
+        document.addEventListener('DOMContentLoaded', function() {
+            var check = setInterval(function() {
+                if (typeof currentUser !== 'undefined') {
+                    clearInterval(check);
+                    applyGuestRestrictions();
+                    updateGenderTabs();
+                    if (currentUser && typeof loadStories === 'function') loadStories();
+                }
+            }, 100);
+            if (typeof auth !== 'undefined') auth.onAuthStateChanged(function(user) {
+                setTimeout(function(){ applyGuestRestrictions(); updateGenderTabs(); if(user && typeof loadStories === 'function') loadStories(); }, 300);
+            });
+            setTimeout(function() { if (typeof currentUser !== 'undefined') applyGuestRestrictions(); }, 2000);
+
+            document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+            document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this) closeEditModal(); });
+            document.addEventListener('keydown', function(e) { if(e.key==='Escape'){closeModal();closeEditModal();} });
+            console.log('✅ Index ready (with gear menu & scroll preservation)');
+        });
+
+        // Helper: update gender tabs
+        function updateGenderTabs() {
+            if (!currentUserData) return;
+            var g = currentUserData.gender;
+            var tm = document.getElementById('tabMen'), tw = document.getElementById('tabWomen');
+            if (tm) tm.style.display = (g === '🧔 Man') ? '' : 'none';
+            if (tw) tw.style.display = (g === '👩 Woman') ? '' : 'none';
+        }
     </script>
 </body>
 </html>
