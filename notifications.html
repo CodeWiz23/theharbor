@@ -30,115 +30,55 @@
 
     <style>
         .notif-container { max-width: 700px; margin: 0 auto; padding: 1.5rem 0; }
-
-        .notif-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 1.2rem;
-        }
+        .notif-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 1.2rem; }
         .notif-header h1 { font-weight: 300; color: var(--text-primary); font-size: 1.8rem; letter-spacing: -0.02em; }
         .notif-header h1 span { font-weight: 700; color: var(--secondary); }
-
-        .mark-all-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            padding: 6px 16px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-secondary);
-            font-family: inherit;
-        }
-        .mark-all-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .notif-item {
-            background: var(--bg-card);
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            margin-bottom: 8px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            position: relative;
-        }
+        .mark-all-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 9999px; padding: 6px 16px; font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); font-family: inherit; }
+        .mark-all-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .notif-item { background: var(--bg-card); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 8px; transition: all 0.2s ease; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; position: relative; }
         .notif-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
         .notif-item.unread { background: #f0f9ff; border-left: 3px solid var(--primary); }
-
         .notif-icon { font-size: 1.5rem; min-width: 36px; text-align: center; flex-shrink: 0; }
         .notif-content { flex: 1; min-width: 0; }
         .notif-content .message { color: var(--text-primary); font-size: 0.95rem; font-weight: 500; }
         .notif-content .time { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-        .notif-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--primary); flex-shrink: 0; margin-top: 6px; display: none;
-        }
+        .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: 6px; display: none; }
         .notif-item.unread .notif-dot { display: block; }
-
-        /* Notification badge in header */
-        .notification-badge {
-            display: none;
-            position: absolute;
-            top: -6px; right: -6px;
-            background: #dc2626; color: white;
-            font-size: 0.65rem; font-weight: 700;
-            min-width: 18px; height: 18px;
-            border-radius: 9px;
-            align-items: center; justify-content: center;
-            padding: 0 4px;
-        }
-
-        @media (max-width: 768px) {
-            .notif-header h1 { font-size: 1.4rem; }
-            .notif-item { padding: 10px 14px; }
-            .notif-icon { font-size: 1.3rem; min-width: 30px; }
-            .notif-content .message { font-size: 0.9rem; }
-        }
-        @media (max-width: 480px) {
-            .notif-header { flex-direction: column; align-items: flex-start; }
-            .notif-header h1 { font-size: 1.2rem; }
-            .mark-all-btn { font-size: 0.8rem; padding: 4px 12px; }
-            .notif-item { padding: 8px 10px; gap: 8px; }
-            .notif-icon { font-size: 1.2rem; min-width: 26px; }
-            .notif-content .message { font-size: 0.85rem; }
-        }
+        @media (max-width: 768px) { .notif-header h1 { font-size: 1.4rem; } .notif-item { padding: 10px 14px; } .notif-icon { font-size: 1.3rem; min-width: 30px; } .notif-content .message { font-size: 0.9rem; } }
+        @media (max-width: 480px) { .notif-header { flex-direction: column; align-items: flex-start; } .notif-header h1 { font-size: 1.2rem; } .mark-all-btn { font-size: 0.8rem; padding: 4px 12px; } .notif-item { padding: 8px 10px; gap: 8px; } .notif-icon { font-size: 1.2rem; min-width: 26px; } .notif-content .message { font-size: 0.85rem; } }
     </style>
 </head>
 
 <body>
+    <!-- NO-FLASH CHECK -->
+    <script>
+    (function() {
+        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
+        if (wasLoggedIn === 'true') {
+            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+        }
+    })();
+    </script>
+
+    <!-- ICON DOCK HEADER -->
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-feed active guest-only" aria-current="page" style="position:relative;">
-                🔔 Notifications
-                <span class="notification-badge" id="headerNotifBadge">0</span>
-            </a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
+            <a href="notifications.html" class="nav-icon active guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
                 <span id="userName">Friend</span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
@@ -183,16 +123,12 @@
         function loadNotifications() {
             var container = document.getElementById('notificationsContainer');
             if (!container) return;
-
             if (!currentUser) {
-                container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in to view notifications.</p><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button></div>';
+                container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="big-emoji">🔒</div><h3>Login Required</h3></div>';
                 return;
             }
-
-            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading notifications...</div>';
-
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
             if (notificationsUnsubscribe) notificationsUnsubscribe();
-
             notificationsUnsubscribe = db.collection('notifications')
                 .where('toUid', '==', currentUser.uid)
                 .orderBy('createdAt', 'desc')
@@ -204,14 +140,13 @@
                     }
                     var html = '';
                     snapshot.forEach(doc => {
-                        var notif = doc.data();
-                        notif.id = doc.id;
+                        var notif = doc.data(); notif.id = doc.id;
                         html += renderNotification(notif);
                     });
                     container.innerHTML = html;
                 }, err => {
-                    console.error('Notification listener error:', err);
-                    container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error loading notifications</p><button class="btn btn-primary" onclick="loadNotifications()">🔄 Retry</button></div>';
+                    console.error('Notification error:', err);
+                    container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p><button class="btn btn-primary" onclick="loadNotifications()">🔄 Retry</button></div>';
                 });
         }
 
@@ -219,80 +154,33 @@
             var icon = '🔔', message = '', linkUrl = '#';
             var timeStr = notif.createdAt ? notif.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : 'Recently';
             var fromName = escapeHTML(notif.fromName || 'Someone');
-
             switch (notif.type) {
-                case 'follow':
-                    icon = '👤';
-                    message = `<strong>${fromName}</strong> started following you`;
-                    linkUrl = `profile.html?uid=${notif.fromUid}`;
-                    break;
-                case 'like':
-                    icon = '❤️';
-                    message = `<strong>${fromName}</strong> ❤️ your story`;
-                    linkUrl = notif.data && notif.data.storyId ? `story.html?id=${notif.data.storyId}` : '#';
-                    break;
-                case 'comment':
-                    icon = '💬';
-                    message = `<strong>${fromName}</strong> commented on your story`;
-                    linkUrl = notif.data && notif.data.storyId ? `story.html?id=${notif.data.storyId}` : '#';
-                    break;
-                case 'report':
-                    icon = '🚩';
-                    message = `Your content was reported`;
-                    linkUrl = '#';
-                    break;
-                case 'gold':
-                    icon = '🪙';
-                    message = `<strong>${fromName}</strong> sent you gold`;
-                    linkUrl = notif.data && notif.data.storyId ? `story.html?id=${notif.data.storyId}` : '#';
-                    break;
-                case 'daily':
-                    icon = '🎁';
-                    message = 'Your daily reward is available!';
-                    linkUrl = 'daily-rewards.html';
-                    break;
-                default:
-                    message = notif.message || 'New notification';
+                case 'follow': icon = '👤'; message = '<strong>'+fromName+'</strong> started following you'; linkUrl = 'profile.html?uid='+notif.fromUid; break;
+                case 'like': icon = '❤️'; message = '<strong>'+fromName+'</strong> ❤️ your story'; linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; break;
+                case 'comment': icon = '💬'; message = '<strong>'+fromName+'</strong> commented on your story'; linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; break;
+                case 'gold': icon = '🪙'; message = '<strong>'+fromName+'</strong> sent you gold'; linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; break;
+                case 'daily': icon = '🎁'; message = 'Your daily reward is available!'; linkUrl = 'daily-rewards.html'; break;
+                default: message = notif.message || 'New notification';
             }
-
-            return `<div class="notif-item ${notif.read ? '' : 'unread'}" onclick="handleNotifClick('${notif.id}', '${linkUrl}')">
-                <div class="notif-icon">${icon}</div>
-                <div class="notif-content">
-                    <div class="message">${message}</div>
-                    <div class="time">${timeStr}</div>
-                </div>
-                <div class="notif-dot"></div>
-            </div>`;
+            return '<div class="notif-item '+(notif.read?'':'unread')+'" onclick="handleNotifClick(\''+notif.id+'\',\''+linkUrl+'\')"><div class="notif-icon">'+icon+'</div><div class="notif-content"><div class="message">'+message+'</div><div class="time">'+timeStr+'</div></div><div class="notif-dot"></div></div>';
         }
 
         function handleNotifClick(notifId, linkUrl) {
-            db.collection('notifications').doc(notifId).update({ read: true }).catch(() => {});
-            if (linkUrl && linkUrl !== '#') {
-                window.location.href = linkUrl;
-            }
+            db.collection('notifications').doc(notifId).update({ read: true }).catch(()=>{});
+            if (linkUrl && linkUrl !== '#') window.location.href = linkUrl;
         }
 
         function markAllRead() {
             if (!currentUser) return;
-            db.collection('notifications')
-                .where('toUid', '==', currentUser.uid)
-                .where('read', '==', false)
-                .get()
-                .then(snapshot => {
-                    var batch = db.batch();
-                    snapshot.forEach(doc => { batch.update(doc.ref, { read: true }); });
-                    return batch.commit();
-                })
+            db.collection('notifications').where('toUid','==',currentUser.uid).where('read','==',false).get()
+                .then(snapshot => { var batch = db.batch(); snapshot.forEach(doc => batch.update(doc.ref,{read:true})); return batch.commit(); })
                 .catch(err => console.error('Mark all read error:', err));
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             applyGuestRestrictions();
             var check = setInterval(function() {
-                if (typeof currentUser !== 'undefined') {
-                    clearInterval(check);
-                    if (currentUser) loadNotifications();
-                }
+                if (typeof currentUser !== 'undefined') { clearInterval(check); if (currentUser) loadNotifications(); }
             }, 100);
             if (typeof auth !== 'undefined') {
                 auth.onAuthStateChanged(function(user) {
@@ -300,7 +188,6 @@
                     applyGuestRestrictions();
                 });
             }
-            console.log('✅ Notifications page ready');
         });
     </script>
 </body>
