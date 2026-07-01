@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Harbor — Share & Heal</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' data: https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net https://www.gstatic.com; img-src 'self' data: https:;">
 
     <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
     <meta property="og:title" content="The Harbor — Share & Heal" />
@@ -103,7 +103,8 @@
             <a href="index.html" class="btn btn-feed active guest-only" aria-current="page">🏠 Feed</a>
             <a href="about.html" class="btn btn-ghost">🌿 About</a>
             <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <!-- FIX: Profile link with onclick to prevent any interference -->
+            <a href="profile.html" onclick="window.location.href='profile.html';return false;" class="btn btn-ghost guest-only">👤 Profile</a>
             <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
             <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
             <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
@@ -119,7 +120,6 @@
     </header>
 
     <div id="emergencyBanner" role="alert"></div>
-
     <div class="container"><div class="guest-message" id="guestMessage">🔒 <strong>Welcome!</strong> Please <a onclick="openModal('login')" style="cursor:pointer;color:var(--primary);font-weight:600;">Log In</a> or <a onclick="openModal('signup')" style="cursor:pointer;color:var(--primary);font-weight:600;">Join</a> to read and share stories.</div></div>
 
     <div class="container">
@@ -134,18 +134,16 @@
         </section>
     </div>
 
-    <div class="feed-search guest-only">
-        <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter')searchStories()" />
-    </div>
+    <div class="feed-search guest-only"><input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter')searchStories()" /></div>
 
     <div class="container">
         <div class="feed-tabs guest-only" id="categoryTabs">
-            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')" title="Browse all stories">🌊 All <span class="tab-info-icon" title="All stories from every harbor category">?</span></button>
-            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen" title="A dedicated space for men">🧔 Men's Harbor <span class="tab-info-icon" title="A dedicated space for men to share their journey">?</span></button>
-            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen" title="A safe harbor for women">👩 Women's Harbor <span class="tab-info-icon" title="A safe harbor for women to connect and support">?</span></button>
-            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')" title="Share your struggles">🌊 The Storm <span class="tab-info-icon" title="Share your struggles and difficult moments">?</span></button>
-            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')" title="Celebrate and share joy">☀️ Sunny Skies <span class="tab-info-icon" title="Celebrate victories and share positivity">?</span></button>
-            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')" title="Wisdom and guidance">🧭 The Compass <span class="tab-info-icon" title="Life lessons, wisdom, and guidance">?</span></button>
+            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All <span class="tab-info-icon" title="All stories from every harbor category">?</span></button>
+            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men's Harbor <span class="tab-info-icon" title="A dedicated space for men">?</span></button>
+            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women's Harbor <span class="tab-info-icon" title="A safe harbor for women">?</span></button>
+            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm <span class="tab-info-icon" title="Share your struggles">?</span></button>
+            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies <span class="tab-info-icon" title="Celebrate and share joy">?</span></button>
+            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass <span class="tab-info-icon" title="Life lessons and wisdom">?</span></button>
         </div>
 
         <div id="storiesContainer"><div class="loading"><div class="loading-spinner"></div> Loading stories...</div></div>
@@ -196,7 +194,6 @@
     <script>
     var reactionLocks = {};
 
-    // CRITICAL: viewProfile must be global
     function viewProfile(userId) {
         if (userId) window.location.href = 'profile.html?uid=' + userId;
     }
@@ -206,33 +203,27 @@
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
         document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
         document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
-        var guestMsg = document.getElementById('guestMessage');
-        if (guestMsg) guestMsg.style.display = isLoggedIn ? 'none' : 'block';
-        var userInfo = document.getElementById('userInfo');
-        if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
+        var gm = document.getElementById('guestMessage'); if (gm) gm.style.display = isLoggedIn ? 'none' : 'block';
+        var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
         if (!isLoggedIn) {
-            var container = document.getElementById('storiesContainer');
-            if (container) container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
+            var c = document.getElementById('storiesContainer');
+            if (c) c.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
         }
     }
 
     function updateGenderTabs() {
         if (!currentUserData) return;
-        var gender = currentUserData.gender;
-        var tabMen = document.getElementById('tabMen');
-        var tabWomen = document.getElementById('tabWomen');
-        if (tabMen) tabMen.style.display = (gender === '🧔 Man') ? '' : 'none';
-        if (tabWomen) tabWomen.style.display = (gender === '👩 Woman') ? '' : 'none';
+        var g = currentUserData.gender;
+        var tm = document.getElementById('tabMen'), tw = document.getElementById('tabWomen');
+        if (tm) tm.style.display = (g === '🧔 Man') ? '' : 'none';
+        if (tw) tw.style.display = (g === '👩 Woman') ? '' : 'none';
     }
 
     function renderStoryCard(story) {
         var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
         var initial = (story.authorName || 'A')[0].toUpperCase();
         var timeStr = 'Recently';
-        if (story.createdAt) {
-            var d = story.createdAt.toDate();
-            timeStr = d.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
-        }
+        if (story.createdAt) { var d = story.createdAt.toDate(); timeStr = d.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true }); }
         var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
         var catDisp = catNames[story.category] || story.category;
         var badges = '';
@@ -248,8 +239,7 @@
         emojis.forEach(function(emoji) {
             var count = reactions[emoji] || 0;
             var hasReacted = userReactions[story.id] && userReactions[story.id].indexOf(emoji) !== -1;
-            var lockKey = story.id+'_'+emoji;
-            var locked = reactionLocks[lockKey];
+            var locked = reactionLocks[story.id+'_'+emoji];
             reactionBtns += '<button class="reaction-mini'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="event.stopPropagation();indexToggleReaction(\''+story.id+'\',\''+emoji+'\')" '+(locked?'disabled':'')+'>'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
         });
         var isOwner = currentUser && story.userId === currentUser.uid;
