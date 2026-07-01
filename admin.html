@@ -7,7 +7,6 @@
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
 
-    <!-- Theme -->
     <script>
     (function() {
         var savedTheme = localStorage.getItem('harbor_theme');
@@ -16,151 +15,50 @@
     })();
     </script>
 
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- App Scripts -->
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
-    <script src="js/language.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
         .admin-container { max-width: 860px; margin: 0 auto; padding: 1.5rem 0; }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 1.2rem;
-        }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 1.2rem; }
         .admin-header h1 { font-weight: 300; color: var(--text-primary); font-size: 1.8rem; letter-spacing: -0.02em; }
         .admin-header h1 span { font-weight: 700; color: var(--secondary); }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            margin-bottom: 1.5rem;
-        }
-        .stat-card {
-            background: var(--bg-card);
-            padding: 1rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            text-align: center;
-            transition: all 0.2s ease;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+        .stat-card { background: var(--bg-card); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center; transition: all 0.2s ease; }
         .stat-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
         .stat-card .number { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
         .stat-card .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
         .stat-card .emoji { font-size: 1.4rem; display: block; margin-bottom: 4px; }
-
-        .mod-tabs {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border-color);
-        }
-        .mod-tab {
-            padding: 0.4rem 1rem;
-            border: none;
-            border-radius: 9999px;
-            background: var(--bg-secondary);
-            cursor: pointer;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.2s ease;
-            font-size: 0.82rem;
-            font-family: inherit;
-        }
+        .mod-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); }
+        .mod-tab { padding: 0.4rem 1rem; border: none; border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-weight: 500; color: var(--text-secondary); transition: all 0.2s ease; font-size: 0.82rem; font-family: inherit; }
         .mod-tab:hover { background: var(--border-color); }
         .mod-tab:active { transform: scale(0.96); }
         .mod-tab.active { background: var(--primary); color: white; font-weight: 600; }
-        .mod-tab .count {
-            background: var(--secondary);
-            color: white;
-            padding: 1px 8px;
-            border-radius: 9999px;
-            font-size: 0.68rem;
-            margin-left: 5px;
-        }
+        .mod-tab .count { background: var(--secondary); color: white; padding: 1px 8px; border-radius: 9999px; font-size: 0.68rem; margin-left: 5px; }
         .mod-tab.active .count { background: white; color: var(--primary); }
-
-        .mod-item {
-            background: var(--bg-card);
-            padding: 1rem 1.2rem;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            margin-bottom: 8px;
-            transition: all 0.2s ease;
-        }
+        .mod-item { background: var(--bg-card); padding: 1rem 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 8px; transition: all 0.2s ease; }
         .mod-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
         .mod-item .title { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
-        .mod-item .meta {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            margin: 3px 0 6px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-        .mod-item .content {
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 100px;
-            overflow: hidden;
-        }
+        .mod-item .meta { font-size: 0.78rem; color: var(--text-muted); margin: 3px 0 6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .mod-item .content { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; max-height: 100px; overflow: hidden; }
         .mod-item .actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-
-        .status-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-size: 0.68rem;
-            font-weight: 600;
-        }
+        .status-badge { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.68rem; font-weight: 600; }
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-approved { background: #dcfce7; color: #166534; }
         .status-rejected { background: #fee2e2; color: #991b1b; }
         .status-resolved { background: #dcfce7; color: #166534; }
-
-        .flag-reason {
-            background: #fef3c7;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.78rem;
-            color: #92400e;
-            margin: 6px 0;
-            border-left: 3px solid var(--warning);
-        }
-
-        .btn-sm {
-            padding: 4px 14px;
-            border: none;
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            font-family: inherit;
-        }
+        .flag-reason { background: #fef3c7; padding: 4px 10px; border-radius: 4px; font-size: 0.78rem; color: #92400e; margin: 6px 0; border-left: 3px solid var(--warning); }
+        .btn-sm { padding: 4px 14px; border: none; border-radius: 9999px; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all 0.15s ease; font-family: inherit; }
         .btn-sm:hover { transform: translateY(-1px); }
         .btn-sm:active { transform: scale(0.95); }
         .btn-sm-success { background: #dcfce7; color: #166534; }
@@ -169,54 +67,46 @@
         .btn-sm-danger:hover { background: #fecaca; }
         .btn-sm-warning { background: #fef3c7; color: #d97706; }
         .btn-sm-warning:hover { background: #fde68a; }
-
-        @media (max-width: 768px) {
-            .admin-header h1 { font-size: 1.4rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .mod-item { padding: 0.8rem 1rem; }
-        }
-        @media (max-width: 480px) {
-            .admin-header { flex-direction: column; align-items: flex-start; }
-            .admin-header h1 { font-size: 1.2rem; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
-            .stat-card { padding: 0.7rem; }
-            .stat-card .number { font-size: 1.3rem; }
-            .mod-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-            .mod-tabs::-webkit-scrollbar { display: none; }
-            .mod-tab { flex-shrink: 0; font-size: 0.7rem; }
-        }
+        @media (max-width: 768px) { .admin-header h1 { font-size: 1.4rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .mod-item { padding: 0.8rem 1rem; } }
+        @media (max-width: 480px) { .admin-header { flex-direction: column; align-items: flex-start; } .admin-header h1 { font-size: 1.2rem; } .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; } .stat-card { padding: 0.7rem; } .stat-card .number { font-size: 1.3rem; } .mod-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; } .mod-tabs::-webkit-scrollbar { display: none; } .mod-tab { flex-shrink: 0; font-size: 0.7rem; } }
     </style>
 </head>
 
 <body>
-    <!-- Header -->
+    <script>
+    (function() {
+        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
+        if (wasLoggedIn === 'true') {
+            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+        }
+    })();
+    </script>
+
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-feed active guest-only" id="adminNavLink" aria-current="page">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
+            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" aria-current="page" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
                 <span id="userName">Friend</span>
                 <span id="adminBadge" style="display:none;font-size:0.7rem;padding:2px 10px;border-radius:20px;background:var(--secondary);color:white;font-weight:700;">👑 Admin</span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
 
     <div id="emergencyBanner" role="alert"></div>
 
-    <!-- Main Content -->
     <div class="container">
         <div class="admin-container">
             <div id="adminContent">
@@ -225,55 +115,35 @@
         </div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix #1) -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
             <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
-            <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
+            <label for="authEmail">Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
+            <label for="authPassword">Password</label><input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
             <div id="passwordStrength"></div>
             <div id="signupFields" style="display:none;">
-                <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" />
-                <div id="usernameStatus"></div>
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
-                <datalist id="country-list"></datalist>
-                <label for="authFavorites">Favorite things</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div>
+                <label for="authGender">Gender</label><select id="authGender" onchange="updateGenderWarning()"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
+                <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
+                <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
                 <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
                     <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--primary);" />
-                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span>
-                    </label>
+                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
-            <div class="error-msg" id="authError"></div>
-            <div class="success-msg" id="authSuccess"></div>
+            <div class="error-msg" id="authError"></div><div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer" role="contentinfo">
-        <div>⚓ The Harbor — Admin Panel</div>
+        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html" class="guest-only">📊 Activity</a>
-            <a href="about.html">🌿 About</a>
-            <a href="submit.html" class="guest-only">📝 Share Story</a>
             <a href="profile.html" class="guest-only">👤 Profile</a>
+            <a href="about.html">🌿 About</a>
             <a href="emergency.html">🆘 Emergency</a>
             <a href="suggest.html" class="guest-only">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
@@ -282,24 +152,19 @@
         <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <!-- Page Script -->
     <script>
     var currentModTab = 'flagged';
 
     function applyGuestRestrictions() {
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-        var guestOnly = document.querySelectorAll('.guest-only');
-        var authOnly = document.querySelectorAll('.auth-only');
-        guestOnly.forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
-        authOnly.forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
-        var userInfo = document.getElementById('userInfo');
-        if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
+        document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+        document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+        var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
     }
 
     function loadAdminPanel() {
         var content = document.getElementById('adminContent');
         if (!content) return;
-
         if (!currentUser || !currentUserData || !currentUserData.isAdmin) {
             content.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🚫</div><h3>Access Denied</h3><p style="color:var(--text-muted);">You need admin privileges.</p><a href="index.html" class="btn btn-primary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>';
             return;
@@ -308,18 +173,14 @@
             content.innerHTML = '<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><p style="color:var(--text-muted);">Please verify your email.</p><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:10px;">🔄 Resend Verification</button></div>';
             return;
         }
-
         content.innerHTML = '<div class="admin-header"><h1>👑 Admin <span>Panel</span></h1><div><button class="btn btn-secondary" onclick="loadAdminPanel()" style="margin-right:6px;">🔄 Refresh</button><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back</a></div></div><div id="adminStats"></div><div class="mod-tabs"><button class="mod-tab active" data-tab="flagged" onclick="switchModTab(\'flagged\')">⚠️ Flagged <span class="count" id="flaggedCount">0</span></button><button class="mod-tab" data-tab="pending" onclick="switchModTab(\'pending\')">⏳ Pending <span class="count" id="pendingCount">0</span></button><button class="mod-tab" data-tab="suggestions" onclick="switchModTab(\'suggestions\')">💡 Suggestions <span class="count" id="suggestionsCount">0</span></button><button class="mod-tab" data-tab="reports" onclick="switchModTab(\'reports\')">📢 Reports <span class="count" id="reportsCount">0</span></button></div><div id="modItems"><div class="loading"><div class="loading-spinner"></div> Loading...</div></div>';
-
         loadStats();
         loadModItems('flagged');
     }
 
     function loadStats() {
-        var statsDiv = document.getElementById('adminStats');
-        if (!statsDiv) return;
+        var statsDiv = document.getElementById('adminStats'); if (!statsDiv) return;
         var flaggedCount = 0, pendingCount = 0, totalStories = 0, flaggedComments = 0, pendingSuggestions = 0, pendingReports = 0;
-
         db.collection('stories').get().then(function(snap) {
             snap.forEach(function(doc) { totalStories++; if(doc.data().flagged) flaggedCount++; if(!doc.data().approved) pendingCount++; });
             return db.collection('comments').get();
@@ -331,13 +192,7 @@
             return db.collection('reports').get();
         }).then(function(snap) {
             snap.forEach(function(doc) { if(doc.data().status==='pending') pendingReports++; });
-            statsDiv.innerHTML = '<div class="stats-grid">'+
-                '<div class="stat-card"><span class="emoji">🚩</span><div class="number">'+(flaggedCount+flaggedComments)+'</div><div class="label">Flagged</div></div>'+
-                '<div class="stat-card"><span class="emoji">⏳</span><div class="number">'+pendingCount+'</div><div class="label">Pending</div></div>'+
-                '<div class="stat-card"><span class="emoji">💡</span><div class="number">'+pendingSuggestions+'</div><div class="label">Suggestions</div></div>'+
-                '<div class="stat-card"><span class="emoji">📢</span><div class="number">'+pendingReports+'</div><div class="label">Reports</div></div>'+
-                '<div class="stat-card"><span class="emoji">📝</span><div class="number">'+totalStories+'</div><div class="label">Stories</div></div>'+
-            '</div>';
+            statsDiv.innerHTML = '<div class="stats-grid"><div class="stat-card"><span class="emoji">🚩</span><div class="number">'+(flaggedCount+flaggedComments)+'</div><div class="label">Flagged</div></div><div class="stat-card"><span class="emoji">⏳</span><div class="number">'+pendingCount+'</div><div class="label">Pending</div></div><div class="stat-card"><span class="emoji">💡</span><div class="number">'+pendingSuggestions+'</div><div class="label">Suggestions</div></div><div class="stat-card"><span class="emoji">📢</span><div class="number">'+pendingReports+'</div><div class="label">Reports</div></div><div class="stat-card"><span class="emoji">📝</span><div class="number">'+totalStories+'</div><div class="label">Stories</div></div></div>';
             document.getElementById('flaggedCount').textContent = flaggedCount+flaggedComments;
             document.getElementById('pendingCount').textContent = pendingCount;
             document.getElementById('suggestionsCount').textContent = pendingSuggestions;
@@ -345,175 +200,50 @@
         }).catch(function(err) { console.error('Stats error:', err); });
     }
 
-    function switchModTab(tab) {
-        currentModTab = tab;
-        document.querySelectorAll('.mod-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab===tab); });
-        loadModItems(tab);
-    }
+    function switchModTab(tab) { currentModTab = tab; document.querySelectorAll('.mod-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab===tab); }); loadModItems(tab); }
 
     function loadModItems(type) {
-        var container = document.getElementById('modItems');
-        if (!container) return;
+        var container = document.getElementById('modItems'); if (!container) return;
         container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
-
-        if (type === 'suggestions') {
-            db.collection('suggestions').orderBy('createdAt','desc').get().then(function(snap) {
-                var items = [];
-                snap.forEach(function(doc) { var d=doc.data();d.id=doc.id;d.type='suggestion';items.push(d); });
-                renderItems(items, container);
-            }).catch(function(err) { container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p style="color:var(--text-muted);">'+err.message+'</p></div>'; });
-            return;
-        }
-        if (type === 'reports') {
-            db.collection('reports').orderBy('createdAt','desc').get().then(function(snap) {
-                var items = [];
-                snap.forEach(function(doc) { var d=doc.data();d.id=doc.id;d.type='report';items.push(d); });
-                renderItems(items, container);
-            }).catch(function(err) { container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p style="color:var(--text-muted);">'+err.message+'</p></div>'; });
-            return;
-        }
-
+        if (type === 'suggestions') { db.collection('suggestions').orderBy('createdAt','desc').get().then(function(snap) { var items = []; snap.forEach(function(doc) { var d=doc.data();d.id=doc.id;d.type='suggestion';items.push(d); }); renderItems(items, container); }).catch(function(err) { container.innerHTML = '<div class="empty-state">Error</div>'; }); return; }
+        if (type === 'reports') { db.collection('reports').orderBy('createdAt','desc').get().then(function(snap) { var items = []; snap.forEach(function(doc) { var d=doc.data();d.id=doc.id;d.type='report';items.push(d); }); renderItems(items, container); }).catch(function(err) { container.innerHTML = '<div class="empty-state">Error</div>'; }); return; }
         db.collection('stories').get().then(function(snap) {
             var items = [];
-            snap.forEach(function(doc) {
-                var d = doc.data(); d.id = doc.id; d.type = 'story';
-                if ((type==='flagged'&&d.flagged) || (type==='pending'&&!d.approved)) items.push(d);
-            });
-            if (type==='flagged') {
-                return db.collection('comments').get().then(function(cs) {
-                    cs.forEach(function(doc) { if(doc.data().flagged) { var d=doc.data();d.id=doc.id;d.type='comment';items.push(d); } });
-                    return items;
-                });
-            }
+            snap.forEach(function(doc) { var d = doc.data(); d.id = doc.id; d.type = 'story'; if ((type==='flagged'&&d.flagged) || (type==='pending'&&!d.approved)) items.push(d); });
+            if (type==='flagged') { return db.collection('comments').get().then(function(cs) { cs.forEach(function(doc) { if(doc.data().flagged) { var d=doc.data();d.id=doc.id;d.type='comment';items.push(d); } }); return items; }); }
             return items;
-        }).then(function(items) { renderItems(items, container); })
-          .catch(function(err) { container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p style="color:var(--text-muted);">'+err.message+'</p></div>'; });
+        }).then(function(items) { renderItems(items, container); }).catch(function(err) { container.innerHTML = '<div class="empty-state">Error</div>'; });
     }
 
     function renderItems(items, container) {
-        if (items.length === 0) {
-            var msgs = {flagged:'No flagged items. ✅',pending:'No pending stories. ✅',suggestions:'No suggestions. 💡',reports:'No reports. 📢'};
-            container.innerHTML = '<div class="empty-state"><div class="big-emoji">✅</div><h3>All Clear!</h3><p style="color:var(--text-muted);">'+msgs[currentModTab]+'</p></div>';
-            return;
-        }
+        if (items.length === 0) { var msgs = {flagged:'No flagged items.',pending:'No pending stories.',suggestions:'No suggestions.',reports:'No reports.'}; container.innerHTML = '<div class="empty-state"><div class="big-emoji">✅</div><h3>All Clear!</h3><p style="color:var(--text-muted);">'+msgs[currentModTab]+'</p></div>'; return; }
         items.sort(function(a,b) { var ta=a.createdAt?a.createdAt.toDate().getTime():0; var tb=b.createdAt?b.createdAt.toDate().getTime():0; return tb-ta; });
-        var html = '';
-        items.forEach(function(item) { html += renderModItem(item); });
-        container.innerHTML = html;
+        container.innerHTML = items.map(function(item) { return renderModItem(item); }).join('');
     }
 
     function renderModItem(item) {
         var time = item.createdAt ? item.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : 'Recently';
         var content = '';
-        if (item.type === 'story') {
-            content = '<div class="title">📖 '+escapeHTML(item.title||'Untitled')+'</div>'+
-                '<div class="meta">✍️ '+(item.isAnonymous?'Anonymous':escapeHTML(item.authorName||'Unknown'))+' · 📅 '+time+(item.flagged?' <span style="color:#d97706;">⚠️ Flagged</span>':'')+'</div>'+
-                (item.flagReason?'<div class="flag-reason">🚩 '+escapeHTML(item.flagReason)+'</div>':'')+
-                '<div class="content">'+escapeHTML((item.text||'').substring(0,300))+(item.text&&item.text.length>300?'...':'')+'</div>'+
-                '<div class="actions"><button class="btn-sm btn-sm-success" onclick="approveItem(\'story\',\''+item.id+'\')">✅ Approve</button><button class="btn-sm btn-sm-danger" onclick="deleteItem(\'story\',\''+item.id+'\')">🗑️ Delete</button></div>';
-        } else if (item.type === 'comment') {
-            content = '<div class="title">💬 Comment</div>'+
-                '<div class="meta">✍️ '+(item.isAnonymous?'Anonymous':escapeHTML(item.authorName||'Unknown'))+' · 📅 '+time+(item.flagged?' <span style="color:#d97706;">⚠️ Flagged</span>':'')+'</div>'+
-                '<div class="content">'+escapeHTML(item.text||'')+'</div>'+
-                '<div class="actions"><button class="btn-sm btn-sm-success" onclick="approveItem(\'comment\',\''+item.id+'\')">✅ Approve</button><button class="btn-sm btn-sm-danger" onclick="deleteItem(\'comment\',\''+item.id+'\')">🗑️ Delete</button></div>';
-        } else if (item.type === 'suggestion') {
-            var sc = item.status==='pending'?'status-pending':item.status==='approved'?'status-approved':'status-rejected';
-            var sl = item.status==='pending'?'⏳ Pending':item.status==='approved'?'✅ Approved':'❌ Rejected';
-            content = '<div class="title">💡 '+escapeHTML(item.title||'Untitled')+'</div>'+
-                '<div class="meta">✍️ '+escapeHTML(item.userName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+sc+'">'+sl+'</span> 👍 '+(item.upvotes||0)+' upvotes</div>'+
-                '<div class="content">'+escapeHTML(item.text||'')+'</div>'+
-                '<div class="actions">'+
-                    (item.status!=='approved'?'<button class="btn-sm btn-sm-success" onclick="updateSuggestion(\''+item.id+'\',\'approved\')">✅ Approve</button>':'')+
-                    (item.status!=='rejected'?'<button class="btn-sm btn-sm-danger" onclick="updateSuggestion(\''+item.id+'\',\'rejected\')">❌ Reject</button>':'')+
-                    (item.status!=='pending'?'<button class="btn-sm btn-sm-warning" onclick="updateSuggestion(\''+item.id+'\',\'pending\')">⏳ Reopen</button>':'')+
-                '</div>';
-        } else if (item.type === 'report') {
-            var rc = item.status==='pending'?'status-pending':'status-resolved';
-            var rl = item.status==='pending'?'⏳ Pending':'✅ Resolved';
-            content = '<div class="title">📢 Report</div>'+
-                '<div class="meta">👤 '+escapeHTML(item.reporterName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+rc+'">'+rl+'</span></div>'+
-                '<div class="flag-reason">🚩 '+escapeHTML(item.reason||'No reason')+'</div>'+
-                (item.storyTitle?'<div class="content">📌 Story: '+escapeHTML(item.storyTitle)+'</div>':'')+
-                (item.commentText?'<div class="content">💬 '+escapeHTML((item.commentText||'').substring(0,200))+'</div>':'')+
-                '<div class="actions">'+
-                    (item.status!=='resolved'?'<button class="btn-sm btn-sm-success" onclick="resolveReport(\''+item.id+'\')">✅ Resolve</button>':'')+
-                    '<button class="btn-sm btn-sm-danger" onclick="deleteItem(\'report\',\''+item.id+'\')">🗑️ Dismiss</button>'+
-                '</div>';
-        }
+        if (item.type === 'story') { content = '<div class="title">📖 '+escapeHTML(item.title||'Untitled')+'</div><div class="meta">✍️ '+(item.isAnonymous?'Anonymous':escapeHTML(item.authorName||'Unknown'))+' · 📅 '+time+(item.flagged?' <span style="color:#d97706;">⚠️ Flagged</span>':'')+'</div>'+(item.flagReason?'<div class="flag-reason">🚩 '+escapeHTML(item.flagReason)+'</div>':'')+'<div class="content">'+escapeHTML((item.text||'').substring(0,300))+(item.text&&item.text.length>300?'...':'')+'</div><div class="actions"><button class="btn-sm btn-sm-success" onclick="approveItem(\'story\',\''+item.id+'\')">✅ Approve</button><button class="btn-sm btn-sm-danger" onclick="deleteItem(\'story\',\''+item.id+'\')">🗑️ Delete</button></div>'; }
+        else if (item.type === 'comment') { content = '<div class="title">💬 Comment</div><div class="meta">✍️ '+(item.isAnonymous?'Anonymous':escapeHTML(item.authorName||'Unknown'))+' · 📅 '+time+(item.flagged?' <span style="color:#d97706;">⚠️ Flagged</span>':'')+'</div><div class="content">'+escapeHTML(item.text||'')+'</div><div class="actions"><button class="btn-sm btn-sm-success" onclick="approveItem(\'comment\',\''+item.id+'\')">✅ Approve</button><button class="btn-sm btn-sm-danger" onclick="deleteItem(\'comment\',\''+item.id+'\')">🗑️ Delete</button></div>'; }
+        else if (item.type === 'suggestion') { var sc = item.status==='pending'?'status-pending':item.status==='approved'?'status-approved':'status-rejected'; var sl = item.status==='pending'?'⏳ Pending':item.status==='approved'?'✅ Approved':'❌ Rejected'; content = '<div class="title">💡 '+escapeHTML(item.title||'Untitled')+'</div><div class="meta">✍️ '+escapeHTML(item.userName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+sc+'">'+sl+'</span> 👍 '+(item.upvotes||0)+' upvotes</div><div class="content">'+escapeHTML(item.text||'')+'</div><div class="actions">'+(item.status!=='approved'?'<button class="btn-sm btn-sm-success" onclick="updateSuggestion(\''+item.id+'\',\'approved\')">✅ Approve</button>':'')+(item.status!=='rejected'?'<button class="btn-sm btn-sm-danger" onclick="updateSuggestion(\''+item.id+'\',\'rejected\')">❌ Reject</button>':'')+(item.status!=='pending'?'<button class="btn-sm btn-sm-warning" onclick="updateSuggestion(\''+item.id+'\',\'pending\')">⏳ Reopen</button>':'')+'</div>'; }
+        else if (item.type === 'report') { var rc = item.status==='pending'?'status-pending':'status-resolved'; var rl = item.status==='pending'?'⏳ Pending':'✅ Resolved'; content = '<div class="title">📢 Report</div><div class="meta">👤 '+escapeHTML(item.reporterName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+rc+'">'+rl+'</span></div><div class="flag-reason">🚩 '+escapeHTML(item.reason||'No reason')+'</div>'+(item.storyTitle?'<div class="content">📌 Story: '+escapeHTML(item.storyTitle)+'</div>':'')+(item.commentText?'<div class="content">💬 '+escapeHTML((item.commentText||'').substring(0,200))+'</div>':'')+'<div class="actions">'+(item.status!=='resolved'?'<button class="btn-sm btn-sm-success" onclick="resolveReport(\''+item.id+'\')">✅ Resolve</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="deleteItem(\'report\',\''+item.id+'\')">🗑️ Dismiss</button>'+'</div>'; }
         return '<div class="mod-item">'+content+'</div>';
     }
 
-    function approveItem(type, id) {
-        if (!confirm('Approve this '+type+'?')) return;
-        var ref = type==='story' ? db.collection('stories').doc(id) : db.collection('comments').doc(id);
-        ref.update({approved:true,flagged:false}).then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);});
-    }
-
-    function deleteItem(type, id) {
-        if (!confirm('Delete this '+type+' permanently?')) return;
-        var ref = type==='story'?db.collection('stories').doc(id):type==='comment'?db.collection('comments').doc(id):type==='report'?db.collection('reports').doc(id):db.collection('suggestions').doc(id);
-        ref.delete().then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);});
-    }
-
-    function updateSuggestion(id, status) {
-        if (!confirm('Set to '+status+'?')) return;
-        db.collection('suggestions').doc(id).update({status:status}).then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);});
-    }
-
-    function resolveReport(id) {
-        if (!confirm('Mark as resolved?')) return;
-        db.collection('reports').doc(id).update({status:'resolved'}).then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);});
-    }
+    function approveItem(type, id) { if (!confirm('Approve this '+type+'?')) return; var ref = type==='story' ? db.collection('stories').doc(id) : db.collection('comments').doc(id); ref.update({approved:true,flagged:false}).then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);}); }
+    function deleteItem(type, id) { if (!confirm('Delete this '+type+' permanently?')) return; var ref = type==='story'?db.collection('stories').doc(id):type==='comment'?db.collection('comments').doc(id):type==='report'?db.collection('reports').doc(id):db.collection('suggestions').doc(id); ref.delete().then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);}); }
+    function updateSuggestion(id, status) { if (!confirm('Set to '+status+'?')) return; db.collection('suggestions').doc(id).update({status:status}).then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);}); }
+    function resolveReport(id) { if (!confirm('Mark as resolved?')) return; db.collection('reports').doc(id).update({status:'resolved'}).then(function(){loadModItems(currentModTab);loadStats();}).catch(function(err){alert('❌ '+err.message);}); }
 
     document.addEventListener('DOMContentLoaded', function() {
-        var check = setInterval(function() {
-            if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); loadAdminPanel(); }
-        }, 100);
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged(function() { setTimeout(function(){applyGuestRestrictions();loadAdminPanel();},300); });
-        }
-
+        applyGuestRestrictions();
+        var check = setInterval(function() { if (typeof currentUser !== 'undefined') { clearInterval(check); loadAdminPanel(); } }, 100);
+        if (typeof auth !== 'undefined') { auth.onAuthStateChanged(function() { applyGuestRestrictions(); loadAdminPanel(); }); }
         document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
-        document.getElementById('authPassword')?.addEventListener('input', function() {
-            var sd = document.getElementById('passwordStrength');
-            if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; }
-            if (typeof checkPasswordStrength === 'function') {
-                var r = checkPasswordStrength(this.value);
-                sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
-            }
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); }
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // ===== TERMS CHECKBOX FIX (#1) =====
-        (function() {
-            const termsCheckbox = document.getElementById('termsCheckbox');
-            const authSubmitBtn = document.getElementById('authSubmitBtn');
-            if (termsCheckbox && authSubmitBtn) {
-                const toggleBtn = () => {
-                    const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                    if (isSignup) {
-                        authSubmitBtn.disabled = !termsCheckbox.checked;
-                        authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                        authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
-                    } else {
-                        authSubmitBtn.disabled = false;
-                        authSubmitBtn.style.opacity = '1';
-                        authSubmitBtn.style.cursor = 'pointer';
-                    }
-                };
-                termsCheckbox.addEventListener('change', toggleBtn);
-                const originalToggle = toggleAuthMode;
-                window.toggleAuthMode = function() {
-                    originalToggle();
-                    setTimeout(toggleBtn, 100);
-                };
-                toggleBtn();
-            }
-        })();
-
+        document.getElementById('authPassword')?.addEventListener('input', function() { var sd = document.getElementById('passwordStrength'); if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; } if (typeof checkPasswordStrength === 'function') { var r = checkPasswordStrength(this.value); sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>'; } });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); } if (e.key === 'Escape') closeModal(); });
+        (function() { const tc = document.getElementById('termsCheckbox'), sb = document.getElementById('authSubmitBtn'); if (tc && sb) { var t = function() { var isSignup = document.getElementById('signupFields')?.style.display !== 'none'; sb.disabled = isSignup ? !tc.checked : false; sb.style.opacity = isSignup && !tc.checked ? '0.5' : '1'; }; tc.addEventListener('change', t); var orig = toggleAuthMode; window.toggleAuthMode = function() { orig(); setTimeout(t, 100); }; t(); } })();
         console.log('✅ Admin page ready');
     });
     </script>
