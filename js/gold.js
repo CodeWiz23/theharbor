@@ -1,163 +1,122 @@
 // ============================================
-// GOLD SYSTEM — COMPLETE FIXED
+// HARBOR GOLD SYSTEM - FIXED
 // ============================================
 
-function getGoldBalance() {
-    if (!currentUser || !currentUserData) return 0;
-    return currentUserData.goldBalance || 0;
-}
-
 function donateGold(storyId, amount, message) {
-    if (!currentUser) {
-        alert('Please log in to donate gold.');
-        return Promise.reject('Not logged in');
-    }
+    if (!currentUser) { alert('⚠️ Please log in to donate gold.'); return; }
+    if (!currentUser.emailVerified) { alert('⚠️ Please verify your email first.'); return; }
+    if (!amount || amount < 1) { alert('Please enter a valid amount (minimum 1).'); return; }
+    amount = Math.floor(amount);
 
-    if (!currentUserData) {
-        alert('Loading user data...');
-        return Promise.reject('User data not loaded');
-    }
-
-    const balance = currentUserData.goldBalance || 0;
-    if (amount < 1) {
-        alert('Amount must be at least 1.');
-        return Promise.reject('Invalid amount');
-    }
-
-    if (amount > balance) {
-        alert('⚠️ You don\'t have enough gold! Balance: ' + balance + ' 🪙');
-        return Promise.reject('Insufficient gold');
-    }
-
-    const storyRef = db.collection('stories').doc(storyId);
     const userRef = db.collection('users').doc(currentUser.uid);
 
-    return db.runTransaction((transaction) => {
-        return transaction.get(storyRef).then((storyDoc) => {
-            if (!storyDoc.exists) throw new Error('Story not found');
-            const storyData = storyDoc.data();
-            const authorId = storyData.userId;
+    userRef.get().then(doc => {
+        if (!doc.exists) { alert('User data not found.'); return; }
+        const balance = doc.data().goldBalance || 0;
+        if (balance < amount) { alert('⚠️ Insufficient gold! You have ' + balance + ' 🪙'); return; }
 
-            // Prevent self-donation
-            if (authorId === currentUser.uid) {
-                throw new Error('You cannot donate gold to your own stories.');
-            }
+        return db.runTransaction(transaction => {
+            return transaction.get(db.collection('stories').doc(storyId)).then(storyDoc => {
+                if (!storyDoc.exists) throw new Error('Story not found');
+                const authorId = storyDoc.data().userId;
+                if (authorId === currentUser.uid) throw new Error('Cannot donate to yourself');
 
-            return transaction.get(db.collection('users').doc(authorId)).then((authorDoc) => {
-                if (!authorDoc.exists) throw new Error('Author not found');
-
-                // Update donor's gold
                 transaction.update(userRef, {
                     goldBalance: firebase.firestore.FieldValue.increment(-amount),
                     goldGiven: firebase.firestore.FieldValue.increment(amount)
                 });
-
-                // Update recipient's gold
                 transaction.update(db.collection('users').doc(authorId), {
                     goldBalance: firebase.firestore.FieldValue.increment(amount),
                     goldReceived: firebase.firestore.FieldValue.increment(amount)
                 });
-
-                // Update story's gold received
-                transaction.update(storyRef, {
+                transaction.update(db.collection('stories').doc(storyId), {
                     goldReceived: firebase.firestore.FieldValue.increment(amount)
                 });
 
-                // Create transaction record
-                const transactionRef = db.collection('goldTransactions').doc();
-                transaction.set(transactionRef, {
-                    fromUid: currentUser.uid,
-                    toUid: authorId,
-                    storyId: storyId,
-                    amount: amount,
-                    message: message || '',
-                    fromName: currentUserData ? currentUserData.name : 'Anonymous',
-                    toName: authorDoc.data().name || 'Someone',
+                const txRef = db.collection('goldTransactions').doc();
+                transaction.set(txRef, {
+                    fromUid: currentUser.uid, toUid: authorId, storyId,
+                    amount, message: message || '',
+                    fromName: currentUserData?.name || 'Anonymous',
+                    toName: 'Someone',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                return { amount, authorId };
             });
         });
+    }).then(result => {
+        // FIX #25: Only update balance on success
+        if (currentUserData) {
+            currentUserData.goldBalance = (currentUserData.goldBalance || 0) - result.amount;
+            currentUserData.goldGiven = (currentUserData.goldGiven || 0) + result.amount;
+        }
+        if (typeof updateSidebarData === 'function') updateSidebarData();
+        if (typeof loadStories === 'function') loadStories();
+        alert(`✅ You donated ${result.amount} 🪙!${message ? '\n💬 "' + message + '"' : ''}`);
+    }).catch(err => {
+        console.error('Gold donation error:', err);
+        if (err.message === 'Cannot donate to yourself') alert('⚠️ You cannot donate gold to your own story.');
+        else alert('❌ Error: ' + err.message + '\n\nThis may be due to Firestore security rules. Make sure rules allow gold transfers between users.');
     });
 }
 
-function viewGoldTransactions() {
-    if (!currentUser) {
-        alert('Please log in.');
+// Modal helpers (used by story.html and index.html)
+let selectedGoldAmount = 0;
+
+function openGoldModal(storyId) {
+    if (!currentUser) { alert('⚠️ Please log in.'); return; }
+    if (!currentUserData) { alert('Loading...'); return; }
+    const balance = currentUserData.goldBalance || 0;
+    if (balance < 1) { alert('⚠️ No gold!'); return; }
+    const modal = document.getElementById('goldModal');
+    if (!modal) {
+        // Fallback for pages without gold modal HTML
+        const amount = prompt('Enter amount to donate (Balance: ' + balance + ' 🪙):');
+        if (amount && parseInt(amount) > 0 && parseInt(amount) <= balance) {
+            const msg = prompt('Message (optional):') || '';
+            donateGold(storyId, parseInt(amount), msg);
+        }
         return;
     }
-
-    db.collection('goldTransactions')
-        .where('fromUid', '==', currentUser.uid)
-        .get()
-        .then((snapshot) => {
-            if (snapshot.empty) {
-                alert('📊 No gold transactions yet.');
-                return;
-            }
-            let message = '📊 Gold Transaction History:\n\n';
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const time = data.createdAt ? data.createdAt.toDate().toLocaleString() : 'Recently';
-                message += `💰 ${data.amount} 🪙 → ${data.toName} (${time})\n`;
-                if (data.message) message += `   💬 ${data.message}\n`;
-            });
-            alert(message);
-        })
-        .catch((err) => {
-            alert('❌ Error: ' + err.message);
-        });
+    document.getElementById('goldBalanceAmount').textContent = balance;
+    modal.classList.add('active');
+    currentStoryId = storyId;
+    selectedGoldAmount = 0;
+    document.getElementById('customGoldAmount').value = '';
+    document.getElementById('goldMessage').value = '';
+    document.getElementById('goldError').textContent = '';
+    document.querySelectorAll('.gold-amount-btn').forEach(b => b.classList.remove('selected'));
 }
 
-// ============================================
-// GOLD REWARDS
-// ============================================
-
-function awardGoldForStory() {
-    if (!currentUser) return;
-
-    db.collection('users').doc(currentUser.uid).update({
-        goldBalance: firebase.firestore.FieldValue.increment(5)
-    }).then(() => {
-        if (currentUserData) {
-            currentUserData.goldBalance = (currentUserData.goldBalance || 0) + 5;
-        }
-        console.log('💰 Awarded 5 gold for sharing a story!');
-    }).catch((err) => console.error('Error awarding gold:', err));
+function selectGoldAmount(amount) {
+    selectedGoldAmount = amount;
+    document.getElementById('customGoldAmount').value = amount;
+    document.querySelectorAll('.gold-amount-btn').forEach(b => b.classList.remove('selected'));
+    if (event && event.target) event.target.classList.add('selected');
 }
 
-function awardGoldForComment() {
-    if (!currentUser) return;
+function closeGoldModal() { const m = document.getElementById('goldModal'); if (m) m.classList.remove('active'); }
 
-    db.collection('users').doc(currentUser.uid).update({
-        goldBalance: firebase.firestore.FieldValue.increment(1)
-    }).then(() => {
-        if (currentUserData) {
-            currentUserData.goldBalance = (currentUserData.goldBalance || 0) + 1;
-        }
-        console.log('💰 Awarded 1 gold for commenting!');
-    }).catch((err) => console.error('Error awarding gold:', err));
+function confirmGoldDonation() {
+    const customInput = document.getElementById('customGoldAmount');
+    const messageInput = document.getElementById('goldMessage');
+    const errorDiv = document.getElementById('goldError');
+    let amount = selectedGoldAmount;
+    if (customInput && customInput.value) { const c = parseInt(customInput.value); if (c > 0) amount = c; }
+    const balance = currentUserData?.goldBalance || 0;
+    if (!amount || amount < 1) { errorDiv.textContent = 'Enter valid amount.'; return; }
+    if (amount > balance) { errorDiv.textContent = 'Not enough gold! Balance: ' + balance; return; }
+    const message = messageInput?.value.trim() || '';
+    closeGoldModal();
+    donateGold(currentStoryId, amount, message);
 }
 
-function awardGoldForReaction() {
-    // Small chance to award gold for reactions
-    if (!currentUser || Math.random() > 0.05) return;
-
-    db.collection('users').doc(currentUser.uid).update({
-        goldBalance: firebase.firestore.FieldValue.increment(1)
-    }).then(() => {
-        if (currentUserData) {
-            currentUserData.goldBalance = (currentUserData.goldBalance || 0) + 1;
-        }
-        console.log('💰 Awarded 1 gold for reacting!');
-    }).catch((err) => console.error('Error awarding gold:', err));
-}
-
-// Export functions for global use
-window.getGoldBalance = getGoldBalance;
+// Expose
+window.openGoldModal = openGoldModal;
+window.selectGoldAmount = selectGoldAmount;
+window.closeGoldModal = closeGoldModal;
+window.confirmGoldDonation = confirmGoldDonation;
 window.donateGold = donateGold;
-window.viewGoldTransactions = viewGoldTransactions;
-window.awardGoldForStory = awardGoldForStory;
-window.awardGoldForComment = awardGoldForComment;
-window.awardGoldForReaction = awardGoldForReaction;
 
-console.log('✅ Gold system loaded');
+console.log('💰 Gold system loaded');
