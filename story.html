@@ -25,89 +25,94 @@
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
+    <script src="js/notifications.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .story-full { background: var(--bg-card); padding: 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); position: relative; }
-        .story-full .story-title { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1.3; }
-        .story-full .story-meta-row { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; align-items: center; }
-        .story-full .category-badge { background: var(--bg-secondary); padding: 3px 14px; border-radius: 9999px; color: var(--text-secondary); font-weight: 600; font-size: 0.75rem; border: 1px solid var(--border-color); }
-        .story-full .gold-badge { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; padding: 3px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
-        .story-full .story-text { font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; color: var(--text-secondary); }
-        .story-full .story-text .excerpt-text { display: inline; }
-        .story-full .story-text .full-text { display: none; }
-        .story-full .story-text .full-text.show { display: inline; }
-        .read-more-btn { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; padding: 4px 0; font-size: 0.9rem; transition: color 0.2s ease; font-family: inherit; }
-        .read-more-btn:hover { color: var(--secondary-dark); text-decoration: underline; }
-        .story-action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-        .reaction-btn { padding: 5px 14px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.95rem; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; }
-        .reaction-btn:hover { background: var(--border-color); transform: scale(1.04); }
+        .story-full { background: var(--bg-card); padding: 1.6rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); position: relative; }
+        .story-full .story-title { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1.3; padding-right: 40px; }
+        .story-full .story-meta-row { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; align-items: center; }
+        .story-full .category-badge { background: var(--bg-secondary); padding: 3px 12px; border-radius: 9999px; color: var(--text-secondary); font-weight: 600; font-size: 0.7rem; border: 1px solid var(--border-color); }
+        .story-full .gold-badge { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; }
+        .story-full .story-text { font-size: 1rem; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; color: var(--text-secondary); }
+        .read-more-btn { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; padding: 4px 0; font-size: 0.85rem; font-family: inherit; }
+        .story-action-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color); }
+        .reaction-btn { padding: 4px 12px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; }
+        .reaction-btn:hover { background: var(--border-color); }
         .reaction-btn:active { transform: scale(0.95); }
         .reaction-btn.reacted { background: #dcfce7; border-color: #16a34a; }
-        .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .reaction-btn .count { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+        .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .reaction-btn .count { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
 
-        .gear-menu-container { position: absolute; top: 12px; right: 12px; z-index: 10; }
-        .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; }
+        .gear-menu-container { position: absolute; top: 10px; right: 10px; z-index: 10; }
+        .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 7px; cursor: pointer; font-size: 1rem; color: var(--text-muted); transition: all 0.2s; }
         .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .gear-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 160px; overflow: hidden; }
+        .gear-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 150px; overflow: hidden; z-index: 20; }
         .gear-dropdown.show { display: block; }
-        .gear-dropdown button { display: block; width: 100%; padding: 8px 14px; text-align: left; background: none; border: none; font-size: 0.85rem; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: background 0.15s; font-family: inherit; }
+        .gear-dropdown button { display: block; width: 100%; padding: 8px 14px; text-align: left; background: none; border: none; font-size: 0.8rem; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: background 0.15s; font-family: inherit; }
         .gear-dropdown button:hover { background: var(--bg-secondary); }
         .gear-dropdown button.danger { color: var(--danger); }
         .gear-dropdown button.danger:hover { background: #fee2e2; }
 
         .comment-section { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); }
-        .comment-section h3 { margin-bottom: 14px; color: var(--text-primary); font-size: 1.15rem; font-weight: 600; }
+        .comment-section h3 { margin-bottom: 14px; color: var(--text-primary); font-size: 1.1rem; font-weight: 600; }
         .comment-input-area { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color); }
-        .comment-input-area textarea { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.95rem; font-family: inherit; resize: vertical; min-height: 80px; background: var(--bg-primary); color: var(--text-primary); transition: border 0.2s ease; }
-        .comment-input-area textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,74,74,0.1); }
-        .comment { background: var(--bg-secondary); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 10px; border: 1px solid var(--border-color); transition: all 0.2s ease; animation: fadeInComment 0.3s ease; }
+        .comment-input-area textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 70px; background: var(--bg-primary); color: var(--text-primary); transition: border 0.2s; }
+        .comment-input-area textarea:focus { outline: none; border-color: var(--primary); }
+        .comment { background: var(--bg-secondary); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 8px; border: 1px solid var(--border-color); animation: fadeInComment 0.3s ease; }
         @keyframes fadeInComment { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .comment:hover { border-color: var(--primary-light); }
-        .comment-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
-        .comment-author { font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .comment-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+        .comment-author { font-weight: 600; color: var(--text-primary); font-size: 0.85rem; }
         .comment-author-link { cursor: pointer; color: var(--primary); }
-        .comment-author-link:hover { text-decoration: underline; }
-        .comment-time { font-size: 0.78rem; color: var(--text-muted); }
-        .comment-text { color: var(--text-secondary); line-height: 1.6; word-wrap: break-word; }
-        .comment-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-        .comment-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
+        .comment-time { font-size: 0.7rem; color: var(--text-muted); }
+        .comment-text { color: var(--text-secondary); line-height: 1.6; word-wrap: break-word; font-size: 0.9rem; }
+        .comment-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+        .comment-badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
         .comment-badge.pinned { background: #fef3c7; color: #d97706; }
-        .comment-badge.star { background: #fde68a; color: #b45309; }
 
         .floating-emoji { position: fixed; font-size: 3rem; pointer-events: none; z-index: 9999; animation: floatUpAnim 1.5s ease-out forwards; }
         @keyframes floatUpAnim { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); } 100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); } }
         .firework-particle { position: fixed; pointer-events: none; z-index: 9998; }
         .meta-author-link { cursor: pointer; color: var(--primary); font-weight: 600; }
-        .meta-author-link:hover { text-decoration: underline; }
 
-        @media (max-width: 768px) { .story-full { padding: 1.2rem; } .story-full .story-title { font-size: 1.4rem; } .story-full .story-text { font-size: 0.95rem; } }
-        @media (max-width: 480px) { .story-full { padding: 1rem; border-radius: var(--radius-lg); } .story-full .story-title { font-size: 1.2rem; } .reaction-btn { font-size: 0.85rem; padding: 4px 10px; } .story-action-bar { gap: 4px; } .comment { padding: 10px 12px; } }
+        @media (max-width: 768px) {
+            .story-full { padding: 1.2rem; }
+            .story-full .story-title { font-size: 1.3rem; padding-right: 36px; }
+            .story-full .story-text { font-size: 0.95rem; }
+            .comment-section { padding: 1.2rem; }
+        }
+        @media (max-width: 480px) {
+            .story-full { padding: 0.9rem; border-radius: var(--radius-lg); }
+            .story-full .story-title { font-size: 1.1rem; padding-right: 32px; }
+            .reaction-btn { font-size: 0.8rem; padding: 3px 8px; }
+            .story-action-bar { gap: 3px; }
+            .comment { padding: 10px 12px; }
+            .gear-menu-container { top: 6px; right: 6px; }
+            .gear-icon { font-size: 0.9rem; padding: 3px 5px; }
+        }
     </style>
 </head>
 
 <body>
+    <!-- HEADER WITH ICON DOCK -->
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" onclick="event.preventDefault();window.location.href='profile.html';" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Leaderboard">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:6px;">
                 <span id="userName">Friend</span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
@@ -122,13 +127,13 @@
             <div class="comment-input-area">
                 <label style="font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">Share your thoughts</label>
                 <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
-                <div style="font-size:0.75rem;color:var(--text-muted);text-align:right;margin-top:4px;"><span id="commentCountDisplay">0</span>/1000</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-align:right;margin-top:4px;"><span id="commentCountDisplay">0</span>/1000</div>
                 <div class="checkbox-group"><input type="checkbox" id="commentAnonymous" /><label for="commentAnonymous">🕊️ Post anonymously</label></div>
                 <div id="commentError" class="error-msg"></div>
                 <button class="btn btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:6px;">💬 Post Comment</button>
             </div>
         </div>
-        <div style="text-align:center;margin-top:24px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
+        <div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
     </div>
 
     <!-- Edit Modal -->
@@ -157,11 +162,9 @@
                 <label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
                 <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
                 <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-                <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
-                    <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--primary);" />
-                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span>
-                    </label>
+                <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;">
+                    <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;" />
+                    <label for="termsCheckbox" style="font-size:0.85rem;cursor:pointer;">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
@@ -189,23 +192,17 @@
     <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html" class="guest-only">📊 Activity</a><a href="about.html">🌿 About</a><a href="submit.html" class="guest-only">📝 Share Story</a><a href="profile.html" class="guest-only">👤 Profile</a><a href="emergency.html">🆘 Emergency</a><a href="suggest.html" class="guest-only">💡 Suggest</a><a href="privacy.html">🔒 Privacy</a><a href="terms.html">📜 Terms</a>
+            <a href="about.html">🌿 About</a><a href="submit.html" class="guest-only">📝 Share</a><a href="profile.html" class="guest-only">👤 Profile</a><a href="emergency.html">🆘 Emergency</a><a href="suggest.html" class="guest-only">💡 Suggest</a><a href="privacy.html">🔒 Privacy</a><a href="terms.html">📜 Terms</a>
         </div>
         <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
     <script>
-        // ============================================
-        // STORY PAGE – FULLY FIXED
-        // ============================================
-
         var currentStory = null;
         var reactionLocks = {};
         var commentsUnsubscribe = null;
 
-        function viewProfile(userId) {
-            if (userId) window.location.href = 'profile.html?uid=' + userId;
-        }
+        function viewProfile(userId) { if (userId) window.location.href = 'profile.html?uid=' + userId; }
         window.viewProfile = viewProfile;
 
         function applyGuestRestrictions() {
@@ -215,34 +212,22 @@
             var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
         }
 
-        // Terms checkbox fix
         (function() {
             const termsCheckbox = document.getElementById('termsCheckbox');
             const authSubmitBtn = document.getElementById('authSubmitBtn');
             if (termsCheckbox && authSubmitBtn) {
                 const toggleBtn = () => {
                     const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                    if (isSignup) {
-                        authSubmitBtn.disabled = !termsCheckbox.checked;
-                        authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                        authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
-                    } else {
-                        authSubmitBtn.disabled = false;
-                        authSubmitBtn.style.opacity = '1';
-                        authSubmitBtn.style.cursor = 'pointer';
-                    }
+                    authSubmitBtn.disabled = isSignup ? !termsCheckbox.checked : false;
+                    authSubmitBtn.style.opacity = isSignup && !termsCheckbox.checked ? '0.5' : '1';
                 };
                 termsCheckbox.addEventListener('change', toggleBtn);
-                const originalToggle = toggleAuthMode;
-                window.toggleAuthMode = function() {
-                    originalToggle();
-                    setTimeout(toggleBtn, 100);
-                };
+                const orig = toggleAuthMode;
+                window.toggleAuthMode = function() { orig(); setTimeout(toggleBtn, 100); };
                 toggleBtn();
             }
         })();
 
-        // ========== LOAD STORY ==========
         function loadStory() {
             var urlParams = new URLSearchParams(window.location.search);
             var storyId = urlParams.get('id');
@@ -251,7 +236,6 @@
             if (!content) return;
             if (!storyId) { content.innerHTML = '<div class="empty-state"><div class="big-emoji">📭</div><h3>No story selected</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
             content.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading story...</div>';
-
             db.collection('stories').doc(storyId).get().then(doc => {
                 if (!doc.exists) { content.innerHTML = '<div class="empty-state"><div class="big-emoji">🔍</div><h3>Story not found</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
                 var story = doc.data(); story.id = doc.id; currentStory = story;
@@ -264,7 +248,6 @@
             }).catch(err => { content.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p>'+err.message+'</p><button class="btn btn-primary" onclick="loadStory()">🔄 Retry</button></div>'; });
         }
 
-        // ========== RENDER FULL STORY ==========
         function renderFullStory(story) {
             var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
             var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
@@ -280,7 +263,7 @@
                 var count = reactions[emoji] || 0;
                 var hasReacted = userReactions[story.id] && userReactions[story.id].indexOf(emoji) !== -1;
                 var locked = reactionLocks[story.id+'_'+emoji];
-                reactionBtns += '<button class="reaction-btn'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="storyToggleReaction(\''+story.id+'\',\''+emoji+'\')" '+(locked?'disabled':'')+'>'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span>'+(hasReacted?' ✅':'')+'</button>';
+                reactionBtns += '<button class="reaction-btn'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="storyToggleReaction(\''+story.id+'\',\''+emoji+'\')" '+(locked?'disabled':'')+'>'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
             });
 
             var fullText = story.text || '';
@@ -315,224 +298,102 @@
                 '</div></div>';
         }
 
-        function toggleGearMenu(event) {
-            event.stopPropagation();
-            var dropdown = document.getElementById('gearDropdown');
-            if (dropdown) dropdown.classList.toggle('show');
-        }
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.gear-menu-container')) {
-                var d = document.getElementById('gearDropdown');
-                if (d) d.classList.remove('show');
-            }
-        });
+        function toggleGearMenu(event) { event.stopPropagation(); var d=document.getElementById('gearDropdown'); if(d)d.classList.toggle('show'); }
+        document.addEventListener('click',function(e){if(!e.target.closest('.gear-menu-container')){var d=document.getElementById('gearDropdown');if(d)d.classList.remove('show');}});
+        function toggleReadMore(){var f=document.querySelector('.full-text'),b=document.getElementById('readMoreBtn');if(!f||!b)return;if(f.classList.contains('show')){f.classList.remove('show');b.textContent='Read More ▼';}else{f.classList.add('show');b.textContent='Show Less ▲';}}
 
-        function toggleReadMore() {
-            var full = document.querySelector('.full-text');
-            var btn = document.getElementById('readMoreBtn');
-            if (!full || !btn) return;
-            if (full.classList.contains('show')) { full.classList.remove('show'); btn.textContent = 'Read More ▼'; }
-            else { full.classList.add('show'); btn.textContent = 'Show Less ▲'; }
-        }
-
-        // ========== REACTIONS ==========
-        function storyToggleReaction(storyId, emoji) {
-            if (!currentUser) { alert('Please log in.'); return; }
-            if (!currentUser.emailVerified) { alert('Please verify email.'); return; }
-            var lockKey = storyId+'_'+emoji;
-            if (reactionLocks[lockKey]) return;
-            reactionLocks[lockKey] = true;
-            if (!userReactions[storyId]) userReactions[storyId] = [];
-            var storyRef = db.collection('stories').doc(storyId);
-            var userRef = db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
-            var hasReacted = userReactions[storyId].indexOf(emoji) !== -1;
-            var card = document.getElementById('storyCard');
-            var rect = card ? card.getBoundingClientRect() : null;
-            storyCreateFloatingEmoji(emoji, rect?rect.left+rect.width/2:window.innerWidth/2, rect?rect.top+rect.height/2:window.innerHeight/2);
-            var btn = document.getElementById('reaction-'+storyId+'-'+emoji);
-            if (btn) btn.disabled = true;
-            db.runTransaction(function(t) {
-                return t.get(storyRef).then(function(doc) {
-                    if (!doc.exists) return;
-                    var reactions = doc.data().reactions || {};
-                    if (hasReacted) { reactions[emoji] = Math.max((reactions[emoji]||0)-1,0); userReactions[storyId] = userReactions[storyId].filter(function(e){return e!==emoji;}); }
-                    else { reactions[emoji] = (reactions[emoji]||0)+1; userReactions[storyId].push(emoji); }
-                    t.update(storyRef, {reactions:reactions});
-                    t.set(userRef, {emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
-                });
-            }).then(function() {
-                if (btn) btn.disabled = false;
-                var cs = document.getElementById('count-'+storyId+'-'+emoji);
-                if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent)||0)-1 : (parseInt(cs.textContent)||0)+1;
-                if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); }
-                reactionLocks[lockKey] = false;
-            }).catch(function() { if (btn) btn.disabled = false; reactionLocks[lockKey] = false; });
+        function storyToggleReaction(storyId,emoji){
+            if(!currentUser){alert('Please log in.');return;}if(!currentUser.emailVerified){alert('Please verify email.');return;}
+            var lockKey=storyId+'_'+emoji;if(reactionLocks[lockKey])return;reactionLocks[lockKey]=true;
+            if(!userReactions[storyId])userReactions[storyId]=[];
+            var storyRef=db.collection('stories').doc(storyId),userRef=db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
+            var hasReacted=userReactions[storyId].indexOf(emoji)!==-1;
+            var card=document.getElementById('storyCard'),rect=card?card.getBoundingClientRect():null;
+            storyCreateFloatingEmoji(emoji,rect?rect.left+rect.width/2:window.innerWidth/2,rect?rect.top+rect.height/2:window.innerHeight/2);
+            var btn=document.getElementById('reaction-'+storyId+'-'+emoji);if(btn)btn.disabled=true;
+            db.runTransaction(function(t){return t.get(storyRef).then(function(doc){if(!doc.exists)return;
+                var reactions=doc.data().reactions||{};
+                if(hasReacted){reactions[emoji]=Math.max((reactions[emoji]||0)-1,0);userReactions[storyId]=userReactions[storyId].filter(function(e){return e!==emoji;});}
+                else{reactions[emoji]=(reactions[emoji]||0)+1;userReactions[storyId].push(emoji);}
+                t.update(storyRef,{reactions:reactions});t.set(userRef,{emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
+            });}).then(function(){if(btn)btn.disabled=false;
+                var cs=document.getElementById('count-'+storyId+'-'+emoji);if(cs)cs.textContent=hasReacted?(parseInt(cs.textContent)||0)-1:(parseInt(cs.textContent)||0)+1;
+                if(btn){if(hasReacted)btn.classList.remove('reacted');else btn.classList.add('reacted');}
+                reactionLocks[lockKey]=false;
+            }).catch(function(){if(btn)btn.disabled=false;reactionLocks[lockKey]=false;});
         }
 
-        function storyCreateFloatingEmoji(emoji, x, y) {
-            var el = document.createElement('div'); el.className = 'floating-emoji'; el.textContent = emoji;
-            el.style.cssText = 'left:'+(x+(Math.random()-0.5)*180)+'px;top:'+(y+(Math.random()-0.5)*80)+'px;font-size:'+(2+Math.random()*2)+'rem;';
-            document.body.appendChild(el); setTimeout(function(){el.remove();},1600);
-            var colors = ['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];
-            for (var i=0;i<12;i++) {
-                var p = document.createElement('div'); p.className = 'firework-particle';
-                var a = Math.random()*Math.PI*2, d = 40+Math.random()*100;
-                p.style.cssText = 'width:'+(3+Math.random()*5)+'px;height:'+(3+Math.random()*5)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+x+'px;top:'+y+'px;transition:all 0.8s ease-out;opacity:1;';
-                document.body.appendChild(p);
-                requestAnimationFrame(function(){ p.style.transform='translate('+Math.cos(a)*d+'px,'+Math.sin(a)*d+'px) scale(0)'; p.style.opacity='0'; });
-                setTimeout(function(){p.remove();},900);
-            }
+        function storyCreateFloatingEmoji(emoji,x,y){
+            var el=document.createElement('div');el.className='floating-emoji';el.textContent=emoji;
+            el.style.cssText='left:'+(x+(Math.random()-0.5)*180)+'px;top:'+(y+(Math.random()-0.5)*80)+'px;font-size:'+(2+Math.random()*2)+'rem;';
+            document.body.appendChild(el);setTimeout(function(){el.remove();},1600);
+            var colors=['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];
+            for(var i=0;i<12;i++){var p=document.createElement('div');p.className='firework-particle';var a=Math.random()*Math.PI*2,d=40+Math.random()*100;
+                p.style.cssText='width:'+(3+Math.random()*5)+'px;height:'+(3+Math.random()*5)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+x+'px;top:'+y+'px;transition:all 0.8s ease-out;opacity:1;';
+                document.body.appendChild(p);requestAnimationFrame(function(){p.style.transform='translate('+Math.cos(a)*d+'px,'+Math.sin(a)*d+'px) scale(0)';p.style.opacity='0';});
+                setTimeout(function(){p.remove();},900);}
         }
 
-        function loadUserReactionsForStory(storyId) {
-            if (!currentUser) return;
-            db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc => {
-                if (doc.exists) {
-                    userReactions[storyId] = doc.data().emojis || [];
-                    ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e => {
-                        var btn = document.getElementById('reaction-'+storyId+'-'+e);
-                        if (btn && userReactions[storyId].indexOf(e) !== -1) btn.classList.add('reacted');
-                    });
-                }
-            }).catch(()=>{});
+        function loadUserReactionsForStory(storyId){if(!currentUser)return;db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc=>{if(doc.exists){userReactions[storyId]=doc.data().emojis||[];['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e=>{var btn=document.getElementById('reaction-'+storyId+'-'+e);if(btn&&userReactions[storyId].indexOf(e)!==-1)btn.classList.add('reacted');});}}).catch(()=>{});}
+
+        function loadCommentsRealtime(storyId){
+            var container=document.getElementById('commentsContainer');if(!container)return;if(commentsUnsubscribe)commentsUnsubscribe();
+            container.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
+            commentsUnsubscribe=db.collection('comments').where('storyId','==',storyId).onSnapshot(snapshot=>{
+                if(snapshot.empty){container.innerHTML='<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet. Be the first!</p></div>';document.getElementById('commentCountHeader').textContent='0';return;}
+                var comments=[];snapshot.forEach(doc=>{var c=doc.data();c.id=doc.id;comments.push(c);});
+                comments.sort((a,b)=>{if(a.isPinned&&!b.isPinned)return-1;if(!a.isPinned&&b.isPinned)return 1;return(b.likes||0)-(a.likes||0);});
+                document.getElementById('commentCountHeader').textContent=comments.length;
+                container.innerHTML=comments.map(c=>renderSingleComment(c)).join('');
+            },err=>{container.innerHTML='<div class="empty-state"><p style="color:var(--danger);">⚠️ Error loading comments</p><button class="btn btn-primary" onclick="loadCommentsRealtime(\''+storyId+'\')">🔄 Retry</button></div>';});
         }
 
-        // ========== COMMENTS (REAL-TIME) ==========
-        function loadCommentsRealtime(storyId) {
-            var container = document.getElementById('commentsContainer');
-            if (!container) return;
-            if (commentsUnsubscribe) commentsUnsubscribe();
-
-            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
-            commentsUnsubscribe = db.collection('comments')
-                .where('storyId','==',storyId)
-                .onSnapshot(snapshot => {
-                    if (snapshot.empty) {
-                        container.innerHTML = '<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet. Be the first!</p></div>';
-                        document.getElementById('commentCountHeader').textContent = '0';
-                        return;
-                    }
-                    var comments = [];
-                    snapshot.forEach(doc => { var c = doc.data(); c.id = doc.id; comments.push(c); });
-                    comments.sort((a,b) => {
-                        if (a.isPinned && !b.isPinned) return -1;
-                        if (!a.isPinned && b.isPinned) return 1;
-                        return (b.likes||0) - (a.likes||0);
-                    });
-                    document.getElementById('commentCountHeader').textContent = comments.length;
-                    container.innerHTML = comments.map(c => renderSingleComment(c)).join('');
-                }, err => {
-                    container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error loading comments</p><button class="btn btn-primary" onclick="loadCommentsRealtime(\''+storyId+'\')">🔄 Retry</button></div>';
-                });
+        function renderSingleComment(comment){
+            var author=comment.isAnonymous?'🕊️ Anonymous':escapeHTML(comment.authorName||'Someone');
+            var time=comment.createdAt?comment.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'Recently';
+            var likes=comment.likes||0,isOwner=currentUser&&comment.userId===currentUser.uid,isAdmin=currentUserData&&currentUserData.isAdmin===true;
+            var badges='';if(comment.isPinned)badges+='<span class="comment-badge pinned">📌 Pinned</span>';
+            return '<div class="comment"><div class="comment-header"><div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+comment.userId+'\')">'+author+'</span> '+badges+'</div><div class="comment-time">📅 '+time+'</div></div><div class="comment-text">'+escapeHTML(comment.text)+'</div><div class="comment-actions"><button class="comment-like-btn" onclick="likeComment(\''+comment.id+'\')">❤️ <span>'+likes+'</span></button>'+(isOwner?'<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>':'')+(isAdmin?'<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+(currentUser?'<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>':'')+'</div></div>';
         }
 
-        function renderSingleComment(comment) {
-            var author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
-            var time = comment.createdAt ? comment.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : 'Recently';
-            var likes = comment.likes || 0;
-            var isOwner = currentUser && comment.userId === currentUser.uid;
-            var isAdmin = currentUserData && currentUserData.isAdmin === true;
-            var badges = '';
-            if (comment.isPinned) badges += '<span class="comment-badge pinned">📌 Pinned</span>';
-            return '<div class="comment">'+
-                '<div class="comment-header"><div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+comment.userId+'\')">'+author+'</span> '+badges+'</div><div class="comment-time">📅 '+time+'</div></div>'+
-                '<div class="comment-text">'+escapeHTML(comment.text)+'</div>'+
-                '<div class="comment-actions">'+
-                    '<button class="comment-like-btn" onclick="likeComment(\''+comment.id+'\')">❤️ <span>'+likes+'</span></button>'+
-                    (isOwner?'<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>':'')+
-                    (isAdmin?'<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+
-                    (currentUser?'<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>':'')+
-                '</div></div>';
+        function postComment(){
+            if(!currentUser){alert('Please log in.');return;}
+            var textInput=document.getElementById('commentText'),anonymousCheck=document.getElementById('commentAnonymous'),error=document.getElementById('commentError');
+            if(!textInput)return;
+            var rawText=textInput.value.trim(),text=typeof sanitizeInput==='function'?sanitizeInput(rawText):escapeHTML(rawText);
+            error.textContent='';if(!text){error.textContent='Please write a comment.';return;}if(rawText.length>1000){error.textContent='Under 1000 characters.';return;}
+            var btn=document.getElementById('commentSubmitBtn');if(btn){btn.disabled=true;btn.textContent='⏳ Posting...';}
+            var bad=['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
+            var flagged=bad.some(w=>rawText.toLowerCase().indexOf(w)!==-1);
+            db.collection('comments').add({storyId:currentStoryId,text:text,userId:currentUser.uid,authorName:currentUserData?currentUserData.name:'Someone',isAnonymous:anonymousCheck?anonymousCheck.checked:false,createdAt:firebase.firestore.FieldValue.serverTimestamp(),likes:0,isPinned:false,approved:!flagged,flagged:flagged})
+            .then(()=>db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)}))
+            .then(()=>{if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}textInput.value='';document.getElementById('commentCountDisplay').textContent='0';if(flagged)alert('⚠️ Sent for review.');
+                if(currentStory&&currentStory.userId!==currentUser.uid){addNotification(currentStory.userId,'comment',{storyId:currentStoryId});}
+            }).catch(err=>{error.textContent=err.message;if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}});
         }
 
-        function postComment() {
-            if (!currentUser) { alert('Please log in.'); return; }
-            var textInput = document.getElementById('commentText');
-            var anonymousCheck = document.getElementById('commentAnonymous');
-            var error = document.getElementById('commentError');
-            if (!textInput) return;
-            var rawText = textInput.value.trim();
-            var text = typeof sanitizeInput === 'function' ? sanitizeInput(rawText) : escapeHTML(rawText);
-            error.textContent = '';
-            if (!text) { error.textContent = 'Please write a comment.'; return; }
-            if (rawText.length > 1000) { error.textContent = 'Under 1000 characters.'; return; }
-            var btn = document.getElementById('commentSubmitBtn');
-            if (btn) { btn.disabled = true; btn.textContent = '⏳ Posting...'; }
-            var bad = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
-            var flagged = bad.some(w => rawText.toLowerCase().indexOf(w)!==-1);
-            db.collection('comments').add({
-                storyId: currentStoryId,
-                text: text,
-                userId: currentUser.uid,
-                authorName: currentUserData ? currentUserData.name : 'Someone',
-                isAnonymous: anonymousCheck ? anonymousCheck.checked : false,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                likes: 0,
-                isPinned: false,
-                approved: !flagged,
-                flagged: flagged
-            }).then(() => {
-                return db.collection('stories').doc(currentStoryId).update({commentCount: firebase.firestore.FieldValue.increment(1)});
-            }).then(() => {
-                if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
-                textInput.value = '';
-                document.getElementById('commentCountDisplay').textContent = '0';
-                if (flagged) alert('⚠️ Sent for review.');
-            }).catch(err => {
-                error.textContent = err.message;
-                if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
-            });
-        }
+        function likeComment(cid){if(!currentUser)return;db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});}
+        function deleteComment(cid){if(!currentUser||!confirm('Delete?'))return;db.collection('comments').doc(cid).delete().catch(()=>{});}
+        function pinComment(cid){if(!currentUserData||!currentUserData.isAdmin)return;db.collection('comments').doc(cid).get().then(d=>{if(!d.exists)return;return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});}).catch(()=>{});}
+        function reportComment(cid,sid){if(!currentUser)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({commentId:cid,storyId:sid,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'comment',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(()=>{});}
 
-        function likeComment(cid) {
-            if(!currentUser)return;
-            db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
-        }
-        function deleteComment(cid) {
-            if(!currentUser||!confirm('Delete?'))return;
-            db.collection('comments').doc(cid).delete().catch(()=>{});
-        }
-        function pinComment(cid) {
-            if(!currentUserData||!currentUserData.isAdmin)return;
-            db.collection('comments').doc(cid).get().then(d=>{
-                if(!d.exists)return;
-                return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});
-            }).catch(()=>{});
-        }
-        function reportComment(cid,sid) {
-            if(!currentUser)return;
-            var r=prompt('Reason?');if(!r||r.length<3)return;
-            db.collection('reports').add({
-                commentId:cid, storyId:sid, reportedBy:currentUser.uid,
-                reporterName:currentUserData?currentUserData.name:'Anonymous',
-                reason:r.trim(), status:'pending', type:'comment',
-                createdAt:firebase.firestore.FieldValue.serverTimestamp()
-            }).then(()=>alert('✅ Reported')).catch(()=>{});
-        }
+        function reportThisStory(){if(!currentStory)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message));}
+        function openEditStoryModal(){if(!currentStory||currentStory.userId!==currentUser.uid)return;currentEditId=currentStory.id;document.getElementById('editTitle').value=currentStory.title||'';document.getElementById('editContent').value=currentStory.text||'';document.getElementById('editError').textContent='';document.getElementById('editModal').classList.add('active');}
+        function closeEditModal(){document.getElementById('editModal').classList.remove('active');currentEditId=null;}
+        function saveEdit(){var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim();if(!t||!c){document.getElementById('editError').textContent='Required.';return;}db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message);}
+        function deleteCurrentStory(){if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return;db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message));}
+        function toggleStoryVisibility(){if(!currentStory||currentStory.userId!==currentUser.uid)return;var v=currentStory.visibility==='public'?'private':'public';db.collection('stories').doc(currentStory.id).update({visibility:v}).then(()=>{alert('✅ '+(v==='public'?'Public':'Private'));loadStory();}).catch(e=>alert('❌ '+e.message));}
 
-        // Story management
-        function reportThisStory() { if(!currentStory)return; var r=prompt('Reason?');if(!r||r.length<3)return; db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message)); }
-        function openEditStoryModal() { if(!currentStory||currentStory.userId!==currentUser.uid)return; currentEditId = currentStory.id; document.getElementById('editTitle').value=currentStory.title||''; document.getElementById('editContent').value=currentStory.text||''; document.getElementById('editError').textContent=''; document.getElementById('editModal').classList.add('active'); }
-        function closeEditModal() { document.getElementById('editModal').classList.remove('active'); currentEditId = null; }
-        function saveEdit() { var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim(); if(!t||!c){document.getElementById('editError').textContent='Required.';return;} db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message); }
-        function deleteCurrentStory() { if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return; db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message)); }
-        function toggleStoryVisibility() { if(!currentStory||currentStory.userId!==currentUser.uid)return; var v=currentStory.visibility==='public'?'private':'public'; db.collection('stories').doc(currentStory.id).update({visibility:v}).then(()=>{alert('✅ '+(v==='public'?'Public':'Private'));loadStory();}).catch(e=>alert('❌ '+e.message)); }
+        function openGoldDonation(storyId){if(!currentUser)return;if(!currentUserData)return;var b=currentUserData.goldBalance||0;if(b<1){alert('No gold!');return;}document.getElementById('goldBalanceAmount').textContent=b;document.getElementById('goldModal').classList.add('active');currentStoryId=storyId;window.selectedGoldAmount=0;document.getElementById('customGoldAmount').value='';document.getElementById('goldMessage').value='';document.getElementById('goldError').textContent='';document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));}
+        function closeGoldModal(){document.getElementById('goldModal').classList.remove('active');}
+        function selectGoldAmount(a){window.selectedGoldAmount=a;document.getElementById('customGoldAmount').value=a;document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));if(event&&event.target)event.target.classList.add('selected');}
+        function confirmGoldDonation(){var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount;if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;}var b=currentUserData?currentUserData.goldBalance||0:0;if(!a||a<1){ed.textContent='Enter amount.';return;}if(a>b){ed.textContent='Not enough! Balance: '+b;return;}var msg=mi?mi.value.trim():'';closeGoldModal();if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;}var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid);db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId;t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)});t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)});t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);});}
 
-        // Gold donation
-        function openGoldDonation(storyId) { if(!currentUser)return; if(!currentUserData)return; var b=currentUserData.goldBalance||0; if(b<1){alert('No gold!');return;} document.getElementById('goldBalanceAmount').textContent=b; document.getElementById('goldModal').classList.add('active'); currentStoryId=storyId; window.selectedGoldAmount=0; document.getElementById('customGoldAmount').value=''; document.getElementById('goldMessage').value=''; document.getElementById('goldError').textContent=''; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); }
-        function closeGoldModal() { document.getElementById('goldModal').classList.remove('active'); }
-        function selectGoldAmount(a) { window.selectedGoldAmount=a; document.getElementById('customGoldAmount').value=a; document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected')); if(event&&event.target)event.target.classList.add('selected'); }
-        function confirmGoldDonation() { var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount; if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;} var b=currentUserData?currentUserData.goldBalance||0:0; if(!a||a<1){ed.textContent='Enter amount.';return;} if(a>b){ed.textContent='Not enough! Balance: '+b;return;} var msg=mi?mi.value.trim():''; closeGoldModal(); if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;} var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid); db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId; t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)}); t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)}); t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);}); }
+        window.addEventListener('beforeunload',function(){sessionStorage.setItem('feedScrollPos',window.scrollY);sessionStorage.setItem('feedCategory',currentCategory||'all');});
 
-        // Scroll preservation
-        window.addEventListener('beforeunload', function() {
-            sessionStorage.setItem('feedScrollPos', window.scrollY);
-            sessionStorage.setItem('feedCategory', currentCategory || 'all');
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var check = setInterval(function() { if(typeof currentUser!=='undefined'){clearInterval(check);applyGuestRestrictions();loadStory();} },100);
-            if(typeof auth!=='undefined') auth.onAuthStateChanged(function(){setTimeout(function(){applyGuestRestrictions();loadStory();},300);});
+        document.addEventListener('DOMContentLoaded',function(){
+            var check=setInterval(function(){if(typeof currentUser!=='undefined'){clearInterval(check);applyGuestRestrictions();loadStory();}},100);
+            if(typeof auth!=='undefined')auth.onAuthStateChanged(function(){setTimeout(function(){applyGuestRestrictions();loadStory();},300);});
             document.getElementById('commentText')?.addEventListener('input',function(){document.getElementById('commentCountDisplay').textContent=this.value.length;});
             document.getElementById('authModal')?.addEventListener('click',function(e){if(e.target===this)closeModal();});
             document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
