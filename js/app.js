@@ -1,10 +1,7 @@
 // ============================================
-// THE HARBOR - MAIN APPLICATION (FULLY FIXED v7)
+// THE HARBOR - MAIN APPLICATION (FINAL v8)
 // ============================================
 
-// ============================================
-// FIREBASE CONFIG
-// ============================================
 const firebaseConfig = {
     apiKey: "AIzaSyBoYWOijOWqjd3d3_NAiSsiGmQ0HokaRGs",
     authDomain: "the-harbor-community.firebaseapp.com",
@@ -176,7 +173,6 @@ function followUser(targetUid) {
             } else {
                 transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
                 transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
-                // ✅ NOTIFICATION: someone followed you
                 addNotification(targetUid, 'follow', {});
                 return 'followed';
             }
@@ -192,10 +188,8 @@ function followUser(targetUid) {
         }
         if (window.location.pathname.includes('profile.html') && typeof loadProfile === 'function') loadProfile();
         if (typeof updateSidebarData === 'function') updateSidebarData();
-        alert(action === 'followed' ? '✅ You are now following this user!' : '✅ You have unfollowed this user.');
     }).catch(err => {
         console.error('Follow error:', err);
-        alert('❌ Error: ' + err.message);
     });
 }
 
@@ -238,7 +232,7 @@ function reportStory(storyId) {
 }
 
 // ============================================
-// LOAD STORIES (FILTERS UNAPPROVED)
+// LOAD STORIES (WITH SCROLL RESTORE)
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
@@ -257,11 +251,25 @@ function loadStories() {
         return;
     }
 
+    // Restore saved state from sessionStorage
+    const savedScroll = sessionStorage.getItem('feedScrollPos');
+    const savedCat = sessionStorage.getItem('feedCategory');
+    const savedPg = sessionStorage.getItem('feedPage');
+    if (savedScroll) savedScrollPosition = parseInt(savedScroll);
+    if (savedCat) { currentCategory = savedCat; document.querySelectorAll('.feed-tab').forEach(t => t.classList.toggle('active', t.dataset.category === currentCategory)); }
+    if (savedPg) currentPage = parseInt(savedPg);
+    sessionStorage.removeItem('feedScrollPos');
+    sessionStorage.removeItem('feedCategory');
+    sessionStorage.removeItem('feedPage');
+
     const cacheKey = currentCategory;
     const cached = storyCache[cacheKey];
     if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
         allStories = cached.stories;
         applyFilters();
+        if (savedScrollPosition) {
+            setTimeout(function() { window.scrollTo({ top: savedScrollPosition, behavior: 'instant' }); savedScrollPosition = 0; }, 150);
+        }
         return;
     }
 
@@ -299,8 +307,7 @@ function loadStories() {
         storyCache[cacheKey] = { stories: [...allStories], timestamp: Date.now() };
         applyFilters();
         if (savedScrollPosition) {
-            window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
-            savedScrollPosition = 0;
+            setTimeout(function() { window.scrollTo({ top: savedScrollPosition, behavior: 'instant' }); savedScrollPosition = 0; }, 150);
         }
     }).catch(err => {
         console.error('Error loading stories:', err);
@@ -507,7 +514,6 @@ function addReaction(storyId, emoji) {
             } else {
                 reactions[emoji] = (reactions[emoji]||0)+1;
                 userReactions[storyId].push(emoji);
-                // ✅ NOTIFICATION: someone ❤️ your story
                 if (emoji === '❤️' && data.userId !== currentUser.uid) {
                     addNotification(data.userId, 'like', { storyId });
                 }
@@ -657,18 +663,17 @@ function logout() {
 }
 
 // ============================================
-// AUTH STATE LISTENER (NO FLASH FIX)
+// AUTH STATE LISTENER (NO FLASH + ADMIN CHECK)
 // ============================================
 auth.onAuthStateChanged(user => {
     const authButtons = document.getElementById('authButtons');
     const userInfo = document.getElementById('userInfo');
     const userName = document.getElementById('userName');
-    const userGenderBadge = document.getElementById('userGenderBadge');
     const verificationBadge = document.getElementById('verificationBadge');
 
     if (user) {
         currentUser = user;
-        // ✅ IMMEDIATE: Save state to prevent flash on next page load
+        // ✅ IMMEDIATE: Save state to prevent flash
         sessionStorage.setItem('harbor_was_logged_in', 'true');
         
         if (authButtons) authButtons.style.display = 'none';
@@ -684,12 +689,11 @@ auth.onAuthStateChanged(user => {
                 currentUserData = doc.data();
                 if (!currentUserData.uid) currentUserData.uid = doc.id;
                 if (userName) userName.textContent = currentUserData.name || 'Friend';
-                if (userGenderBadge) userGenderBadge.textContent = currentUserData.gender || '';
                 if (user.emailVerified && !currentUserData.emailVerified) {
                     db.collection('users').doc(user.uid).update({ emailVerified: true });
                 }
                 updateEmergencyBanner();
-                updateAdminLink();
+                updateAdminLink(); // ✅ ONLY shows 👑 if isAdmin === true
 
                 loadAllUserReactions().then(() => {
                     updateCategoryTabs();
@@ -725,7 +729,7 @@ auth.onAuthStateChanged(user => {
         if (authButtons) authButtons.style.display = 'flex';
         if (userInfo) userInfo.style.display = 'none';
         const adminLink = document.getElementById('adminNavLink');
-        if (adminLink) adminLink.style.display = 'none';
+        if (adminLink) adminLink.style.display = 'none'; // ✅ Force hide admin icon
         const container = document.getElementById('storiesContainer');
         if (container) {
             container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
@@ -743,15 +747,15 @@ function updateEmergencyBanner() {
     banner.style.display = 'block';
 }
 
+// ✅ STRICT ADMIN CHECK - Only shows 👑 if isAdmin is exactly true
 function updateAdminLink() {
     const adminLink = document.getElementById('adminNavLink');
-    const adminBadge = document.getElementById('adminBadge');
-    if (currentUser && currentUserData?.isAdmin) {
-        if (adminLink) adminLink.style.display = '';
-        if (adminBadge) adminBadge.style.display = '';
-    } else {
-        if (adminLink) adminLink.style.display = 'none';
-        if (adminBadge) adminBadge.style.display = 'none';
+    if (adminLink) {
+        if (currentUser && currentUserData && currentUserData.isAdmin === true) {
+            adminLink.style.display = '';
+        } else {
+            adminLink.style.display = 'none';
+        }
     }
 }
 
