@@ -5,210 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Share Your Story — The Harbor</title>
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
+
+    <!-- Theme -->
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('harbor_theme');
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/analytics.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/gold.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .submit-form {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        .submit-form textarea {
-            width: 100%;
-            padding: var(--space-md);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 180px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all var(--transition-fast);
-        }
-        .submit-form textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
-        }
-        .submit-form input[type="text"],
-        .submit-form select {
-            width: 100%;
-            padding: var(--space-sm) var(--space-md);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: inherit;
-            transition: all var(--transition-fast);
-        }
-        .submit-form input[type="text"]:focus,
-        .submit-form select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 74, 74, 0.12);
-        }
-        .submit-form .char-count {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-align: right;
-            margin-top: var(--space-xs);
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            margin: var(--space-md) 0;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-        .checkbox-group label {
-            font-weight: 600;
-            cursor: pointer;
-            margin: 0;
-            color: var(--text-secondary);
-        }
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-top: var(--space-md);
-            margin-bottom: var(--space-xs);
-        }
-        .form-label:first-of-type {
-            margin-top: 0;
-        }
-        .form-hint {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: var(--space-xs);
-        }
-        .btn-submit-story {
-            width: 100%;
-            padding: var(--space-md);
-            background: var(--primary);
+        .submit-container { max-width: 640px; margin: 0 auto; padding: 1.5rem 0; }
+
+        .submit-hero {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-xl);
             color: white;
-            border: none;
-            border-radius: var(--radius-full);
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            margin-top: var(--space-md);
+            margin-bottom: 1.5rem;
         }
-        .btn-submit-story:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-        .btn-submit-story:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .gender-restriction-notice {
-            padding: var(--space-md);
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
-            margin: var(--space-md) 0;
-            display: none;
-            line-height: 1.7;
-        }
-        .gender-restriction-notice.warning {
-            background: #fef3c7;
-            border-left: 4px solid var(--warning);
-            color: #92400e;
-        }
-        .gender-restriction-notice.success {
-            background: #dcfce7;
-            border-left: 4px solid var(--success);
-            color: #166534;
-        }
-        .card {
+        .submit-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
+        .submit-hero p { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
+
+        .submit-card {
             background: var(--bg-card);
-            padding: var(--space-xl);
+            padding: 1.5rem;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
         }
-
-        /* Category info in select */
-        .category-option-desc {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+        .submit-card label {
             display: block;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 14px 0 4px;
+            font-size: 0.9rem;
         }
+        .submit-card label:first-of-type { margin-top: 0; }
+        .submit-card input[type="text"],
+        .submit-card select,
+        .submit-card textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border 0.2s ease;
+        }
+        .submit-card select {
+            -webkit-appearance: none;
+            appearance: none;
+            padding-right: 32px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23718096'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+        .submit-card input:focus,
+        .submit-card select:focus,
+        .submit-card textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,74,74,0.1);
+        }
+        .submit-card textarea { min-height: 180px; resize: vertical; }
+        .submit-card .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
+        .submit-card .form-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
 
-        @media (max-width: 600px) {
-            .card { padding: var(--space-lg); }
-            .submit-form textarea { min-height: 120px; }
+        .gender-notice {
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            margin: 12px 0;
+            display: none;
+            line-height: 1.6;
+        }
+        .gender-notice.warning { background: #fef3c7; border-left: 4px solid var(--warning); color: #92400e; }
+        .gender-notice.success { background: #dcfce7; border-left: 4px solid var(--success); color: #166534; }
+
+        @media (max-width: 768px) {
+            .submit-hero { padding: 1.5rem 1rem; }
+            .submit-hero h1 { font-size: 1.5rem; }
+            .submit-card { padding: 1.2rem; }
+        }
+        @media (max-width: 480px) {
+            .submit-hero { padding: 1.2rem 0.8rem; border-radius: var(--radius-lg); }
+            .submit-hero h1 { font-size: 1.3rem; }
+            .submit-card { padding: 1rem; }
+            .submit-card textarea { min-height: 140px; }
         }
     </style>
 </head>
 
 <body>
-    <!-- ===== HEADER ===== -->
-    <header class="header">
-        <div class="header-left">
-            <a href="index.html" class="logo">⚓ <span>The</span> Harbor</a>
-        </div>
+    <!-- Header -->
+    <header class="header" role="banner">
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed">🏠 Feed</a>
-            <a href="about.html" class="btn btn-nav">🌿 About</a>
-            <div class="guest-restricted">
-                <a href="submit.html" class="btn btn-nav" style="background:var(--primary);color:white;">📝 Share</a>
-                <a href="profile.html" class="btn btn-nav">👤 Profile</a>
-                <a href="suggest.html" class="btn btn-nav">💡 Suggest</a>
-                <a href="activity.html" class="btn btn-nav">📊 Activity</a>
-                <a href="admin.html" class="btn btn-nav" id="adminNavLink" style="display:none;">👑 Admin</a>
-            </div>
-            <button class="btn-settings" onclick="toggleSidebar()" title="Settings">⚙️</button>
-            <div id="authButtons">
-                <button class="btn btn-login" onclick="openModal('login')">🔐 Log In</button>
-                <button class="btn btn-signup" onclick="openModal('signup')">📝 Join</button>
-            </div>
-            <div id="userInfo">
+            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
+            <a href="about.html" class="btn btn-ghost">🌿 About</a>
+            <a href="submit.html" class="btn btn-feed active guest-only" aria-current="page">📝 Share</a>
+            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
+            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
+            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
+            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
+            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge"></span>
+                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
                 <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- ===== EMERGENCY BANNER ===== -->
-    <div id="emergencyBanner"></div>
+    <div id="emergencyBanner" role="alert"></div>
 
-    <!-- ===== SUBMIT FORM ===== -->
+    <!-- Main Content -->
     <div class="container">
-        <div class="submit-form">
-            <h1 style="font-weight:300;color:var(--text-primary);margin-bottom:var(--space-xs);">📝 Share Your Story</h1>
-            <p style="color:var(--text-muted);margin-bottom:var(--space-lg);">Your story could be the hope someone else needs.</p>
+        <div class="submit-container">
+            <!-- Hero -->
+            <div class="submit-hero">
+                <h1>📝 Share Your Story</h1>
+                <p>Your story could be the hope someone else needs.</p>
+            </div>
 
-            <div class="card">
-                <!-- Gender Restriction Notice -->
-                <div id="genderRestrictionNotice" class="gender-restriction-notice warning">
+            <!-- Form -->
+            <div class="submit-card">
+                <!-- Gender Notice -->
+                <div id="genderRestrictionNotice" class="gender-notice warning">
                     ⚠️ <span id="restrictionMessage">Please log in to share your story.</span>
                 </div>
 
                 <!-- Title -->
-                <label class="form-label" for="storyTitle">📌 Title <span style="color:var(--danger);">*</span></label>
+                <label for="storyTitle">📌 Title <span style="color:var(--danger);">*</span></label>
                 <input type="text" id="storyTitle" placeholder="Give your story a title..." maxlength="100" />
                 <div class="char-count"><span id="titleCount">0</span>/100</div>
 
                 <!-- Category -->
-                <label class="form-label" for="storyCategory">📂 Category <span style="color:var(--danger);">*</span></label>
+                <label for="storyCategory">📂 Category <span style="color:var(--danger);">*</span></label>
                 <select id="storyCategory" onchange="checkCategoryRestriction()">
                     <option value="">Select a category...</option>
                     <option value="men" id="catMen">🧔 Men's Harbor</option>
@@ -217,21 +173,19 @@
                     <option value="fun">☀️ Sunny Skies</option>
                     <option value="learning">🧭 The Compass</option>
                 </select>
-                <div class="form-hint">
-                    📌 Men's Harbor — Men only · Women's Harbor — Women only · Others — Open to everyone
-                </div>
+                <div class="form-hint">📌 Men's Harbor — Men only · Women's Harbor — Women only · Others — Open to all</div>
 
-                <!-- Category Descriptions -->
-                <div id="categoryDescription" style="margin-top:var(--space-sm);padding:var(--space-sm) var(--space-md);background:var(--bg-secondary);border-radius:var(--radius-sm);border-left:3px solid var(--primary);display:none;font-size:0.9rem;color:var(--text-secondary);">
+                <!-- Category Description -->
+                <div id="categoryDescription" style="margin-top:8px;padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);border-left:3px solid var(--primary);display:none;font-size:0.85rem;color:var(--text-secondary);">
                     <span id="categoryDescText"></span>
                 </div>
 
                 <!-- Story Text -->
-                <label class="form-label" for="storyText">📖 Your Story <span style="color:var(--danger);">*</span></label>
+                <label for="storyText">📖 Your Story <span style="color:var(--danger);">*</span></label>
                 <textarea id="storyText" placeholder="Write your story here... (minimum 10 characters)" maxlength="5000"></textarea>
                 <div class="char-count"><span id="textCount">0</span>/5000</div>
 
-                <!-- Anonymous Toggle -->
+                <!-- Anonymous -->
                 <div class="checkbox-group">
                     <input type="checkbox" id="storyAnonymous" />
                     <label for="storyAnonymous">🕊️ Post anonymously</label>
@@ -241,43 +195,35 @@
                 <div id="submitError" class="error-msg"></div>
                 <div id="submitSuccess" class="success-msg"></div>
 
-                <!-- Submit Button -->
-                <button class="btn-submit-story" id="submitBtn" onclick="submitStory()">📤 Post Story</button>
+                <!-- Submit -->
+                <button class="btn btn-primary" id="submitBtn" onclick="submitStory()" style="width:100%;margin-top:12px;padding:12px;font-size:1rem;">📤 Post Story</button>
 
-                <div style="text-align:center;margin-top:var(--space-md);font-size:0.8rem;color:var(--text-muted);">
+                <div style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--text-muted);">
                     By posting, you agree to our <a href="about.html" style="color:var(--primary);">Community Guidelines</a>
                 </div>
             </div>
 
-            <div style="text-align:center;margin-top:var(--space-xl);">
-                <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;">← Back to Home</a>
+            <div style="text-align:center;margin-top:20px;">
+                <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
             </div>
         </div>
     </div>
 
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal" id="authModal">
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
-
-            <div class="warning-box" id="genderWarning">
-                <span>⚠️</span>
-                <span id="genderWarningText">Your gender determines which sections you can see.</span>
-            </div>
-
+            <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
             <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" />
-
+            <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
             <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" />
+            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
             <div id="passwordStrength"></div>
-
             <div id="signupFields" style="display:none;">
                 <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" />
-                <div id="usernameStatus" style="font-size:0.85rem;margin-top:4px;"></div>
-
+                <input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" />
+                <div id="usernameStatus"></div>
                 <label for="authGender">Gender</label>
                 <select id="authGender" onchange="updateGenderWarning()">
                     <option value="🧔 Man">🧔 Man</option>
@@ -285,95 +231,76 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. The Storm, Sunny Skies, and The Compass are open to everyone.
-                </div>
-
                 <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="off" />
+                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
                 <datalist id="country-list"></datalist>
-
                 <label for="authFavorites">Favorite things</label>
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-
                 <div class="checkbox-group">
                     <input type="checkbox" id="termsCheckbox" />
-                    <label for="termsCheckbox">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and
-                        <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a>
-                        <span style="color:var(--danger);">*</span>
-                    </label>
+                    <label for="termsCheckbox">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
-
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
-                Don't have an account? <strong>Sign Up</strong>
-            </div>
-
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
             <div class="error-msg" id="authError"></div>
             <div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html">📊 Activity</a>
+            <a href="activity.html" class="guest-only">📊 Activity</a>
             <a href="about.html">🌿 About</a>
-            <a href="submit.html">📝 Share Story</a>
-            <a href="profile.html">👤 Profile</a>
+            <a href="submit.html" class="guest-only">📝 Share Story</a>
+            <a href="profile.html" class="guest-only">👤 Profile</a>
             <a href="emergency.html">🆘 Emergency</a>
-            <a href="suggest.html">💡 Suggest</a>
+            <a href="suggest.html" class="guest-only">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
-        <div class="footer-copy">
-            © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community.
-        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <!-- ============================================
-    JAVASCRIPT
-    ============================================ -->
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/comments.js"></script>
-
+    <!-- Page Script -->
     <script>
     // ============================================
-    // SUBMIT PAGE - COMPLETE
+    // SUBMIT PAGE - FULLY FIXED
     // ============================================
 
-    // Category descriptions
-    const categoryDescriptions = {
+    var categoryDescriptions = {
         'men': '🧔 A dedicated space for men to share their journey, struggles, and growth. Men only.',
         'women': '👩 A safe harbor for women to connect, share, and support each other. Women only.',
-        'struggles': '🌊 Share your struggles, challenges, and difficult moments. You\'re not alone. Open to everyone.',
+        'struggles': '🌊 Share your struggles, challenges, and difficult moments. Open to everyone.',
         'fun': '☀️ Celebrate victories, share happiness, and spread positivity. Open to everyone.',
-        'learning': '🧭 Life lessons, wisdom, and guidance to help navigate your journey. Open to everyone.'
+        'learning': '🧭 Life lessons, wisdom, and guidance. Open to everyone.'
     };
 
     // ============================================
-    // CHECK CATEGORY RESTRICTION
+    // GUEST/AUTH UI
+    // ============================================
+    function applyGuestRestrictions() {
+        var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
+        var guestOnly = document.querySelectorAll('.guest-only');
+        var authOnly = document.querySelectorAll('.auth-only');
+        guestOnly.forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+        authOnly.forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
+        var userInfo = document.getElementById('userInfo');
+        if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
+    }
+
+    // ============================================
+    // CATEGORY RESTRICTION CHECK
     // ============================================
     function checkCategoryRestriction() {
-        const category = document.getElementById('storyCategory');
-        const notice = document.getElementById('genderRestrictionNotice');
-        const message = document.getElementById('restrictionMessage');
-        const descDiv = document.getElementById('categoryDescription');
-        const descText = document.getElementById('categoryDescText');
+        var cat = document.getElementById('storyCategory').value;
+        var notice = document.getElementById('genderRestrictionNotice');
+        var msg = document.getElementById('restrictionMessage');
+        var descDiv = document.getElementById('categoryDescription');
+        var descText = document.getElementById('categoryDescText');
 
-        if (!category || !notice || !message) return;
-
-        const cat = category.value;
-        const gender = currentUserData ? currentUserData.gender : null;
-
-        // Show category description
         if (cat && categoryDescriptions[cat]) {
             descDiv.style.display = 'block';
             descText.textContent = categoryDescriptions[cat];
@@ -381,133 +308,96 @@
             descDiv.style.display = 'none';
         }
 
-        if (!cat) {
-            notice.style.display = 'none';
-            return;
-        }
-
         if (!currentUser || !currentUserData) {
             notice.style.display = 'block';
-            message.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
-            notice.className = 'gender-restriction-notice warning';
+            msg.innerHTML = '⚠️ Please <strong>log in</strong> to share your story.';
+            notice.className = 'gender-notice warning';
             return;
         }
 
         if (!currentUser.emailVerified) {
             notice.style.display = 'block';
-            message.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting. <button onclick="resendVerification()" style="background:none;border:none;color:var(--primary);font-weight:600;cursor:pointer;text-decoration:underline;">Resend verification</button>';
-            notice.className = 'gender-restriction-notice warning';
+            msg.innerHTML = '⚠️ Please <strong>verify your email</strong> before posting.';
+            notice.className = 'gender-notice warning';
             return;
         }
 
+        var gender = currentUserData.gender;
         if (cat === 'struggles' || cat === 'fun' || cat === 'learning') {
             notice.style.display = 'block';
-            message.innerHTML = '✅ Open to everyone. You can post here!';
-            notice.className = 'gender-restriction-notice success';
-            return;
-        }
-
-        if (cat === 'men') {
+            msg.innerHTML = '✅ Open to everyone. You can post here!';
+            notice.className = 'gender-notice success';
+        } else if (cat === 'men') {
             if (gender === '🧔 Man') {
                 notice.style.display = 'block';
-                message.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You can post here.';
-                notice.className = 'gender-restriction-notice success';
+                msg.innerHTML = '✅ <strong>Men\'s Harbor</strong> — You can post here.';
+                notice.className = 'gender-notice success';
             } else {
                 notice.style.display = 'block';
-                message.innerHTML = '⚠️ <strong>Men\'s Harbor</strong> is for <strong>Men only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass';
-                notice.className = 'gender-restriction-notice warning';
+                msg.innerHTML = '⚠️ <strong>Men\'s Harbor</strong> is for men only. Choose The Storm, Sunny Skies, or The Compass.';
+                notice.className = 'gender-notice warning';
             }
-            return;
-        }
-
-        if (cat === 'women') {
+        } else if (cat === 'women') {
             if (gender === '👩 Woman') {
                 notice.style.display = 'block';
-                message.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You can post here.';
-                notice.className = 'gender-restriction-notice success';
+                msg.innerHTML = '✅ <strong>Women\'s Harbor</strong> — You can post here.';
+                notice.className = 'gender-notice success';
             } else {
                 notice.style.display = 'block';
-                message.innerHTML = '⚠️ <strong>Women\'s Harbor</strong> is for <strong>Women only</strong>.<br>📌 You can post in: 🌊 The Storm, ☀️ Sunny Skies, or 🧭 The Compass';
-                notice.className = 'gender-restriction-notice warning';
+                msg.innerHTML = '⚠️ <strong>Women\'s Harbor</strong> is for women only. Choose The Storm, Sunny Skies, or The Compass.';
+                notice.className = 'gender-notice warning';
             }
-            return;
+        } else {
+            notice.style.display = 'none';
         }
+    }
 
-        notice.style.display = 'none';
+    function updateCategoryOptions() {
+        var gender = currentUserData ? currentUserData.gender : null;
+        var catMen = document.getElementById('catMen');
+        var catWomen = document.getElementById('catWomen');
+        if (catMen) catMen.style.display = (gender === '🧔 Man') ? '' : 'none';
+        if (catWomen) catWomen.style.display = (gender === '👩 Woman') ? '' : 'none';
     }
 
     // ============================================
     // SUBMIT STORY
     // ============================================
     function submitStory() {
-        console.log('📤 Submit story function called');
+        if (!currentUser) { alert('Please log in to share.'); openModal('login'); return; }
+        if (!currentUser.emailVerified) { alert('Please verify your email first.'); return; }
 
-        if (!currentUser) {
-            alert('⚠️ Please log in to share your story.');
-            openModal('login');
-            return;
-        }
+        var titleInput = document.getElementById('storyTitle');
+        var textInput = document.getElementById('storyText');
+        var categorySelect = document.getElementById('storyCategory');
+        var anonymousCheck = document.getElementById('storyAnonymous');
+        var errorDiv = document.getElementById('submitError');
+        var successDiv = document.getElementById('submitSuccess');
+        var submitBtn = document.getElementById('submitBtn');
 
-        if (!currentUser.emailVerified) {
-            alert('⚠️ Please verify your email first.');
-            return;
-        }
-
-        const titleInput = document.getElementById('storyTitle');
-        const textInput = document.getElementById('storyText');
-        const categorySelect = document.getElementById('storyCategory');
-        const anonymousCheck = document.getElementById('storyAnonymous');
-        const errorDiv = document.getElementById('submitError');
-        const successDiv = document.getElementById('submitSuccess');
-        const submitBtn = document.getElementById('submitBtn');
+        var title = titleInput ? titleInput.value.trim() : '';
+        var text = textInput ? textInput.value.trim() : '';
+        var category = categorySelect ? categorySelect.value : '';
+        var isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
 
         if (errorDiv) errorDiv.textContent = '';
         if (successDiv) successDiv.textContent = '';
 
-        const title = titleInput ? titleInput.value.trim() : '';
-        const text = textInput ? textInput.value.trim() : '';
-        const category = categorySelect ? categorySelect.value : '';
-        const isAnonymous = anonymousCheck ? anonymousCheck.checked : false;
+        if (!title || title.length < 3) { if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.'; return; }
+        if (title.length > 100) { if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.'; return; }
+        if (!text || text.length < 10) { if (errorDiv) errorDiv.textContent = '📖 Story must be at least 10 characters.'; return; }
+        if (text.length > 5000) { if (errorDiv) errorDiv.textContent = '📖 Story must be under 5000 characters.'; return; }
+        if (!category) { if (errorDiv) errorDiv.textContent = '📂 Please select a category.'; return; }
 
-        if (!title || title.length < 3) {
-            if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
-            return;
-        }
-        if (title.length > 100) {
-            if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.';
-            return;
-        }
-        if (!text || text.length < 10) {
-            if (errorDiv) errorDiv.textContent = '📖 Story must be at least 10 characters.';
-            return;
-        }
-        if (text.length > 5000) {
-            if (errorDiv) errorDiv.textContent = '📖 Story must be under 5000 characters.';
-            return;
-        }
-        if (!category) {
-            if (errorDiv) errorDiv.textContent = '📂 Please select a category.';
-            return;
-        }
+        var gender = currentUserData ? currentUserData.gender : null;
+        if (category === 'men' && gender !== '🧔 Man') { if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.'; return; }
+        if (category === 'women' && gender !== '👩 Woman') { if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only.'; return; }
 
-        const gender = currentUserData ? currentUserData.gender : null;
-        if (category === 'men' && gender !== '🧔 Man') {
-            if (errorDiv) errorDiv.textContent = '⚠️ Men\'s Harbor is for men only.';
-            return;
-        }
-        if (category === 'women' && gender !== '👩 Woman') {
-            if (errorDiv) errorDiv.textContent = '⚠️ Women\'s Harbor is for women only.';
-            return;
-        }
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Posting...'; }
 
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Posting...';
-        }
-
-        const inappropriateWords = ['fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'porn', 'nude', 'sex', 'violence', 'kill', 'murder', 'rape'];
-        const containsInappropriate = inappropriateWords.some(function(word) {
-            return text.toLowerCase().includes(word) || title.toLowerCase().includes(word);
+        var inappropriateWords = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
+        var containsInappropriate = inappropriateWords.some(function(w) {
+            return text.toLowerCase().indexOf(w) !== -1 || title.toLowerCase().indexOf(w) !== -1;
         });
 
         db.collection('stories').add({
@@ -527,123 +417,85 @@
             flagReason: containsInappropriate ? 'Inappropriate content detected' : ''
         })
         .then(function(docRef) {
-            console.log('✅ Story saved! ID:', docRef.id);
-
-            // Update user's story count
             return db.collection('users').doc(currentUser.uid).update({
                 storyCount: firebase.firestore.FieldValue.increment(1)
-            }).then(() => {
-                return docRef.id;
-            });
+            }).then(function() { return docRef.id; });
         })
-        .then(function(storyId) {
+        .then(function() {
             if (containsInappropriate) {
-                if (successDiv) {
-                    successDiv.textContent = '⚠️ Your story has been sent for review. It will be published after moderation.';
-                    successDiv.style.color = '#d97706';
-                }
+                if (successDiv) { successDiv.textContent = '⚠️ Your story has been sent for review.'; successDiv.style.color = '#d97706'; }
             } else {
-                if (successDiv) {
-                    successDiv.textContent = '✅ Your story has been shared with the community!';
-                }
+                if (successDiv) { successDiv.textContent = '✅ Your story has been shared!'; successDiv.style.color = '#16a34a'; }
             }
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '✅ Posted!';
-            }
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✅ Posted!'; }
             if (titleInput) titleInput.value = '';
             if (textInput) textInput.value = '';
             if (categorySelect) categorySelect.value = '';
             if (anonymousCheck) anonymousCheck.checked = false;
             document.getElementById('titleCount').textContent = '0';
             document.getElementById('textCount').textContent = '0';
-
-            // Hide category description
             document.getElementById('categoryDescription').style.display = 'none';
             document.getElementById('genderRestrictionNotice').style.display = 'none';
-
-            setTimeout(function() {
-                window.location.href = 'index.html';
-            }, 2000);
+            setTimeout(function() { window.location.href = 'index.html'; }, 2000);
         })
         .catch(function(err) {
-            console.error('❌ Error saving story:', err);
-            if (errorDiv) {
-                errorDiv.textContent = '❌ Error: ' + err.message;
-            }
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '📤 Post Story';
-            }
+            console.error('Submit error:', err);
+            if (errorDiv) errorDiv.textContent = '❌ Error: ' + err.message;
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '📤 Post Story'; }
         });
-    }
-
-    // ============================================
-    // UPDATE CATEGORY OPTIONS BASED ON GENDER
-    // ============================================
-    function updateCategoryOptions() {
-        const catMen = document.getElementById('catMen');
-        const catWomen = document.getElementById('catWomen');
-        const gender = currentUserData ? currentUserData.gender : null;
-
-        if (catMen) {
-            catMen.style.display = (gender === '🧔 Man') ? 'block' : 'none';
-        }
-        if (catWomen) {
-            catWomen.style.display = (gender === '👩 Woman') ? 'block' : 'none';
-        }
     }
 
     // ============================================
     // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Title counter
-        const titleInput = document.getElementById('storyTitle');
-        const titleCount = document.getElementById('titleCount');
-        if (titleInput && titleCount) {
-            titleInput.addEventListener('input', function() {
-                titleCount.textContent = this.value.length;
-            });
-            titleInput.addEventListener('focus', function() {
-                if (this.value.includes('@')) {
-                    this.value = '';
-                    titleCount.textContent = '0';
-                }
-            });
-        }
+        // Counters
+        document.getElementById('storyTitle')?.addEventListener('input', function() {
+            document.getElementById('titleCount').textContent = this.value.length;
+        });
+        document.getElementById('storyText')?.addEventListener('input', function() {
+            document.getElementById('textCount').textContent = this.value.length;
+        });
+        document.getElementById('storyCategory')?.addEventListener('change', checkCategoryRestriction);
 
-        // Text counter
-        const textInput = document.getElementById('storyText');
-        const textCount = document.getElementById('textCount');
-        if (textInput && textCount) {
-            textInput.addEventListener('input', function() {
-                textCount.textContent = this.value.length;
-            });
-        }
+        // Auth wait
+        var check = setInterval(function() {
+            if (typeof currentUser !== 'undefined') {
+                clearInterval(check);
+                applyGuestRestrictions();
+                updateCategoryOptions();
+                checkCategoryRestriction();
+            }
+        }, 100);
 
-        // Category change
-        const categorySelect = document.getElementById('storyCategory');
-        if (categorySelect) {
-            categorySelect.addEventListener('change', checkCategoryRestriction);
-        }
-
-        // Watch for auth state to update category options
         if (typeof auth !== 'undefined') {
             auth.onAuthStateChanged(function(user) {
-                if (user) {
-                    setTimeout(function() {
-                        updateCategoryOptions();
-                        checkCategoryRestriction();
-                    }, 300);
-                }
+                setTimeout(function() {
+                    applyGuestRestrictions();
+                    updateCategoryOptions();
+                    checkCategoryRestriction();
+                }, 300);
             });
         }
+
+        // Modal
+        document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
+        document.getElementById('authPassword')?.addEventListener('input', function() {
+            var sd = document.getElementById('passwordStrength');
+            if (!sd) return;
+            if (!this.value) { sd.innerHTML=''; return; }
+            if (typeof checkPasswordStrength === 'function') {
+                var r = checkPasswordStrength(this.value);
+                sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); }
+            if (e.key === 'Escape') closeModal();
+        });
 
         console.log('✅ Submit page ready');
     });
-
-    console.log('📝 Submit page loaded');
     </script>
 </body>
 </html>
