@@ -8,35 +8,20 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' data: https:;">
 
     <meta name="description" content="The Harbor - A safe, anonymous community for sharing struggles, finding support, and healing together." />
-    <meta name="keywords" content="mental health, support community, anonymous sharing, healing, depression support, anxiety help, safe space" />
-    <meta name="author" content="The Harbor" />
-    <meta name="robots" content="index, follow" />
     <meta property="og:title" content="The Harbor — Share & Heal" />
-    <meta property="og:description" content="A safe, anonymous community for sharing struggles, finding support, and healing together." />
-    <meta property="og:type" content="website" />
 
-    <!-- Theme: Apply immediately to prevent flash -->
+    <!-- Theme -->
     <script>
     (function() {
         var savedTheme = localStorage.getItem('harbor_theme');
-        if (!savedTheme) {
-            savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-        window.__harborTheme = savedTheme;
+        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     })();
     </script>
 
-    <!-- Google Analytics (single load) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-81R2FX47H0');
-    </script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -51,186 +36,190 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        /* ===== PAGE-SPECIFIC: Feed ===== */
+        /* ===== FEED HERO ===== */
         .feed-hero {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
-            padding: 2.5rem 2rem;
+            padding: 2.2rem 2rem;
             text-align: center;
             border-radius: var(--radius-xl);
-            margin: 1.5rem 0;
-            position: relative;
-            overflow: hidden;
+            margin: 1.2rem 0;
         }
-        .feed-hero::before {
-            content: '';
-            position: absolute;
-            top: -40%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.04);
-            pointer-events: none;
-        }
-        .feed-hero h1 {
-            font-size: 2.2rem;
-            font-weight: 400;
-            position: relative;
-            z-index: 1;
-            letter-spacing: -0.02em;
-        }
-        .feed-hero h1 span {
-            font-weight: 700;
-            color: var(--secondary);
-        }
-        .feed-hero p {
-            font-size: 1.05rem;
-            opacity: 0.9;
-            margin-top: 6px;
-            position: relative;
-            z-index: 1;
-            font-weight: 300;
-        }
-        .feed-hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        .feed-hero-actions .btn {
-            background: rgba(255,255,255,0.12);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(4px);
-        }
-        .feed-hero-actions .btn:hover {
-            background: rgba(255,255,255,0.22);
-            border-color: rgba(255,255,255,0.35);
-        }
-        .feed-hero-actions .btn-primary-action {
-            background: var(--secondary);
-            border-color: var(--secondary);
-            color: white;
-            font-weight: 600;
-        }
-        .feed-hero-actions .btn-primary-action:hover {
-            background: var(--secondary-dark);
-            border-color: var(--secondary-dark);
-        }
+        .feed-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
+        .feed-hero h1 span { font-weight: 700; color: var(--secondary); }
+        .feed-hero p { font-size: 1rem; opacity: 0.85; margin-top: 4px; }
+        .feed-hero-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .feed-hero-actions .btn { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .feed-hero-actions .btn:hover { background: rgba(255,255,255,0.22); }
+        .feed-hero-actions .btn-primary-action { background: var(--secondary); border-color: var(--secondary); font-weight: 600; }
 
-        .feed-search {
-            max-width: 560px;
-            margin: -18px auto 24px;
-            padding: 0 1.5rem;
-            position: relative;
-            z-index: 10;
-        }
+        /* ===== SEARCH ===== */
+        .feed-search { max-width: 520px; margin: -14px auto 20px; padding: 0 1rem; position: relative; z-index: 10; }
         .feed-search input {
-            width: 100%;
-            padding: 14px 22px;
-            border: 2px solid var(--border-color);
-            border-radius: 9999px;
-            font-size: 0.95rem;
-            outline: none;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
-            font-family: inherit;
+            width: 100%; padding: 13px 20px; border: 2px solid var(--border-color);
+            border-radius: 9999px; font-size: 0.9rem; outline: none;
+            background: var(--bg-card); color: var(--text-primary);
+            transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.04); font-family: inherit;
         }
-        .feed-search input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 4px 32px rgba(0,0,0,0.1);
-        }
-        .feed-search input::placeholder {
-            color: var(--text-muted);
-        }
+        .feed-search input:focus { border-color: var(--primary); box-shadow: 0 4px 28px rgba(0,0,0,0.08); }
 
+        /* ===== TABS ===== */
         .feed-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin: 1.5rem 0 1.8rem;
-            padding-bottom: 0.6rem;
+            display: flex; flex-wrap: wrap; gap: 5px;
+            margin: 1.2rem 0 1.5rem; padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--border-color);
         }
         .feed-tab {
-            padding: 0.5rem 1.1rem;
-            border: none;
-            background: transparent;
-            border-radius: 9999px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            cursor: pointer;
+            padding: 0.45rem 1rem; border: none; background: transparent;
+            border-radius: 9999px; font-weight: 500; font-size: 0.82rem;
+            cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary);
+            font-family: inherit; white-space: nowrap;
+        }
+        .feed-tab:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .feed-tab:active { transform: scale(0.96); }
+        .feed-tab.active { background: var(--primary); color: white; font-weight: 600; }
+
+        /* ===== STORY CARD - CLEAN REDESIGN ===== */
+        .story-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.3rem 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
             transition: all 0.2s ease;
-            color: var(--text-secondary);
-            font-family: inherit;
-            letter-spacing: 0.01em;
+            position: relative;
+        }
+        .story-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
+
+        /* Card top row: avatar + name + time + badges */
+        .story-card-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .story-card-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1rem; flex-shrink: 0;
+        }
+        .story-card-author-info { flex: 1; min-width: 0; }
+        .story-card-author-name {
+            font-weight: 600; color: var(--text-primary); font-size: 0.9rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .story-card-time {
+            font-size: 0.75rem; color: var(--text-muted);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .story-card-badges { display: flex; gap: 5px; flex-shrink: 0; }
+        .badge-visibility {
+            font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600;
             white-space: nowrap;
         }
-        .feed-tab:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
+        .badge-visibility.public { background: #dcfce7; color: #16a34a; }
+        .badge-visibility.private { background: #fef3c7; color: #d97706; }
+        .badge-gold {
+            font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px;
+            background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700;
+            white-space: nowrap;
         }
-        .feed-tab:active {
-            transform: scale(0.96);
+        .badge-yours {
+            font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px;
+            background: var(--bg-secondary); color: var(--secondary); font-weight: 600;
+            white-space: nowrap;
         }
-        .feed-tab.active {
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
+
+        /* Title */
+        .story-card-title {
+            font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 6px; line-height: 1.3; cursor: pointer;
+            transition: color 0.2s;
         }
+        .story-card-title:hover { color: var(--primary); }
+
+        /* Category tag */
+        .story-card-category {
+            display: inline-block; font-size: 0.7rem; padding: 2px 10px;
+            border-radius: 9999px; background: var(--bg-secondary);
+            color: var(--text-secondary); font-weight: 600; margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Content excerpt */
+        .story-card-excerpt {
+            color: var(--text-secondary); font-size: 0.9rem; line-height: 1.65;
+            margin-bottom: 8px; word-wrap: break-word;
+        }
+        .story-card-readmore {
+            background: none; border: none; color: var(--secondary);
+            font-weight: 600; cursor: pointer; font-size: 0.82rem; padding: 0;
+            font-family: inherit;
+        }
+        .story-card-readmore:hover { text-decoration: underline; }
+        .story-card-full { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); }
+        .story-card-full.show { display: block; }
+
+        /* Action bar */
+        .story-card-actions {
+            display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);
+        }
+        .reaction-mini {
+            padding: 3px 9px; border: 1px solid var(--border-color);
+            border-radius: 9999px; background: var(--bg-secondary);
+            cursor: pointer; font-size: 0.85rem; transition: all 0.15s ease;
+            font-family: inherit; display: inline-flex; align-items: center; gap: 3px;
+        }
+        .reaction-mini:hover { background: var(--border-color); transform: scale(1.03); }
+        .reaction-mini:active { transform: scale(0.95); }
+        .reaction-mini:disabled { opacity: 0.5; cursor: not-allowed; }
+        .reaction-mini.reacted { background: #dcfce7; border-color: #16a34a; }
+        .reaction-mini .count { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+
+        .card-action-btn {
+            padding: 3px 10px; border: none; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 500; cursor: pointer;
+            transition: all 0.15s ease; font-family: inherit;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 3px;
+        }
+        .card-action-btn:hover { transform: translateY(-1px); }
+        .card-action-btn:active { transform: scale(0.95); }
+        .card-btn-edit { background: #eef2ff; color: #4a6cf7; }
+        .card-btn-delete { background: #fee2e2; color: #dc2626; }
+        .card-btn-visibility { background: #f0fdf4; color: #16a34a; }
+        .card-btn-visibility.private { background: #fef3c7; color: #d97706; }
+        .card-btn-report { background: #fef3c7; color: #92400e; }
+        .card-btn-gold { background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; }
+        .card-btn-comment { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; }
 
         /* Guest message */
         .guest-message {
-            display: none;
-            background: #fef9e7;
-            border-left: 4px solid var(--warning);
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            margin-bottom: 20px;
-            color: #92400e;
-            font-size: 0.95rem;
-        }
-        .guest-message a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: underline;
-            cursor: pointer;
+            display: none; background: #fef9e7; border-left: 4px solid var(--warning);
+            padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 16px;
+            color: #92400e; font-size: 0.9rem;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .feed-hero {
-                padding: 1.8rem 1.2rem;
-                border-radius: var(--radius-lg);
-            }
-            .feed-hero h1 { font-size: 1.7rem; }
-            .feed-hero p { font-size: 0.95rem; }
-            .feed-tab { font-size: 0.75rem; padding: 0.35rem 0.8rem; }
+            .feed-hero { padding: 1.5rem 1rem; }
+            .feed-hero h1 { font-size: 1.5rem; }
+            .story-card { padding: 1rem 1.1rem; }
+            .story-card-title { font-size: 1rem; }
         }
         @media (max-width: 480px) {
-            .feed-hero {
-                padding: 1.4rem 1rem;
-                margin: 0.8rem 0;
-            }
-            .feed-hero h1 { font-size: 1.4rem; }
-            .feed-hero-actions { flex-direction: column; }
-            .feed-hero-actions .btn { width: 100%; justify-content: center; }
-            .feed-tabs {
-                gap: 3px;
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-            }
+            .feed-hero { padding: 1.2rem 0.8rem; margin: 0.6rem 0; border-radius: var(--radius-lg); }
+            .feed-hero h1 { font-size: 1.3rem; }
+            .feed-tabs { overflow-x: auto; flex-wrap: nowrap; gap: 3px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
             .feed-tabs::-webkit-scrollbar { display: none; }
             .feed-tab { font-size: 0.7rem; padding: 0.3rem 0.7rem; flex-shrink: 0; }
-            .feed-search { padding: 0 0.8rem; }
-            .feed-search input { padding: 12px 18px; font-size: 0.9rem; }
+            .story-card { padding: 0.8rem 0.9rem; margin-bottom: 0.7rem; }
+            .story-card-avatar { width: 34px; height: 34px; font-size: 0.85rem; }
+            .story-card-title { font-size: 0.95rem; }
+            .story-card-actions { gap: 4px; }
+            .reaction-mini { font-size: 0.78rem; padding: 2px 7px; }
+            .card-action-btn { font-size: 0.68rem; padding: 2px 7px; }
         }
     </style>
 </head>
@@ -238,28 +227,18 @@
 <body>
     <!-- Header -->
     <header class="header" role="banner">
-        <a href="index.html" class="logo" aria-label="The Harbor Home">⚓ <span>The</span> Harbor</a>
+        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <!-- Feed - Active -->
-            <a href="index.html" class="btn btn-feed active" aria-current="page">🏠 Feed</a>
-            <!-- About -->
+            <a href="index.html" class="btn btn-feed active guest-only" aria-current="page">🏠 Feed</a>
             <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <!-- Share -->
             <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <!-- Profile -->
             <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <!-- Suggest -->
             <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <!-- Activity -->
             <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <!-- Admin (hidden by default) -->
             <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <!-- Settings -->
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Open settings">⚙️</button>
-            <!-- Auth Buttons (shown when logged out) -->
+            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
             <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
             <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <!-- User Info (shown when logged in) -->
             <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span id="userName">Friend</span>
                 <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
@@ -268,15 +247,10 @@
         </div>
     </header>
 
-    <!-- Emergency Banner -->
     <div id="emergencyBanner" role="alert"></div>
 
     <!-- Guest Message -->
-    <div class="container">
-        <div class="guest-message" id="guestMessage">
-            🔒 <strong>Welcome to The Harbor!</strong> Please <a onclick="openModal('login')">Log In</a> or <a onclick="openModal('signup')">Join</a> to read and share stories.
-        </div>
-    </div>
+    <div class="container"><div class="guest-message" id="guestMessage">🔒 <strong>Welcome!</strong> Please <a onclick="openModal('login')" style="cursor:pointer;color:var(--primary);font-weight:600;">Log In</a> or <a onclick="openModal('signup')" style="cursor:pointer;color:var(--primary);font-weight:600;">Join</a> to read and share stories.</div></div>
 
     <!-- Hero -->
     <div class="container">
@@ -296,12 +270,12 @@
         <input type="text" id="searchInput" placeholder="🔍 Search stories..." onkeydown="if(event.key==='Enter')searchStories()" />
     </div>
 
-    <!-- Category Tabs -->
+    <!-- Tabs -->
     <div class="container">
         <div class="feed-tabs guest-only" id="categoryTabs">
             <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All</button>
-            <button class="feed-tab" data-category="men" onclick="switchCategory('men')">🧔 Men's Harbor</button>
-            <button class="feed-tab" data-category="women" onclick="switchCategory('women')">👩 Women's Harbor</button>
+            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men's Harbor</button>
+            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women's Harbor</button>
             <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm</button>
             <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies</button>
             <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass</button>
@@ -321,10 +295,7 @@
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
-            <div class="warning-box" id="genderWarning" style="display:none;">
-                <span>⚠️</span>
-                <span id="genderWarningText"></span>
-            </div>
+            <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
             <label for="authEmail">Email</label>
             <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
             <label for="authPassword">Password</label>
@@ -341,9 +312,7 @@
                     <option value="⚧️ Non-binary">⚧️ Non-binary</option>
                     <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
                 </select>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-                    📌 Men see Men's Harbor. Women see Women's Harbor. Others are open to everyone.
-                </div>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">📌 Men see Men's Harbor. Women see Women's Harbor. Others open to all.</div>
                 <label for="authCountry">Country</label>
                 <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
                 <datalist id="country-list"></datalist>
@@ -351,16 +320,11 @@
                 <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
                 <div class="checkbox-group">
                     <input type="checkbox" id="termsCheckbox" />
-                    <label for="termsCheckbox">
-                        I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>
-                        <span style="color:var(--danger);">*</span>
-                    </label>
+                    <label for="termsCheckbox">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">
-                Don't have an account? <strong>Sign Up</strong>
-            </div>
+            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
             <div class="error-msg" id="authError"></div>
             <div class="success-msg" id="authSuccess"></div>
         </div>
@@ -393,117 +357,231 @@
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
         </div>
-        <div class="footer-copy">
-            © 2026 The Harbor — All Rights Reserved.<br>
-            Built with 💚 for the community.
-        </div>
+        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <!-- Page Script -->
     <script>
     // ============================================
-    // GUEST/AUTH UI TOGGLE
+    // INDEX PAGE - CLEAN CARDS + GENDER TABS + SPAM LOCK
+    // ============================================
+
+    var reactionLocks = {};
+
+    // ============================================
+    // GUEST/AUTH UI
     // ============================================
     function applyGuestRestrictions() {
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-        
-        // Elements visible only to guests (logged-in users)
         var guestOnly = document.querySelectorAll('.guest-only');
-        guestOnly.forEach(function(el) {
-            el.style.display = isLoggedIn ? '' : 'none';
-        });
-
-        // Elements visible only when NOT logged in
         var authOnly = document.querySelectorAll('.auth-only');
-        authOnly.forEach(function(el) {
-            el.style.display = isLoggedIn ? 'none' : '';
-        });
-
-        // Guest message
+        guestOnly.forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+        authOnly.forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
         var guestMsg = document.getElementById('guestMessage');
         if (guestMsg) guestMsg.style.display = isLoggedIn ? 'none' : 'block';
-
-        // User info
         var userInfo = document.getElementById('userInfo');
         if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
-
-        // If guest, show login prompt in stories container
         if (!isLoggedIn) {
             var container = document.getElementById('storiesContainer');
             if (container) {
-                container.innerHTML = `
-                    <div class="empty-state" style="padding:48px 20px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);">
-                        <div class="big-emoji">🔒</div>
-                        <h3>Login Required</h3>
-                        <p style="color:var(--text-muted);">Please log in or join to read and share stories.</p>
-                        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                            <button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button>
-                            <button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join to read and share stories.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
             }
         }
+    }
+
+    // ============================================
+    // HIDE GENDER TABS
+    // ============================================
+    function updateGenderTabs() {
+        if (!currentUserData) return;
+        var gender = currentUserData.gender;
+        var tabMen = document.getElementById('tabMen');
+        var tabWomen = document.getElementById('tabWomen');
+        if (tabMen) tabMen.style.display = (gender === '🧔 Man') ? '' : 'none';
+        if (tabWomen) tabWomen.style.display = (gender === '👩 Woman') ? '' : 'none';
+    }
+
+    // ============================================
+    // RENDER STORY CARD - CLEAN DESIGN
+    // ============================================
+    function renderStoryCard(story) {
+        var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
+        var initial = (story.authorName || 'A')[0].toUpperCase();
+
+        // Time with AM/PM
+        var timeStr = 'Recently';
+        if (story.createdAt) {
+            var d = story.createdAt.toDate();
+            timeStr = d.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
+        }
+
+        // Category
+        var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
+        var catDisp = catNames[story.category] || story.category;
+
+        // Badges
+        var badges = '';
+        if (story.visibility === 'private') badges += '<span class="badge-visibility private">🔒 Private</span>';
+        if (story.goldReceived > 0) badges += '<span class="badge-gold">'+story.goldReceived+' 🪙</span>';
+        if (currentUser && story.userId === currentUser.uid) badges += '<span class="badge-yours">👤 Yours</span>';
+
+        // Excerpt
+        var text = story.text || '';
+        var showMore = text.length > 200;
+        var excerpt = showMore ? escapeHTML(text.substring(0, 200)) + '...' : escapeHTML(text);
+
+        // Reactions
+        var reactions = story.reactions || {};
+        var emojis = ['❤️','🙏','😢','💪','🤗'];
+        var reactionBtns = '';
+        emojis.forEach(function(emoji) {
+            var count = reactions[emoji] || 0;
+            var hasReacted = userReactions[story.id] && userReactions[story.id].indexOf(emoji) !== -1;
+            var lockKey = story.id+'_'+emoji;
+            var locked = reactionLocks[lockKey];
+            reactionBtns += '<button class="reaction-mini'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="indexToggleReaction(\''+story.id+'\',\''+emoji+'\')" '+(locked?'disabled':'')+'>'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
+        });
+
+        var isOwner = currentUser && story.userId === currentUser.uid;
+
+        return '<div class="story-card" data-story-id="'+story.id+'">'+
+            // Top row: Avatar, name, time, badges
+            '<div class="story-card-top">'+
+                '<div class="story-card-avatar" onclick="viewProfile(\''+story.userId+'\')" style="cursor:pointer;">'+initial+'</div>'+
+                '<div class="story-card-author-info">'+
+                    '<div class="story-card-author-name" onclick="viewProfile(\''+story.userId+'\')" style="cursor:pointer;">'+author+'</div>'+
+                    '<div class="story-card-time">📅 '+timeStr+'</div>'+
+                '</div>'+
+                '<div class="story-card-badges">'+badges+'</div>'+
+            '</div>'+
+            // Title
+            '<div class="story-card-title" onclick="window.location.href=\'story.html?id='+story.id+'\'">'+escapeHTML(story.title || 'Untitled')+'</div>'+
+            // Category tag
+            '<span class="story-card-category">'+catDisp+'</span>'+
+            // Excerpt
+            '<div class="story-card-excerpt">'+excerpt+'</div>'+
+            (showMore ? '<button class="story-card-readmore" onclick="indexToggleReadMore(\''+story.id+'\')">Read More ▼</button>' : '')+
+            (showMore ? '<div class="story-card-full" id="fullContent-'+story.id+'">'+escapeHTML(text.substring(200))+'</div>' : '')+
+            // Actions
+            '<div class="story-card-actions">'+
+                reactionBtns+
+                '<a class="card-action-btn card-btn-comment" href="story.html?id='+story.id+'">💬 '+(story.commentCount||0)+'</a>'+
+                (isOwner ? '<button class="card-action-btn card-btn-edit" onclick="openEditModal(\''+story.id+'\')">✏️</button>' : '')+
+                (isOwner ? '<button class="card-action-btn card-btn-delete" onclick="deleteStory(\''+story.id+'\')">🗑️</button>' : '')+
+                (isOwner ? '<button class="card-action-btn card-btn-visibility '+(story.visibility==='private'?'private':'')+'" onclick="toggleVisibility(\''+story.id+'\')">'+(story.visibility==='public'?'🔒':'🌍')+'</button>' : '')+
+                (currentUser && story.userId !== currentUser.uid ? '<button class="card-action-btn card-btn-gold" onclick="openGoldModal(\''+story.id+'\')">🪙 Donate</button>' : '')+
+                (currentUser ? '<button class="card-action-btn card-btn-report" onclick="reportStory(\''+story.id+'\')">🚩</button>' : '')+
+            '</div>'+
+        '</div>';
+    }
+
+    // ============================================
+    // READ MORE
+    // ============================================
+    function indexToggleReadMore(storyId) {
+        var full = document.getElementById('fullContent-'+storyId);
+        var btn = full ? full.previousElementSibling : null;
+        if (!full) return;
+        if (full.classList.contains('show')) {
+            full.classList.remove('show');
+            if (btn) btn.textContent = 'Read More ▼';
+        } else {
+            full.classList.add('show');
+            if (btn) btn.textContent = 'Show Less ▲';
+        }
+    }
+
+    // ============================================
+    // REACTION WITH SPAM LOCK
+    // ============================================
+    function indexToggleReaction(storyId, emoji) {
+        if (!currentUser) { alert('Please log in to react.'); return; }
+        if (!currentUser.emailVerified) { alert('Please verify your email first.'); return; }
+
+        var lockKey = storyId+'_'+emoji;
+        if (reactionLocks[lockKey]) return;
+        reactionLocks[lockKey] = true;
+
+        if (!userReactions[storyId]) userReactions[storyId] = [];
+
+        var storyRef = db.collection('stories').doc(storyId);
+        var userReactionRef = db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
+        var hasReacted = userReactions[storyId].indexOf(emoji) !== -1;
+
+        var btn = document.getElementById('reaction-'+storyId+'-'+emoji);
+        if (btn) btn.disabled = true;
+
+        db.runTransaction(function(transaction) {
+            return transaction.get(storyRef).then(function(doc) {
+                if (!doc.exists) return;
+                var data = doc.data();
+                var reactions = data.reactions || {};
+                if (hasReacted) {
+                    reactions[emoji] = Math.max((reactions[emoji]||0)-1, 0);
+                    userReactions[storyId] = userReactions[storyId].filter(function(e){return e!==emoji;});
+                } else {
+                    reactions[emoji] = (reactions[emoji]||0)+1;
+                    userReactions[storyId].push(emoji);
+                }
+                transaction.update(storyRef, {reactions:reactions});
+                transaction.set(userReactionRef, {emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
+            });
+        }).then(function() {
+            if (btn) btn.disabled = false;
+            var countSpan = document.getElementById('count-'+storyId+'-'+emoji);
+            if (countSpan) {
+                var cur = parseInt(countSpan.textContent)||0;
+                countSpan.textContent = hasReacted ? cur-1 : cur+1;
+            }
+            if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); }
+            reactionLocks[lockKey] = false;
+        }).catch(function(err) {
+            console.error('Reaction error:', err);
+            if (btn) btn.disabled = false;
+            reactionLocks[lockKey] = false;
+        });
     }
 
     // ============================================
     // INIT
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Wait for auth
-        var checkAuth = setInterval(function() {
+        var check = setInterval(function() {
             if (typeof currentUser !== 'undefined') {
-                clearInterval(checkAuth);
+                clearInterval(check);
                 applyGuestRestrictions();
-                if (currentUser && typeof loadStories === 'function') {
-                    loadStories();
-                }
+                updateGenderTabs();
+                if (currentUser && typeof loadStories === 'function') loadStories();
             }
         }, 100);
 
-        // Auth state listener
         if (typeof auth !== 'undefined') {
             auth.onAuthStateChanged(function(user) {
                 setTimeout(function() {
                     applyGuestRestrictions();
-                    if (user && typeof loadStories === 'function') {
-                        loadStories();
-                    }
+                    updateGenderTabs();
+                    if (user && typeof loadStories === 'function') loadStories();
                 }, 300);
             });
         }
 
-        // Fallback
-        setTimeout(function() {
-            if (typeof currentUser !== 'undefined') applyGuestRestrictions();
-        }, 2000);
+        setTimeout(function() { if (typeof currentUser !== 'undefined') applyGuestRestrictions(); }, 2000);
 
-        // Modal close
-        document.getElementById('authModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-        document.getElementById('editModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeEditModal();
-        });
+        document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
+        document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditModal(); });
 
-        // Password strength
         document.getElementById('authPassword')?.addEventListener('input', function() {
             var pwd = this.value;
             var sd = document.getElementById('passwordStrength');
             if (!sd) return;
-            if (!pwd) { sd.innerHTML = ''; return; }
+            if (!pwd) { sd.innerHTML=''; return; }
             if (typeof checkPasswordStrength === 'function') {
                 var r = checkPasswordStrength(pwd);
                 sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
             }
         });
 
-        // Enter/Escape
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                var m = document.getElementById('authModal');
-                if (m && m.classList.contains('active')) handleAuth();
-            }
+            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active')) handleAuth(); }
             if (e.key === 'Escape') { closeModal(); closeEditModal(); }
         });
 
