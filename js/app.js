@@ -142,7 +142,7 @@ function resendVerification() {
 }
 
 // ============================================
-// NOTIFICATION SYSTEM
+// NOTIFICATION SYSTEM (#16)
 // ============================================
 function addNotification(toUid, type, data) {
     if (!toUid || toUid === currentUser?.uid) return;
@@ -176,7 +176,6 @@ function followUser(targetUid) {
             } else {
                 transaction.update(userRef, { following: firebase.firestore.FieldValue.arrayUnion(targetUid) });
                 transaction.update(targetRef, { followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
-                // ✅ NOTIFICATION: Someone followed you
                 addNotification(targetUid, 'follow', {});
                 return 'followed';
             }
@@ -238,22 +237,22 @@ function reportStory(storyId) {
 }
 
 // ============================================
-// LOAD STORIES
+// LOAD STORIES (FILTERS UNAPPROVED)
 // ============================================
 function loadStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
 
     if (!currentUser) {
-        container.innerHTML = `<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join to read and share stories.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button></div></div>`;
+        container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join to read and share stories.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
         return;
     }
     if (!currentUser.emailVerified) {
-        container.innerHTML = `<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><p style="color:var(--text-muted);">Please check your inbox for the verification link.</p><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:10px;">🔄 Resend Verification</button></div>`;
+        container.innerHTML = '<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><p style="color:var(--text-muted);">Please check your inbox for the verification link.</p><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:10px;">🔄 Resend Verification</button></div>';
         return;
     }
     if (!canSeeCategory(currentCategory)) {
-        container.innerHTML = `<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Access Restricted</h3><p style="color:var(--text-muted);">You don't have permission to view this section.</p><button class="btn btn-primary" onclick="switchCategory('all')" style="margin-top:10px;">← Go to All Stories</button></div>`;
+        container.innerHTML = '<div class="empty-state" style="padding:30px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Access Restricted</h3><p style="color:var(--text-muted);">You don\'t have permission to view this section.</p><button class="btn btn-primary" onclick="switchCategory(\'all\')" style="margin-top:10px;">← Go to All Stories</button></div>';
         return;
     }
 
@@ -268,7 +267,9 @@ function loadStories() {
     container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading stories...</div>';
 
     const gender = getUserGender();
-    let query = db.collection('stories').orderBy('createdAt', 'desc');
+    let query = db.collection('stories')
+        .where('approved', '==', true)
+        .orderBy('createdAt', 'desc');
 
     if (currentCategory && currentCategory !== 'all') {
         query = query.where('category', '==', currentCategory);
@@ -284,7 +285,7 @@ function loadStories() {
 
     query.get().then(snapshot => {
         if (snapshot.empty) {
-            container.innerHTML = `<div class="empty-state"><div class="big-emoji">🌊</div><h3>No stories yet</h3><p style="color:var(--text-muted);">Be the first to share!</p>${canPostInCategory(currentCategory) ? '<a href="submit.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;margin-top:10px;">📝 Share Your Story</a>' : ''}</div>`;
+            container.innerHTML = '<div class="empty-state"><div class="big-emoji">🌊</div><h3>No stories yet</h3><p style="color:var(--text-muted);">Be the first to share!</p>'+(canPostInCategory(currentCategory)?'<a href="submit.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;margin-top:10px;">📝 Share Your Story</a>':'')+'</div>';
             return;
         }
         allStories = [];
@@ -302,7 +303,7 @@ function loadStories() {
         }
     }).catch(err => {
         console.error('Error loading stories:', err);
-        container.innerHTML = `<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error Loading Stories</h3><p style="color:var(--text-muted);">${err.message}</p><button class="btn btn-primary" onclick="loadStories()" style="margin-top:10px;">🔄 Retry</button></div>`;
+        container.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error Loading Stories</h3><p style="color:var(--text-muted);">'+err.message+'</p><button class="btn btn-primary" onclick="loadStories()" style="margin-top:10px;">🔄 Retry</button></div>';
     });
 }
 
@@ -357,31 +358,27 @@ function renderStoryCard(story) {
     emojis.forEach(emoji => {
         const count = reactions[emoji] || 0;
         const hasReacted = userReactions[story.id] && userReactions[story.id].includes(emoji);
-        reactionBtns += `<button class="reaction-mini${hasReacted?' reacted':''}" id="reaction-${story.id}-${emoji}" onclick="addReaction('${story.id}','${emoji}')">${emoji} <span class="count" id="count-${story.id}-${emoji}">${count}</span></button>`;
+        reactionBtns += '<button class="reaction-mini'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="addReaction(\''+story.id+'\',\''+emoji+'\')">'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
     });
     const isOwner = currentUser && story.userId === currentUser.uid;
-    return `<div class="story-card" data-story-id="${story.id}">
-        <div class="story-card-top">
-            <div class="story-card-avatar" onclick="viewProfile('${story.userId}')" style="cursor:pointer;">${initial}</div>
-            <div class="story-card-author-info">
-                <div class="story-card-author-name" onclick="viewProfile('${story.userId}')" style="cursor:pointer;">${author}</div>
-                <div class="story-card-time">📅 ${timeStr}</div>
-            </div>
-            <div class="story-card-badges">${badges}</div>
-        </div>
-        <div class="story-card-title" onclick="window.location.href='story.html?id=${story.id}'">${escapeHTML(story.title || 'Untitled')}</div>
-        <span class="story-card-category">${catDisp}</span>
-        <div class="story-card-excerpt">${excerpt}</div>
-        ${showMore ? `<button class="story-card-readmore" onclick="toggleReadMoreCard('${story.id}')">Read More ▼</button><div class="story-card-full" id="fullContent-${story.id}">${escapeHTML(text.substring(200))}</div>` : ''}
-        <div class="story-card-actions">
-            ${reactionBtns}
-            <a class="card-action-btn card-btn-comment" href="story.html?id=${story.id}">💬 ${story.commentCount||0}</a>
-            ${isOwner ? `<button class="card-action-btn card-btn-edit" onclick="openEditModal('${story.id}')">✏️</button>` : ''}
-            ${isOwner ? `<button class="card-action-btn card-btn-delete" onclick="deleteStory('${story.id}')">🗑️</button>` : ''}
-            ${isOwner ? `<button class="card-action-btn card-btn-visibility ${story.visibility==='private'?'private':''}" onclick="toggleVisibility('${story.id}')">${story.visibility==='public'?'🔒':'🌍'}</button>` : ''}
-            ${currentUser && story.userId !== currentUser.uid ? `<button class="card-action-btn card-btn-gold" onclick="openGoldModal('${story.id}')">🪙</button>` : ''}
-            ${currentUser ? `<button class="card-action-btn card-btn-report" onclick="reportStory('${story.id}')">🚩</button>` : ''}
-        </div></div>`;
+    return '<div class="story-card" data-story-id="'+story.id+'">'+
+        '<div class="story-card-top">'+
+            '<div class="story-card-avatar" onclick="viewProfile(\''+story.userId+'\')" style="cursor:pointer;">'+initial+'</div>'+
+            '<div class="story-card-author-info">'+
+                '<div class="story-card-author-name" onclick="viewProfile(\''+story.userId+'\')" style="cursor:pointer;">'+author+'</div>'+
+                '<div class="story-card-time">📅 '+timeStr+'</div>'+
+            '</div>'+
+            '<div class="story-card-badges">'+badges+'</div>'+
+        '</div>'+
+        '<div class="story-card-title" onclick="window.location.href=\'story.html?id='+story.id+'\'">'+escapeHTML(story.title || 'Untitled')+'</div>'+
+        '<span class="story-card-category">'+catDisp+'</span>'+
+        '<div class="story-card-excerpt">'+excerpt+'</div>'+
+        (showMore ? '<button class="story-card-readmore" onclick="toggleReadMoreCard(\''+story.id+'\')">Read More ▼</button><div class="story-card-full" id="fullContent-'+story.id+'">'+escapeHTML(text.substring(200))+'</div>' : '')+
+        '<div class="story-card-actions">'+
+            reactionBtns+
+            '<a class="card-action-btn card-btn-comment" href="story.html?id='+story.id+'">💬 '+(story.commentCount||0)+'</a>'+
+            (currentUser && story.userId !== currentUser.uid ? '<button class="card-action-btn card-btn-gold" onclick="openGoldModal(\''+story.id+'\')">🪙</button>' : '')+
+        '</div></div>';
 }
 
 function toggleReadMoreCard(storyId) {
@@ -415,13 +412,13 @@ function switchCategory(category) {
 function renderPagination(totalPages) {
     const container = document.getElementById('paginationContainer');
     if (!container || totalPages <= 1) { if(container) container.innerHTML = ''; return; }
-    let html = `<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀ Prev</button>`;
+    let html = '<button onclick="goToPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>◀ Prev</button>';
     for (let i = 1; i <= totalPages; i++) {
-        if (i === currentPage) html += `<button class="active">${i}</button>`;
-        else if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) html += `<button onclick="goToPage(${i})">${i}</button>`;
-        else if (i === currentPage - 3 || i === currentPage + 3) html += `<span class="page-info">…</span>`;
+        if (i === currentPage) html += '<button class="active">'+i+'</button>';
+        else if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) html += '<button onclick="goToPage('+i+')">'+i+'</button>';
+        else if (i === currentPage - 3 || i === currentPage + 3) html += '<span class="page-info">…</span>';
     }
-    html += `<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next ▶</button> <span class="page-info">Page ${currentPage} of ${totalPages}</span>`;
+    html += '<button onclick="goToPage('+(currentPage+1)+')" '+(currentPage===totalPages?'disabled':'')+'>Next ▶</button> <span class="page-info">Page '+currentPage+' of '+totalPages+'</span>';
     container.innerHTML = html;
 }
 
@@ -482,7 +479,7 @@ function toggleVisibility(storyId) {
             const idx = allStories.findIndex(s => s.id === storyId);
             if (idx !== -1) allStories[idx].visibility = newVis;
             applyFilters();
-            alert(`✅ Story is now ${newVis === 'public' ? 'Public' : 'Private'}.`);
+            alert('✅ Story is now '+(newVis==='public'?'Public':'Private')+'.');
         }).catch(err => alert('❌ ' + err.message));
 }
 
@@ -496,7 +493,7 @@ function addReaction(storyId, emoji) {
     const storyRef = db.collection('stories').doc(storyId);
     const userReactionRef = db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
     const hasReacted = userReactions[storyId].includes(emoji);
-    const btn = document.getElementById(`reaction-${storyId}-${emoji}`);
+    const btn = document.getElementById('reaction-'+storyId+'-'+emoji);
     if (btn) btn.disabled = true;
     db.runTransaction(transaction => {
         return transaction.get(storyRef).then(doc => {
@@ -509,7 +506,6 @@ function addReaction(storyId, emoji) {
             } else {
                 reactions[emoji] = (reactions[emoji]||0)+1;
                 userReactions[storyId].push(emoji);
-                // ✅ NOTIFICATION: Someone reacted with ❤️ to your story
                 if (emoji === '❤️' && data.userId !== currentUser.uid) {
                     addNotification(data.userId, 'like', { storyId });
                 }
@@ -519,7 +515,7 @@ function addReaction(storyId, emoji) {
         });
     }).then(() => {
         if (btn) btn.disabled = false;
-        const countSpan = document.getElementById(`count-${storyId}-${emoji}`);
+        const countSpan = document.getElementById('count-'+storyId+'-'+emoji);
         if (countSpan) countSpan.textContent = hasReacted ? (parseInt(countSpan.textContent)||0)-1 : (parseInt(countSpan.textContent)||0)+1;
         if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); }
     }).catch(err => { console.error('Reaction error:', err); if (btn) btn.disabled = false; });
@@ -552,13 +548,13 @@ function openModal(mode) {
         title.textContent = '🔐 Welcome Back';
         submitBtn.textContent = '🚀 Log In';
         if (signupFields) signupFields.style.display = 'none';
-        if (switchLink) { switchLink.innerHTML = `Don't have an account? <strong>Sign Up</strong>`; switchLink.dataset.mode = 'signup'; }
+        if (switchLink) { switchLink.innerHTML = 'Don\'t have an account? <strong>Sign Up</strong>'; switchLink.dataset.mode = 'signup'; }
     } else {
         title.textContent = '📝 Join The Harbor';
         submitBtn.textContent = '🚀 Create Account';
         if (signupFields) signupFields.style.display = 'block';
         populateCountryDatalist();
-        if (switchLink) { switchLink.innerHTML = `Already have an account? <strong>Log In</strong>`; switchLink.dataset.mode = 'login'; }
+        if (switchLink) { switchLink.innerHTML = 'Already have an account? <strong>Log In</strong>'; switchLink.dataset.mode = 'login'; }
     }
     modal.classList.add('active');
 }
@@ -597,7 +593,7 @@ function handleAuth() {
         auth.signInWithEmailAndPassword(email, password)
             .then(userCredential => {
                 if (!userCredential.user.emailVerified) {
-                    error.innerHTML = `⚠️ Please verify your email first.<br><button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;">🔄 Resend verification</button>`;
+                    error.innerHTML = '⚠️ Please verify your email first.<br><button onclick="resendVerification()" style="background:none;border:none;color:#1a4a4a;font-weight:600;cursor:pointer;text-decoration:underline;">🔄 Resend verification</button>';
                     auth.signOut();
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Log In';
@@ -724,7 +720,7 @@ auth.onAuthStateChanged(user => {
         if (adminLink) adminLink.style.display = 'none';
         const container = document.getElementById('storiesContainer');
         if (container) {
-            container.innerHTML = `<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal('login')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal('signup')">📝 Join</button></div></div>`;
+            container.innerHTML = '<div class="empty-state" style="padding:40px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><p style="color:var(--text-muted);">Please log in or join.</p><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';
         }
     }
 });
@@ -735,7 +731,7 @@ auth.onAuthStateChanged(user => {
 function updateEmergencyBanner() {
     const banner = document.getElementById('emergencyBanner');
     if (!banner || !currentUserData) return;
-    banner.innerHTML = `🆘 <strong>Emergency:</strong> <a href="tel:${currentUserData.emergencyNumber||'911'}" style="color:#f5d6b3;font-weight:700;">${currentUserData.emergencyNumber||'911'}</a> (${currentUserData.country||'your country'})`;
+    banner.innerHTML = '🆘 <strong>Emergency:</strong> <a href="tel:'+(currentUserData.emergencyNumber||'911')+'" style="color:#f5d6b3;font-weight:700;">'+(currentUserData.emergencyNumber||'911')+'</a> ('+(currentUserData.country||'your country')+')';
     banner.style.display = 'block';
 }
 
@@ -775,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const sd = document.getElementById('passwordStrength');
         if (!sd || !this.value) { if(sd) sd.innerHTML = ''; return; }
         const r = checkPasswordStrength(this.value);
-        sd.innerHTML = `<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:${r.color};font-weight:700;">${r.strength}</span></div>`;
+        sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
     });
 
     document.getElementById('authName')?.addEventListener('input', async function() {
@@ -809,6 +805,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ App ready');
 });
 
+// ============================================
+// EXPOSE TO GLOBAL SCOPE
+// ============================================
 window.escapeHTML = escapeHTML;
 window.sanitizeInput = sanitizeInput;
 window.followUser = followUser;
