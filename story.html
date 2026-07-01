@@ -4,403 +4,124 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Story — The Harbor</title>
-
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://www.gstatic.com; img-src 'self' data: https:;">
-
-    <script>
-    (function() {
-        var savedTheme = localStorage.getItem('harbor_theme');
-        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    })();
-    </script>
-
+    <script>(function(){var t=localStorage.getItem('harbor_theme');if(!t)t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
-
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
     <script src="js/notifications.js"></script>
-
     <link rel="stylesheet" href="css/style.css" />
-
     <style>
-        .story-full { background: var(--bg-card); padding: 1.6rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); position: relative; }
-        .story-full .story-title { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1.3; padding-right: 40px; }
-        .story-full .story-meta-row { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; align-items: center; }
-        .story-full .category-badge { background: var(--bg-secondary); padding: 3px 12px; border-radius: 9999px; color: var(--text-secondary); font-weight: 600; font-size: 0.7rem; border: 1px solid var(--border-color); }
-        .story-full .gold-badge { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; }
-        .story-full .story-text { font-size: 1rem; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; color: var(--text-secondary); }
-        .read-more-btn { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; padding: 4px 0; font-size: 0.85rem; font-family: inherit; }
-        .story-action-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color); }
-        .reaction-btn { padding: 4px 12px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; }
-        .reaction-btn:hover { background: var(--border-color); }
-        .reaction-btn:active { transform: scale(0.95); }
-        .reaction-btn.reacted { background: #dcfce7; border-color: #16a34a; }
-        .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .reaction-btn .count { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
-
-        .gear-menu-container { position: absolute; top: 10px; right: 10px; z-index: 10; }
-        .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 7px; cursor: pointer; font-size: 1rem; color: var(--text-muted); transition: all 0.2s; }
-        .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .gear-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 150px; overflow: hidden; z-index: 20; }
-        .gear-dropdown.show { display: block; }
-        .gear-dropdown button { display: block; width: 100%; padding: 8px 14px; text-align: left; background: none; border: none; font-size: 0.8rem; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: background 0.15s; font-family: inherit; }
-        .gear-dropdown button:hover { background: var(--bg-secondary); }
-        .gear-dropdown button.danger { color: var(--danger); }
-        .gear-dropdown button.danger:hover { background: #fee2e2; }
-
-        .comment-section { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); }
-        .comment-section h3 { margin-bottom: 14px; color: var(--text-primary); font-size: 1.1rem; font-weight: 600; }
-        .comment-input-area { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color); }
-        .comment-input-area textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 70px; background: var(--bg-primary); color: var(--text-primary); transition: border 0.2s; }
-        .comment-input-area textarea:focus { outline: none; border-color: var(--primary); }
-        .comment { background: var(--bg-secondary); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 8px; border: 1px solid var(--border-color); animation: fadeInComment 0.3s ease; }
-        @keyframes fadeInComment { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .comment-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
-        .comment-author { font-weight: 600; color: var(--text-primary); font-size: 0.85rem; }
-        .comment-author-link { cursor: pointer; color: var(--primary); }
-        .comment-time { font-size: 0.7rem; color: var(--text-muted); }
-        .comment-text { color: var(--text-secondary); line-height: 1.6; word-wrap: break-word; font-size: 0.9rem; }
-        .comment-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
-        .comment-badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
-        .comment-badge.pinned { background: #fef3c7; color: #d97706; }
-
-        .floating-emoji { position: fixed; font-size: 3rem; pointer-events: none; z-index: 9999; animation: floatUpAnim 1.5s ease-out forwards; }
-        @keyframes floatUpAnim { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); } 100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); } }
-        .firework-particle { position: fixed; pointer-events: none; z-index: 9998; }
-        .meta-author-link { cursor: pointer; color: var(--primary); font-weight: 600; }
-
-        @media (max-width: 768px) {
-            .story-full { padding: 1.2rem; }
-            .story-full .story-title { font-size: 1.3rem; padding-right: 36px; }
-            .story-full .story-text { font-size: 0.95rem; }
-            .comment-section { padding: 1.2rem; }
-        }
-        @media (max-width: 480px) {
-            .story-full { padding: 0.9rem; border-radius: var(--radius-lg); }
-            .story-full .story-title { font-size: 1.1rem; padding-right: 32px; }
-            .reaction-btn { font-size: 0.8rem; padding: 3px 8px; }
-            .story-action-bar { gap: 3px; }
-            .comment { padding: 10px 12px; }
-            .gear-menu-container { top: 6px; right: 6px; }
-            .gear-icon { font-size: 0.9rem; padding: 3px 5px; }
-        }
+        .story-full{background:var(--bg-card);padding:1.4rem;border-radius:var(--radius-xl);border:1px solid var(--border-color);margin-bottom:1.5rem;box-shadow:var(--shadow-sm);position:relative;}
+        .story-full .story-title{font-size:1.5rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;line-height:1.3;padding-right:36px;}
+        .story-full .story-meta-row{display:flex;gap:8px;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;align-items:center;}
+        .story-full .category-badge{background:var(--bg-secondary);padding:3px 10px;border-radius:9999px;color:var(--text-secondary);font-weight:600;font-size:0.7rem;}
+        .story-full .gold-badge{background:linear-gradient(135deg,#f1c40f,#f39c12);color:white;padding:3px 10px;border-radius:9999px;font-size:0.7rem;font-weight:700;}
+        .story-full .story-text{font-size:1rem;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;color:var(--text-secondary);}
+        .read-more-btn{background:none;border:none;color:var(--secondary);font-weight:600;cursor:pointer;padding:4px 0;font-size:0.85rem;font-family:inherit;}
+        .story-action-bar{display:flex;gap:5px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--border-color);}
+        .reaction-btn{padding:4px 10px;border:1px solid var(--border-color);border-radius:9999px;background:var(--bg-secondary);cursor:pointer;font-size:0.9rem;display:inline-flex;align-items:center;gap:4px;font-family:inherit;}
+        .reaction-btn:hover{background:var(--border-color);}.reaction-btn:active{transform:scale(0.95);}.reaction-btn.reacted{background:#dcfce7;border-color:#16a34a;}.reaction-btn:disabled{opacity:0.5;}.reaction-btn .count{font-size:0.7rem;font-weight:600;color:var(--text-muted);}
+        .gear-menu-container{position:absolute;top:8px;right:8px;z-index:10;}
+        .gear-icon{background:none;border:1px solid var(--border-color);border-radius:6px;padding:4px 6px;cursor:pointer;font-size:1rem;color:var(--text-muted);}
+        .gear-icon:hover{background:var(--bg-secondary);color:var(--text-primary);}
+        .gear-dropdown{display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);min-width:140px;overflow:hidden;z-index:20;}
+        .gear-dropdown.show{display:block;}
+        .gear-dropdown button{display:block;width:100%;padding:7px 12px;text-align:left;background:none;border:none;font-size:0.8rem;font-weight:500;color:var(--text-primary);cursor:pointer;font-family:inherit;}
+        .gear-dropdown button:hover{background:var(--bg-secondary);}.gear-dropdown button.danger{color:var(--danger);}.gear-dropdown button.danger:hover{background:#fee2e2;}
+        .comment-section{background:var(--bg-card);padding:1.4rem;border-radius:var(--radius-xl);border:1px solid var(--border-color);}
+        .comment-section h3{margin-bottom:12px;color:var(--text-primary);font-size:1.05rem;font-weight:600;}
+        .comment-input-area{margin-top:14px;padding-top:14px;border-top:2px solid var(--border-color);}
+        .comment-input-area textarea{width:100%;padding:10px 14px;border:2px solid var(--border-color);border-radius:var(--radius-md);font-size:0.9rem;font-family:inherit;resize:vertical;min-height:65px;background:var(--bg-primary);color:var(--text-primary);}
+        .comment-input-area textarea:focus{outline:none;border-color:var(--primary);}
+        .comment{background:var(--bg-secondary);padding:10px 14px;border-radius:var(--radius-md);margin-bottom:6px;border:1px solid var(--border-color);animation:fadeInComment 0.3s ease;}
+        @keyframes fadeInComment{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+        .comment-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:4px;}
+        .comment-author{font-weight:600;color:var(--text-primary);font-size:0.85rem;}.comment-author-link{cursor:pointer;color:var(--primary);}
+        .comment-time{font-size:0.7rem;color:var(--text-muted);}.comment-text{color:var(--text-secondary);line-height:1.6;word-wrap:break-word;font-size:0.9rem;}
+        .comment-actions{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;}.comment-badge{font-size:0.6rem;padding:2px 8px;border-radius:9999px;font-weight:600;}.comment-badge.pinned{background:#fef3c7;color:#d97706;}
+        .floating-emoji{position:fixed;font-size:3rem;pointer-events:none;z-index:9999;animation:floatUpAnim 1.5s ease-out forwards;}
+        @keyframes floatUpAnim{0%{opacity:1;transform:translateY(0)scale(.5)rotate(0);}50%{opacity:1;transform:translateY(-150px)scale(1.3)rotate(20deg);}100%{opacity:0;transform:translateY(-350px)scale(1)rotate(-10deg);}}
+        .firework-particle{position:fixed;pointer-events:none;z-index:9998;}.meta-author-link{cursor:pointer;color:var(--primary);font-weight:600;}
+        @media(max-width:768px){.story-full{padding:1.1rem;}.story-full .story-title{font-size:1.3rem;padding-right:32px;}.story-full .story-text{font-size:0.95rem;}.comment-section{padding:1.1rem;}}
+        @media(max-width:480px){.story-full{padding:0.8rem;border-radius:var(--radius-lg);}.story-full .story-title{font-size:1.1rem;padding-right:28px;}.reaction-btn{font-size:0.8rem;padding:3px 7px;}.story-action-bar{gap:3px;}.comment{padding:8px 10px;}.gear-menu-container{top:5px;right:5px;}.gear-icon{font-size:0.85rem;padding:3px 5px;}}
     </style>
 </head>
-
 <body>
-    <!-- HEADER WITH ICON DOCK -->
-    <header class="header" role="banner">
-        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
-        <div class="header-right">
-            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
-            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
-            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
-            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
-            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Leaderboard">🏆<span class="nav-tooltip">Top</span></a>
-            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
-            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
-            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
-            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
-            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:6px;">
-                <span id="userName">Friend</span>
-                <span id="verificationBadge" class="verification-badge">⏳</span>
-            </div>
-        </div>
-    </header>
-
-    <div id="emergencyBanner" role="alert"></div>
-
-    <div class="container">
-        <div id="storyContent"><div class="loading"><div class="loading-spinner"></div> Loading story...</div></div>
-        <div class="comment-section">
-            <h3>💬 Comments (<span id="commentCountHeader">0</span>)</h3>
-            <div id="commentsContainer"><div class="loading"><div class="loading-spinner"></div> Loading comments...</div></div>
-            <div class="comment-input-area">
-                <label style="font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">Share your thoughts</label>
-                <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
-                <div style="font-size:0.7rem;color:var(--text-muted);text-align:right;margin-top:4px;"><span id="commentCountDisplay">0</span>/1000</div>
-                <div class="checkbox-group"><input type="checkbox" id="commentAnonymous" /><label for="commentAnonymous">🕊️ Post anonymously</label></div>
-                <div id="commentError" class="error-msg"></div>
-                <button class="btn btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:6px;">💬 Post Comment</button>
-            </div>
-        </div>
-        <div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
+<header class="header" role="banner">
+    <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
+    <div class="header-right">
+        <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+        <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+        <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+        <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+        <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+        <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+        <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+        <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+        <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+        <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+        <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+        <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;"><span id="userName">Friend</span><span id="verificationBadge" class="verification-badge">⏳</span></div>
     </div>
-
-    <!-- Edit Modal -->
-    <div class="modal" id="editModal" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeEditModal()" aria-label="Close">&times;</button>
-            <h2>✏️ Edit Story</h2>
-            <label for="editTitle">Title</label><input type="text" id="editTitle" />
-            <label for="editContent">Content</label><textarea id="editContent" rows="6"></textarea>
-            <button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button>
-            <div class="error-msg" id="editError"></div>
+</header>
+<div id="emergencyBanner" role="alert"></div>
+<div class="container">
+    <div id="storyContent"><div class="loading"><div class="loading-spinner"></div> Loading story...</div></div>
+    <div class="comment-section">
+        <h3>💬 Comments (<span id="commentCountHeader">0</span>)</h3>
+        <div id="commentsContainer"><div class="loading"><div class="loading-spinner"></div> Loading comments...</div></div>
+        <div class="comment-input-area">
+            <label style="font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">Share your thoughts</label>
+            <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
+            <div style="font-size:0.7rem;color:var(--text-muted);text-align:right;margin-top:4px;"><span id="commentCountDisplay">0</span>/1000</div>
+            <div class="checkbox-group"><input type="checkbox" id="commentAnonymous"/><label for="commentAnonymous">🕊️ Post anonymously</label></div>
+            <div id="commentError" class="error-msg"></div>
+            <button class="btn btn-primary" id="commentSubmitBtn" onclick="postComment()" style="margin-top:6px;">💬 Post Comment</button>
         </div>
     </div>
-
-    <!-- Auth Modal -->
-    <div class="modal" id="authModal" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
-            <h2 id="modalTitle">🔐 Welcome Back</h2>
-            <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
-            <label for="authEmail">Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
-            <label for="authPassword">Password</label><input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
-            <div id="passwordStrength"></div>
-            <div id="signupFields" style="display:none;">
-                <label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div>
-                <label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
-                <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
-                <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-                <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;">
-                    <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;" />
-                    <label for="termsCheckbox" style="font-size:0.85rem;cursor:pointer;">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
-                </div>
-            </div>
-            <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
-            <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
-            <div class="error-msg" id="authError"></div><div class="success-msg" id="authSuccess"></div>
-        </div>
-    </div>
-
-    <!-- Gold Modal -->
-    <div class="modal" id="goldModal" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeGoldModal()" aria-label="Close">&times;</button>
-            <h2>💰 Donate Gold</h2>
-            <div class="gold-balance-display" style="padding:12px;background:#fef3c7;border-radius:var(--radius-sm);margin-bottom:14px;text-align:center;font-weight:600;">Your Balance: <span id="goldBalanceAmount" style="font-size:1.2rem;color:var(--secondary-dark);">0</span> 🪙</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-                <button class="gold-amount-btn" onclick="selectGoldAmount(1)">1 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(5)">5 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(10)">10 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(25)">25 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(50)">50 🪙</button>
-            </div>
-            <div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label><input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:inherit;" /></div>
-            <div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label><textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;resize:vertical;"></textarea></div>
-            <div id="goldError" class="error-msg"></div>
-            <button class="btn-modal" onclick="confirmGoldDonation()" style="background:var(--secondary);">💎 Send Gold</button>
-        </div>
-    </div>
-
-    <footer class="footer" role="contentinfo">
-        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
-        <div class="footer-links">
-            <a href="about.html">🌿 About</a><a href="submit.html" class="guest-only">📝 Share</a><a href="profile.html" class="guest-only">👤 Profile</a><a href="emergency.html">🆘 Emergency</a><a href="suggest.html" class="guest-only">💡 Suggest</a><a href="privacy.html">🔒 Privacy</a><a href="terms.html">📜 Terms</a>
-        </div>
-        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
-    </footer>
-
-    <script>
-        var currentStory = null;
-        var reactionLocks = {};
-        var commentsUnsubscribe = null;
-
-        function viewProfile(userId) { if (userId) window.location.href = 'profile.html?uid=' + userId; }
-        window.viewProfile = viewProfile;
-
-        function applyGuestRestrictions() {
-            var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
-            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
-            var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
-        }
-
-        (function() {
-            const termsCheckbox = document.getElementById('termsCheckbox');
-            const authSubmitBtn = document.getElementById('authSubmitBtn');
-            if (termsCheckbox && authSubmitBtn) {
-                const toggleBtn = () => {
-                    const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                    authSubmitBtn.disabled = isSignup ? !termsCheckbox.checked : false;
-                    authSubmitBtn.style.opacity = isSignup && !termsCheckbox.checked ? '0.5' : '1';
-                };
-                termsCheckbox.addEventListener('change', toggleBtn);
-                const orig = toggleAuthMode;
-                window.toggleAuthMode = function() { orig(); setTimeout(toggleBtn, 100); };
-                toggleBtn();
-            }
-        })();
-
-        function loadStory() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var storyId = urlParams.get('id');
-            currentStoryId = storyId;
-            var content = document.getElementById('storyContent');
-            if (!content) return;
-            if (!storyId) { content.innerHTML = '<div class="empty-state"><div class="big-emoji">📭</div><h3>No story selected</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
-            content.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading story...</div>';
-            db.collection('stories').doc(storyId).get().then(doc => {
-                if (!doc.exists) { content.innerHTML = '<div class="empty-state"><div class="big-emoji">🔍</div><h3>Story not found</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
-                var story = doc.data(); story.id = doc.id; currentStory = story;
-                if (story.visibility === 'private' && (!currentUser || story.userId !== currentUser.uid)) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Private Story</h3><a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:inline-block;margin-top:12px;">← Back to Home</a></div>'; return; }
-                if (!currentUser) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">🔒</div><h3>Login Required</h3><div style="margin-top:12px;display:flex;gap:12px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>'; return; }
-                if (!currentUser.emailVerified) { content.innerHTML = '<div class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);padding:30px;border:1px solid var(--border-color);"><div class="big-emoji">📧</div><h3>Email Not Verified</h3><button class="btn btn-primary" onclick="resendVerification()" style="margin-top:12px;">🔄 Resend Verification</button></div>'; return; }
-                content.innerHTML = renderFullStory(story);
-                loadUserReactionsForStory(storyId);
-                loadCommentsRealtime(storyId);
-            }).catch(err => { content.innerHTML = '<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><p>'+err.message+'</p><button class="btn btn-primary" onclick="loadStory()">🔄 Retry</button></div>'; });
-        }
-
-        function renderFullStory(story) {
-            var author = story.isAnonymous ? '🕊️ Anonymous' : escapeHTML(story.authorName || 'Someone');
-            var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
-            var catDisp = catNames[story.category] || story.category;
-            var time = story.createdAt ? story.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : 'Recently';
-            var reactions = story.reactions || {};
-            var emojis = ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'];
-            var isOwner = currentUser && story.userId === currentUser.uid;
-            var isAdmin = currentUserData && currentUserData.isAdmin === true;
-
-            var reactionBtns = '';
-            emojis.forEach(function(emoji) {
-                var count = reactions[emoji] || 0;
-                var hasReacted = userReactions[story.id] && userReactions[story.id].indexOf(emoji) !== -1;
-                var locked = reactionLocks[story.id+'_'+emoji];
-                reactionBtns += '<button class="reaction-btn'+(hasReacted?' reacted':'')+'" id="reaction-'+story.id+'-'+emoji+'" onclick="storyToggleReaction(\''+story.id+'\',\''+emoji+'\')" '+(locked?'disabled':'')+'>'+emoji+' <span class="count" id="count-'+story.id+'-'+emoji+'">'+count+'</span></button>';
-            });
-
-            var fullText = story.text || '';
-            var showMore = fullText.length > 300;
-            var excerpt = showMore ? fullText.substring(0, 300) : fullText;
-            var textHtml = '<span class="excerpt-text">'+escapeHTML(excerpt)+'</span>';
-            if (showMore) textHtml += '<span class="full-text">'+escapeHTML(fullText.substring(300))+'</span> <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>';
-
-            return '<div class="story-full" id="storyCard">'+
-                '<div class="gear-menu-container">'+
-                    '<button class="gear-icon" onclick="toggleGearMenu(event)" title="Options">⚙️</button>'+
-                    '<div class="gear-dropdown" id="gearDropdown">'+
-                        (isOwner ? '<button onclick="openEditStoryModal()">✏️ Edit Story</button>' : '')+
-                        (isOwner ? '<button onclick="toggleStoryVisibility()">🔒 Change Visibility</button>' : '')+
-                        (isOwner ? '<button class="danger" onclick="deleteCurrentStory()">🗑️ Delete Story</button>' : '')+
-                        (isAdmin && !isOwner ? '<button class="danger" onclick="deleteCurrentStory()">🗑️ Admin Delete</button>' : '')+
-                        (currentUser && !isOwner ? '<button onclick="reportThisStory()">🚩 Report Story</button>' : '')+
-                    '</div>'+
-                '</div>'+
-                '<h1 class="story-title">'+escapeHTML(story.title)+'</h1>'+
-                '<div class="story-meta-row">'+
-                    '<span>✍️ <span class="meta-author-link" onclick="event.stopPropagation();viewProfile(\''+story.userId+'\')">'+author+'</span></span>'+
-                    '<span class="category-badge">'+catDisp+'</span>'+
-                    '<span>📅 '+time+'</span>'+
-                    (story.flagged?'<span style="color:var(--warning);">⚠️ Content Warning</span>':'')+
-                    '<span class="gold-badge">'+(story.goldReceived||0)+' 🪙</span>'+
-                '</div>'+
-                '<div class="story-text" id="storyContentText">'+textHtml+'</div>'+
-                '<div class="story-action-bar">'+
-                    reactionBtns+
-                    (currentUser&&story.userId!==currentUser.uid?'<button class="btn btn-secondary" onclick="openGoldDonation(\''+story.id+'\')" style="font-weight:700;background:linear-gradient(135deg,#f1c40f,#f39c12);color:white;border:none;">🪙 Donate Gold</button>':'')+
-                '</div></div>';
-        }
-
-        function toggleGearMenu(event) { event.stopPropagation(); var d=document.getElementById('gearDropdown'); if(d)d.classList.toggle('show'); }
-        document.addEventListener('click',function(e){if(!e.target.closest('.gear-menu-container')){var d=document.getElementById('gearDropdown');if(d)d.classList.remove('show');}});
-        function toggleReadMore(){var f=document.querySelector('.full-text'),b=document.getElementById('readMoreBtn');if(!f||!b)return;if(f.classList.contains('show')){f.classList.remove('show');b.textContent='Read More ▼';}else{f.classList.add('show');b.textContent='Show Less ▲';}}
-
-        function storyToggleReaction(storyId,emoji){
-            if(!currentUser){alert('Please log in.');return;}if(!currentUser.emailVerified){alert('Please verify email.');return;}
-            var lockKey=storyId+'_'+emoji;if(reactionLocks[lockKey])return;reactionLocks[lockKey]=true;
-            if(!userReactions[storyId])userReactions[storyId]=[];
-            var storyRef=db.collection('stories').doc(storyId),userRef=db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
-            var hasReacted=userReactions[storyId].indexOf(emoji)!==-1;
-            var card=document.getElementById('storyCard'),rect=card?card.getBoundingClientRect():null;
-            storyCreateFloatingEmoji(emoji,rect?rect.left+rect.width/2:window.innerWidth/2,rect?rect.top+rect.height/2:window.innerHeight/2);
-            var btn=document.getElementById('reaction-'+storyId+'-'+emoji);if(btn)btn.disabled=true;
-            db.runTransaction(function(t){return t.get(storyRef).then(function(doc){if(!doc.exists)return;
-                var reactions=doc.data().reactions||{};
-                if(hasReacted){reactions[emoji]=Math.max((reactions[emoji]||0)-1,0);userReactions[storyId]=userReactions[storyId].filter(function(e){return e!==emoji;});}
-                else{reactions[emoji]=(reactions[emoji]||0)+1;userReactions[storyId].push(emoji);}
-                t.update(storyRef,{reactions:reactions});t.set(userRef,{emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
-            });}).then(function(){if(btn)btn.disabled=false;
-                var cs=document.getElementById('count-'+storyId+'-'+emoji);if(cs)cs.textContent=hasReacted?(parseInt(cs.textContent)||0)-1:(parseInt(cs.textContent)||0)+1;
-                if(btn){if(hasReacted)btn.classList.remove('reacted');else btn.classList.add('reacted');}
-                reactionLocks[lockKey]=false;
-            }).catch(function(){if(btn)btn.disabled=false;reactionLocks[lockKey]=false;});
-        }
-
-        function storyCreateFloatingEmoji(emoji,x,y){
-            var el=document.createElement('div');el.className='floating-emoji';el.textContent=emoji;
-            el.style.cssText='left:'+(x+(Math.random()-0.5)*180)+'px;top:'+(y+(Math.random()-0.5)*80)+'px;font-size:'+(2+Math.random()*2)+'rem;';
-            document.body.appendChild(el);setTimeout(function(){el.remove();},1600);
-            var colors=['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];
-            for(var i=0;i<12;i++){var p=document.createElement('div');p.className='firework-particle';var a=Math.random()*Math.PI*2,d=40+Math.random()*100;
-                p.style.cssText='width:'+(3+Math.random()*5)+'px;height:'+(3+Math.random()*5)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+x+'px;top:'+y+'px;transition:all 0.8s ease-out;opacity:1;';
-                document.body.appendChild(p);requestAnimationFrame(function(){p.style.transform='translate('+Math.cos(a)*d+'px,'+Math.sin(a)*d+'px) scale(0)';p.style.opacity='0';});
-                setTimeout(function(){p.remove();},900);}
-        }
-
-        function loadUserReactionsForStory(storyId){if(!currentUser)return;db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc=>{if(doc.exists){userReactions[storyId]=doc.data().emojis||[];['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e=>{var btn=document.getElementById('reaction-'+storyId+'-'+e);if(btn&&userReactions[storyId].indexOf(e)!==-1)btn.classList.add('reacted');});}}).catch(()=>{});}
-
-        function loadCommentsRealtime(storyId){
-            var container=document.getElementById('commentsContainer');if(!container)return;if(commentsUnsubscribe)commentsUnsubscribe();
-            container.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading comments...</div>';
-            commentsUnsubscribe=db.collection('comments').where('storyId','==',storyId).onSnapshot(snapshot=>{
-                if(snapshot.empty){container.innerHTML='<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet. Be the first!</p></div>';document.getElementById('commentCountHeader').textContent='0';return;}
-                var comments=[];snapshot.forEach(doc=>{var c=doc.data();c.id=doc.id;comments.push(c);});
-                comments.sort((a,b)=>{if(a.isPinned&&!b.isPinned)return-1;if(!a.isPinned&&b.isPinned)return 1;return(b.likes||0)-(a.likes||0);});
-                document.getElementById('commentCountHeader').textContent=comments.length;
-                container.innerHTML=comments.map(c=>renderSingleComment(c)).join('');
-            },err=>{container.innerHTML='<div class="empty-state"><p style="color:var(--danger);">⚠️ Error loading comments</p><button class="btn btn-primary" onclick="loadCommentsRealtime(\''+storyId+'\')">🔄 Retry</button></div>';});
-        }
-
-        function renderSingleComment(comment){
-            var author=comment.isAnonymous?'🕊️ Anonymous':escapeHTML(comment.authorName||'Someone');
-            var time=comment.createdAt?comment.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'Recently';
-            var likes=comment.likes||0,isOwner=currentUser&&comment.userId===currentUser.uid,isAdmin=currentUserData&&currentUserData.isAdmin===true;
-            var badges='';if(comment.isPinned)badges+='<span class="comment-badge pinned">📌 Pinned</span>';
-            return '<div class="comment"><div class="comment-header"><div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+comment.userId+'\')">'+author+'</span> '+badges+'</div><div class="comment-time">📅 '+time+'</div></div><div class="comment-text">'+escapeHTML(comment.text)+'</div><div class="comment-actions"><button class="comment-like-btn" onclick="likeComment(\''+comment.id+'\')">❤️ <span>'+likes+'</span></button>'+(isOwner?'<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>':'')+(isAdmin?'<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+(currentUser?'<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>':'')+'</div></div>';
-        }
-
-        function postComment(){
-            if(!currentUser){alert('Please log in.');return;}
-            var textInput=document.getElementById('commentText'),anonymousCheck=document.getElementById('commentAnonymous'),error=document.getElementById('commentError');
-            if(!textInput)return;
-            var rawText=textInput.value.trim(),text=typeof sanitizeInput==='function'?sanitizeInput(rawText):escapeHTML(rawText);
-            error.textContent='';if(!text){error.textContent='Please write a comment.';return;}if(rawText.length>1000){error.textContent='Under 1000 characters.';return;}
-            var btn=document.getElementById('commentSubmitBtn');if(btn){btn.disabled=true;btn.textContent='⏳ Posting...';}
-            var bad=['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
-            var flagged=bad.some(w=>rawText.toLowerCase().indexOf(w)!==-1);
-            db.collection('comments').add({storyId:currentStoryId,text:text,userId:currentUser.uid,authorName:currentUserData?currentUserData.name:'Someone',isAnonymous:anonymousCheck?anonymousCheck.checked:false,createdAt:firebase.firestore.FieldValue.serverTimestamp(),likes:0,isPinned:false,approved:!flagged,flagged:flagged})
-            .then(()=>db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)}))
-            .then(()=>{if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}textInput.value='';document.getElementById('commentCountDisplay').textContent='0';if(flagged)alert('⚠️ Sent for review.');
-                if(currentStory&&currentStory.userId!==currentUser.uid){addNotification(currentStory.userId,'comment',{storyId:currentStoryId});}
-            }).catch(err=>{error.textContent=err.message;if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}});
-        }
-
-        function likeComment(cid){if(!currentUser)return;db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});}
-        function deleteComment(cid){if(!currentUser||!confirm('Delete?'))return;db.collection('comments').doc(cid).delete().catch(()=>{});}
-        function pinComment(cid){if(!currentUserData||!currentUserData.isAdmin)return;db.collection('comments').doc(cid).get().then(d=>{if(!d.exists)return;return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});}).catch(()=>{});}
-        function reportComment(cid,sid){if(!currentUser)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({commentId:cid,storyId:sid,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'comment',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(()=>{});}
-
-        function reportThisStory(){if(!currentStory)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message));}
-        function openEditStoryModal(){if(!currentStory||currentStory.userId!==currentUser.uid)return;currentEditId=currentStory.id;document.getElementById('editTitle').value=currentStory.title||'';document.getElementById('editContent').value=currentStory.text||'';document.getElementById('editError').textContent='';document.getElementById('editModal').classList.add('active');}
-        function closeEditModal(){document.getElementById('editModal').classList.remove('active');currentEditId=null;}
-        function saveEdit(){var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim();if(!t||!c){document.getElementById('editError').textContent='Required.';return;}db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message);}
-        function deleteCurrentStory(){if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return;db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message));}
-        function toggleStoryVisibility(){if(!currentStory||currentStory.userId!==currentUser.uid)return;var v=currentStory.visibility==='public'?'private':'public';db.collection('stories').doc(currentStory.id).update({visibility:v}).then(()=>{alert('✅ '+(v==='public'?'Public':'Private'));loadStory();}).catch(e=>alert('❌ '+e.message));}
-
-        function openGoldDonation(storyId){if(!currentUser)return;if(!currentUserData)return;var b=currentUserData.goldBalance||0;if(b<1){alert('No gold!');return;}document.getElementById('goldBalanceAmount').textContent=b;document.getElementById('goldModal').classList.add('active');currentStoryId=storyId;window.selectedGoldAmount=0;document.getElementById('customGoldAmount').value='';document.getElementById('goldMessage').value='';document.getElementById('goldError').textContent='';document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));}
-        function closeGoldModal(){document.getElementById('goldModal').classList.remove('active');}
-        function selectGoldAmount(a){window.selectedGoldAmount=a;document.getElementById('customGoldAmount').value=a;document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));if(event&&event.target)event.target.classList.add('selected');}
-        function confirmGoldDonation(){var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount;if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;}var b=currentUserData?currentUserData.goldBalance||0:0;if(!a||a<1){ed.textContent='Enter amount.';return;}if(a>b){ed.textContent='Not enough! Balance: '+b;return;}var msg=mi?mi.value.trim():'';closeGoldModal();if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;}var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid);db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId;t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)});t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)});t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);});}
-
-        window.addEventListener('beforeunload',function(){sessionStorage.setItem('feedScrollPos',window.scrollY);sessionStorage.setItem('feedCategory',currentCategory||'all');});
-
-        document.addEventListener('DOMContentLoaded',function(){
-            var check=setInterval(function(){if(typeof currentUser!=='undefined'){clearInterval(check);applyGuestRestrictions();loadStory();}},100);
-            if(typeof auth!=='undefined')auth.onAuthStateChanged(function(){setTimeout(function(){applyGuestRestrictions();loadStory();},300);});
-            document.getElementById('commentText')?.addEventListener('input',function(){document.getElementById('commentCountDisplay').textContent=this.value.length;});
-            document.getElementById('authModal')?.addEventListener('click',function(e){if(e.target===this)closeModal();});
-            document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
-            document.getElementById('goldModal')?.addEventListener('click',function(e){if(e.target===this)closeGoldModal();});
-            document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();}});
-            console.log('✅ Story page ready');
-        });
-    </script>
+    <div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
+</div>
+<div class="modal" id="editModal" role="dialog" aria-modal="true"><div class="modal-content"><button class="modal-close" onclick="closeEditModal()">&times;</button><h2>✏️ Edit Story</h2><label for="editTitle">Title</label><input type="text" id="editTitle"/><label for="editContent">Content</label><textarea id="editContent" rows="6"></textarea><button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button><div class="error-msg" id="editError"></div></div></div>
+<div class="modal" id="authModal" role="dialog" aria-modal="true"><div class="modal-content"><button class="modal-close" onclick="closeModal()">&times;</button><h2 id="modalTitle">🔐 Welcome Back</h2><div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div><label for="authEmail">Email</label><input type="email" id="authEmail" placeholder="you@example.com"/><label for="authPassword">Password</label><input type="password" id="authPassword" placeholder="••••••••"/><div id="passwordStrength"></div><div id="signupFields" style="display:none;"><label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a username"/><div id="usernameStatus"></div><label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select><label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing..."/><datalist id="country-list"></datalist><label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading..."/><div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;"><input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;"/><label for="termsCheckbox" style="font-size:0.85rem;cursor:pointer;">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label></div></div><button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button><div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div><div class="error-msg" id="authError"></div><div class="success-msg" id="authSuccess"></div></div></div>
+<div class="modal" id="goldModal" role="dialog" aria-modal="true"><div class="modal-content"><button class="modal-close" onclick="closeGoldModal()">&times;</button><h2>💰 Donate Gold</h2><div class="gold-balance-display" style="padding:12px;background:#fef3c7;border-radius:var(--radius-sm);margin-bottom:14px;text-align:center;font-weight:600;">Your Balance: <span id="goldBalanceAmount" style="font-size:1.2rem;color:var(--secondary-dark);">0</span> 🪙</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><button class="gold-amount-btn" onclick="selectGoldAmount(1)">1 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(5)">5 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(10)">10 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(25)">25 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(50)">50 🪙</button></div><div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label><input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:inherit;"/></div><div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label><textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;resize:vertical;"></textarea></div><div id="goldError" class="error-msg"></div><button class="btn-modal" onclick="confirmGoldDonation()" style="background:var(--secondary);">💎 Send Gold</button></div></div>
+<footer class="footer" role="contentinfo"><div>⚓ The Harbor — A community for sharing, healing, and growing.</div><div class="footer-links"><a href="about.html">🌿 About</a><a href="submit.html" class="guest-only">📝 Share</a><a href="profile.html" class="guest-only">👤 Profile</a><a href="emergency.html">🆘 Emergency</a><a href="suggest.html" class="guest-only">💡 Suggest</a><a href="privacy.html">🔒 Privacy</a><a href="terms.html">📜 Terms</a></div><div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div></footer>
+<script>
+var currentStory=null,reactionLocks={},commentsUnsubscribe=null;
+function viewProfile(u){if(u)window.location.href='profile.html?uid='+u;}window.viewProfile=viewProfile;
+function applyGuestRestrictions(){var l=typeof currentUser!=='undefined'&&currentUser!==null&&currentUser!==false;document.querySelectorAll('.guest-only').forEach(e=>e.style.display=l?'':'none');document.querySelectorAll('.auth-only').forEach(e=>e.style.display=l?'none':'');var ui=document.getElementById('userInfo');if(ui)ui.style.display=l?'flex':'none';}
+(function(){const c=document.getElementById('termsCheckbox'),b=document.getElementById('authSubmitBtn');if(c&&b){const t=()=>{const s=document.getElementById('signupFields')?.style.display!=='none';b.disabled=s?!c.checked:false;b.style.opacity=s&&!c.checked?'0.5':'1';};c.addEventListener('change',t);const o=toggleAuthMode;window.toggleAuthMode=function(){o();setTimeout(t,100);};t();}})();
+function loadStory(){var p=new URLSearchParams(window.location.search),id=p.get('id');currentStoryId=id;var c=document.getElementById('storyContent');if(!c)return;if(!id){c.innerHTML='<div class="empty-state"><div class="big-emoji">📭</div><h3>No story selected</h3></div>';return;}c.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading...</div>';db.collection('stories').doc(id).get().then(doc=>{if(!doc.exists){c.innerHTML='<div class="empty-state"><div class="big-emoji">🔍</div><h3>Not found</h3></div>';return;}var s=doc.data();s.id=doc.id;currentStory=s;if(s.visibility==='private'&&(!currentUser||s.userId!==currentUser.uid)){c.innerHTML='<div class="empty-state"><div class="big-emoji">🔒</div><h3>Private Story</h3></div>';return;}if(!currentUser){c.innerHTML='<div class="empty-state"><div class="big-emoji">🔒</div><h3>Login Required</h3></div>';return;}c.innerHTML=renderFullStory(s);loadUserReactionsForStory(id);loadCommentsRealtime(id);}).catch(err=>{c.innerHTML='<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3></div>';});}
+function renderFullStory(s){var a=s.isAnonymous?'🕊️ Anonymous':escapeHTML(s.authorName||'Someone'),cat={men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'},cd=cat[s.category]||s.category,t=s.createdAt?s.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'Recently',r=s.reactions||{},emojis=['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'],isOwner=currentUser&&s.userId===currentUser.uid,isAdmin=currentUserData&&currentUserData.isAdmin===true,rb='';emojis.forEach(function(e){var c=r[e]||0,h=userReactions[s.id]&&userReactions[s.id].indexOf(e)!==-1,l=reactionLocks[s.id+'_'+e];rb+='<button class="reaction-btn'+(h?' reacted':'')+'" id="reaction-'+s.id+'-'+e+'" onclick="storyToggleReaction(\''+s.id+'\',\''+e+'\')" '+(l?'disabled':'')+'>'+e+' <span class="count" id="count-'+s.id+'-'+e+'">'+c+'</span></button>';});var ft=s.text||'',sm=ft.length>300,ex=sm?ft.substring(0,300):ft,th='<span class="excerpt-text">'+escapeHTML(ex)+'</span>';if(sm)th+='<span class="full-text">'+escapeHTML(ft.substring(300))+'</span> <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>';return'<div class="story-full" id="storyCard"><div class="gear-menu-container"><button class="gear-icon" onclick="toggleGearMenu(event)" title="Options">⚙️</button><div class="gear-dropdown" id="gearDropdown">'+(isOwner?'<button onclick="openEditStoryModal()">✏️ Edit Story</button>':'')+(isOwner?'<button onclick="toggleStoryVisibility()">🔒 Change Visibility</button>':'')+(isOwner?'<button class="danger" onclick="deleteCurrentStory()">🗑️ Delete Story</button>':'')+(isAdmin&&!isOwner?'<button class="danger" onclick="deleteCurrentStory()">🗑️ Admin Delete</button>':'')+(currentUser&&!isOwner?'<button onclick="reportThisStory()">🚩 Report Story</button>':'')+'</div></div><h1 class="story-title">'+escapeHTML(s.title)+'</h1><div class="story-meta-row"><span>✍️ <span class="meta-author-link" onclick="event.stopPropagation();viewProfile(\''+s.userId+'\')">'+a+'</span></span><span class="category-badge">'+cd+'</span><span>📅 '+t+'</span>'+(s.flagged?'<span style="color:var(--warning);">⚠️</span>':'')+'<span class="gold-badge">'+(s.goldReceived||0)+' 🪙</span></div><div class="story-text" id="storyContentText">'+th+'</div><div class="story-action-bar">'+rb+(currentUser&&s.userId!==currentUser.uid?'<button class="btn btn-secondary" onclick="openGoldDonation(\''+s.id+'\')" style="font-weight:700;background:linear-gradient(135deg,#f1c40f,#f39c12);color:white;border:none;">🪙 Donate Gold</button>':'')+'</div></div>';}
+function toggleGearMenu(e){e.stopPropagation();var d=document.getElementById('gearDropdown');if(d)d.classList.toggle('show');}document.addEventListener('click',function(e){if(!e.target.closest('.gear-menu-container')){var d=document.getElementById('gearDropdown');if(d)d.classList.remove('show');}});
+function toggleReadMore(){var f=document.querySelector('.full-text'),b=document.getElementById('readMoreBtn');if(!f||!b)return;if(f.classList.contains('show')){f.classList.remove('show');b.textContent='Read More ▼';}else{f.classList.add('show');b.textContent='Show Less ▲';}}
+function storyToggleReaction(sid,e){if(!currentUser||!currentUser.emailVerified)return;var lk=sid+'_'+e;if(reactionLocks[lk])return;reactionLocks[lk]=true;if(!userReactions[sid])userReactions[sid]=[];var sr=db.collection('stories').doc(sid),ur=db.collection('users').doc(currentUser.uid).collection('reactions').doc(sid),hr=userReactions[sid].indexOf(e)!==-1,card=document.getElementById('storyCard'),rect=card?card.getBoundingClientRect():null;storyCreateFloatingEmoji(e,rect?rect.left+rect.width/2:window.innerWidth/2,rect?rect.top+rect.height/2:window.innerHeight/2);var btn=document.getElementById('reaction-'+sid+'-'+e);if(btn)btn.disabled=true;db.runTransaction(function(t){return t.get(sr).then(function(doc){if(!doc.exists)return;var r=doc.data().reactions||{};if(hr){r[e]=Math.max((r[e]||0)-1,0);userReactions[sid]=userReactions[sid].filter(function(x){return x!==e;});}else{r[e]=(r[e]||0)+1;userReactions[sid].push(e);}t.update(sr,{reactions:r});t.set(ur,{emojis:userReactions[sid],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:sid},{merge:true});});}).then(function(){if(btn)btn.disabled=false;var cs=document.getElementById('count-'+sid+'-'+e);if(cs)cs.textContent=hr?(parseInt(cs.textContent)||0)-1:(parseInt(cs.textContent)||0)+1;if(btn){if(hr)btn.classList.remove('reacted');else btn.classList.add('reacted');}reactionLocks[lk]=false;}).catch(function(){if(btn)btn.disabled=false;reactionLocks[lk]=false;});}
+function storyCreateFloatingEmoji(emoji,x,y){var el=document.createElement('div');el.className='floating-emoji';el.textContent=emoji;el.style.cssText='left:'+(x+(Math.random()-0.5)*180)+'px;top:'+(y+(Math.random()-0.5)*80)+'px;font-size:'+(2+Math.random()*2)+'rem;';document.body.appendChild(el);setTimeout(function(){el.remove();},1600);var colors=['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];for(var i=0;i<12;i++){var p=document.createElement('div');p.className='firework-particle';var a=Math.random()*Math.PI*2,d=40+Math.random()*100;p.style.cssText='width:'+(3+Math.random()*5)+'px;height:'+(3+Math.random()*5)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+x+'px;top:'+y+'px;transition:all 0.8s ease-out;opacity:1;';document.body.appendChild(p);requestAnimationFrame(function(){p.style.transform='translate('+Math.cos(a)*d+'px,'+Math.sin(a)*d+'px) scale(0)';p.style.opacity='0';});setTimeout(function(){p.remove();},900);}}
+function loadUserReactionsForStory(sid){if(!currentUser)return;db.collection('users').doc(currentUser.uid).collection('reactions').doc(sid).get().then(doc=>{if(doc.exists){userReactions[sid]=doc.data().emojis||[];['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e=>{var btn=document.getElementById('reaction-'+sid+'-'+e);if(btn&&userReactions[sid].indexOf(e)!==-1)btn.classList.add('reacted');});}}).catch(()=>{});}
+function loadCommentsRealtime(sid){var c=document.getElementById('commentsContainer');if(!c)return;if(commentsUnsubscribe)commentsUnsubscribe();c.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading...</div>';commentsUnsubscribe=db.collection('comments').where('storyId','==',sid).onSnapshot(snap=>{if(snap.empty){c.innerHTML='<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet.</p></div>';document.getElementById('commentCountHeader').textContent='0';return;}var comments=[];snap.forEach(doc=>{var cd=doc.data();cd.id=doc.id;comments.push(cd);});comments=comments.filter(c=>c.approved!==false);comments.sort((a,b)=>{if(a.isPinned&&!b.isPinned)return-1;if(!a.isPinned&&b.isPinned)return 1;return(b.likes||0)-(a.likes||0);});document.getElementById('commentCountHeader').textContent=comments.length;c.innerHTML=comments.map(c=>renderSingleComment(c)).join('');},err=>{c.innerHTML='<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p></div>';});}
+function renderSingleComment(c){var a=c.isAnonymous?'🕊️ Anonymous':escapeHTML(c.authorName||'Someone'),t=c.createdAt?c.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'Recently',l=c.likes||0,io=currentUser&&c.userId===currentUser.uid,ia=currentUserData&&currentUserData.isAdmin===true,b='';if(c.isPinned)b+='<span class="comment-badge pinned">📌 Pinned</span>';return'<div class="comment"><div class="comment-header"><div class="comment-author">✍️ <span class="comment-author-link" onclick="event.stopPropagation();viewProfile(\''+c.userId+'\')">'+a+'</span> '+b+'</div><div class="comment-time">📅 '+t+'</div></div><div class="comment-text">'+escapeHTML(c.text)+'</div><div class="comment-actions"><button class="comment-like-btn" onclick="likeComment(\''+c.id+'\')">❤️ <span>'+l+'</span></button>'+(io?'<button class="comment-delete-btn" onclick="deleteComment(\''+c.id+'\')">🗑️</button>':'')+(ia?'<button class="comment-pin-btn" onclick="pinComment(\''+c.id+'\')">'+(c.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+(currentUser?'<button class="comment-report-btn" onclick="reportComment(\''+c.id+'\',\''+c.storyId+'\')">🚩</button>':'')+'</div></div>';}
+function postComment(){if(!currentUser)return;var ti=document.getElementById('commentText'),ac=document.getElementById('commentAnonymous'),er=document.getElementById('commentError');if(!ti)return;var rt=ti.value.trim(),tx=typeof sanitizeInput==='function'?sanitizeInput(rt):escapeHTML(rt);er.textContent='';if(!tx){er.textContent='Write a comment.';return;}if(rt.length>1000){er.textContent='Under 1000 chars.';return;}var btn=document.getElementById('commentSubmitBtn');if(btn){btn.disabled=true;btn.textContent='⏳...';}var bad=['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'],flagged=bad.some(w=>rt.toLowerCase().indexOf(w)!==-1);db.collection('comments').add({storyId:currentStoryId,text:tx,userId:currentUser.uid,authorName:currentUserData?currentUserData.name:'Someone',isAnonymous:ac?ac.checked:false,createdAt:firebase.firestore.FieldValue.serverTimestamp(),likes:0,isPinned:false,approved:!flagged,flagged:flagged}).then(()=>db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)})).then(()=>{if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}ti.value='';document.getElementById('commentCountDisplay').textContent='0';if(flagged)alert('⚠️ Sent for review.');if(currentStory&&currentStory.userId!==currentUser.uid){addNotification(currentStory.userId,'comment',{storyId:currentStoryId});}}).catch(err=>{er.textContent=err.message;if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}});}
+function likeComment(cid){if(!currentUser)return;db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});}
+function deleteComment(cid){if(!currentUser||!confirm('Delete?'))return;db.collection('comments').doc(cid).delete().catch(()=>{});}
+function pinComment(cid){if(!currentUserData||!currentUserData.isAdmin)return;db.collection('comments').doc(cid).get().then(d=>{if(!d.exists)return;return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});}).catch(()=>{});}
+function reportComment(cid,sid){if(!currentUser)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({commentId:cid,storyId:sid,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'comment',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(()=>{});}
+function reportThisStory(){if(!currentStory)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message));}
+function openEditStoryModal(){if(!currentStory||currentStory.userId!==currentUser.uid)return;currentEditId=currentStory.id;document.getElementById('editTitle').value=currentStory.title||'';document.getElementById('editContent').value=currentStory.text||'';document.getElementById('editError').textContent='';document.getElementById('editModal').classList.add('active');}
+function closeEditModal(){document.getElementById('editModal').classList.remove('active');currentEditId=null;}
+function saveEdit(){var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim();if(!t||!c){document.getElementById('editError').textContent='Required.';return;}db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message);}
+function deleteCurrentStory(){if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return;db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message));}
+function toggleStoryVisibility(){if(!currentStory||currentStory.userId!==currentUser.uid)return;var v=currentStory.visibility==='public'?'private':'public';db.collection('stories').doc(currentStory.id).update({visibility:v}).then(()=>{alert('✅ '+(v==='public'?'Public':'Private'));loadStory();}).catch(e=>alert('❌ '+e.message));}
+function openGoldDonation(sid){if(!currentUser)return;if(!currentUserData)return;var b=currentUserData.goldBalance||0;if(b<1){alert('No gold!');return;}document.getElementById('goldBalanceAmount').textContent=b;document.getElementById('goldModal').classList.add('active');currentStoryId=sid;window.selectedGoldAmount=0;document.getElementById('customGoldAmount').value='';document.getElementById('goldMessage').value='';document.getElementById('goldError').textContent='';document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));}
+function closeGoldModal(){document.getElementById('goldModal').classList.remove('active');}
+function selectGoldAmount(a){window.selectedGoldAmount=a;document.getElementById('customGoldAmount').value=a;document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));if(event&&event.target)event.target.classList.add('selected');}
+function confirmGoldDonation(){var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount;if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;}var b=currentUserData?currentUserData.goldBalance||0:0;if(!a||a<1){ed.textContent='Enter amount.';return;}if(a>b){ed.textContent='Not enough! Balance: '+b;return;}var msg=mi?mi.value.trim():'';closeGoldModal();if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;}var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid);db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId;t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)});t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)});t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);});}
+window.addEventListener('beforeunload',function(){sessionStorage.setItem('feedScrollPos',window.scrollY);sessionStorage.setItem('feedCategory',currentCategory||'all');});
+document.addEventListener('DOMContentLoaded',function(){var c=setInterval(function(){if(typeof currentUser!=='undefined'){clearInterval(c);applyGuestRestrictions();loadStory();}},100);if(typeof auth!=='undefined')auth.onAuthStateChanged(function(){setTimeout(function(){applyGuestRestrictions();loadStory();},300);});document.getElementById('commentText')?.addEventListener('input',function(){document.getElementById('commentCountDisplay').textContent=this.value.length;});document.getElementById('authModal')?.addEventListener('click',function(e){if(e.target===this)closeModal();});document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});document.getElementById('goldModal')?.addEventListener('click',function(e){if(e.target===this)closeGoldModal();});document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();}});});
+</script>
 </body>
 </html>
