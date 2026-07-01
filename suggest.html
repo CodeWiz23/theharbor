@@ -7,7 +7,6 @@
 
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com; img-src 'self' data: https:;">
 
-    <!-- Theme -->
     <script>
     (function() {
         var savedTheme = localStorage.getItem('harbor_theme');
@@ -16,259 +15,147 @@
     })();
     </script>
 
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- App Scripts -->
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
-    <script src="js/language.js"></script>
+    <script src="js/notifications.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
         .suggest-container { max-width: 680px; margin: 0 auto; padding: 1.5rem 0; }
-
-        .suggest-hero {
-            text-align: center;
-            padding: 2rem 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-radius: var(--radius-xl);
-            color: white;
-            margin-bottom: 1.5rem;
-        }
+        .suggest-hero { text-align: center; padding: 2rem 1.5rem; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: var(--radius-xl); color: white; margin-bottom: 1.5rem; }
         .suggest-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
         .suggest-hero p { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
-
-        .suggest-card {
-            background: var(--bg-card);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-        }
-        .suggest-card label {
-            display: block;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin: 14px 0 4px;
-            font-size: 0.9rem;
-        }
+        .suggest-card { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 1rem; }
+        .suggest-card label { display: block; font-weight: 600; color: var(--text-secondary); margin: 14px 0 4px; font-size: 0.9rem; }
         .suggest-card label:first-of-type { margin-top: 0; }
-        .suggest-card input[type="text"],
-        .suggest-card textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
-            font-family: inherit;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: border 0.2s ease;
-        }
-        .suggest-card input:focus,
-        .suggest-card textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26,74,74,0.1);
-        }
+        .suggest-card input[type="text"], .suggest-card textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.95rem; font-family: inherit; background: var(--bg-primary); color: var(--text-primary); transition: border 0.2s ease; }
+        .suggest-card input:focus, .suggest-card textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,74,74,0.1); }
         .suggest-card textarea { min-height: 120px; resize: vertical; }
         .suggest-card .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
-
-        .suggestion-item {
-            background: var(--bg-card);
-            padding: 14px 18px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            margin-bottom: 8px;
-            transition: all 0.2s ease;
-        }
+        .suggestion-item { background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 8px; transition: all 0.2s ease; }
         .suggestion-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
-        .suggestion-item .sugg-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-        .suggestion-item .sugg-meta {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            margin: 2px 0 6px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .suggestion-item .sugg-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        .suggestion-item .sugg-status {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
+        .suggestion-item .sugg-title { font-weight: 600; color: var(--text-primary); font-size: 1rem; }
+        .suggestion-item .sugg-meta { font-size: 0.78rem; color: var(--text-muted); margin: 2px 0 6px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .suggestion-item .sugg-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+        .suggestion-item .sugg-status { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
         .sugg-status-pending { background: #fef3c7; color: #d97706; }
         .sugg-status-approved { background: #dcfce7; color: #16a34a; }
         .sugg-status-rejected { background: #fee2e2; color: #dc2626; }
-
-        .upvote-btn {
-            padding: 3px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            background: var(--bg-secondary);
-            cursor: pointer;
-            font-size: 0.82rem;
-            transition: all 0.15s ease;
-            font-family: inherit;
-        }
+        .upvote-btn { padding: 3px 12px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.82rem; transition: all 0.15s ease; font-family: inherit; }
         .upvote-btn:hover { background: var(--border-color); }
         .upvote-btn:active { transform: scale(0.95); }
         .upvote-btn.voted { background: #dcfce7; border-color: #16a34a; color: #16a34a; }
         .upvote-btn .count { font-weight: 600; margin-left: 3px; }
-
-        @media (max-width: 768px) {
-            .suggest-hero { padding: 1.5rem 1rem; }
-            .suggest-hero h1 { font-size: 1.5rem; }
-            .suggest-card { padding: 1.2rem; }
-        }
-        @media (max-width: 480px) {
-            .suggest-hero { padding: 1.2rem 0.8rem; border-radius: var(--radius-lg); }
-            .suggest-hero h1 { font-size: 1.3rem; }
-            .suggest-card { padding: 1rem; }
-        }
+        @media (max-width: 768px) { .suggest-hero { padding: 1.5rem 1rem; } .suggest-hero h1 { font-size: 1.5rem; } .suggest-card { padding: 1.2rem; } }
+        @media (max-width: 480px) { .suggest-hero { padding: 1.2rem 0.8rem; border-radius: var(--radius-lg); } .suggest-hero h1 { font-size: 1.3rem; } .suggest-card { padding: 1rem; } }
     </style>
 </head>
 
 <body>
-    <!-- Header -->
+    <script>
+    (function() {
+        var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
+        if (wasLoggedIn === 'true') {
+            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+        }
+    })();
+    </script>
+
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-feed active guest-only" aria-current="page">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
+            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
 
     <div id="emergencyBanner" role="alert"></div>
 
-    <!-- Main Content -->
     <div class="container">
         <div class="suggest-container">
-            <!-- Hero -->
             <div class="suggest-hero">
                 <h1>💡 Community Suggestions</h1>
                 <p>Share your ideas to make The Harbor better. Everyone can see and vote!</p>
             </div>
-
-            <!-- Submit Form -->
             <div class="suggest-card">
                 <div id="suggestionNotice" style="display:none;padding:10px 14px;border-radius:8px;margin-bottom:12px;background:#fef3c7;border-left:4px solid var(--warning);color:#92400e;font-size:0.9rem;">
                     ⚠️ <span id="suggestionMessage">Please log in to suggest.</span>
                 </div>
-
                 <label for="suggestionTitle">📌 Title <span style="color:var(--danger);">*</span></label>
                 <input type="text" id="suggestionTitle" placeholder="Summarize your idea..." maxlength="100" />
                 <div class="char-count"><span id="titleCount">0</span>/100</div>
-
                 <label for="suggestionText">💡 Your Suggestion <span style="color:var(--danger);">*</span></label>
                 <textarea id="suggestionText" placeholder="Describe your idea in detail... (minimum 10 characters)" maxlength="2000"></textarea>
                 <div class="char-count"><span id="textCount">0</span>/2000</div>
-
                 <div id="suggestionError" class="error-msg"></div>
                 <div id="suggestionSuccess" class="success-msg"></div>
-
                 <button class="btn btn-primary" id="suggestBtn" onclick="submitSuggestion()" style="width:100%;margin-top:14px;padding:12px;font-size:1rem;">💡 Submit Suggestion</button>
             </div>
-
-            <!-- Suggestions List -->
             <div style="margin-top:24px;">
                 <h3 style="color:var(--text-primary);margin-bottom:14px;font-size:1.1rem;">📋 All Suggestions</h3>
                 <div id="suggestionsContainer">
                     <div class="loading"><div class="loading-spinner"></div> Loading suggestions...</div>
                 </div>
             </div>
-
             <div style="text-align:center;margin-top:20px;">
                 <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a>
             </div>
         </div>
     </div>
 
-    <!-- Auth Modal (Terms checkbox fix #1) -->
     <div class="modal" id="authModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <h2 id="modalTitle">🔐 Welcome Back</h2>
             <div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div>
-            <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
+            <label for="authEmail">Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
+            <label for="authPassword">Password</label><input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" />
             <div id="passwordStrength"></div>
             <div id="signupFields" style="display:none;">
-                <label for="authName">Username</label>
-                <input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" />
-                <div id="usernameStatus"></div>
-                <label for="authGender">Gender</label>
-                <select id="authGender" onchange="updateGenderWarning()">
-                    <option value="🧔 Man">🧔 Man</option>
-                    <option value="👩 Woman">👩 Woman</option>
-                    <option value="⚧️ Non-binary">⚧️ Non-binary</option>
-                    <option value="🙅 Prefer not to say">🙅 Prefer not to say</option>
-                </select>
-                <label for="authCountry">Country</label>
-                <input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" />
-                <datalist id="country-list"></datalist>
-                <label for="authFavorites">Favorite things</label>
-                <input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
+                <label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div>
+                <label for="authGender">Gender</label><select id="authGender" onchange="updateGenderWarning()"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
+                <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
+                <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
                 <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
                     <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--primary);" />
-                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span>
-                    </label>
+                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
             <div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div>
-            <div class="error-msg" id="authError"></div>
-            <div class="success-msg" id="authSuccess"></div>
+            <div class="error-msg" id="authError"></div><div class="success-msg" id="authSuccess"></div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="about.html">🌿 About</a>
-            <a href="submit.html" class="guest-only">📝 Share Story</a>
             <a href="profile.html" class="guest-only">👤 Profile</a>
+            <a href="about.html">🌿 About</a>
+            <a href="emergency.html">🆘 Emergency</a>
             <a href="suggest.html" class="guest-only">💡 Suggest</a>
             <a href="privacy.html">🔒 Privacy</a>
             <a href="terms.html">📜 Terms</a>
@@ -276,36 +163,20 @@
         <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <!-- Page Script -->
     <script>
-    // ============================================
-    // SUGGESTIONS PAGE - FULLY FIXED
-    // ============================================
-
     var userUpvotes = {};
 
-    // ============================================
-    // GUEST/AUTH UI
-    // ============================================
     function applyGuestRestrictions() {
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-        var guestOnly = document.querySelectorAll('.guest-only');
-        var authOnly = document.querySelectorAll('.auth-only');
-        guestOnly.forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
-        authOnly.forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
+        document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+        document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
         var userInfo = document.getElementById('userInfo');
         if (userInfo) userInfo.style.display = isLoggedIn ? 'flex' : 'none';
     }
 
-    // ============================================
-    // SUBMIT SUGGESTION
-    // ============================================
     function submitSuggestion() {
-        if (!currentUser) {
-            alert('Please log in to submit a suggestion.');
-            openModal('login');
-            return;
-        }
+        if (!currentUser) { alert('Please log in to submit a suggestion.'); openModal('login'); return; }
+        if (!checkRateLimit('suggestion', 30)) return;
 
         var titleInput = document.getElementById('suggestionTitle');
         var textInput = document.getElementById('suggestionText');
@@ -319,36 +190,17 @@
         if (errorDiv) errorDiv.textContent = '';
         if (successDiv) successDiv.textContent = '';
 
-        if (!title || title.length < 3) {
-            if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.';
-            return;
-        }
-        if (title.length > 100) {
-            if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.';
-            return;
-        }
-        if (!text || text.length < 10) {
-            if (errorDiv) errorDiv.textContent = '💡 Suggestion must be at least 10 characters.';
-            return;
-        }
-        if (text.length > 2000) {
-            if (errorDiv) errorDiv.textContent = '💡 Suggestion must be under 2000 characters.';
-            return;
-        }
+        if (!title || title.length < 3) { if (errorDiv) errorDiv.textContent = '📌 Title must be at least 3 characters.'; return; }
+        if (title.length > 100) { if (errorDiv) errorDiv.textContent = '📌 Title must be under 100 characters.'; return; }
+        if (!text || text.length < 10) { if (errorDiv) errorDiv.textContent = '💡 Suggestion must be at least 10 characters.'; return; }
+        if (text.length > 2000) { if (errorDiv) errorDiv.textContent = '💡 Suggestion must be under 2000 characters.'; return; }
 
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Submitting...';
-        }
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Submitting...'; }
 
         db.collection('suggestions').add({
-            title: title,
-            text: text,
-            userId: currentUser.uid,
+            title: title, text: text, userId: currentUser.uid,
             userName: currentUserData ? currentUserData.name : 'Anonymous',
-            status: 'pending',
-            upvotes: 0,
-            upvotedBy: [],
+            status: 'pending', upvotes: 0, upvotedBy: [],
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(function() {
@@ -367,51 +219,27 @@
         });
     }
 
-    // ============================================
-    // LOAD SUGGESTIONS
-    // ============================================
     function loadSuggestions() {
         var container = document.getElementById('suggestionsContainer');
         if (!container) return;
-
         container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading suggestions...</div>';
-
         db.collection('suggestions').orderBy('createdAt', 'desc').get()
             .then(function(snapshot) {
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><div class="big-emoji">💡</div><h3>No suggestions yet</h3><p style="color:var(--text-muted);">Be the first to share an idea!</p></div>';
-                    return;
-                }
-
-                // Load user upvotes
+                if (snapshot.empty) { container.innerHTML = '<div class="empty-state"><div class="big-emoji">💡</div><h3>No suggestions yet</h3><p style="color:var(--text-muted);">Be the first to share an idea!</p></div>'; return; }
                 if (currentUser) {
                     return db.collection('users').doc(currentUser.uid).collection('upvotes').get()
-                        .then(function(upvoteSnap) {
-                            userUpvotes = {};
-                            upvoteSnap.forEach(function(doc) { userUpvotes[doc.id] = true; });
-                            return snapshot;
-                        });
+                        .then(function(upvoteSnap) { userUpvotes = {}; upvoteSnap.forEach(function(doc) { userUpvotes[doc.id] = true; }); return snapshot; });
                 }
                 return snapshot;
             })
             .then(function(snapshot) {
                 var html = '';
-                snapshot.forEach(function(doc) {
-                    var s = doc.data();
-                    s.id = doc.id;
-                    html += renderSuggestion(s);
-                });
+                snapshot.forEach(function(doc) { var s = doc.data(); s.id = doc.id; html += renderSuggestion(s); });
                 container.innerHTML = html;
             })
-            .catch(function(err) {
-                console.error('Load error:', err);
-                container.innerHTML = '<div class="empty-state"><span class="big-emoji">⚠️</span><h3>Error</h3><p style="color:var(--text-muted);">'+err.message+'</p><button class="btn btn-primary" onclick="loadSuggestions()" style="margin-top:10px;">🔄 Retry</button></div>';
-            });
+            .catch(function(err) { container.innerHTML = '<div class="empty-state"><span class="big-emoji">⚠️</span><h3>Error</h3><p style="color:var(--text-muted);">'+err.message+'</p><button class="btn btn-primary" onclick="loadSuggestions()" style="margin-top:10px;">🔄 Retry</button></div>'; });
     }
 
-    // ============================================
-    // RENDER SUGGESTION
-    // ============================================
     function renderSuggestion(s) {
         var time = s.createdAt ? s.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true }) : 'Recently';
         var statusClass = s.status === 'approved' ? 'sugg-status-approved' : s.status === 'rejected' ? 'sugg-status-rejected' : 'sugg-status-pending';
@@ -419,122 +247,45 @@
         var upvotes = s.upvotes || 0;
         var hasVoted = userUpvotes[s.id];
         var canVote = currentUser && s.userId !== currentUser.uid;
-
-        return '<div class="suggestion-item">'+
-            '<div class="sugg-title">'+escapeHTML(s.title || 'Untitled')+'</div>'+
-            '<div class="sugg-meta">'+
-                '<span>✍️ '+escapeHTML(s.userName || 'Anonymous')+'</span>'+
-                '<span>📅 '+time+'</span>'+
-                '<span class="sugg-status '+statusClass+'">'+statusLabel+'</span>'+
-                '<span>👍 '+upvotes+' upvotes</span>'+
-            '</div>'+
-            '<div class="sugg-text">'+escapeHTML(s.text || '')+'</div>'+
-            (canVote ? '<div style="margin-top:8px;"><button class="upvote-btn'+(hasVoted?' voted':'')+'" onclick="upvoteSuggestion(\''+s.id+'\')">👍<span class="count">'+upvotes+'</span></button></div>' : '')+
-        '</div>';
+        return '<div class="suggestion-item"><div class="sugg-title">'+escapeHTML(s.title || 'Untitled')+'</div><div class="sugg-meta"><span>✍️ '+escapeHTML(s.userName || 'Anonymous')+'</span><span>📅 '+time+'</span><span class="sugg-status '+statusClass+'">'+statusLabel+'</span><span>👍 '+upvotes+' upvotes</span></div><div class="sugg-text">'+escapeHTML(s.text || '')+'</div>'+(canVote ? '<div style="margin-top:8px;"><button class="upvote-btn'+(hasVoted?' voted':'')+'" onclick="upvoteSuggestion(\''+s.id+'\')">👍<span class="count">'+upvotes+'</span></button></div>' : '')+'</div>';
     }
 
-    // ============================================
-    // UPVOTE
-    // ============================================
     function upvoteSuggestion(suggId) {
         if (!currentUser) { alert('Please log in to vote.'); return; }
-
         var hasVoted = userUpvotes[suggId];
         var suggRef = db.collection('suggestions').doc(suggId);
         var userUpvoteRef = db.collection('users').doc(currentUser.uid).collection('upvotes').doc(suggId);
-
         if (hasVoted) {
-            // Remove upvote
             suggRef.update({ upvotes: firebase.firestore.FieldValue.increment(-1), upvotedBy: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) })
-                .then(function() {
-                    userUpvotes[suggId] = false;
-                    return userUpvoteRef.delete();
-                })
+                .then(function() { userUpvotes[suggId] = false; return userUpvoteRef.delete(); })
                 .then(function() { loadSuggestions(); })
                 .catch(function(err) { console.error('Upvote error:', err); });
         } else {
-            // Add upvote
             suggRef.update({ upvotes: firebase.firestore.FieldValue.increment(1), upvotedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) })
-                .then(function() {
-                    userUpvotes[suggId] = true;
-                    return userUpvoteRef.set({ suggestionId: suggId, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                })
+                .then(function() { userUpvotes[suggId] = true; return userUpvoteRef.set({ suggestionId: suggId, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); })
                 .then(function() { loadSuggestions(); })
                 .catch(function(err) { console.error('Upvote error:', err); });
         }
     }
 
-    // ============================================
-    // INIT
-    // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Counters
-        document.getElementById('suggestionTitle')?.addEventListener('input', function() {
-            document.getElementById('titleCount').textContent = this.value.length;
-        });
-        document.getElementById('suggestionText')?.addEventListener('input', function() {
-            document.getElementById('textCount').textContent = this.value.length;
-        });
-
-        // Auth wait
-        var check = setInterval(function() {
-            if (typeof currentUser !== 'undefined') {
-                clearInterval(check);
-                applyGuestRestrictions();
-                loadSuggestions();
-            }
-        }, 100);
-
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged(function(user) {
-                setTimeout(function() { applyGuestRestrictions(); loadSuggestions(); }, 300);
-            });
-        }
-
-        // Modal
+        document.getElementById('suggestionTitle')?.addEventListener('input', function() { document.getElementById('titleCount').textContent = this.value.length; });
+        document.getElementById('suggestionText')?.addEventListener('input', function() { document.getElementById('textCount').textContent = this.value.length; });
+        var check = setInterval(function() { if (typeof currentUser !== 'undefined') { clearInterval(check); applyGuestRestrictions(); loadSuggestions(); } }, 100);
+        if (typeof auth !== 'undefined') { auth.onAuthStateChanged(function(user) { setTimeout(function() { applyGuestRestrictions(); loadSuggestions(); }, 300); }); }
         document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
         document.getElementById('authPassword')?.addEventListener('input', function() {
-            var pwd = this.value;
-            var sd = document.getElementById('passwordStrength');
-            if (!sd) return;
-            if (!pwd) { sd.innerHTML=''; return; }
-            if (typeof checkPasswordStrength === 'function') {
-                var r = checkPasswordStrength(pwd);
-                sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>';
-            }
+            var sd = document.getElementById('passwordStrength'); if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; }
+            if (typeof checkPasswordStrength === 'function') { var r = checkPasswordStrength(this.value); sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>'; }
         });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); }
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // ===== TERMS CHECKBOX FIX (#1) =====
+        document.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); } if (e.key === 'Escape') closeModal(); });
         (function() {
-            const termsCheckbox = document.getElementById('termsCheckbox');
-            const authSubmitBtn = document.getElementById('authSubmitBtn');
-            if (termsCheckbox && authSubmitBtn) {
-                const toggleBtn = () => {
-                    const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                    if (isSignup) {
-                        authSubmitBtn.disabled = !termsCheckbox.checked;
-                        authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                        authSubmitBtn.style.cursor = termsCheckbox.checked ? 'pointer' : 'not-allowed';
-                    } else {
-                        authSubmitBtn.disabled = false;
-                        authSubmitBtn.style.opacity = '1';
-                        authSubmitBtn.style.cursor = 'pointer';
-                    }
-                };
-                termsCheckbox.addEventListener('change', toggleBtn);
-                const originalToggle = toggleAuthMode;
-                window.toggleAuthMode = function() {
-                    originalToggle();
-                    setTimeout(toggleBtn, 100);
-                };
-                toggleBtn();
+            const tc = document.getElementById('termsCheckbox'), sb = document.getElementById('authSubmitBtn');
+            if (tc && sb) {
+                var toggle = function() { var isSignup = document.getElementById('signupFields')?.style.display !== 'none'; sb.disabled = isSignup ? !tc.checked : false; sb.style.opacity = isSignup && !tc.checked ? '0.5' : '1'; };
+                tc.addEventListener('change', toggle); var orig = toggleAuthMode; window.toggleAuthMode = function() { orig(); setTimeout(toggle, 100); }; toggle();
             }
         })();
-
         console.log('✅ Suggest page ready');
     });
     </script>
