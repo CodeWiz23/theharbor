@@ -153,7 +153,7 @@
 
     function applyGuestRestrictions() {
         var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-        document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+        document.querySelectorAll('.guest-only').forEach(el => { if (el.hasAttribute('hidden')) return; el.style.display = isLoggedIn ? '' : 'none'; });
         document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
         var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
     }
