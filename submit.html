@@ -121,28 +121,26 @@
 <body>
     <!-- Header -->
     <header class="header" role="banner">
-        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
-        <div class="header-right">
-            <a href="index.html" class="btn btn-ghost guest-only">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-feed active guest-only" aria-current="page">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span id="userName">Friend</span>
-                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
-            </div>
+    <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
+    <div class="header-right">
+        <a href="index.html" class="nav-icon active guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+        <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+        <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+        <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
+        <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+        <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+        <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+        <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+        <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+        <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+        <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+        <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+        <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
+            <span id="userName">Friend</span>
+            <span id="verificationBadge" class="verification-badge">⏳</span>
         </div>
-    </header>
+    </div>
+</header>
 
     <div id="emergencyBanner" role="alert"></div>
 
