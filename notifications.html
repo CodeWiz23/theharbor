@@ -24,6 +24,7 @@
 
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -75,25 +76,28 @@
         .notif-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
         .notif-item.unread { background: #f0f9ff; border-left: 3px solid var(--primary); }
 
-        .notif-icon {
-            font-size: 1.5rem;
-            min-width: 36px;
-            text-align: center;
-            flex-shrink: 0;
-        }
+        .notif-icon { font-size: 1.5rem; min-width: 36px; text-align: center; flex-shrink: 0; }
         .notif-content { flex: 1; min-width: 0; }
         .notif-content .message { color: var(--text-primary); font-size: 0.95rem; font-weight: 500; }
         .notif-content .time { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
         .notif-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--primary);
-            flex-shrink: 0;
-            margin-top: 6px;
-            display: none;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--primary); flex-shrink: 0; margin-top: 6px; display: none;
         }
         .notif-item.unread .notif-dot { display: block; }
+
+        /* Notification badge in header */
+        .notification-badge {
+            display: none;
+            position: absolute;
+            top: -6px; right: -6px;
+            background: #dc2626; color: white;
+            font-size: 0.65rem; font-weight: 700;
+            min-width: 18px; height: 18px;
+            border-radius: 9px;
+            align-items: center; justify-content: center;
+            padding: 0 4px;
+        }
 
         @media (max-width: 768px) {
             .notif-header h1 { font-size: 1.4rem; }
@@ -122,7 +126,10 @@
             <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
             <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
             <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-feed active guest-only" aria-current="page">🔔 Notifications</a>
+            <a href="notifications.html" class="btn btn-feed active guest-only" aria-current="page" style="position:relative;">
+                🔔 Notifications
+                <span class="notification-badge" id="headerNotifBadge">0</span>
+            </a>
             <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
             <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
             <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
@@ -184,7 +191,6 @@
 
             container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading notifications...</div>';
 
-            // Unsubscribe previous listener
             if (notificationsUnsubscribe) notificationsUnsubscribe();
 
             notificationsUnsubscribe = db.collection('notifications')
@@ -260,9 +266,7 @@
         }
 
         function handleNotifClick(notifId, linkUrl) {
-            // Mark as read
             db.collection('notifications').doc(notifId).update({ read: true }).catch(() => {});
-            // Navigate
             if (linkUrl && linkUrl !== '#') {
                 window.location.href = linkUrl;
             }
@@ -270,25 +274,18 @@
 
         function markAllRead() {
             if (!currentUser) return;
-            // Get all unread notifications and update them
             db.collection('notifications')
                 .where('toUid', '==', currentUser.uid)
                 .where('read', '==', false)
                 .get()
                 .then(snapshot => {
                     var batch = db.batch();
-                    snapshot.forEach(doc => {
-                        batch.update(doc.ref, { read: true });
-                    });
+                    snapshot.forEach(doc => { batch.update(doc.ref, { read: true }); });
                     return batch.commit();
-                })
-                .then(() => {
-                    // The real-time listener will update the UI automatically
                 })
                 .catch(err => console.error('Mark all read error:', err));
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             applyGuestRestrictions();
             var check = setInterval(function() {
