@@ -174,18 +174,62 @@
             }
         });
 
-        // Gear menu
+        // Gear menu toggle
         function toggleGearMenu(storyId, event) {
             event.stopPropagation();
             document.querySelectorAll('.gear-dropdown.show').forEach(d => { if (d.dataset.storyId !== storyId) d.classList.remove('show'); });
             const dropdown = document.querySelector(`.gear-dropdown[data-story-id="${storyId}"]`);
             if (dropdown) dropdown.classList.toggle('show');
         }
+
+        // Close all gear menus
+        function closeAllGearMenus() {
+            document.querySelectorAll('.gear-dropdown.show').forEach(d => d.classList.remove('show'));
+        }
+
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.gear-menu-container')) {
-                document.querySelectorAll('.gear-dropdown.show').forEach(d => d.classList.remove('show'));
+                closeAllGearMenus();
             }
         });
+
+        // ===== OVERRIDE renderStoryCard TO ADD GEAR MENU ON FEED =====
+        const origRender = window.renderStoryCard;
+        if (typeof origRender === 'function') {
+            window.renderStoryCard = function(story) {
+                let cardHTML = origRender(story);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cardHTML;
+                const card = tempDiv.querySelector('.story-card');
+                if (card) {
+                    const isOwner = currentUser && story.userId === currentUser.uid;
+                    const isAdmin = currentUserData && currentUserData.isAdmin === true;
+
+                    // Remove old individual buttons that are now in gear menu
+                    const actions = card.querySelector('.story-card-actions');
+                    if (actions) {
+                        const toRemove = actions.querySelectorAll('.card-btn-edit, .card-btn-delete, .card-btn-visibility, .card-btn-report');
+                        toRemove.forEach(btn => btn.remove());
+                    }
+
+                    // Add gear menu container
+                    const gearContainer = document.createElement('div');
+                    gearContainer.className = 'gear-menu-container';
+                    gearContainer.innerHTML = `
+                        <button class="gear-icon" onclick="event.stopPropagation();toggleGearMenu('${story.id}', event)" title="Options">⚙️</button>
+                        <div class="gear-dropdown" data-story-id="${story.id}">
+                            ${isOwner ? `<button onclick="event.stopPropagation();openEditModal('${story.id}');closeAllGearMenus()">✏️ Edit Story</button>` : ''}
+                            ${isOwner ? `<button onclick="event.stopPropagation();toggleVisibility('${story.id}');closeAllGearMenus()">🔒 Change Visibility</button>` : ''}
+                            ${isOwner ? `<button class="danger" onclick="event.stopPropagation();deleteStory('${story.id}');closeAllGearMenus()">🗑️ Delete Story</button>` : ''}
+                            ${isAdmin && !isOwner ? `<button class="danger" onclick="event.stopPropagation();deleteStory('${story.id}');closeAllGearMenus()">🗑️ Admin Delete</button>` : ''}
+                            ${currentUser && !isOwner ? `<button onclick="event.stopPropagation();reportStory('${story.id}');closeAllGearMenus()">🚩 Report Story</button>` : ''}
+                        </div>
+                    `;
+                    card.appendChild(gearContainer);
+                }
+                return tempDiv.innerHTML;
+            };
+        }
 
         window.addEventListener('beforeunload', function() {
             sessionStorage.setItem('feedScrollPos', window.scrollY);
