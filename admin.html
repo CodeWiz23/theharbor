@@ -25,6 +25,7 @@
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
+    <script src="js/notifications.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
@@ -93,7 +94,7 @@
             <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
             <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
             <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
-            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" aria-current="page" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
             <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
             <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
             <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
@@ -227,7 +228,7 @@
         if (item.type === 'story') { content = '<div class="title">📖 '+escapeHTML(item.title||'Untitled')+'</div><div class="meta">✍️ '+(item.isAnonymous?'Anonymous':escapeHTML(item.authorName||'Unknown'))+' · 📅 '+time+(item.flagged?' <span style="color:#d97706;">⚠️ Flagged</span>':'')+'</div>'+(item.flagReason?'<div class="flag-reason">🚩 '+escapeHTML(item.flagReason)+'</div>':'')+'<div class="content">'+escapeHTML((item.text||'').substring(0,300))+(item.text&&item.text.length>300?'...':'')+'</div><div class="actions"><button class="btn-sm btn-sm-success" onclick="approveItem(\'story\',\''+item.id+'\')">✅ Approve</button><button class="btn-sm btn-sm-danger" onclick="deleteItem(\'story\',\''+item.id+'\')">🗑️ Delete</button></div>'; }
         else if (item.type === 'comment') { content = '<div class="title">💬 Comment</div><div class="meta">✍️ '+(item.isAnonymous?'Anonymous':escapeHTML(item.authorName||'Unknown'))+' · 📅 '+time+(item.flagged?' <span style="color:#d97706;">⚠️ Flagged</span>':'')+'</div><div class="content">'+escapeHTML(item.text||'')+'</div><div class="actions"><button class="btn-sm btn-sm-success" onclick="approveItem(\'comment\',\''+item.id+'\')">✅ Approve</button><button class="btn-sm btn-sm-danger" onclick="deleteItem(\'comment\',\''+item.id+'\')">🗑️ Delete</button></div>'; }
         else if (item.type === 'suggestion') { var sc = item.status==='pending'?'status-pending':item.status==='approved'?'status-approved':'status-rejected'; var sl = item.status==='pending'?'⏳ Pending':item.status==='approved'?'✅ Approved':'❌ Rejected'; content = '<div class="title">💡 '+escapeHTML(item.title||'Untitled')+'</div><div class="meta">✍️ '+escapeHTML(item.userName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+sc+'">'+sl+'</span> 👍 '+(item.upvotes||0)+' upvotes</div><div class="content">'+escapeHTML(item.text||'')+'</div><div class="actions">'+(item.status!=='approved'?'<button class="btn-sm btn-sm-success" onclick="updateSuggestion(\''+item.id+'\',\'approved\')">✅ Approve</button>':'')+(item.status!=='rejected'?'<button class="btn-sm btn-sm-danger" onclick="updateSuggestion(\''+item.id+'\',\'rejected\')">❌ Reject</button>':'')+(item.status!=='pending'?'<button class="btn-sm btn-sm-warning" onclick="updateSuggestion(\''+item.id+'\',\'pending\')">⏳ Reopen</button>':'')+'</div>'; }
-        else if (item.type === 'report') { var rc = item.status==='pending'?'status-pending':'status-resolved'; var rl = item.status==='pending'?'⏳ Pending':'✅ Resolved'; content = '<div class="title">📢 Report</div><div class="meta">👤 '+escapeHTML(item.reporterName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+rc+'">'+rl+'</span></div><div class="flag-reason">🚩 '+escapeHTML(item.reason||'No reason')+'</div>'+(item.storyTitle?'<div class="content">📌 Story: '+escapeHTML(item.storyTitle)+'</div>':'')+(item.commentText?'<div class="content">💬 '+escapeHTML((item.commentText||'').substring(0,200))+'</div>':'')+'<div class="actions">'+(item.status!=='resolved'?'<button class="btn-sm btn-sm-success" onclick="resolveReport(\''+item.id+'\')">✅ Resolve</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="deleteItem(\'report\',\''+item.id+'\')">🗑️ Dismiss</button>'+'</div>'; }
+        else if (item.type === 'report') { var rc = item.status==='pending'?'status-pending':'status-resolved'; var rl = item.status==='pending'?'⏳ Pending':'✅ Resolved'; content = '<div class="title">📢 Report</div><div class="meta">👤 '+escapeHTML(item.reporterName||'Anonymous')+' · 📅 '+time+' <span class="status-badge '+rc+'">'+rl+'</span></div><div class="flag-reason">🚩 '+escapeHTML(item.reason||'No reason')+'</div>'+(item.storyTitle?'<div class="content">📌 Story: '+escapeHTML(item.storyTitle)+'</div>':'')+(item.commentText?'<div class="content">💬 '+escapeHTML((item.commentText||'').substring(0,200))+'</div>':'')+'<div class="actions">'+(item.status!=='resolved'?'<button class="btn-sm btn-sm-success" onclick="resolveReport(\''+item.id+'\')">✅ Resolve</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="deleteItem(\'report\',\''+item.id+'\')">🗑️ Dismiss</button></div>'; }
         return '<div class="mod-item">'+content+'</div>';
     }
 
@@ -238,8 +239,28 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         applyGuestRestrictions();
-        var check = setInterval(function() { if (typeof currentUser !== 'undefined') { clearInterval(check); loadAdminPanel(); } }, 100);
-        if (typeof auth !== 'undefined') { auth.onAuthStateChanged(function() { applyGuestRestrictions(); loadAdminPanel(); }); }
+        // Wait for auth to be ready, then load panel
+        var check = setInterval(function() {
+            if (typeof currentUser !== 'undefined') {
+                clearInterval(check);
+                if (currentUser) { loadAdminPanel(); }
+            }
+        }, 100);
+        if (typeof auth !== 'undefined') {
+            auth.onAuthStateChanged(function(user) {
+                if (user) {
+                    // Reload user data to check isAdmin
+                    db.collection('users').doc(user.uid).get().then(function(doc) {
+                        if (doc.exists) {
+                            currentUserData = doc.data();
+                            updateAdminLink();
+                            loadAdminPanel();
+                        }
+                    });
+                }
+                applyGuestRestrictions();
+            });
+        }
         document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this)closeModal(); });
         document.getElementById('authPassword')?.addEventListener('input', function() { var sd = document.getElementById('passwordStrength'); if (!sd || !this.value) { if(sd) sd.innerHTML=''; return; } if (typeof checkPasswordStrength === 'function') { var r = checkPasswordStrength(this.value); sd.innerHTML = '<div style="margin-top:6px;font-size:0.85rem;">Strength: <span style="color:'+r.color+';font-weight:700;">'+r.strength+'</span></div>'; } });
         document.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var m = document.getElementById('authModal'); if(m&&m.classList.contains('active'))handleAuth(); } if (e.key === 'Escape') closeModal(); });
