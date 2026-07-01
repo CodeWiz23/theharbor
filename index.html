@@ -80,7 +80,7 @@
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="nav-icon active guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="index.html" class="nav-icon active guest-only" style="display:none;" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
             <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
             <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
             <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
@@ -194,10 +194,17 @@
             var tooltip = document.createElement('span');
             tooltip.className = 'tab-info-tooltip show';
             tooltip.textContent = text;
+            // Position above the icon, centered
             tooltip.style.left = rect.left + (rect.width / 2) + 'px';
-            tooltip.style.top = (rect.top - 10) + 'px';
+            tooltip.style.top = (rect.top - 12) + 'px';
             tooltip.style.transform = 'translate(-50%, -100%)';
+            // Keep tooltip within screen edges
+            tooltip.style.maxWidth = Math.min(260, window.innerWidth - 20) + 'px';
             document.body.appendChild(tooltip);
+            // Adjust if goes off left/right edges
+            var tooltipRect = tooltip.getBoundingClientRect();
+            if (tooltipRect.left < 5) { tooltip.style.left = '5px'; tooltip.style.transform = 'translate(0, -100%)'; }
+            if (tooltipRect.right > window.innerWidth - 5) { tooltip.style.left = (window.innerWidth - 5) + 'px'; tooltip.style.transform = 'translate(-100%, -100%)'; }
             setTimeout(function() { tooltip.remove(); }, 2500);
         }
         document.addEventListener('click', function(e) {
