@@ -28,102 +28,50 @@
     <script src="js/app.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/gold.js"></script>
+    <script src="js/notifications.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .feed-hero { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 2.2rem 2rem; text-align: center; border-radius: var(--radius-xl); margin: 1.2rem 0; }
-        .feed-hero h1 { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; }
+        .feed-hero { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 2rem; text-align: center; border-radius: var(--radius-xl); margin: 1rem 0; }
+        .feed-hero h1 { font-size: 1.8rem; font-weight: 400; }
         .feed-hero h1 span { font-weight: 700; color: var(--secondary); }
-        .feed-hero p { font-size: 1rem; opacity: 0.85; margin-top: 4px; }
-        .feed-hero-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
-        .feed-hero-actions .btn { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .feed-hero-actions .btn:hover { background: rgba(255,255,255,0.22); }
-        .feed-hero-actions .btn-primary-action { background: var(--secondary); border-color: var(--secondary); font-weight: 600; }
-        .feed-search { max-width: 520px; margin: -14px auto 20px; padding: 0 1rem; position: relative; z-index: 10; }
-        .feed-search input { width: 100%; padding: 13px 20px; border: 2px solid var(--border-color); border-radius: 9999px; font-size: 0.9rem; outline: none; background: var(--bg-card); color: var(--text-primary); transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.04); font-family: inherit; }
-        .feed-search input:focus { border-color: var(--primary); box-shadow: 0 4px 28px rgba(0,0,0,0.08); }
-        .feed-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin: 1.2rem 0 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); }
-        .feed-tab { padding: 0.45rem 1rem; border: none; background: transparent; border-radius: 9999px; font-weight: 500; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary); font-family: inherit; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
-        .feed-tab:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .feed-tab:active { transform: scale(0.96); }
-        .feed-tab.active { background: var(--primary); color: white; font-weight: 600; }
-        .tab-info-icon { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,0.25); font-size: 9px; font-weight: 700; cursor: help; flex-shrink: 0; }
-        .feed-tab.active .tab-info-icon { background: rgba(255,255,255,0.35); }
-        .story-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.3rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--border-color); transition: all 0.2s ease; position: relative; }
-        .story-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
-        .story-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .story-card-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; cursor: pointer; transition: transform 0.15s; z-index: 2; position: relative; }
-        .story-card-avatar:hover { transform: scale(1.1); }
-        .story-card-author-info { flex: 1; min-width: 0; }
-        .story-card-author-name { font-weight: 600; color: var(--primary); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; z-index: 2; position: relative; }
-        .story-card-author-name:hover { text-decoration: underline; }
-        .story-card-time { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
-        .story-card-badges { display: flex; gap: 5px; flex-shrink: 0; }
-        .badge-visibility { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; white-space: nowrap; }
-        .badge-visibility.public { background: #dcfce7; color: #16a34a; }
-        .badge-visibility.followers { background: #dbeafe; color: #1e40af; }
-        .badge-visibility.private { background: #fef3c7; color: #d97706; }
-        .badge-gold { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; white-space: nowrap; }
-        .badge-yours { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; background: var(--bg-secondary); color: var(--secondary); font-weight: 600; white-space: nowrap; }
-        .story-card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3; cursor: pointer; transition: color 0.2s; z-index: 2; position: relative; }
-        .story-card-title:hover { color: var(--primary); }
-        .story-card-category { display: inline-block; font-size: 0.7rem; padding: 2px 10px; border-radius: 9999px; background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; border: 1px solid var(--border-color); }
-        .story-card-excerpt { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.65; margin-bottom: 8px; word-wrap: break-word; }
-        .story-card-readmore { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; font-size: 0.82rem; padding: 0; font-family: inherit; z-index: 2; position: relative; }
-        .story-card-readmore:hover { text-decoration: underline; }
-        .story-card-full { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); }
-        .story-card-full.show { display: block; }
-        .story-card-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); position: relative; z-index: 2; }
-        .reaction-mini { padding: 3px 9px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.85rem; transition: all 0.15s ease; font-family: inherit; display: inline-flex; align-items: center; gap: 3px; }
-        .reaction-mini:hover { background: var(--border-color); transform: scale(1.03); }
-        .reaction-mini:active { transform: scale(0.95); }
-        .reaction-mini:disabled { opacity: 0.5; cursor: not-allowed; }
-        .reaction-mini.reacted { background: #dcfce7; border-color: #16a34a; }
-        .reaction-mini .count { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
-        .card-action-btn { padding: 3px 10px; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; position: relative; z-index: 2; }
-        .card-action-btn:hover { transform: translateY(-1px); }
-        .card-action-btn:active { transform: scale(0.95); }
-        .card-btn-comment { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; }
-        .card-btn-gold { background: linear-gradient(135deg,#f1c40f,#f39c12); color: white; font-weight: 700; }
-        .guest-message { display: none; background: #fef9e7; border-left: 4px solid var(--warning); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 16px; color: #92400e; font-size: 0.9rem; }
+        .feed-hero p { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
 
-        .gear-menu-container { position: absolute; top: 12px; right: 12px; z-index: 10; }
-        .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; }
-        .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .gear-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 160px; overflow: hidden; }
-        .gear-dropdown.show { display: block; }
-        .gear-dropdown button { display: block; width: 100%; padding: 8px 14px; text-align: left; background: none; border: none; font-size: 0.85rem; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: background 0.15s; font-family: inherit; }
-        .gear-dropdown button:hover { background: var(--bg-secondary); }
-        .gear-dropdown button.danger { color: var(--danger); }
-        .gear-dropdown button.danger:hover { background: #fee2e2; }
+        .feed-search { max-width: 500px; margin: -8px auto 16px; padding: 0 1rem; }
+        .feed-search input { width: 100%; padding: 11px 18px; border: 2px solid var(--border-color); border-radius: 9999px; font-size: 0.9rem; outline: none; background: var(--bg-card); color: var(--text-primary); transition: all 0.2s; font-family: inherit; }
+        .feed-search input:focus { border-color: var(--primary); box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
 
-        @media (max-width: 768px) { .feed-hero { padding: 1.5rem 1rem; } .feed-hero h1 { font-size: 1.5rem; } .story-card { padding: 1rem 1.1rem; } .story-card-title { font-size: 1rem; } }
-        @media (max-width: 480px) { .feed-hero { padding: 1.2rem 0.8rem; margin: 0.6rem 0; border-radius: var(--radius-lg); } .feed-hero h1 { font-size: 1.3rem; } .feed-tabs { overflow-x: auto; flex-wrap: nowrap; gap: 3px; -webkit-overflow-scrolling: touch; scrollbar-width: none; } .feed-tabs::-webkit-scrollbar { display: none; } .feed-tab { font-size: 0.7rem; padding: 0.3rem 0.7rem; flex-shrink: 0; } .story-card { padding: 0.8rem 0.9rem; margin-bottom: 0.7rem; } .story-card-avatar { width: 34px; height: 34px; font-size: 0.85rem; } .story-card-title { font-size: 0.95rem; } .story-card-actions { gap: 4px; } .reaction-mini { font-size: 0.78rem; padding: 2px 7px; } .card-action-btn { font-size: 0.68rem; padding: 2px 7px; } }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin: var(--space-xl) 0; flex-wrap: wrap; }
+        .pagination button { padding: 0.4rem 0.9rem; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); font-family: inherit; }
+        .pagination button.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .page-info { padding: 0.4rem 0.8rem; color: var(--text-muted); font-size: 0.85rem; }
+
+        @media (max-width: 768px) { .feed-hero { padding: 1.4rem 1rem; border-radius: var(--radius-lg); } .feed-hero h1 { font-size: 1.4rem; } }
+        @media (max-width: 480px) { .feed-hero { padding: 1rem 0.8rem; margin: 0.4rem 0; } .feed-hero h1 { font-size: 1.2rem; } }
     </style>
 </head>
 
 <body>
+    <!-- HEADER WITH ICON DOCK -->
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
-            <a href="index.html" class="btn btn-feed active guest-only" aria-current="page">🏠 Feed</a>
-            <a href="about.html" class="btn btn-ghost">🌿 About</a>
-            <a href="submit.html" class="btn btn-ghost guest-only">📝 Share</a>
-            <a href="profile.html" class="btn btn-ghost guest-only">👤 Profile</a>
-            <a href="suggest.html" class="btn btn-ghost guest-only">💡 Suggest</a>
-            <a href="activity.html" class="btn btn-ghost guest-only">📊 Activity</a>
-            <a href="notifications.html" class="btn btn-ghost guest-only">🔔 Notifications</a>
-            <a href="leaderboard.html" class="btn btn-ghost guest-only">🏆 Leaderboard</a>
-            <a href="daily-rewards.html" class="btn btn-ghost guest-only">🎁 Daily</a>
-            <a href="admin.html" class="btn btn-ghost guest-only" id="adminNavLink" style="display:none;">👑 Admin</a>
-            <button class="btn-settings guest-only" onclick="toggleSidebar()" title="Settings" aria-label="Settings">⚙️</button>
-            <button class="btn btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="nav-icon active guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
+            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
+            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
+            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
+            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
+            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
+            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
+            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
+            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
+            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
+            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
+            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
                 <span id="userName">Friend</span>
-                <span id="userGenderBadge" style="font-size:0.75rem;padding:2px 10px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted);"></span>
-                <span id="verificationBadge" class="verification-badge">⏳ Unverified</span>
+                <span id="verificationBadge" class="verification-badge">⏳</span>
             </div>
         </div>
     </header>
@@ -135,11 +83,6 @@
         <section class="feed-hero">
             <h1>⚓ Welcome to <span>The Harbor</span></h1>
             <p>A safe place to share, heal, and grow — together.</p>
-            <div class="feed-hero-actions">
-                <a href="activity.html" class="btn guest-only">📊 Activity</a>
-                <a href="submit.html" class="btn btn-primary-action guest-only">📝 Share Your Story</a>
-                <a href="about.html" class="btn">🌿 Learn More</a>
-            </div>
         </section>
     </div>
 
@@ -147,12 +90,12 @@
 
     <div class="container">
         <div class="feed-tabs guest-only" id="categoryTabs">
-            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All</button>
-            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men's Harbor</button>
-            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women's Harbor</button>
-            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 The Storm</button>
-            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny Skies</button>
-            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 The Compass</button>
+            <button class="feed-tab active" data-category="all" onclick="switchCategory('all')">🌊 All <span class="tab-info-icon" tabindex="0" onclick="event.stopPropagation();showCategoryTooltip(event,'Browse every story from all harbor categories')">?</span></button>
+            <button class="feed-tab" data-category="men" onclick="switchCategory('men')" id="tabMen">🧔 Men <span class="tab-info-icon" tabindex="0" onclick="event.stopPropagation();showCategoryTooltip(event,'A dedicated space for men to share and support each other')">?</span></button>
+            <button class="feed-tab" data-category="women" onclick="switchCategory('women')" id="tabWomen">👩 Women <span class="tab-info-icon" tabindex="0" onclick="event.stopPropagation();showCategoryTooltip(event,'A safe harbor for women to connect and share')">?</span></button>
+            <button class="feed-tab" data-category="struggles" onclick="switchCategory('struggles')">🌊 Storm <span class="tab-info-icon" tabindex="0" onclick="event.stopPropagation();showCategoryTooltip(event,'Share your struggles and find support. Open to everyone.')">?</span></button>
+            <button class="feed-tab" data-category="fun" onclick="switchCategory('fun')">☀️ Sunny <span class="tab-info-icon" tabindex="0" onclick="event.stopPropagation();showCategoryTooltip(event,'Celebrate victories and spread positivity. Open to everyone.')">?</span></button>
+            <button class="feed-tab" data-category="learning" onclick="switchCategory('learning')">🧭 Compass <span class="tab-info-icon" tabindex="0" onclick="event.stopPropagation();showCategoryTooltip(event,'Life lessons, wisdom, and growth. Open to everyone.')">?</span></button>
         </div>
 
         <div id="storiesContainer"><div class="loading"><div class="loading-spinner"></div> Loading stories...</div></div>
@@ -173,11 +116,9 @@
                 <label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select>
                 <label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist>
                 <label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." />
-                <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;position:relative;z-index:10;">
-                    <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--primary);" />
-                    <label for="termsCheckbox" style="font-weight:500;font-size:0.9rem;cursor:pointer;user-select:none;">
-                        I agree to the <a href="terms.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> <span style="color:var(--danger);">*</span>
-                    </label>
+                <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;">
+                    <input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;" />
+                    <label for="termsCheckbox" style="font-size:0.85rem;cursor:pointer;">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label>
                 </div>
             </div>
             <button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button>
@@ -189,7 +130,7 @@
     <!-- Edit Modal -->
     <div class="modal" id="editModal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeEditModal()" aria-label="Close">&times;</button>
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
             <h2>✏️ Edit Story</h2>
             <label for="editTitle">Title</label><input type="text" id="editTitle" />
             <label for="editContent">Content</label><textarea id="editContent" rows="6"></textarea>
@@ -201,19 +142,45 @@
     <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
-            <a href="activity.html" class="guest-only">📊 Activity</a><a href="about.html">🌿 About</a><a href="submit.html" class="guest-only">📝 Share Story</a><a href="profile.html" class="guest-only">👤 Profile</a><a href="emergency.html">🆘 Emergency</a><a href="suggest.html" class="guest-only">💡 Suggest</a><a href="privacy.html">🔒 Privacy</a><a href="terms.html">📜 Terms</a>
+            <a href="about.html">🌿 About</a>
+            <a href="submit.html" class="guest-only">📝 Share</a>
+            <a href="profile.html" class="guest-only">👤 Profile</a>
+            <a href="emergency.html">🆘 Emergency</a>
+            <a href="suggest.html" class="guest-only">💡 Suggest</a>
+            <a href="privacy.html">🔒 Privacy</a>
+            <a href="terms.html">📜 Terms</a>
         </div>
         <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
     <script>
+        // Category tooltip
+        function showCategoryTooltip(event, text) {
+            event.stopPropagation();
+            const icon = event.target;
+            const existing = icon.querySelector('.tab-info-tooltip');
+            if (existing) { existing.remove(); return; }
+            const tooltip = document.createElement('span');
+            tooltip.className = 'tab-info-tooltip show';
+            tooltip.textContent = text;
+            icon.style.position = 'relative';
+            icon.appendChild(tooltip);
+            setTimeout(() => tooltip.remove(), 2500);
+            document.querySelectorAll('.tab-info-tooltip').forEach(t => { if (t !== tooltip) t.remove(); });
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.tab-info-icon')) {
+                document.querySelectorAll('.tab-info-tooltip').forEach(t => t.remove());
+            }
+        });
+
+        // Gear menu
         function toggleGearMenu(storyId, event) {
             event.stopPropagation();
             document.querySelectorAll('.gear-dropdown.show').forEach(d => { if (d.dataset.storyId !== storyId) d.classList.remove('show'); });
             const dropdown = document.querySelector(`.gear-dropdown[data-story-id="${storyId}"]`);
             if (dropdown) dropdown.classList.toggle('show');
         }
-
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.gear-menu-container')) {
                 document.querySelectorAll('.gear-dropdown.show').forEach(d => d.classList.remove('show'));
@@ -230,13 +197,8 @@
         if (termsCheckbox && authSubmitBtn) {
             const toggleBtn = () => {
                 const isSignup = document.getElementById('signupFields')?.style.display !== 'none';
-                if (isSignup) {
-                    authSubmitBtn.disabled = !termsCheckbox.checked;
-                    authSubmitBtn.style.opacity = termsCheckbox.checked ? '1' : '0.5';
-                } else {
-                    authSubmitBtn.disabled = false;
-                    authSubmitBtn.style.opacity = '1';
-                }
+                authSubmitBtn.disabled = isSignup ? !termsCheckbox.checked : false;
+                authSubmitBtn.style.opacity = isSignup && !termsCheckbox.checked ? '0.5' : '1';
             };
             termsCheckbox.addEventListener('change', toggleBtn);
             toggleBtn();
