@@ -245,8 +245,7 @@
         <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
     </footer>
 
-    <script>
-        // ✅ REMOVED: var currentEditId = null; (already in app.js)
+        <script>
         var selectedAvatar = '👤';
         var selectedBorder = 'default';
         var profileFollowers = [];
@@ -255,7 +254,7 @@
         var profileUserId = null;
         var followInProgress = false;
 
-        // ✅ FIX #1: Anti-flash
+        // Anti-flash
         (function() {
             var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
             if (wasLoggedIn === 'true') {
@@ -287,7 +286,6 @@
             if (adminLink) adminLink.style.display = (isLoggedIn && currentUserData && currentUserData.isAdmin === true) ? '' : 'none';
         }
 
-        // ✅ FIX #2,3,4: Instant follow with no reload
         function profileFollowUser(targetUid) {
             if (!currentUser) return;
             if (targetUid === currentUser.uid) return;
@@ -296,8 +294,6 @@
             var isCurrentlyFollowing = isFollowingUser(targetUid);
             followInProgress = true;
             if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
-            
-            // Instant UI update
             if (currentUserData) {
                 if (isCurrentlyFollowing) {
                     currentUserData.following = (currentUserData.following || []).filter(function(uid) { return uid !== targetUid; });
@@ -316,8 +312,6 @@
             var followerCountEl = document.querySelector('.stat-item.clickable .num');
             if (followerCountEl) followerCountEl.textContent = profileFollowers.length;
             if (typeof updateSidebarData === 'function') updateSidebarData();
-            
-            // Background Firestore sync
             var userRef = db.collection('users').doc(currentUser.uid);
             var targetRef = db.collection('users').doc(targetUid);
             db.runTransaction(function(transaction) {
@@ -344,7 +338,6 @@
             return currentUserData.following && currentUserData.following.includes(targetUid);
         }
 
-        // ✅ FIX #9: Report with clean modal
         function profileReportUser(userId) {
             if (!currentUser || userId === currentUser.uid) return;
             if (typeof openConfirmModal === 'function') {
@@ -467,9 +460,11 @@
                     storiesHtml = stories.map(function(story) {
                         var catNames = {men:"🧔 Men's Harbor",women:"👩 Women's Harbor",struggles:'🌊 The Storm',fun:'☀️ Sunny Skies',learning:'🧭 The Compass'};
                         var st = story.createdAt ? story.createdAt.toDate().toLocaleDateString() : 'Recently';
-                        var visChecked = story.visibility === 'public' ? 'checked' : '';
-                        var gearMenu = isSelf ? '<div class="gear-menu-container"><button class="gear-icon" onclick="event.stopPropagation(); toggleStoryGear(\''+story.id+'\')">⚙️</button><div class="gear-dropdown" id="gear-'+story.id+'"><button onclick="event.stopPropagation(); editStoryInline(\''+story.id+'\')">✏️ Edit</button><div class="visibility-row"><span>Visibility</span><label class="toggle-switch"><input type="checkbox" '+visChecked+' onchange="event.stopPropagation(); toggleStoryVisibilityUI(\''+story.id+'\', this)"><span class="toggle-slider"></span></label></div><button class="danger" onclick="event.stopPropagation(); deleteStoryConfirm(\''+story.id+'\')">🗑️ Delete</button></div></div>' : '';
-                        return '<div class="story-item" onclick="window.location.href=\'story.html?id='+story.id+'\'">'+gearMenu+'<div class="stitle">'+escapeHTML(story.title)+'</div><div class="smeta"><span class="scat">'+(catNames[story.category]||story.category)+'</span><span>📅 '+st+'</span><span>💬 '+(story.commentCount||0)+'</span>'+(story.isAnonymous?' 🕊️':'')+'</div><div class="stext">'+escapeHTML((story.text||'').substring(0,100))+((story.text||'').length>100?'...':'')+'</div></div>';
+                        var currentVis = story.visibility === 'public';
+                        var visChecked = currentVis ? 'checked' : '';
+                        var visLabel = currentVis ? '🌍 Public' : '🔒 Private';
+                        var gearMenu = isSelf ? '<div class="gear-menu-container" style="z-index:30;"><button class="gear-icon" onclick="event.stopPropagation(); toggleStoryGear(\''+story.id+'\')">⚙️</button><div class="gear-dropdown" id="gear-'+story.id+'" style="z-index:50;overflow:visible;"><button onclick="event.stopPropagation(); editStoryInline(\''+story.id+'\')">✏️ Edit</button><div class="visibility-row"><span>'+visLabel+'</span><label class="toggle-switch"><input type="checkbox" '+visChecked+' onchange="event.stopPropagation(); toggleStoryVisibilityUI(\''+story.id+'\', this)"><span class="toggle-slider"></span></label></div><button class="danger" onclick="event.stopPropagation(); deleteStoryConfirm(\''+story.id+'\')">🗑️ Delete</button></div></div>' : '';
+                        return '<div class="story-item" onclick="window.location.href=\'story.html?id='+story.id+'\'" style="overflow:visible;">'+gearMenu+'<div class="stitle">'+escapeHTML(story.title)+'</div><div class="smeta"><span class="scat">'+(catNames[story.category]||story.category)+'</span><span>📅 '+st+'</span><span>💬 '+(story.commentCount||0)+'</span>'+(story.isAnonymous?' 🕊️':'')+'</div><div class="stext">'+escapeHTML((story.text||'').substring(0,100))+((story.text||'').length>100?'...':'')+'</div></div>';
                     }).join('');
                 }
             }
@@ -542,17 +537,31 @@
             db.collection('stories').doc(currentEditId).update({title:t, text:c, updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function() { closeEditModal(); loadProfile(); }).catch(function(e) { err.textContent = e.message; });
         }
 
+        // ✅ FIXED: Visibility toggle — reads current state, updates with label change
         function toggleStoryVisibilityUI(storyId, checkbox) {
             if (!currentUser) return;
             var newVis = checkbox.checked ? 'public' : 'private';
-            db.collection('stories').doc(storyId).update({ visibility: newVis }).catch(function(e) { checkbox.checked = !checkbox.checked; });
+            db.collection('stories').doc(storyId).update({ visibility: newVis }).then(function() {
+                // Update the label in the visibility row
+                var row = checkbox.closest('.visibility-row');
+                if (row) {
+                    var span = row.querySelector('span');
+                    if (span) span.textContent = newVis === 'public' ? '🌍 Public' : '🔒 Private';
+                }
+            }).catch(function(e) {
+                checkbox.checked = !checkbox.checked;
+                console.error('Visibility error:', e);
+            });
         }
 
+        // ✅ FIXED: Delete with clean modal (no confirm fallback needed since sidebar provides openConfirmModal)
         function deleteStoryConfirm(storyId) {
             if (typeof openConfirmModal === 'function') {
-                openConfirmModal('Delete Story', 'Delete permanently?', false, function() { db.collection('stories').doc(storyId).delete().then(function() { loadProfile(); }); });
+                openConfirmModal('Delete Story', 'Are you sure you want to permanently delete this story?', false, function() {
+                    db.collection('stories').doc(storyId).delete().then(function() { loadProfile(); }).catch(function(e) { alert('❌ ' + e.message); });
+                });
             } else {
-                if (!confirm('Delete?')) return;
+                if (!confirm('Delete this story?')) return;
                 db.collection('stories').doc(storyId).delete().then(function() { loadProfile(); });
             }
         }
