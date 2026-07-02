@@ -1,9 +1,10 @@
 // ============================================
-// SIDEBAR CONTROLS - FINAL FIXED (v3)
+// SIDEBAR CONTROLS - FINAL FIXED (v4 - Clean Modals)
 // ============================================
 
 let isSidebarOpen = false;
 let sidebarOverlay = null;
+let settingsModalCallback = null;
 
 // ============================================
 // THEME MANAGEMENT
@@ -22,14 +23,168 @@ function applyTheme(theme) {
         document.documentElement.removeAttribute('data-theme');
         localStorage.setItem('harbor_theme', 'light');
     }
-    const themeBtn = document.getElementById('themeToggleBtn');
+    var themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 }
 
 function toggleTheme() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     applyTheme(isDark ? 'light' : 'dark');
     updateSidebarData();
+}
+
+// ============================================
+// CREATE SETTINGS MODAL (One modal for all settings)
+// ============================================
+function createSettingsModal() {
+    if (document.getElementById('settingsModalOverlay')) return;
+    var overlay = document.createElement('div');
+    overlay.id = 'settingsModalOverlay';
+    overlay.className = 'settings-modal-overlay';
+    overlay.innerHTML = `
+        <div class="settings-modal">
+            <div class="settings-modal-header">
+                <h3 id="settingsModalTitle">Settings</h3>
+                <button class="settings-modal-close" onclick="closeSettingsModal()">✕</button>
+            </div>
+            <div class="settings-modal-body" id="settingsModalBody"></div>
+            <div class="settings-modal-footer">
+                <button class="settings-btn-cancel" onclick="closeSettingsModal()">Cancel</button>
+                <button class="settings-btn-confirm" id="settingsConfirmBtn" onclick="submitSettingsModal()">Save</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    addSettingsModalStyles();
+    overlay.addEventListener('click', function(e) { if (e.target === this) closeSettingsModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSettingsModal(); });
+}
+
+function addSettingsModalStyles() {
+    if (document.getElementById('settingsModalStyles')) return;
+    var style = document.createElement('style');
+    style.id = 'settingsModalStyles';
+    style.textContent = `
+        .settings-modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4000; justify-content:center; align-items:center; backdrop-filter:blur(4px); }
+        .settings-modal-overlay.active { display:flex; }
+        .settings-modal { background:var(--bg-card); border-radius:var(--radius-lg); max-width:420px; width:92%; box-shadow:var(--shadow-xl); border:1px solid var(--border-color); overflow:hidden; animation:modalSlideIn 0.3s ease; }
+        @keyframes modalSlideIn { from { opacity:0; transform:translateY(30px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .settings-modal-header { padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:var(--primary); color:white; }
+        .settings-modal-header h3 { margin:0; font-size:1.1rem; font-weight:500; }
+        .settings-modal-close { background:none; border:none; font-size:1.3rem; cursor:pointer; color:white; padding:2px 6px; border-radius:4px; }
+        .settings-modal-close:hover { background:rgba(255,255,255,0.2); }
+        .settings-modal-body { padding:20px; }
+        .settings-modal-body label { display:block; font-weight:600; color:var(--text-secondary); margin-bottom:6px; font-size:0.85rem; }
+        .settings-modal-body input, .settings-modal-body select { width:100%; padding:10px 14px; border:2px solid var(--border-color); border-radius:var(--radius-md); font-size:0.95rem; font-family:inherit; background:var(--bg-primary); color:var(--text-primary); margin-bottom:14px; transition:border 0.2s; }
+        .settings-modal-body input:focus, .settings-modal-body select:focus { outline:none; border-color:var(--primary); }
+        .settings-modal-body .lang-option { display:flex; align-items:center; gap:10px; padding:10px 14px; border:2px solid var(--border-color); border-radius:var(--radius-md); margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+        .settings-modal-body .lang-option:hover { border-color:var(--primary-light); background:var(--bg-secondary); }
+        .settings-modal-body .lang-option.selected { border-color:var(--primary); background:var(--bg-secondary); }
+        .settings-modal-body .lang-option .flag { font-size:1.5rem; }
+        .settings-modal-body .lang-option .name { font-weight:600; color:var(--text-primary); }
+        .settings-modal-footer { padding:14px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:8px; }
+        .settings-btn-cancel { padding:8px 18px; border:1px solid var(--border-color); border-radius:9999px; background:var(--bg-secondary); color:var(--text-primary); cursor:pointer; font-family:inherit; font-size:0.85rem; }
+        .settings-btn-confirm { padding:8px 18px; border:none; border-radius:9999px; background:var(--primary); color:white; cursor:pointer; font-family:inherit; font-size:0.85rem; font-weight:600; }
+        .settings-btn-confirm:hover { background:var(--primary-light); }
+        .settings-error { color:var(--danger); font-size:0.8rem; margin-top:-8px; margin-bottom:10px; }
+    `;
+    document.head.appendChild(style);
+}
+
+function openSettingsModal(type) {
+    if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
+    createSettingsModal();
+    
+    var overlay = document.getElementById('settingsModalOverlay');
+    var title = document.getElementById('settingsModalTitle');
+    var body = document.getElementById('settingsModalBody');
+    var confirmBtn = document.getElementById('settingsConfirmBtn');
+    
+    if (type === 'name') {
+        title.textContent = '✏️ Change Username';
+        body.innerHTML = '<label>👤 New Username</label><input type="text" id="settingsInput" value="' + (currentUserData.name || '') + '" placeholder="Enter new username..." maxlength="30"><div class="settings-error" id="settingsError"></div>';
+        settingsModalCallback = function() {
+            var newName = document.getElementById('settingsInput').value.trim();
+            var errEl = document.getElementById('settingsError');
+            if (!newName || newName.length < 2) { errEl.textContent = 'Username must be at least 2 characters.'; return; }
+            db.collection('users').where('name','==',newName).get().then(function(snap) {
+                if (!snap.empty && snap.docs[0].id !== currentUser.uid) { errEl.textContent = 'Username already taken.'; return; }
+                return db.collection('users').doc(currentUser.uid).update({ name: newName });
+            }).then(function() {
+                if (!currentUserData) return;
+                currentUserData.name = newName;
+                var el = document.getElementById('userName');
+                if (el) el.textContent = newName;
+                updateSidebarData();
+                closeSettingsModal();
+                alert('✅ Username updated!');
+            }).catch(function(err) { errEl.textContent = err.message; });
+        };
+    } else if (type === 'password') {
+        title.textContent = '🔑 Change Password';
+        body.innerHTML = '<label>Current Password</label><input type="password" id="settingsCurrentPwd" placeholder="Enter current password..."><label>New Password</label><input type="password" id="settingsNewPwd" placeholder="Min 6 characters..."><label>Confirm New Password</label><input type="password" id="settingsConfirmPwd" placeholder="Re-enter new password..."><div class="settings-error" id="settingsError"></div>';
+        settingsModalCallback = function() {
+            var cp = document.getElementById('settingsCurrentPwd').value;
+            var np = document.getElementById('settingsNewPwd').value;
+            var cmp = document.getElementById('settingsConfirmPwd').value;
+            var errEl = document.getElementById('settingsError');
+            if (!cp) { errEl.textContent = 'Enter current password.'; return; }
+            if (!np || np.length < 6) { errEl.textContent = 'New password must be 6+ characters.'; return; }
+            if (np !== cmp) { errEl.textContent = 'Passwords do not match.'; return; }
+            var credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, cp);
+            currentUser.reauthenticateWithCredential(credential)
+                .then(function() { return currentUser.updatePassword(np); })
+                .then(function() { closeSettingsModal(); alert('✅ Password updated!'); })
+                .catch(function(err) { errEl.textContent = err.code === 'auth/wrong-password' ? 'Incorrect current password.' : err.message; });
+        };
+    } else if (type === 'language') {
+        title.textContent = '🌍 Select Language';
+        var currentLang = localStorage.getItem('harbor_language') || 'en';
+        var langs = [
+            { code: 'en', flag: '🇺🇸', name: 'English' },
+            { code: 'es', flag: '🇪🇸', name: 'Español' },
+            { code: 'fr', flag: '🇫🇷', name: 'Français' }
+        ];
+        body.innerHTML = langs.map(function(l) {
+            return '<div class="lang-option' + (l.code === currentLang ? ' selected' : '') + '" data-lang="' + l.code + '" onclick="selectLangOption(\'' + l.code + '\')"><span class="flag">' + l.flag + '</span><span class="name">' + l.name + '</span></div>';
+        }).join('');
+        confirmBtn.textContent = 'Apply';
+        settingsModalCallback = function() {
+            var selected = document.querySelector('.lang-option.selected');
+            if (selected) {
+                var lang = selected.getAttribute('data-lang');
+                if (typeof changeLanguage === 'function') {
+                    changeLanguage(lang);
+                } else {
+                    localStorage.setItem('harbor_language', lang);
+                }
+                var langEl = document.getElementById('sidebarCurrentLang');
+                if (langEl) {
+                    var ln = { en: 'English', es: 'Español', fr: 'Français' };
+                    var lf = { en: '🇺🇸', es: '🇪🇸', fr: '🇫🇷' };
+                    langEl.textContent = (lf[lang] || '') + ' ' + (ln[lang] || lang);
+                }
+                closeSettingsModal();
+            }
+        };
+    }
+    
+    overlay.classList.add('active');
+}
+
+function selectLangOption(code) {
+    document.querySelectorAll('.lang-option').forEach(function(el) { el.classList.remove('selected'); });
+    var el = document.querySelector('.lang-option[data-lang="' + code + '"]');
+    if (el) el.classList.add('selected');
+}
+
+function submitSettingsModal() {
+    if (settingsModalCallback) settingsModalCallback();
+}
+
+function closeSettingsModal() {
+    var overlay = document.getElementById('settingsModalOverlay');
+    if (overlay) overlay.classList.remove('active');
+    settingsModalCallback = null;
 }
 
 // ============================================
@@ -37,12 +192,12 @@ function toggleTheme() {
 // ============================================
 function createSidebar() {
     if (document.getElementById('sidebarOverlay')) return;
-    const currentTheme = getCurrentTheme();
-    const currentLang = localStorage.getItem('harbor_language') || 'en';
-    const langNames = { en: 'English', es: 'Español', fr: 'Français' };
-    const langFlags = { en: '🇺🇸', es: '🇪🇸', fr: '🇫🇷' };
+    var currentTheme = getCurrentTheme();
+    var currentLang = localStorage.getItem('harbor_language') || 'en';
+    var langNames = { en: 'English', es: 'Español', fr: 'Français' };
+    var langFlags = { en: '🇺🇸', es: '🇪🇸', fr: '🇫🇷' };
 
-    const overlay = document.createElement('div');
+    var overlay = document.createElement('div');
     overlay.id = 'sidebarOverlay';
     overlay.className = 'sidebar-overlay';
     overlay.innerHTML = `
@@ -91,7 +246,7 @@ function createSidebar() {
 
 function addSidebarStyles() {
     if (document.getElementById('sidebarStyles')) return;
-    const style = document.createElement('style');
+    var style = document.createElement('style');
     style.id = 'sidebarStyles';
     style.textContent = `
         .sidebar-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:flex-end; backdrop-filter:blur(4px); }
@@ -148,17 +303,17 @@ function toggleSidebar() { isSidebarOpen ? closeSidebar() : openSidebar(); }
 function updateSidebarData() {
     if (!currentUser || !currentUserData) return;
     
-    const goldEl = document.getElementById('sidebarGoldBalance');
+    var goldEl = document.getElementById('sidebarGoldBalance');
     if (goldEl) goldEl.textContent = currentUserData.goldBalance || 0;
-    const storyEl = document.getElementById('sidebarStoryCount');
+    var storyEl = document.getElementById('sidebarStoryCount');
     if (storyEl) storyEl.textContent = currentUserData.storyCount || 0;
-    const followerEl = document.getElementById('sidebarFollowerCount');
+    var followerEl = document.getElementById('sidebarFollowerCount');
     if (followerEl) followerEl.textContent = (currentUserData.followers || []).length;
-    const followingEl = document.getElementById('sidebarFollowingCount');
+    var followingEl = document.getElementById('sidebarFollowingCount');
     if (followingEl) followingEl.textContent = (currentUserData.following || []).length;
-    const goldRecEl = document.getElementById('sidebarGoldReceived');
+    var goldRecEl = document.getElementById('sidebarGoldReceived');
     if (goldRecEl) goldRecEl.textContent = currentUserData.goldReceived || 0;
-    const themeBtn = document.getElementById('themeToggleBtn');
+    var themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.textContent = getCurrentTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
     db.collection('stories').where('userId', '==', currentUser.uid).get()
@@ -168,78 +323,13 @@ function updateSidebarData() {
                 var reactions = doc.data().reactions || {};
                 total += (reactions['❤️'] || 0);
             });
-            const likesEl = document.getElementById('sidebarLikesReceived');
+            var likesEl = document.getElementById('sidebarLikesReceived');
             if (likesEl) likesEl.textContent = total;
         })
         .catch(function() {
-            const likesEl = document.getElementById('sidebarLikesReceived');
+            var likesEl = document.getElementById('sidebarLikesReceived');
             if (likesEl) likesEl.textContent = currentUserData.likesReceived || 0;
         });
-}
-
-// ============================================
-// SETTINGS MODALS (CLEAN UI - NO MORE PROMPTS)
-// ============================================
-function openSettingsModal(type) {
-    if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
-    
-    if (type === 'name') {
-        showSettingsPrompt('Change Username', 'Enter your new username:', currentUserData.name || '', function(newName) {
-            if (!newName || newName.length < 2) { alert('Username must be at least 2 characters.'); return; }
-            db.collection('users').where('name','==',newName.trim()).get().then(function(snap) {
-                if (!snap.empty && snap.docs[0].id !== currentUser.uid) { alert('❌ Username taken.'); return; }
-                return db.collection('users').doc(currentUser.uid).update({ name: newName.trim() });
-            }).then(function() {
-                if (!currentUserData) return;
-                currentUserData.name = newName.trim();
-                var el = document.getElementById('userName');
-                if (el) el.textContent = newName.trim();
-                updateSidebarData();
-                alert('✅ Username updated!');
-            }).catch(function(err) { alert('❌ ' + err.message); });
-        });
-    } else if (type === 'password') {
-        showSettingsPrompt('Change Password', 'Enter your current password:', '', 'password', function(currentPwd) {
-            if (!currentPwd) return;
-            showSettingsPrompt('Change Password', 'Enter new password (min 6 chars):', '', 'password', function(newPwd) {
-                if (!newPwd || newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
-                showSettingsPrompt('Change Password', 'Confirm new password:', '', 'password', function(confirmPwd) {
-                    if (newPwd !== confirmPwd) { alert('Passwords do not match.'); return; }
-                    var credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPwd);
-                    currentUser.reauthenticateWithCredential(credential)
-                        .then(function() { return currentUser.updatePassword(newPwd); })
-                        .then(function() { alert('✅ Password updated!'); })
-                        .catch(function(err) { alert('❌ ' + (err.code === 'auth/wrong-password' ? 'Incorrect current password.' : err.message)); });
-                });
-            });
-        });
-    } else if (type === 'language') {
-        var currentLang = localStorage.getItem('harbor_language') || 'en';
-        var langNames = { en: '🇺🇸 English', es: '🇪🇸 Español', fr: '🇫🇷 Français' };
-        var msg = 'Select language:\n\n1. ' + langNames['en'] + '\n2. ' + langNames['es'] + '\n3. ' + langNames['fr'] + '\n\nCurrent: ' + langNames[currentLang];
-        var choice = prompt(msg, currentLang === 'en' ? '1' : currentLang === 'es' ? '2' : '3');
-        var langMap = { '1': 'en', '2': 'es', '3': 'fr', 'en': 'en', 'es': 'es', 'fr': 'fr' };
-        var selected = langMap[choice] || langMap[choice?.toLowerCase()];
-        if (selected && ['en','es','fr'].includes(selected)) {
-            if (typeof changeLanguage === 'function') {
-                changeLanguage(selected);
-                var langEl = document.getElementById('sidebarCurrentLang');
-                if (langEl) langEl.textContent = (langNames[selected] || selected);
-            } else {
-                localStorage.setItem('harbor_language', selected);
-                alert('Language set to ' + selected + '. Please refresh.');
-            }
-        } else if (choice) {
-            alert('Invalid language.');
-        }
-    }
-}
-
-// Simple prompt replacement using browser prompt (cleaner than before with validation)
-function showSettingsPrompt(title, msg, defaultValue, inputType, callback) {
-    if (!inputType) inputType = 'text';
-    var value = prompt(title + '\n\n' + msg, defaultValue || '');
-    if (callback && value !== null) callback(value.trim());
 }
 
 // ============================================
@@ -290,5 +380,8 @@ window.toggleTheme = toggleTheme;
 window.openSettingsModal = openSettingsModal;
 window.viewGoldHistory = viewGoldHistory;
 window.updateSidebarData = updateSidebarData;
+window.selectLangOption = selectLangOption;
+window.submitSettingsModal = submitSettingsModal;
+window.closeSettingsModal = closeSettingsModal;
 
-console.log('📂 Sidebar module loaded (v3, suggest link added)');
+console.log('📂 Sidebar module loaded (v4, clean modals)');
