@@ -50,15 +50,19 @@
         .comment-badge{font-size:.6rem;padding:2px 8px;border-radius:9999px;font-weight:600}.comment-badge.pinned{background:#fef3c7;color:#d97706}
         .comment-like-btn{background:0 0;border:1px solid var(--border-color);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.75rem;font-family:inherit;transition:all .15s}
         .comment-like-btn:hover{background:var(--bg-secondary)}.comment-like-btn.liked{color:#e74c3c;font-weight:700;border-color:#e74c3c;background:#fef2f2}
-        /* ✅ FIX #4: Reduced margins for nested replies on mobile */
-        .reply-thread{margin-left:20px;border-left:2px solid var(--border-color);padding-left:10px}
+        /* ✅ Nested reply margins with depth classes */
+        .reply-thread{margin-left:18px;border-left:2px solid var(--border-color);padding-left:8px}
+        .reply-thread.depth-0{margin-left:18px;padding-left:8px}
+        .reply-thread.depth-1{margin-left:16px;padding-left:7px}
+        .reply-thread.depth-2{margin-left:14px;padding-left:6px}
+        .reply-thread.depth-3{margin-left:12px;padding-left:5px}
+        .reply-thread.depth-4,.reply-thread.depth-5{margin-left:10px;padding-left:4px}
         .reply-toggle{background:0 0;border:none;color:var(--primary);cursor:pointer;font-size:.7rem;font-weight:600;font-family:inherit;padding:2px 0}
         .reply-input-area{margin-top:6px;display:none}.reply-input-area.active{display:block}.reply-input-area textarea{width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:var(--radius-sm);font-size:.8rem;font-family:inherit;resize:vertical;min-height:40px;background:var(--bg-secondary);color:var(--text-primary)}
         .max-depth-msg{font-size:.7rem;color:var(--text-muted);font-style:italic;padding:4px 0}
         .floating-emoji{position:fixed;font-size:3rem;pointer-events:none;z-index:9999;animation:floatUpAnim 1.5s ease-out forwards}
         @keyframes floatUpAnim{0%{opacity:1;transform:translateY(0) scale(.5) rotate(0)}50%{opacity:1;transform:translateY(-150px) scale(1.3) rotate(20deg)}100%{opacity:0;transform:translateY(-350px) scale(1) rotate(-10deg)}}
         .meta-author-link{cursor:pointer;color:var(--primary);font-weight:600}
-        /* ✅ FIX #3: Report/Delete confirm modal */
         .confirm-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:3000;display:none;justify-content:center;align-items:center}
         .confirm-overlay.active{display:flex}
         .confirm-box{background:var(--bg-card);padding:1.5rem;border-radius:var(--radius-lg);max-width:400px;width:90%;box-shadow:var(--shadow-xl);border:1px solid var(--border-color);text-align:center}
@@ -70,17 +74,20 @@
         .confirm-box .btn-danger{background:var(--danger);color:#fff;border:none;padding:7px 18px;border-radius:9999px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600}
         @media(max-width:768px){
             .story-full{padding:1.1rem}.story-full .story-title{font-size:1.3rem;padding-right:32px}.story-full .story-text{font-size:.95rem}.comment-section{padding:1.1rem}
-            /* ✅ FIX #4: Tighter nested replies on mobile */
-            .reply-thread{margin-left:10px;padding-left:6px}
-            .reply-thread .reply-thread{margin-left:6px;padding-left:4px}
-            .reply-thread .reply-thread .reply-thread{margin-left:4px;padding-left:2px;border-left:1px solid var(--border-color)}
+            .reply-thread{margin-left:10px;padding-left:5px;border-left-width:1px}
+            .reply-thread.depth-0{margin-left:10px;padding-left:5px}
+            .reply-thread.depth-1{margin-left:8px;padding-left:4px}
+            .reply-thread.depth-2{margin-left:6px;padding-left:3px}
+            .reply-thread.depth-3{margin-left:4px;padding-left:2px}
+            .reply-thread.depth-4,.reply-thread.depth-5{margin-left:2px;padding-left:2px;border-left:1px dotted var(--border-color)}
         }
         @media(max-width:480px){
             .story-full{padding:.8rem;border-radius:var(--radius-lg)}.story-full .story-title{font-size:1.1rem;padding-right:28px}.reaction-btn{font-size:.8rem;padding:3px 7px}.story-action-bar{gap:3px}.comment{padding:8px 10px}.gear-menu-container{top:5px;right:5px}.gear-icon{font-size:.85rem;padding:3px 5px}
-            /* ✅ FIX #4: Even tighter on small screens */
-            .reply-thread{margin-left:8px;padding-left:4px;border-left-width:1px}
-            .reply-thread .reply-thread{margin-left:4px;padding-left:2px}
-            .reply-thread .reply-thread .reply-thread,.reply-thread .reply-thread .reply-thread .reply-thread,.reply-thread .reply-thread .reply-thread .reply-thread .reply-thread{margin-left:2px;padding-left:2px;border-left:1px dotted var(--border-color)}
+            .reply-thread{margin-left:8px;padding-left:4px}
+            .reply-thread.depth-0{margin-left:8px;padding-left:4px}
+            .reply-thread.depth-1{margin-left:6px;padding-left:3px}
+            .reply-thread.depth-2{margin-left:4px;padding-left:2px}
+            .reply-thread.depth-3,.reply-thread.depth-4,.reply-thread.depth-5{margin-left:2px;padding-left:1px;border-left:1px dotted var(--border-color)}
         }
     </style>
 </head>
@@ -120,7 +127,6 @@
         </div>
         <div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
     </div>
-    <!-- ✅ FIX #3: Report/Delete Confirm Modal -->
     <div class="confirm-overlay" id="confirmOverlay">
         <div class="confirm-box">
             <h3 id="confirmTitle">Confirm</h3>
@@ -168,7 +174,6 @@
             }
         })();
 
-        // ✅ FIX #3: Confirm modal helpers
         function openConfirmModal(title, msg, showTextarea, callback) {
             document.getElementById('confirmTitle').textContent = title;
             document.getElementById('confirmMsg').textContent = msg;
@@ -264,7 +269,6 @@
         function updateReactionUI(storyId, emoji, hasReacted, btn) { if (btn) btn.disabled = false; var cs = document.getElementById('count-' + storyId + '-' + emoji); if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent) || 0) - 1 : (parseInt(cs.textContent) || 0) + 1; if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); } reactionLocks[storyId + '_' + emoji] = false; }
         function loadUserReactionsForStory(storyId) { if (!currentUser) return; db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(function(doc) { if (doc.exists) { userReactions[storyId] = doc.data().emojis || []; ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(function(e) { var btn = document.getElementById('reaction-' + storyId + '-' + e); if (btn && userReactions[storyId].indexOf(e) !== -1) btn.classList.add('reacted'); }); } }).catch(function() {}); }
 
-        // ✅ FIX #1: Scroll only once
         function loadCommentsRealtime(storyId) {
             var container = document.getElementById('commentsContainer'); if (!container) return; if (commentsUnsubscribe) commentsUnsubscribe();
             container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
@@ -305,18 +309,20 @@
             }
         }
 
+        // ✅ FIX: CSS-based nesting, no inline margin-left
         function renderCommentTree(comment, allComments, depth) {
             if (depth === undefined) depth = 0; var MAX_DEPTH = 9; if (depth > MAX_DEPTH) return '';
             var childReplies = allComments.filter(function(r) { return r.parentId === comment.id; });
             childReplies.sort(function(a, b) { return (a.createdAt && a.createdAt.toDate && a.createdAt.toDate().getTime() || 0) - (b.createdAt && b.createdAt.toDate && b.createdAt.toDate().getTime() || 0); });
             var repliesHtml = '';
-            if (childReplies.length > 0) { var marginLeft = Math.min(20 + depth * 6, 50); repliesHtml = '<div class="reply-thread" style="margin-left:' + marginLeft + 'px;">' + childReplies.map(function(r) { return renderCommentTree(r, allComments, depth + 1); }).join('') + '</div>'; }
+            if (childReplies.length > 0) {
+                repliesHtml = '<div class="reply-thread depth-'+Math.min(depth,5)+'">' + childReplies.map(function(r) { return renderCommentTree(r, allComments, depth + 1); }).join('') + '</div>';
+            }
             return renderSingleComment(comment, depth > 0, depth) + repliesHtml;
         }
 
         function renderSingleComment(comment, isReply, depth) {
             if (depth === undefined) depth = 0; var MAX_DEPTH = 9, atMaxDepth = depth >= MAX_DEPTH;
-            // ✅ FIX #2: Use stored author name
             var author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
             var time = comment.createdAt && comment.createdAt.toDate ? comment.createdAt.toDate().toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true}) : 'Recently';
             var likes = comment.likes || 0;
@@ -334,7 +340,6 @@
 
         function toggleReplyBox(commentId, authorName) { var area = document.getElementById('reply-area-' + commentId); if (area) { document.querySelectorAll('.reply-input-area.active').forEach(function(other) { if (other.id !== 'reply-area-' + commentId) other.classList.remove('active'); }); area.classList.toggle('active'); if (area.classList.contains('active')) { var textarea = document.getElementById('reply-text-' + commentId); if (textarea) { textarea.value = authorName && authorName.trim() !== '' ? '@' + authorName + ' ' : ''; textarea.focus(); textarea.setSelectionRange(textarea.value.length, textarea.value.length); } } } }
 
-        // ✅ FIX #2: Ensure author name is always valid
         function postReply(parentId) {
             if (!currentUser) { alert('Please log in.'); return; }
             var textInput = document.getElementById('reply-text-' + parentId); if (!textInput) return;
@@ -354,6 +359,7 @@
             }).catch(function(err) { console.error('Reply error:', err); });
         }
 
+        // ✅ FIX: Main comment notification includes commentId for scroll-to
         function postComment(parentId) {
             if (!currentUser) { alert('Please log in.'); return; }
             var textInput = document.getElementById('commentText'), anonymousCheck = document.getElementById('commentAnonymous'), error = document.getElementById('commentError'); if (!textInput) return;
@@ -363,8 +369,18 @@
             var bad = ['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
             var flagged = bad.some(function(w) { return rawText.toLowerCase().indexOf(w) !== -1; });
             db.collection('comments').add({storyId:currentStoryId,text:text,userId:currentUser.uid,authorName:authorName,isAnonymous:anonymousCheck?anonymousCheck.checked:false,parentId:parentId||null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),likes:0,isPinned:false,approved:!flagged,flagged:flagged})
-            .then(function() { return db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)}); })
-            .then(function() { if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; } textInput.value = ''; document.getElementById('commentCountDisplay').textContent = '0'; if (flagged) alert('⚠️ Sent for review.'); if (currentStory && currentStory.userId !== currentUser.uid) { addNotification(currentStory.userId, 'comment', {storyId:currentStoryId}); } })
+            .then(function(docRef) {
+                var commentId = docRef.id;
+                return db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)}).then(function() { return commentId; });
+            })
+            .then(function(commentId) {
+                if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
+                textInput.value = ''; document.getElementById('commentCountDisplay').textContent = '0';
+                if (flagged) alert('⚠️ Sent for review.');
+                if (currentStory && currentStory.userId !== currentUser.uid) {
+                    addNotification(currentStory.userId, 'comment', {storyId:currentStoryId, commentId: commentId});
+                }
+            })
             .catch(function(err) { error.textContent = err.message; if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; } });
         }
 
@@ -405,7 +421,6 @@
             }).catch(function(err) { console.error('Like error:', err); commentLikeLocks[cid] = false; if (btn) btn.disabled = false; });
         }
 
-        // ✅ FIX #3: Clean UI for delete and report
         function deleteCommentUI(cid) {
             openConfirmModal('Delete Comment', 'Are you sure you want to delete this comment?', false, function() {
                 db.collection('comments').doc(cid).get().then(function(doc) {
@@ -480,7 +495,7 @@
             document.getElementById('editModal') && document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
             document.getElementById('goldModal') && document.getElementById('goldModal').addEventListener('click', function(e) { if (e.target === this) closeGoldModal(); });
             document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeEditModal(); closeGoldModal(); closeConfirmModal(); } });
-            console.log('✅ Story page ready (4 fixes applied)');
+            console.log('✅ Story page ready');
         });
     </script>
 </body>
