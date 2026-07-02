@@ -132,7 +132,6 @@
         var commentLikeLocks = {};
         var commentsUnsubscribe = null;
         var _hashScrolled = false;
-        var _targetCommentId = null;
         var _confirmCallback = null;
 
         function viewProfile(uid) { if (uid) window.location.href = 'profile.html?uid=' + uid; }
@@ -250,7 +249,7 @@
         function updateReactionUI(storyId, emoji, hasReacted, btn) { if (btn) btn.disabled = false; var cs = document.getElementById('count-' + storyId + '-' + emoji); if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent) || 0) - 1 : (parseInt(cs.textContent) || 0) + 1; if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); } reactionLocks[storyId + '_' + emoji] = false; }
         function loadUserReactionsForStory(storyId) { if (!currentUser) return; db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(function(doc) { if (doc.exists) { userReactions[storyId] = doc.data().emojis || []; ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(function(e) { var btn = document.getElementById('reaction-' + storyId + '-' + e); if (btn && userReactions[storyId].indexOf(e) !== -1) btn.classList.add('reacted'); }); } }).catch(function() {}); }
 
-        // ✅ FINAL FIX: Comments load with persistent hash scroll
+        // ✅ ALL FIXES: Comments newest first, scroll retry with gate
         function loadCommentsRealtime(storyId) {
             var container = document.getElementById('commentsContainer'); if (!container) return; if (commentsUnsubscribe) commentsUnsubscribe();
             container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
@@ -259,14 +258,20 @@
                 var allComments = []; snapshot.forEach(function(doc) { var c = doc.data(); c.id = doc.id; allComments.push(c); });
                 allComments = allComments.filter(function(c) { return c.approved !== false; });
                 var parents = allComments.filter(function(c) { return !c.parentId; });
-                parents.sort(function(a, b) { if (a.isPinned && !b.isPinned) return -1; if (!a.isPinned && b.isPinned) return 1; return (b.likes || 0) - (a.likes || 0); });
+                // ✅ FIX #5: Pinned first, then newest first by timestamp
+                parents.sort(function(a, b) {
+                    if (a.isPinned && !b.isPinned) return -1;
+                    if (!a.isPinned && b.isPinned) return 1;
+                    return (b.createdAt && b.createdAt.toDate && b.createdAt.toDate().getTime() || 0) - (a.createdAt && a.createdAt.toDate && a.createdAt.toDate().getTime() || 0);
+                });
                 document.getElementById('commentCountHeader').textContent = parents.length;
                 var newIds = allComments.map(function(c) { return c.id; }).sort().join(',');
                 var hasChange = (lastCommentIds.join(',') !== newIds) || snapshot.docChanges().some(function(ch) { return ch.type === 'added' || ch.type === 'removed'; });
                 if (hasChange || lastCommentIds.length === 0) {
                     container.innerHTML = parents.map(function(c) { return renderCommentTree(c, allComments, 0); }).join('');
                     lastCommentIds = allComments.map(function(c) { return c.id; }).sort();
-                    setTimeout(scrollToHashComment, 400);
+                    // ✅ FIX #3: Only scroll once, retry if element not found
+                    if (!_hashScrolled) { setTimeout(scrollToHashComment, 400); }
                 } else {
                     snapshot.docChanges().forEach(function(change) {
                         if (change.type === 'modified') {
@@ -279,25 +284,29 @@
             }, function(err) { container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p></div>'; });
         }
 
-        // ✅ FINAL FIX: Scroll sticks to target comment even after DOM rebuilds
+        // ✅ FIX #1, #2, #4: Retry scroll until element exists, then stop forever
+        var _scrollAttempts = 0;
         function scrollToHashComment() {
-            if (window.location.hash && window.location.hash.indexOf('#comment-') === 0) {
-                _targetCommentId = window.location.hash.replace('#comment-', '');
-            }
-            if (_targetCommentId) {
-                var el = document.getElementById('comment-' + _targetCommentId);
-                if (el) {
-                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                    el.style.background = '#fef3c7';
-                    setTimeout(function() { el.style.background = ''; }, 2000);
-                    _hashScrolled = true;
-                }
+            if (!window.location.hash || window.location.hash.indexOf('#comment-') !== 0) return;
+            if (_hashScrolled) return;
+            var commentId = window.location.hash.replace('#comment-', '');
+            var el = document.getElementById('comment-' + commentId);
+            if (el) {
+                _hashScrolled = true;
+                _scrollAttempts = 0;
+                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                el.style.background = '#fef3c7';
+                setTimeout(function() { el.style.background = ''; }, 2000);
+            } else if (_scrollAttempts < 20) {
+                _scrollAttempts++;
+                setTimeout(scrollToHashComment, 300);
             }
         }
 
         function renderCommentTree(comment, allComments, depth) {
             if (depth === undefined) depth = 0; var MAX_DEPTH = 9; if (depth > MAX_DEPTH) return '';
             var childReplies = allComments.filter(function(r) { return r.parentId === comment.id; });
+            // ✅ FIX #6: Replies oldest first within thread
             childReplies.sort(function(a, b) { return (a.createdAt && a.createdAt.toDate && a.createdAt.toDate().getTime() || 0) - (b.createdAt && b.createdAt.toDate && b.createdAt.toDate().getTime() || 0); });
             var repliesHtml = '';
             if (childReplies.length > 0) {
@@ -480,7 +489,7 @@
             document.getElementById('editModal') && document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
             document.getElementById('goldModal') && document.getElementById('goldModal').addEventListener('click', function(e) { if (e.target === this) closeGoldModal(); });
             document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeEditModal(); closeGoldModal(); closeConfirmModal(); } });
-            console.log('✅ Story page ready');
+            console.log('✅ Story page ready - all 6 fixes applied');
         });
     </script>
 </body>
