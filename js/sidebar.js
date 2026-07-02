@@ -365,36 +365,135 @@ function viewGoldHistory() {
         .limit(10)
         .get()
         .then(function(snap) {
-            // MOBILE-FRIENDLY: Better wrapping and smaller font
-            var html = '<div style="margin-bottom:12px;padding:12px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;color:#92400e;font-size:clamp(13px, 3vw, 16px);word-wrap:break-word;overflow-wrap:break-word;">';
-            html += '🪙 Balance: ' + (currentUserData.goldBalance||0);
-            html += '<br>💰 Received: ' + (currentUserData.goldReceived||0);
-            html += ' | 📤 Given: ' + (currentUserData.goldGiven||0);
-            html += '</div>';
+            // PROFESSIONAL GOLD SUMMARY CARD
+            var html = `
+                <div style="
+                    margin-bottom:16px;
+                    padding:16px 12px;
+                    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                    border-radius:12px;
+                    border: 1px solid #f59e0b;
+                    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+                    text-align:center;
+                ">
+                    <div style="
+                        display:grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap:8px;
+                        font-size:clamp(12px, 2.5vw, 14px);
+                        font-weight:600;
+                        color:#78350f;
+                    ">
+                        <div style="background:rgba(255,255,255,0.5);border-radius:8px;padding:10px 4px;">
+                            <div style="font-size:clamp(18px, 4vw, 24px);margin-bottom:2px;">🪙</div>
+                            <div style="font-size:clamp(16px, 3vw, 20px);font-weight:800;color:#92400e;">${currentUserData.goldBalance||0}</div>
+                            <div style="font-size:clamp(9px, 1.8vw, 11px);color:#78350f;opacity:0.8;">BALANCE</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.5);border-radius:8px;padding:10px 4px;">
+                            <div style="font-size:clamp(18px, 4vw, 24px);margin-bottom:2px;">💰</div>
+                            <div style="font-size:clamp(16px, 3vw, 20px);font-weight:800;color:#065f46;">${currentUserData.goldReceived||0}</div>
+                            <div style="font-size:clamp(9px, 1.8vw, 11px);color:#065f46;opacity:0.8;">RECEIVED</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.5);border-radius:8px;padding:10px 4px;">
+                            <div style="font-size:clamp(18px, 4vw, 24px);margin-bottom:2px;">📤</div>
+                            <div style="font-size:clamp(16px, 3vw, 20px);font-weight:800;color:#991b1b;">${currentUserData.goldGiven||0}</div>
+                            <div style="font-size:clamp(9px, 1.8vw, 11px);color:#991b1b;opacity:0.8;">GIVEN</div>
+                        </div>
+                    </div>
+                </div>
+            `;
             
             if (snap.empty) {
-                html += '<p style="text-align:center;color:var(--text-muted);padding:20px;">No transactions yet.</p>';
+                html += '<p style="text-align:center;color:#6b7280;padding:30px 20px;font-size:14px;">No transactions yet. Start sharing gold! 🪙</p>';
             } else {
-                html += '<div style="max-height:300px;overflow-y:auto;padding:0 4px;">';
+                html += '<div style="max-height:350px;overflow-y:auto;padding:0 2px;">';
                 snap.forEach(function(doc) {
                     var d = doc.data();
                     var time = d.createdAt ? d.createdAt.toDate().toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Recently';
-                    html += '<div style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#1f2937;font-size:clamp(13px, 2.8vw, 15px);">';
-                    html += '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;">';
-                    html += '<span style="font-weight:700;color:#4f46e5;font-size:clamp(14px, 3vw, 17px);">' + d.amount + ' 🪙</span>';
-                    html += '<span style="color:#6b7280;">→</span>';
-                    html += '<strong style="color:#1f2937;word-break:break-word;">' + (d.toName||'Someone') + '</strong>';
-                    html += '</div>';
-                    html += '<div style="font-size:clamp(10px, 2.2vw, 12px);color:#6b7280;margin-top:3px;">' + time + '</div>';
-                    if (d.message) html += '<div style="font-size:clamp(11px, 2.4vw, 13px);color:#4b5563;font-style:italic;margin-top:2px;word-break:break-word;">"' + d.message + '"</div>';
-                    html += '</div>';
+                    
+                    // GOLD COIN STYLING
+                    var goldCoinStyle = `
+                        display:inline-flex;
+                        align-items:center;
+                        justify-content:center;
+                        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                        color: #78350f;
+                        font-weight:800;
+                        font-size:clamp(14px, 3vw, 17px);
+                        padding:4px 12px 4px 8px;
+                        border-radius:20px;
+                        border: 1px solid #d97706;
+                        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+                        text-shadow: 0 1px 2px rgba(255,215,0,0.3);
+                    `;
+                    
+                    html += `
+                        <div style="
+                            padding:12px 10px;
+                            margin-bottom:8px;
+                            background: #ffffff;
+                            border-radius:10px;
+                            border: 1px solid #f3f4f6;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+                            transition: all 0.2s;
+                        ">
+                            <div style="
+                                display:flex;
+                                flex-wrap:wrap;
+                                align-items:center;
+                                justify-content:space-between;
+                                gap:6px;
+                            ">
+                                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+                                    <span style="${goldCoinStyle}">
+                                        🪙 ${d.amount}
+                                    </span>
+                                    <span style="color:#6b7280;font-size:clamp(12px, 2.4vw, 14px);">→</span>
+                                    <strong style="
+                                        color:#1f2937;
+                                        font-size:clamp(13px, 2.6vw, 15px);
+                                        word-break:break-word;
+                                        font-weight:600;
+                                    ">${d.toName||'Someone'}</strong>
+                                </div>
+                                <span style="
+                                    font-size:clamp(9px, 1.8vw, 11px);
+                                    color:#6b7280;
+                                    background:#f9fafb;
+                                    padding:3px 10px;
+                                    border-radius:12px;
+                                    white-space:nowrap;
+                                ">${time}</span>
+                            </div>
+                            ${d.message ? `
+                                <div style="
+                                    margin-top:8px;
+                                    padding:8px 12px;
+                                    background:#f9fafb;
+                                    border-radius:8px;
+                                    border-left:3px solid #f59e0b;
+                                    font-size:clamp(11px, 2.2vw, 13px);
+                                    color:#4b5563;
+                                    font-style:italic;
+                                    word-break:break-word;
+                                ">
+                                    "${d.message}"
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
                 });
                 html += '</div>';
             }
             body.innerHTML = html;
         })
         .catch(function() {
-            body.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">Could not load transactions.</p>';
+            body.innerHTML = `
+                <div style="text-align:center;padding:30px 20px;">
+                    <div style="font-size:40px;margin-bottom:10px;">⚠️</div>
+                    <p style="color:#6b7280;font-size:14px;">Could not load transactions. Please try again.</p>
+                </div>
+            `;
         });
     
     settingsModalCallback = function() {
