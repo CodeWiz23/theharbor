@@ -50,13 +50,8 @@
         .comment-badge{font-size:.6rem;padding:2px 8px;border-radius:9999px;font-weight:600}.comment-badge.pinned{background:#fef3c7;color:#d97706}
         .comment-like-btn{background:0 0;border:1px solid var(--border-color);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.75rem;font-family:inherit;transition:all .15s}
         .comment-like-btn:hover{background:var(--bg-secondary)}.comment-like-btn.liked{color:#e74c3c;font-weight:700;border-color:#e74c3c;background:#fef2f2}
-        /* ✅ Nested reply margins with depth classes */
         .reply-thread{margin-left:18px;border-left:2px solid var(--border-color);padding-left:8px}
-        .reply-thread.depth-0{margin-left:18px;padding-left:8px}
-        .reply-thread.depth-1{margin-left:16px;padding-left:7px}
-        .reply-thread.depth-2{margin-left:14px;padding-left:6px}
-        .reply-thread.depth-3{margin-left:12px;padding-left:5px}
-        .reply-thread.depth-4,.reply-thread.depth-5{margin-left:10px;padding-left:4px}
+        .reply-thread.depth-0{margin-left:18px;padding-left:8px}.reply-thread.depth-1{margin-left:16px;padding-left:7px}.reply-thread.depth-2{margin-left:14px;padding-left:6px}.reply-thread.depth-3{margin-left:12px;padding-left:5px}.reply-thread.depth-4,.reply-thread.depth-5{margin-left:10px;padding-left:4px}
         .reply-toggle{background:0 0;border:none;color:var(--primary);cursor:pointer;font-size:.7rem;font-weight:600;font-family:inherit;padding:2px 0}
         .reply-input-area{margin-top:6px;display:none}.reply-input-area.active{display:block}.reply-input-area textarea{width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:var(--radius-sm);font-size:.8rem;font-family:inherit;resize:vertical;min-height:40px;background:var(--bg-secondary);color:var(--text-primary)}
         .max-depth-msg{font-size:.7rem;color:var(--text-muted);font-style:italic;padding:4px 0}
@@ -72,23 +67,8 @@
         .confirm-box .btn-row{display:flex;gap:8px;justify-content:center}
         .confirm-box .btn-cancel{background:var(--bg-secondary);border:1px solid var(--border-color);padding:7px 18px;border-radius:9999px;cursor:pointer;font-family:inherit;font-size:.8rem;color:var(--text-primary)}
         .confirm-box .btn-danger{background:var(--danger);color:#fff;border:none;padding:7px 18px;border-radius:9999px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600}
-        @media(max-width:768px){
-            .story-full{padding:1.1rem}.story-full .story-title{font-size:1.3rem;padding-right:32px}.story-full .story-text{font-size:.95rem}.comment-section{padding:1.1rem}
-            .reply-thread{margin-left:10px;padding-left:5px;border-left-width:1px}
-            .reply-thread.depth-0{margin-left:10px;padding-left:5px}
-            .reply-thread.depth-1{margin-left:8px;padding-left:4px}
-            .reply-thread.depth-2{margin-left:6px;padding-left:3px}
-            .reply-thread.depth-3{margin-left:4px;padding-left:2px}
-            .reply-thread.depth-4,.reply-thread.depth-5{margin-left:2px;padding-left:2px;border-left:1px dotted var(--border-color)}
-        }
-        @media(max-width:480px){
-            .story-full{padding:.8rem;border-radius:var(--radius-lg)}.story-full .story-title{font-size:1.1rem;padding-right:28px}.reaction-btn{font-size:.8rem;padding:3px 7px}.story-action-bar{gap:3px}.comment{padding:8px 10px}.gear-menu-container{top:5px;right:5px}.gear-icon{font-size:.85rem;padding:3px 5px}
-            .reply-thread{margin-left:8px;padding-left:4px}
-            .reply-thread.depth-0{margin-left:8px;padding-left:4px}
-            .reply-thread.depth-1{margin-left:6px;padding-left:3px}
-            .reply-thread.depth-2{margin-left:4px;padding-left:2px}
-            .reply-thread.depth-3,.reply-thread.depth-4,.reply-thread.depth-5{margin-left:2px;padding-left:1px;border-left:1px dotted var(--border-color)}
-        }
+        @media(max-width:768px){.story-full{padding:1.1rem}.story-full .story-title{font-size:1.3rem;padding-right:32px}.story-full .story-text{font-size:.95rem}.comment-section{padding:1.1rem}.reply-thread{margin-left:10px;padding-left:5px;border-left-width:1px}.reply-thread.depth-0{margin-left:10px;padding-left:5px}.reply-thread.depth-1{margin-left:8px;padding-left:4px}.reply-thread.depth-2{margin-left:6px;padding-left:3px}.reply-thread.depth-3{margin-left:4px;padding-left:2px}.reply-thread.depth-4,.reply-thread.depth-5{margin-left:2px;padding-left:2px;border-left:1px dotted var(--border-color)}}
+        @media(max-width:480px){.story-full{padding:.8rem;border-radius:var(--radius-lg)}.story-full .story-title{font-size:1.1rem;padding-right:28px}.reaction-btn{font-size:.8rem;padding:3px 7px}.story-action-bar{gap:3px}.comment{padding:8px 10px}.gear-menu-container{top:5px;right:5px}.gear-icon{font-size:.85rem;padding:3px 5px}.reply-thread{margin-left:8px;padding-left:4px}.reply-thread.depth-0{margin-left:8px;padding-left:4px}.reply-thread.depth-1{margin-left:6px;padding-left:3px}.reply-thread.depth-2{margin-left:4px;padding-left:2px}.reply-thread.depth-3,.reply-thread.depth-4,.reply-thread.depth-5{margin-left:2px;padding-left:1px;border-left:1px dotted var(--border-color)}}
     </style>
 </head>
 <body>
@@ -152,6 +132,7 @@
         var commentLikeLocks = {};
         var commentsUnsubscribe = null;
         var _hashScrolled = false;
+        var _targetCommentId = null;
         var _confirmCallback = null;
 
         function viewProfile(uid) { if (uid) window.location.href = 'profile.html?uid=' + uid; }
@@ -269,6 +250,7 @@
         function updateReactionUI(storyId, emoji, hasReacted, btn) { if (btn) btn.disabled = false; var cs = document.getElementById('count-' + storyId + '-' + emoji); if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent) || 0) - 1 : (parseInt(cs.textContent) || 0) + 1; if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); } reactionLocks[storyId + '_' + emoji] = false; }
         function loadUserReactionsForStory(storyId) { if (!currentUser) return; db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(function(doc) { if (doc.exists) { userReactions[storyId] = doc.data().emojis || []; ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(function(e) { var btn = document.getElementById('reaction-' + storyId + '-' + e); if (btn && userReactions[storyId].indexOf(e) !== -1) btn.classList.add('reacted'); }); } }).catch(function() {}); }
 
+        // ✅ FINAL FIX: Comments load with persistent hash scroll
         function loadCommentsRealtime(storyId) {
             var container = document.getElementById('commentsContainer'); if (!container) return; if (commentsUnsubscribe) commentsUnsubscribe();
             container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
@@ -284,7 +266,7 @@
                 if (hasChange || lastCommentIds.length === 0) {
                     container.innerHTML = parents.map(function(c) { return renderCommentTree(c, allComments, 0); }).join('');
                     lastCommentIds = allComments.map(function(c) { return c.id; }).sort();
-                    if (!_hashScrolled) { setTimeout(scrollToHashComment, 500); _hashScrolled = true; }
+                    setTimeout(scrollToHashComment, 400);
                 } else {
                     snapshot.docChanges().forEach(function(change) {
                         if (change.type === 'modified') {
@@ -297,19 +279,22 @@
             }, function(err) { container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p></div>'; });
         }
 
+        // ✅ FINAL FIX: Scroll sticks to target comment even after DOM rebuilds
         function scrollToHashComment() {
             if (window.location.hash && window.location.hash.indexOf('#comment-') === 0) {
-                var commentId = window.location.hash.replace('#comment-', '');
-                var el = document.getElementById('comment-' + commentId);
+                _targetCommentId = window.location.hash.replace('#comment-', '');
+            }
+            if (_targetCommentId) {
+                var el = document.getElementById('comment-' + _targetCommentId);
                 if (el) {
                     el.scrollIntoView({behavior: 'smooth', block: 'center'});
                     el.style.background = '#fef3c7';
                     setTimeout(function() { el.style.background = ''; }, 2000);
+                    _hashScrolled = true;
                 }
             }
         }
 
-        // ✅ FIX: CSS-based nesting, no inline margin-left
         function renderCommentTree(comment, allComments, depth) {
             if (depth === undefined) depth = 0; var MAX_DEPTH = 9; if (depth > MAX_DEPTH) return '';
             var childReplies = allComments.filter(function(r) { return r.parentId === comment.id; });
@@ -352,6 +337,7 @@
             .then(function() { return db.collection('comments').doc(parentId).update({replyCount:firebase.firestore.FieldValue.increment(1)}); })
             .then(function() {
                 textInput.value = ''; document.getElementById('reply-area-' + parentId).classList.remove('active');
+                if (flagged) { openConfirmModal('⚠️ Content Flagged', 'Your reply contains inappropriate language and has been sent for review.', false, function() {}); }
                 if (currentStory && currentStory.userId !== currentUser.uid) { addNotification(currentStory.userId, 'comment', {storyId:currentStoryId}); }
                 db.collection('comments').doc(parentId).get().then(function(parentDoc) {
                     if (parentDoc.exists) { var parentData = parentDoc.data(); if (parentData.userId && parentData.userId !== currentUser.uid && parentData.userId !== (currentStory ? currentStory.userId : null)) { addNotification(parentData.userId, 'comment_reply', {storyId:currentStoryId, commentId:parentId}); } }
@@ -359,7 +345,6 @@
             }).catch(function(err) { console.error('Reply error:', err); });
         }
 
-        // ✅ FIX: Main comment notification includes commentId for scroll-to
         function postComment(parentId) {
             if (!currentUser) { alert('Please log in.'); return; }
             var textInput = document.getElementById('commentText'), anonymousCheck = document.getElementById('commentAnonymous'), error = document.getElementById('commentError'); if (!textInput) return;
@@ -376,7 +361,7 @@
             .then(function(commentId) {
                 if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; }
                 textInput.value = ''; document.getElementById('commentCountDisplay').textContent = '0';
-                if (flagged) alert('⚠️ Sent for review.');
+                if (flagged) { openConfirmModal('⚠️ Content Flagged', 'Your comment contains inappropriate language and has been sent for review. It will appear once approved by a moderator.', false, function() {}); }
                 if (currentStory && currentStory.userId !== currentUser.uid) {
                     addNotification(currentStory.userId, 'comment', {storyId:currentStoryId, commentId: commentId});
                 }
