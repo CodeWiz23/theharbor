@@ -1,166 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Story — The Harbor</title>
-
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://www.gstatic.com; img-src 'self' data: https:;">
-
-    <script>
-    (function() {
-        var savedTheme = localStorage.getItem('harbor_theme');
-        if (!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    })();
-    </script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81R2FX47H0"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-81R2FX47H0');</script>
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <script src="js/app.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/gold.js"></script>
-    <script src="js/notifications.js"></script>
-
-    <link rel="stylesheet" href="css/style.css" />
-
-    <style>
-        .story-full { background: var(--bg-card); padding: 1.4rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); position: relative; }
-        .story-full .story-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3; padding-right: 36px; }
-        .story-full .story-meta-row { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px; align-items: center; }
-        .story-full .category-badge { background: var(--bg-secondary); padding: 3px 10px; border-radius: 9999px; color: var(--text-secondary); font-weight: 600; font-size: 0.7rem; }
-        .story-full .gold-badge { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; }
-        .story-full .story-text { font-size: 1rem; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; color: var(--text-secondary); }
-        .read-more-btn { background: none; border: none; color: var(--secondary); font-weight: 600; cursor: pointer; padding: 4px 0; font-size: 0.85rem; font-family: inherit; }
-        .story-action-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-color); }
-        .reaction-btn { padding: 4px 10px; border: 1px solid var(--border-color); border-radius: 9999px; background: var(--bg-secondary); cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
-        .reaction-btn:hover { background: var(--border-color); }
-        .reaction-btn:active { transform: scale(0.95); }
-        .reaction-btn.reacted { background: #dcfce7; border-color: #16a34a; }
-        .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .reaction-btn .count { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
-
-        .gear-menu-container { position: absolute; top: 8px; right: 8px; z-index: 10; }
-        .gear-icon { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 1rem; color: var(--text-muted); transition: all 0.2s; }
-        .gear-icon:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .gear-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 160px; overflow: hidden; z-index: 20; }
-        .gear-dropdown.show { display: block; }
-        .gear-dropdown button { display: block; width: 100%; padding: 7px 12px; text-align: left; background: none; border: none; font-size: 0.8rem; font-weight: 500; color: var(--text-primary); cursor: pointer; font-family: inherit; transition: background 0.15s; }
-        .gear-dropdown button:hover { background: var(--bg-secondary); }
-        .gear-dropdown button.danger { color: var(--danger); }
-        .gear-dropdown button.danger:hover { background: #fee2e2; }
-
-        /* ✅ FIX #10: Visibility toggle switch */
-        .visibility-toggle-row { display: flex; align-items: center; gap: 8px; padding: 7px 12px; }
-        .visibility-toggle-row .toggle-label { font-size: 0.8rem; font-weight: 500; color: var(--text-primary); flex: 1; }
-        .toggle-switch-sm { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
-        .toggle-switch-sm input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider-sm { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: 0.3s; border-radius: 24px; }
-        .toggle-slider-sm:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
-        .toggle-switch-sm input:checked + .toggle-slider-sm { background-color: var(--primary); }
-        .toggle-switch-sm input:checked + .toggle-slider-sm:before { transform: translateX(20px); }
-        .visibility-status { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
-        .visibility-status.public { background: #dcfce7; color: #16a34a; }
-        .visibility-status.private { background: #fef3c7; color: #d97706; }
-
-        .comment-section { background: var(--bg-card); padding: 1.4rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); }
-        .comment-section h3 { margin-bottom: 12px; color: var(--text-primary); font-size: 1.05rem; font-weight: 600; }
-        .comment-input-area { margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--border-color); }
-        .comment-input-area textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 65px; background: var(--bg-primary); color: var(--text-primary); transition: border 0.2s; }
-        .comment-input-area textarea:focus { outline: none; border-color: var(--primary); }
-        .comment { background: var(--bg-secondary); padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 6px; border: 1px solid var(--border-color); animation: fadeInComment 0.3s ease; }
-        @keyframes fadeInComment { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .comment-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
-        .comment-author { font-weight: 600; color: var(--text-primary); font-size: 0.85rem; }
-        .comment-author-link { cursor: pointer; color: var(--primary); }
-        .comment-time { font-size: 0.7rem; color: var(--text-muted); }
-        .comment-text { color: var(--text-secondary); line-height: 1.6; word-wrap: break-word; font-size: 0.9rem; }
-        .comment-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
-        .comment-badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
-        .comment-badge.pinned { background: #fef3c7; color: #d97706; }
-        .reply-thread { margin-left: 20px; border-left: 2px solid var(--border-color); padding-left: 10px; }
-        .reply-toggle { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.7rem; font-weight: 600; font-family: inherit; padding: 2px 0; }
-        .reply-input-area { margin-top: 6px; display: none; }
-        .reply-input-area.active { display: block; }
-        .reply-input-area textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.8rem; font-family: inherit; resize: vertical; min-height: 40px; background: var(--bg-primary); color: var(--text-primary); }
-        
-        /* ✅ FIX #2: New comment indicator at max depth */
-        .max-depth-msg { font-size: 0.7rem; color: var(--text-muted); font-style: italic; padding: 4px 0; }
-
-        .floating-emoji { position: fixed; font-size: 3rem; pointer-events: none; z-index: 9999; animation: floatUpAnim 1.5s ease-out forwards; }
-        @keyframes floatUpAnim { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: translateY(-150px) scale(1.3) rotate(20deg); } 100% { opacity: 0; transform: translateY(-350px) scale(1) rotate(-10deg); } }
-        .meta-author-link { cursor: pointer; color: var(--primary); font-weight: 600; }
-
-        @media (max-width: 768px) { .story-full { padding: 1.1rem; } .story-full .story-title { font-size: 1.3rem; padding-right: 32px; } .story-full .story-text { font-size: 0.95rem; } .comment-section { padding: 1.1rem; } .reply-thread { margin-left: 12px; } }
-        @media (max-width: 480px) { .story-full { padding: 0.8rem; border-radius: var(--radius-lg); } .story-full .story-title { font-size: 1.1rem; padding-right: 28px; } .reaction-btn { font-size: 0.8rem; padding: 3px 7px; } .story-action-bar { gap: 3px; } .comment { padding: 8px 10px; } .gear-menu-container { top: 5px; right: 5px; } .gear-icon { font-size: 0.85rem; padding: 3px 5px; } .reply-thread { margin-left: 8px; } }
-    </style>
-</head>
-
-<body>
-    <header class="header" role="banner">
-        <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
-        <div class="header-right">
-            <a href="index.html" class="nav-icon guest-only" aria-label="Feed">🏠<span class="nav-tooltip">Feed</span></a>
-            <a href="submit.html" class="nav-icon guest-only" aria-label="Share">✍️<span class="nav-tooltip">Share</span></a>
-            <a href="profile.html" class="nav-icon guest-only" aria-label="Profile">👤<span class="nav-tooltip">Profile</span></a>
-            <a href="activity.html" class="nav-icon guest-only" aria-label="Activity">📊<span class="nav-tooltip">Activity</span></a>
-            <a href="notifications.html" class="nav-icon guest-only" aria-label="Alerts" style="position:relative;">🔔<span class="notification-badge" id="headerNotifBadge">0</span><span class="nav-tooltip">Alerts</span></a>
-            <a href="leaderboard.html" class="nav-icon guest-only" aria-label="Top">🏆<span class="nav-tooltip">Top</span></a>
-            <a href="daily-rewards.html" class="nav-icon guest-only" aria-label="Daily">🎁<span class="nav-tooltip">Daily</span></a>
-            <a href="about.html" class="nav-icon" aria-label="About">🌿<span class="nav-tooltip">About</span></a>
-            <a href="admin.html" class="nav-icon guest-only" id="adminNavLink" style="display:none;" aria-label="Admin">👑<span class="nav-tooltip">Admin</span></a>
-            <button class="nav-icon guest-only" onclick="toggleSidebar()" aria-label="Settings">⚙️<span class="nav-tooltip">Settings</span></button>
-            <button class="btn-login auth-only" onclick="openModal('login')">🔐 Log In</button>
-            <button class="btn-signup auth-only" onclick="openModal('signup')">📝 Join</button>
-            <div id="userInfo" class="guest-only" style="display:none;align-items:center;gap:4px;">
-                <span id="userName">Friend</span>
-                <span id="verificationBadge" class="verification-badge">⏳</span>
-            </div>
-        </div>
-    </header>
-
-    <div id="emergencyBanner" role="alert"></div>
-
-    <div class="container">
-        <div id="storyContent"><div class="loading"><div class="loading-spinner"></div> Loading story...</div></div>
-        <div class="comment-section">
-            <h3>💬 Comments (<span id="commentCountHeader">0</span>)</h3>
-            <div id="commentsContainer"><div class="loading"><div class="loading-spinner"></div> Loading comments...</div></div>
-            <div class="comment-input-area">
-                <label style="font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">Share your thoughts</label>
-                <textarea id="commentText" placeholder="Write a supportive comment..." maxlength="1000"></textarea>
-                <div style="font-size:0.7rem;color:var(--text-muted);text-align:right;margin-top:4px;"><span id="commentCountDisplay">0</span>/1000</div>
-                <div class="checkbox-group"><input type="checkbox" id="commentAnonymous" /><label for="commentAnonymous">🕊️ Post anonymously</label></div>
-                <div id="commentError" class="error-msg"></div>
-                <button class="btn btn-primary" id="commentSubmitBtn" onclick="postComment(null)" style="margin-top:6px;">💬 Post Comment</button>
-            </div>
-        </div>
-        <div style="text-align:center;margin-top:20px;"><a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← Back to Home</a></div>
-    </div>
-
-    <div class="modal" id="editModal" role="dialog" aria-modal="true"><div class="modal-content"><button class="modal-close" onclick="closeEditModal()" aria-label="Close">&times;</button><h2>✏️ Edit Story</h2><label for="editTitle">Title</label><input type="text" id="editTitle" /><label for="editContent">Content</label><textarea id="editContent" rows="6"></textarea><button class="btn-modal" onclick="saveEdit()">💾 Save Changes</button><div class="error-msg" id="editError"></div></div></div>
-    <div class="modal" id="authModal" role="dialog" aria-modal="true"><div class="modal-content"><button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button><h2 id="modalTitle">🔐 Welcome Back</h2><div class="warning-box" id="genderWarning" style="display:none;"><span>⚠️</span><span id="genderWarningText"></span></div><label for="authEmail">Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" /><label for="authPassword">Password</label><input type="password" id="authPassword" placeholder="•••••••• (min 6 chars)" autocomplete="current-password" /><div id="passwordStrength"></div><div id="signupFields" style="display:none;"><label for="authName">Username</label><input type="text" id="authName" placeholder="Choose a unique username" autocomplete="username" /><div id="usernameStatus"></div><label for="authGender">Gender</label><select id="authGender"><option value="🧔 Man">🧔 Man</option><option value="👩 Woman">👩 Woman</option><option value="⚧️ Non-binary">⚧️ Non-binary</option><option value="🙅 Prefer not to say">🙅 Prefer not to say</option></select><label for="authCountry">Country</label><input type="text" id="authCountry" list="country-list" placeholder="Start typing your country..." autocomplete="country-name" /><datalist id="country-list"></datalist><label for="authFavorites">Favorite things</label><input type="text" id="authFavorites" placeholder="Hiking, reading, fishing..." /><div class="checkbox-group" style="display:flex;align-items:center;gap:10px;margin:12px 0;"><input type="checkbox" id="termsCheckbox" style="width:20px;height:20px;cursor:pointer;" /><label for="termsCheckbox" style="font-size:0.85rem;cursor:pointer;">I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a> <span style="color:var(--danger);">*</span></label></div></div><button class="btn-modal" id="authSubmitBtn" onclick="handleAuth()">🚀 Log In</button><div class="switch-link" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? <strong>Sign Up</strong></div><div class="error-msg" id="authError"></div><div class="success-msg" id="authSuccess"></div></div></div>
-    <div class="modal" id="goldModal" role="dialog" aria-modal="true"><div class="modal-content"><button class="modal-close" onclick="closeGoldModal()" aria-label="Close">&times;</button><h2>💰 Donate Gold</h2><div class="gold-balance-display" style="padding:12px;background:#fef3c7;border-radius:var(--radius-sm);margin-bottom:14px;text-align:center;font-weight:600;">Your Balance: <span id="goldBalanceAmount" style="font-size:1.2rem;color:var(--secondary-dark);">0</span> 🪙</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><button class="gold-amount-btn" onclick="selectGoldAmount(1)">1 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(5)">5 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(10)">10 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(25)">25 🪙</button><button class="gold-amount-btn" onclick="selectGoldAmount(50)">50 🪙</button></div><div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label><input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:inherit;" /></div><div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label><textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;resize:vertical;"></textarea></div><div id="goldError" class="error-msg"></div><button class="btn-modal" onclick="confirmGoldDonation()" style="background:var(--secondary);">💎 Send Gold</button></div></div>
-
-    <footer class="footer" role="contentinfo">
-        <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
-        <div class="footer-links">
-            <a href="about.html">🌿 About</a><a href="submit.html" class="guest-only">📝 Share</a><a href="profile.html" class="guest-only">👤 Profile</a><a href="emergency.html">🆘 Emergency</a><a href="suggest.html" class="guest-only">💡 Suggest</a><a href="privacy.html">🔒 Privacy</a><a href="terms.html">📜 Terms</a>
-        </div>
-        <div class="footer-copy">© 2026 The Harbor — Built with 💚 for the community.</div>
-    </footer>
-
     <script>
         var currentStory = null;
         var reactionLocks = {};
         var commentLikeLocks = {};
         var commentsUnsubscribe = null;
-        var activeReplyId = null;
 
         function viewProfile(userId) { if (userId) window.location.href = 'profile.html?uid=' + userId; }
         window.viewProfile = viewProfile;
@@ -221,21 +63,25 @@
             var showMore = fullText.length > 300;
             var excerpt = showMore ? fullText.substring(0, 300) : fullText;
             var textHtml = '<span class="excerpt-text">'+escapeHTML(excerpt)+'</span>';
-            if (showMore) textHtml += '<span class="full-text">'+escapeHTML(fullText.substring(300))+'</span> <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>';
+            if (showMore) textHtml += '<span class="full-text" style="display:none;">'+escapeHTML(fullText.substring(300))+'</span> <button class="read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">Read More ▼</button>';
             
-            // ✅ FIX #10: Visibility toggle in gear menu
             var visibilityLabel = story.visibility === 'public' ? '🌍 Public' : '🔒 Private';
             var visibilityChecked = story.visibility === 'public' ? 'checked' : '';
-            var visibilityToggleHTML = isOwner ? '<div class="visibility-toggle-row"><span class="toggle-label">🔒 Visibility</span><label class="toggle-switch-sm"><input type="checkbox" '+visibilityChecked+' onchange="toggleStoryVisibilityUI(this)" /><span class="toggle-slider-sm"></span></label><span class="visibility-status '+(story.visibility==='public'?'public':'private')+'" id="visibilityStatusLabel">'+visibilityLabel+'</span></div>' : '';
+            var visibilityToggleHTML = isOwner ? '<div class="visibility-toggle-row"><span class="toggle-label">Visibility</span><label class="toggle-switch-sm"><input type="checkbox" '+visibilityChecked+' onchange="toggleStoryVisibilityUI(this)" /><span class="toggle-slider-sm"></span></label><span class="visibility-status '+(story.visibility==='public'?'public':'private')+'" id="visibilityStatusLabel">'+visibilityLabel+'</span></div>' : '';
             
             return '<div class="story-full" id="storyCard"><div class="gear-menu-container"><button class="gear-icon" onclick="toggleGearMenu(event)" title="Options">⚙️</button><div class="gear-dropdown" id="gearDropdown">'+(isOwner?'<button onclick="openEditStoryModal()">✏️ Edit Story</button>':'')+visibilityToggleHTML+(isOwner?'<button class="danger" onclick="deleteCurrentStory()">🗑️ Delete Story</button>':'')+(isAdmin&&!isOwner?'<button class="danger" onclick="deleteCurrentStory()">🗑️ Admin Delete</button>':'')+(currentUser&&!isOwner?'<button onclick="reportThisStory()">🚩 Report Story</button>':'')+'</div></div><h1 class="story-title">'+escapeHTML(story.title)+'</h1><div class="story-meta-row"><span>✍️ <span class="meta-author-link" onclick="event.stopPropagation();viewProfile(\''+story.userId+'\')">'+author+'</span></span><span class="category-badge">'+catDisp+'</span><span>📅 '+time+'</span>'+(story.flagged?'<span style="color:var(--warning);">⚠️</span>':'')+'<span class="gold-badge">'+(story.goldReceived||0)+' 🪙</span></div><div class="story-text" id="storyContentText">'+textHtml+'</div><div class="story-action-bar">'+reactionBtns+(currentUser&&story.userId!==currentUser.uid?'<button class="btn btn-secondary" onclick="openGoldDonation(\''+story.id+'\')" style="font-weight:700;background:linear-gradient(135deg,#f1c40f,#f39c12);color:white;border:none;">🪙 Donate Gold</button>':'')+'</div></div>';
         }
 
         function toggleGearMenu(event) { event.stopPropagation(); var d=document.getElementById('gearDropdown'); if(d)d.classList.toggle('show'); }
         document.addEventListener('click',function(e){if(!e.target.closest('.gear-menu-container')){var d=document.getElementById('gearDropdown');if(d)d.classList.remove('show');}});
-        function toggleReadMore(){var f=document.querySelector('.full-text'),b=document.getElementById('readMoreBtn');if(!f||!b)return;if(f.classList.contains('show')){f.classList.remove('show');b.textContent='Read More ▼';}else{f.classList.add('show');b.textContent='Show Less ▲';}}
+        
+        function toggleReadMore(){
+            var f=document.querySelector('.full-text'),b=document.getElementById('readMoreBtn');
+            if(!f||!b)return;
+            if(f.style.display==='none'){f.style.display='inline';b.textContent='Show Less ▲';}
+            else{f.style.display='none';b.textContent='Read More ▼';}
+        }
 
-        // ✅ FIX #10: Toggle visibility with UI update
         function toggleStoryVisibilityUI(checkbox) {
             if(!currentStory || currentStory.userId !== currentUser.uid) return;
             var newVis = checkbox.checked ? 'public' : 'private';
@@ -248,109 +94,129 @@
                 }
             }).catch(function(e){ 
                 alert('❌ ' + e.message); 
-                checkbox.checked = !checkbox.checked; // Revert on error
+                checkbox.checked = !checkbox.checked;
             });
         }
 
+        // ✅ SINGLE reaction handler — prevents double increment
         function storyToggleReaction(storyId,emoji){
             if(!currentUser||!currentUser.emailVerified)return;
-            var lockKey=storyId+'_'+emoji;if(reactionLocks[lockKey])return;reactionLocks[lockKey]=true;
-            if(!userReactions[storyId])userReactions[storyId]=[];
-            var storyRef=db.collection('stories').doc(storyId),userRef=db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
-            var hasReacted=userReactions[storyId].indexOf(emoji)!==-1;
-            var btn=document.getElementById('reaction-'+storyId+'-'+emoji);if(btn)btn.disabled=true;
-            var card=document.getElementById('storyCard'),rect=card?card.getBoundingClientRect():null;
+            var lockKey=storyId+'_'+emoji;
+            if(reactionLocks[lockKey])return;
+            reactionLocks[lockKey]=true;
             
-            // ✅ FIX #7: Use shared createFloatingEmoji from app.js, no firecracker particles
-            if(typeof createFloatingEmoji === 'function'){
+            if(!userReactions[storyId])userReactions[storyId]=[];
+            var hasReacted=userReactions[storyId].indexOf(emoji)!==-1;
+            var btn=document.getElementById('reaction-'+storyId+'-'+emoji);
+            if(btn)btn.disabled=true;
+            
+            // Floating emoji
+            var card=document.getElementById('storyCard');
+            var rect=card?card.getBoundingClientRect():null;
+            if(typeof createFloatingEmoji==='function'){
                 createFloatingEmoji(emoji, rect?rect.left+rect.width/2:window.innerWidth/2, rect?rect.top+rect.height/2:window.innerHeight/2);
             }
             
-            db.runTransaction(function(t){return t.get(storyRef).then(function(doc){if(!doc.exists)return;
-                var reactions=doc.data().reactions||{};
-                if(hasReacted){reactions[emoji]=Math.max((reactions[emoji]||0)-1,0);userReactions[storyId]=userReactions[storyId].filter(function(e){return e!==emoji;});}
-                else{reactions[emoji]=(reactions[emoji]||0)+1;userReactions[storyId].push(emoji);}
-                t.update(storyRef,{reactions:reactions});t.set(userRef,{emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
-            });}).then(function(){if(btn)btn.disabled=false;
-                var cs=document.getElementById('count-'+storyId+'-'+emoji);if(cs)cs.textContent=hasReacted?(parseInt(cs.textContent)||0)-1:(parseInt(cs.textContent)||0)+1;
-                if(btn){if(hasReacted)btn.classList.remove('reacted');else btn.classList.add('reacted');}
-                reactionLocks[lockKey]=false;
-            }).catch(function(){if(btn)btn.disabled=false;reactionLocks[lockKey]=false;});
+            var storyRef=db.collection('stories').doc(storyId);
+            var userRef=db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId);
+            
+            // ✅ Use single atomic operation — no double increment
+            if(hasReacted){
+                userReactions[storyId]=userReactions[storyId].filter(function(e){return e!==emoji;});
+                storyRef.update({['reactions.'+emoji]:firebase.firestore.FieldValue.increment(-1)}).then(function(){
+                    userRef.set({emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
+                    updateReactionUI(storyId,emoji,hasReacted,btn);
+                }).catch(function(){if(btn)btn.disabled=false;reactionLocks[lockKey]=false;});
+            } else {
+                userReactions[storyId].push(emoji);
+                storyRef.update({['reactions.'+emoji]:firebase.firestore.FieldValue.increment(1)}).then(function(){
+                    userRef.set({emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true});
+                    updateReactionUI(storyId,emoji,hasReacted,btn);
+                }).catch(function(){if(btn)btn.disabled=false;reactionLocks[lockKey]=false;});
+            }
+        }
+        
+        function updateReactionUI(storyId,emoji,hasReacted,btn){
+            if(btn)btn.disabled=false;
+            var cs=document.getElementById('count-'+storyId+'-'+emoji);
+            if(cs)cs.textContent=hasReacted?(parseInt(cs.textContent)||0)-1:(parseInt(cs.textContent)||0)+1;
+            if(btn){if(hasReacted)btn.classList.remove('reacted');else btn.classList.add('reacted');}
+            reactionLocks[storyId+'_'+emoji]=false;
         }
 
-        function loadUserReactionsForStory(storyId){if(!currentUser)return;db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc=>{if(doc.exists){userReactions[storyId]=doc.data().emojis||[];['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e=>{var btn=document.getElementById('reaction-'+storyId+'-'+e);if(btn&&userReactions[storyId].indexOf(e)!==-1)btn.classList.add('reacted');});}}).catch(()=>{});}
+        function loadUserReactionsForStory(storyId){
+            if(!currentUser)return;
+            db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(doc=>{
+                if(doc.exists){userReactions[storyId]=doc.data().emojis||[];
+                    ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(e=>{
+                        var btn=document.getElementById('reaction-'+storyId+'-'+e);
+                        if(btn&&userReactions[storyId].indexOf(e)!==-1)btn.classList.add('reacted');
+                    });
+                }
+            }).catch(()=>{});
+        }
 
         // ============================================
-        // ✅ FIX #2: NESTED REPLIES — RECURSIVE UP TO 10 LEVELS
-        // ✅ FIX #1: @MENTIONS IN REPLIES
-        // ✅ FIX #3: COMMENT LIKE ANTI-SPAM (TOGGLE)
-        // ✅ FIX #4: COMMENT LIKE NOTIFICATION
-        // ✅ FIX #7: NO FIRECRACKER IN COMMENTS
+        // COMMENTS — NESTED REPLIES WITH REPLY-TO-REPLY
         // ============================================
 
         function loadCommentsRealtime(storyId){
-            var container=document.getElementById('commentsContainer');if(!container)return;if(commentsUnsubscribe)commentsUnsubscribe();
+            var container=document.getElementById('commentsContainer');if(!container)return;
+            if(commentsUnsubscribe)commentsUnsubscribe();
             container.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
             commentsUnsubscribe=db.collection('comments').where('storyId','==',storyId).onSnapshot(snapshot=>{
                 if(snapshot.empty){container.innerHTML='<div class="empty-state" style="padding:20px;"><p style="color:var(--text-muted);">💬 No comments yet.</p></div>';document.getElementById('commentCountHeader').textContent='0';return;}
                 var allComments=[];snapshot.forEach(doc=>{var c=doc.data();c.id=doc.id;allComments.push(c);});
                 allComments=allComments.filter(c=>c.approved!==false);
                 var parents=allComments.filter(c=>!c.parentId);
-                var replies=allComments.filter(c=>c.parentId);
                 parents.sort((a,b)=>{if(a.isPinned&&!b.isPinned)return-1;if(!a.isPinned&&b.isPinned)return 1;return(b.likes||0)-(a.likes||0);});
                 document.getElementById('commentCountHeader').textContent=parents.length;
-                // ✅ FIX #2: Recursive rendering with depth tracking
                 container.innerHTML=parents.map(function(c){ return renderCommentTree(c, allComments, 0); }).join('');
             },err=>{container.innerHTML='<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p></div>';});
         }
 
-        // ✅ FIX #2: Recursive function — max 10 levels (1 main + 9 nested)
+        // ✅ Recursive — anyone can reply to any comment, max 10 depth
         function renderCommentTree(comment, allComments, depth){
-            if(depth === undefined) depth = 0;
-            var MAX_DEPTH = 9; // 0=main, 9=max nested = 10 total
+            if(depth===undefined)depth=0;
+            var MAX_DEPTH=9;
+            if(depth>MAX_DEPTH)return'';
             
-            if(depth > MAX_DEPTH) return ''; // Safety limit
+            var childReplies=allComments.filter(function(r){return r.parentId===comment.id;});
+            childReplies.sort(function(a,b){return(a.createdAt?.toDate().getTime()||0)-(b.createdAt?.toDate().getTime()||0);});
             
-            var childReplies = allComments.filter(function(r){ return r.parentId === comment.id; });
-            childReplies.sort(function(a,b){
-                return (a.createdAt?.toDate().getTime()||0) - (b.createdAt?.toDate().getTime()||0);
-            });
-            
-            var repliesHtml = '';
-            if(childReplies.length > 0){
-                var marginLeft = Math.min(20 + depth * 6, 50);
-                repliesHtml = '<div class="reply-thread" style="margin-left:'+marginLeft+'px;">'+
-                    childReplies.map(function(r){ return renderCommentTree(r, allComments, depth + 1); }).join('')+
+            var repliesHtml='';
+            if(childReplies.length>0){
+                var marginLeft=Math.min(20+depth*6,50);
+                repliesHtml='<div class="reply-thread" style="margin-left:'+marginLeft+'px;">'+
+                    childReplies.map(function(r){return renderCommentTree(r,allComments,depth+1);}).join('')+
                 '</div>';
             }
-            
-            return renderSingleComment(comment, depth > 0, depth) + repliesHtml;
+            return renderSingleComment(comment,depth>0,depth)+repliesHtml;
         }
 
-        // ✅ FIX #1 & #2: renderSingleComment with @mention, depth limit, and "start new comment"
-        function renderSingleComment(comment, isReply, depth){
-            if(depth === undefined) depth = 0;
-            var MAX_DEPTH = 9;
-            var author = comment.isAnonymous ? '🕊️ Anonymous' : escapeHTML(comment.authorName || 'Someone');
-            var time = comment.createdAt ? comment.createdAt.toDate().toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true}) : 'Recently';
-            var likes = comment.likes || 0;
-            var isCommentOwner = currentUser && comment.userId === currentUser.uid;
-            var isStoryAuthor = currentUser && currentStory && currentStory.userId === currentUser.uid;
-            var isAdmin = currentUserData && currentUserData.isAdmin === true;
-            var canDelete = isCommentOwner || isStoryAuthor || isAdmin;
-            var badges = '';
-            if(comment.isPinned) badges += '<span class="comment-badge pinned">📌 Pinned</span>';
-            if(isReply) badges += '<span class="comment-badge" style="background:#e0e7ff;color:#3730a3;">↩️ Reply</span>';
-            var replyCount = comment.replyCount || 0;
-            var cleanAuthor = comment.isAnonymous ? '' : escapeHTML(comment.authorName || '');
-            var atMaxDepth = depth >= MAX_DEPTH;
+        function renderSingleComment(comment,isReply,depth){
+            if(depth===undefined)depth=0;
+            var MAX_DEPTH=9;
+            var atMaxDepth=depth>=MAX_DEPTH;
+            var author=comment.isAnonymous?'🕊️ Anonymous':escapeHTML(comment.authorName||'Someone');
+            var time=comment.createdAt?comment.createdAt.toDate().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'Recently';
+            var likes=comment.likes||0;
+            var isCommentOwner=currentUser&&comment.userId===currentUser.uid;
+            var isStoryAuthor=currentUser&&currentStory&&currentStory.userId===currentUser.uid;
+            var isAdmin=currentUserData&&currentUserData.isAdmin===true;
+            var canDelete=isCommentOwner||isStoryAuthor||isAdmin;
+            var badges='';
+            if(comment.isPinned)badges+='<span class="comment-badge pinned">📌 Pinned</span>';
+            if(isReply)badges+='<span class="comment-badge" style="background:#e0e7ff;color:#3730a3;">↩️ Reply</span>';
+            var replyCount=comment.replyCount||0;
+            var cleanAuthor=comment.isAnonymous?'':escapeHTML(comment.authorName||'');
             
-            // ✅ FIX #2: At max depth, show "start new comment" instead of reply
-            var replyButtonHTML = '';
-            if(!isReply && !atMaxDepth){
-                replyButtonHTML = '<button class="reply-toggle" onclick="toggleReplyBox(\''+comment.id+'\', \''+cleanAuthor+'\')">💬 Reply'+(replyCount>0?' ('+replyCount+')':'')+'</button>';
-            } else if(atMaxDepth){
-                replyButtonHTML = '<span class="max-depth-msg">📌 Max thread depth — <a href="#commentText" onclick="document.getElementById(\'commentText\').focus()" style="color:var(--primary);cursor:pointer;">start a new comment</a></span>';
+            // ✅ ANY comment can be replied to (not just parent comments)
+            var replyButtonHTML='';
+            if(!atMaxDepth){
+                replyButtonHTML='<button class="reply-toggle" onclick="toggleReplyBox(\''+comment.id+'\',\''+cleanAuthor+'\')">💬 Reply'+(replyCount>0?' ('+replyCount+')':'')+'</button>';
+            } else {
+                replyButtonHTML='<span class="max-depth-msg">📌 Max depth — <a href="#commentText" onclick="document.getElementById(\'commentText\').focus()" style="color:var(--primary);cursor:pointer;">start new comment</a></span>';
             }
             
             return '<div class="comment" id="comment-'+comment.id+'">'+
@@ -362,35 +228,30 @@
                 '<div class="comment-actions">'+
                     '<button class="comment-like-btn" id="like-btn-'+comment.id+'" onclick="likeComment(\''+comment.id+'\')">❤️ <span id="like-count-'+comment.id+'">'+likes+'</span></button>'+
                     replyButtonHTML+
-                    (canDelete ? '<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>' : '')+
-                    (isAdmin ? '<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>' : '')+
-                    (currentUser && !isCommentOwner ? '<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>' : '')+
+                    (canDelete?'<button class="comment-delete-btn" onclick="deleteComment(\''+comment.id+'\')">🗑️</button>':'')+
+                    (isAdmin?'<button class="comment-pin-btn" onclick="pinComment(\''+comment.id+'\')">'+(comment.isPinned?'📌 Unpin':'📌 Pin')+'</button>':'')+
+                    (currentUser&&!isCommentOwner?'<button class="comment-report-btn" onclick="reportComment(\''+comment.id+'\',\''+comment.storyId+'\')">🚩</button>':'')+
                 '</div>'+
-                (isReply || atMaxDepth ? '' : '<div class="reply-input-area" id="reply-area-'+comment.id+'">'+
-                    '<textarea id="reply-text-'+comment.id+'" placeholder="Write a reply... (use @username to mention)" maxlength="500"></textarea>'+
+                '<div class="reply-input-area" id="reply-area-'+comment.id+'">'+
+                    '<textarea id="reply-text-'+comment.id+'" placeholder="Write a reply... (@username to mention)" maxlength="500"></textarea>'+
                     '<button class="btn btn-primary" onclick="postReply(\''+comment.id+'\')" style="margin-top:4px;padding:4px 12px;font-size:0.8rem;">📤 Reply</button>'+
-                '</div>')+
+                '</div>'+
             '</div>';
         }
 
-        // ✅ FIX #1: toggleReplyBox with @mention pre-fill
-        function toggleReplyBox(commentId, authorName){
-            var area = document.getElementById('reply-area-'+commentId);
+        function toggleReplyBox(commentId,authorName){
+            var area=document.getElementById('reply-area-'+commentId);
             if(area){
                 document.querySelectorAll('.reply-input-area.active').forEach(function(other){
-                    if(other.id !== 'reply-area-'+commentId) other.classList.remove('active');
+                    if(other.id!=='reply-area-'+commentId)other.classList.remove('active');
                 });
                 area.classList.toggle('active');
                 if(area.classList.contains('active')){
-                    var textarea = document.getElementById('reply-text-'+commentId);
+                    var textarea=document.getElementById('reply-text-'+commentId);
                     if(textarea){
-                        if(authorName && authorName.trim() !== ''){
-                            textarea.value = '@' + authorName + ' ';
-                        } else {
-                            textarea.value = '';
-                        }
+                        textarea.value=authorName&&authorName.trim()!==''?'@'+authorName+' ':'';
                         textarea.focus();
-                        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                        textarea.setSelectionRange(textarea.value.length,textarea.value.length);
                     }
                 }
             }
@@ -404,10 +265,11 @@
             var bad=['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
             var flagged=bad.some(w=>rawText.toLowerCase().indexOf(w)!==-1);
             db.collection('comments').add({storyId:currentStoryId,text:text,userId:currentUser.uid,authorName:currentUserData?currentUserData.name:'Someone',isAnonymous:false,parentId:parentId,createdAt:firebase.firestore.FieldValue.serverTimestamp(),likes:0,isPinned:false,approved:!flagged,flagged:flagged})
-            .then(()=>db.collection('comments').doc(parentId).update({replyCount:firebase.firestore.FieldValue.increment(1)}))
-            .then(()=>{textInput.value='';document.getElementById('reply-area-'+parentId).classList.remove('active');
+            .then(function(){return db.collection('comments').doc(parentId).update({replyCount:firebase.firestore.FieldValue.increment(1)});})
+            .then(function(){
+                textInput.value='';document.getElementById('reply-area-'+parentId).classList.remove('active');
                 if(currentStory&&currentStory.userId!==currentUser.uid){addNotification(currentStory.userId,'comment',{storyId:currentStoryId});}
-            }).catch(err=>{console.error('Reply error:',err);});
+            }).catch(function(err){console.error('Reply error:',err);});
         }
 
         function postComment(parentId){
@@ -420,102 +282,113 @@
             var bad=['fuck','shit','ass','bitch','cunt','dick','porn','nude','sex','violence','kill','murder','rape'];
             var flagged=bad.some(w=>rawText.toLowerCase().indexOf(w)!==-1);
             db.collection('comments').add({storyId:currentStoryId,text:text,userId:currentUser.uid,authorName:currentUserData?currentUserData.name:'Someone',isAnonymous:anonymousCheck?anonymousCheck.checked:false,parentId:parentId||null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),likes:0,isPinned:false,approved:!flagged,flagged:flagged})
-            .then(()=>db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)}))
-            .then(()=>{if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}textInput.value='';document.getElementById('commentCountDisplay').textContent='0';if(flagged)alert('⚠️ Sent for review.');
+            .then(function(){return db.collection('stories').doc(currentStoryId).update({commentCount:firebase.firestore.FieldValue.increment(1)});})
+            .then(function(){
+                if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}
+                textInput.value='';document.getElementById('commentCountDisplay').textContent='0';
+                if(flagged)alert('⚠️ Sent for review.');
                 if(currentStory&&currentStory.userId!==currentUser.uid){addNotification(currentStory.userId,'comment',{storyId:currentStoryId});}
-            }).catch(err=>{error.textContent=err.message;if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}});
+            }).catch(function(err){error.textContent=err.message;if(btn){btn.disabled=false;btn.textContent='💬 Post Comment';}});
         }
 
-        // ✅ FIX #3 & #4: likeComment with TOGGLE (like/unlike) + notification
+        // ✅ TOGGLE like + notification: "Peter reacted with ❤️ to your comment"
         function likeComment(cid){
             if(!currentUser)return;
             if(commentLikeLocks[cid])return;commentLikeLocks[cid]=true;
             var btn=document.getElementById('like-btn-'+cid);if(btn)btn.disabled=true;
             
-            var userLikeRef = db.collection('users').doc(currentUser.uid).collection('commentLikes').doc(cid);
+            var userLikeRef=db.collection('users').doc(currentUser.uid).collection('commentLikes').doc(cid);
             
             userLikeRef.get().then(function(likeDoc){
                 if(likeDoc.exists){
-                    // UNLIKE
-                    return db.collection('comments').doc(cid).update({
-                        likes: firebase.firestore.FieldValue.increment(-1)
-                    }).then(function(){
+                    return db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(-1)}).then(function(){
                         return userLikeRef.delete();
                     }).then(function(){
-                        var countSpan = document.getElementById('like-count-'+cid);
-                        if(countSpan) countSpan.textContent = Math.max((parseInt(countSpan.textContent)||0) - 1, 0);
-                        if(btn){ btn.classList.remove('liked'); btn.style.opacity = '1'; }
-                        commentLikeLocks[cid]=false; if(btn)btn.disabled=false;
+                        var countSpan=document.getElementById('like-count-'+cid);
+                        if(countSpan)countSpan.textContent=Math.max((parseInt(countSpan.textContent)||0)-1,0);
+                        if(btn){btn.classList.remove('liked');btn.style.opacity='1';}
+                        commentLikeLocks[cid]=false;if(btn)btn.disabled=false;
                     });
                 } else {
-                    // LIKE
                     return db.collection('comments').doc(cid).get().then(function(doc){
-                        if(!doc.exists) throw new Error('Comment not found');
-                        var data = doc.data();
-                        return db.collection('comments').doc(cid).update({
-                            likes: firebase.firestore.FieldValue.increment(1)
+                        if(!doc.exists)throw new Error('Comment not found');
+                        var data=doc.data();
+                        return db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).then(function(){
+                            return userLikeRef.set({commentId:cid,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
                         }).then(function(){
-                            return userLikeRef.set({
-                                commentId: cid,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }).then(function(){
-                            var countSpan = document.getElementById('like-count-'+cid);
-                            if(countSpan) countSpan.textContent = (parseInt(countSpan.textContent)||0) + 1;
-                            if(btn){ btn.classList.add('liked'); btn.style.opacity = '1'; }
+                            var countSpan=document.getElementById('like-count-'+cid);
+                            if(countSpan)countSpan.textContent=(parseInt(countSpan.textContent)||0)+1;
+                            if(btn){btn.classList.add('liked');btn.style.opacity='1';}
                             
-                            // ✅ FIX #4: Send notification to comment owner
-                            if(data.userId && data.userId !== currentUser.uid){
-                                addNotification(data.userId, 'like', {
-                                    commentId: cid,
-                                    storyId: currentStoryId
+                            // ✅ Notification: "Peter reacted with ❤️ to your comment"
+                            if(data.userId&&data.userId!==currentUser.uid){
+                                addNotification(data.userId,'comment_like',{
+                                    commentId:cid,
+                                    storyId:currentStoryId,
+                                    reactorName:currentUserData?currentUserData.name:'Someone'
                                 });
                             }
-                            commentLikeLocks[cid]=false; if(btn)btn.disabled=false;
+                            commentLikeLocks[cid]=false;if(btn)btn.disabled=false;
                         });
                     });
                 }
             }).catch(function(err){
-                console.error('Like error:', err);
-                commentLikeLocks[cid]=false; if(btn)btn.disabled=false;
+                console.error('Like error:',err);
+                commentLikeLocks[cid]=false;if(btn)btn.disabled=false;
             });
         }
 
         function deleteComment(cid){
             if(!currentUser||!confirm('Delete this comment?'))return;
-            db.collection('comments').doc(cid).get().then(doc=>{
+            db.collection('comments').doc(cid).get().then(function(doc){
                 if(!doc.exists)return;
                 var data=doc.data();
                 var isCommentOwner=currentUser&&data.userId===currentUser.uid;
                 var isStoryAuthor=currentUser&&currentStory&&currentStory.userId===currentUser.uid;
                 var isAdmin=currentUserData&&currentUserData.isAdmin===true;
                 if(!isCommentOwner&&!isStoryAuthor&&!isAdmin){alert('You cannot delete this comment.');return;}
-                db.collection('comments').doc(cid).delete().catch(()=>{});
+                db.collection('comments').doc(cid).delete().catch(function(){});
             });
         }
-        function pinComment(cid){if(!currentUserData||!currentUserData.isAdmin)return;db.collection('comments').doc(cid).get().then(d=>{if(!d.exists)return;return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});}).catch(()=>{});}
-        function reportComment(cid,sid){if(!currentUser)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({commentId:cid,storyId:sid,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'comment',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(()=>{});}
+        function pinComment(cid){if(!currentUserData||!currentUserData.isAdmin)return;db.collection('comments').doc(cid).get().then(function(d){if(!d.exists)return;return db.collection('comments').doc(cid).update({isPinned:!d.data().isPinned});}).catch(function(){});}
+        function reportComment(cid,sid){if(!currentUser)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({commentId:cid,storyId:sid,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'comment',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){alert('✅ Reported');}).catch(function(){});}
 
-        function reportThisStory(){if(!currentStory)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>alert('✅ Reported')).catch(e=>alert('❌ '+e.message));}
+        function reportThisStory(){if(!currentStory)return;var r=prompt('Reason?');if(!r||r.length<3)return;db.collection('reports').add({storyId:currentStory.id,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:r.trim(),status:'pending',type:'story',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){alert('✅ Reported');}).catch(function(e){alert('❌ '+e.message);});}
         function openEditStoryModal(){if(!currentStory||currentStory.userId!==currentUser.uid)return;currentEditId=currentStory.id;document.getElementById('editTitle').value=currentStory.title||'';document.getElementById('editContent').value=currentStory.text||'';document.getElementById('editError').textContent='';document.getElementById('editModal').classList.add('active');}
         function closeEditModal(){document.getElementById('editModal').classList.remove('active');currentEditId=null;}
-        function saveEdit(){var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim();if(!t||!c){document.getElementById('editError').textContent='Required.';return;}db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(e=>document.getElementById('editError').textContent=e.message);}
-        function deleteCurrentStory(){if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return;db.collection('stories').doc(currentStory.id).delete().then(()=>{alert('✅ Deleted');window.location.href='index.html';}).catch(e=>alert('❌ '+e.message));}
-        
-        // ✅ FIX #10: Old toggleStoryVisibility kept for backward compatibility with gear menu
-        function toggleStoryVisibility(){
-            if(!currentStory||currentStory.userId!==currentUser.uid)return;
-            var newVis = currentStory.visibility === 'public' ? 'private' : 'public';
-            db.collection('stories').doc(currentStory.id).update({visibility:newVis}).then(function(){
-                currentStory.visibility = newVis;
-                loadStory();
-            }).catch(function(e){alert('❌ '+e.message);});
-        }
+        function saveEdit(){var t=document.getElementById('editTitle').value.trim(),c=document.getElementById('editContent').value.trim();if(!t||!c){document.getElementById('editError').textContent='Required.';return;}db.collection('stories').doc(currentEditId).update({title:t,text:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeEditModal();alert('✅ Updated!');loadStory();}).catch(function(e){document.getElementById('editError').textContent=e.message;});}
+        function deleteCurrentStory(){if(!currentUser||!currentStory||!confirm('⚠️ Delete?'))return;db.collection('stories').doc(currentStory.id).delete().then(function(){alert('✅ Deleted');window.location.href='index.html';}).catch(function(e){alert('❌ '+e.message);});}
+        function toggleStoryVisibility(){if(!currentStory||currentStory.userId!==currentUser.uid)return;var newVis=currentStory.visibility==='public'?'private':'public';db.collection('stories').doc(currentStory.id).update({visibility:newVis}).then(function(){currentStory.visibility=newVis;loadStory();}).catch(function(e){alert('❌ '+e.message);});}
 
-        function openGoldDonation(storyId){if(!currentUser)return;if(!currentUserData)return;var b=currentUserData.goldBalance||0;if(b<1){alert('No gold!');return;}document.getElementById('goldBalanceAmount').textContent=b;document.getElementById('goldModal').classList.add('active');currentStoryId=storyId;window.selectedGoldAmount=0;document.getElementById('customGoldAmount').value='';document.getElementById('goldMessage').value='';document.getElementById('goldError').textContent='';document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));}
+        function openGoldDonation(storyId){
+            if(!currentUser)return;if(!currentUserData)return;
+            var b=currentUserData.goldBalance||0;
+            if(b<1){alert('No gold!');return;}
+            document.getElementById('goldBalanceAmount').textContent=b;
+            document.getElementById('goldModal').classList.add('active');
+            currentStoryId=storyId;window.selectedGoldAmount=0;
+            document.getElementById('customGoldAmount').value='';
+            document.getElementById('goldMessage').value='';
+            document.getElementById('goldError').textContent='';
+            document.querySelectorAll('.gold-amount-btn').forEach(function(x){x.classList.remove('selected');});
+        }
         function closeGoldModal(){document.getElementById('goldModal').classList.remove('active');}
-        function selectGoldAmount(a){window.selectedGoldAmount=a;document.getElementById('customGoldAmount').value=a;document.querySelectorAll('.gold-amount-btn').forEach(x=>x.classList.remove('selected'));if(event&&event.target)event.target.classList.add('selected');}
-        function confirmGoldDonation(){var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount;if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;}var b=currentUserData?currentUserData.goldBalance||0:0;if(!a||a<1){ed.textContent='Enter amount.';return;}if(a>b){ed.textContent='Not enough! Balance: '+b;return;}var msg=mi?mi.value.trim():'';closeGoldModal();if(typeof donateGold==='function'){donateGold(currentStoryId,a,msg);return;}var sr=db.collection('stories').doc(currentStoryId),ur=db.collection('users').doc(currentUser.uid);db.runTransaction(function(t){return t.get(sr).then(function(sd){if(!sd.exists)throw new Error('Not found');var aid=sd.data().userId;t.update(ur,{goldBalance:firebase.firestore.FieldValue.increment(-a),goldGiven:firebase.firestore.FieldValue.increment(a)});t.update(db.collection('users').doc(aid),{goldBalance:firebase.firestore.FieldValue.increment(a),goldReceived:firebase.firestore.FieldValue.increment(a)});t.update(sr,{goldReceived:firebase.firestore.FieldValue.increment(a)});});}).then(function(){if(currentUserData)currentUserData.goldBalance=(currentUserData.goldBalance||0)-a;alert('✅ Donated '+a+' 🪙!');loadStory();}).catch(function(e){alert('❌ '+e.message);});}
+        function selectGoldAmount(a){window.selectedGoldAmount=a;document.getElementById('customGoldAmount').value=a;document.querySelectorAll('.gold-amount-btn').forEach(function(x){x.classList.remove('selected');});if(event&&event.target)event.target.classList.add('selected');}
+        
+        // ✅ Gold donation — calls donateGold from gold.js
+        function confirmGoldDonation(){
+            var ci=document.getElementById('customGoldAmount'),mi=document.getElementById('goldMessage'),ed=document.getElementById('goldError'),a=window.selectedGoldAmount;
+            if(ci&&ci.value){var c=parseInt(ci.value);if(c>0)a=c;}
+            var b=currentUserData?currentUserData.goldBalance||0:0;
+            if(!a||a<1){ed.textContent='Enter amount.';return;}
+            if(a>b){ed.textContent='Not enough! Balance: '+b;return;}
+            var msg=mi?mi.value.trim():'';closeGoldModal();
+            if(typeof donateGold==='function'){
+                donateGold(currentStoryId,a,msg);
+            } else {
+                alert('Gold system loading...');
+            }
+        }
 
         window.addEventListener('beforeunload',function(){sessionStorage.setItem('feedScrollPos',window.scrollY);sessionStorage.setItem('feedCategory',currentCategory||'all');});
 
@@ -528,8 +401,6 @@
             document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEditModal();});
             document.getElementById('goldModal')?.addEventListener('click',function(e){if(e.target===this)closeGoldModal();});
             document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeEditModal();closeGoldModal();}});
-            console.log('✅ Story page ready (FIX #1, #2, #3, #4, #7, #10 applied)');
+            console.log('✅ Story page ready (all fixes applied)');
         });
     </script>
-</body>
-</html>
