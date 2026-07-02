@@ -365,7 +365,8 @@ function viewGoldHistory() {
         .limit(10)
         .get()
         .then(function(snap) {
-            var html = '<div style="margin-bottom:12px;padding:10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;">';
+            // FIXED: Added color and background to make text visible
+            var html = '<div style="margin-bottom:12px;padding:10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;color:#92400e;">';
             html += '🪙 Balance: ' + (currentUserData.goldBalance||0) + ' | 💰 Received: ' + (currentUserData.goldReceived||0) + ' | 📤 Given: ' + (currentUserData.goldGiven||0);
             html += '</div>';
             
