@@ -48,6 +48,9 @@
         .comment-author{font-weight:600;color:var(--text-primary);font-size:.85rem}.comment-author-link{cursor:pointer;color:var(--primary)}.comment-time{font-size:.7rem;color:var(--text-muted)}
         .comment-text{color:var(--text-secondary);line-height:1.6;word-wrap:break-word;font-size:.9rem}.comment-actions{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
         .comment-badge{font-size:.6rem;padding:2px 8px;border-radius:9999px;font-weight:600}.comment-badge.pinned{background:#fef3c7;color:#d97706}
+        .comment-like-btn{background:0 0;border:1px solid var(--border-color);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.75rem;font-family:inherit;transition:all .15s}
+        .comment-like-btn:hover{background:var(--bg-secondary)}
+        .comment-like-btn.liked{color:#e74c3c;font-weight:700;border-color:#e74c3c;background:#fef2f2}
         .reply-thread{margin-left:20px;border-left:2px solid var(--border-color);padding-left:10px}.reply-toggle{background:0 0;border:none;color:var(--primary);cursor:pointer;font-size:.7rem;font-weight:600;font-family:inherit;padding:2px 0}
         .reply-input-area{margin-top:6px;display:none}.reply-input-area.active{display:block}.reply-input-area textarea{width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:var(--radius-sm);font-size:.8rem;font-family:inherit;resize:vertical;min-height:40px;background:var(--bg-secondary);color:var(--text-primary)}
         .max-depth-msg{font-size:.7rem;color:var(--text-muted);font-style:italic;padding:4px 0}.floating-emoji{position:fixed;font-size:3rem;pointer-events:none;z-index:9999;animation:floatUpAnim 1.5s ease-out forwards}
@@ -176,6 +179,7 @@
         function toggleReadMore() { var f = document.querySelector('.full-text'), b = document.getElementById('readMoreBtn'); if (!f || !b) return; if (f.style.display === 'none') { f.style.display = 'inline'; b.textContent = 'Show Less ▲'; } else { f.style.display = 'none'; b.textContent = 'Read More ▼'; } }
         function toggleStoryVisibilityUI(cb) { if (!currentStory || currentStory.userId !== currentUser.uid) return; var nv = cb.checked ? 'public' : 'private'; db.collection('stories').doc(currentStory.id).update({visibility:nv}).then(function(){currentStory.visibility=nv;var l=document.getElementById('visibilityStatusLabel');if(l){l.textContent=nv==='public'?'🌍 Public':'🔒 Private';l.className='visibility-status '+nv;}}).catch(function(e){alert('❌ '+e.message);cb.checked=!cb.checked;}); }
 
+        // ✅ FIX: Story reaction sends notification
         function storyToggleReaction(storyId, emoji) {
             if (!currentUser || !currentUser.emailVerified) return;
             var lockKey = storyId + '_' + emoji; if (reactionLocks[lockKey]) return; reactionLocks[lockKey] = true;
@@ -191,13 +195,18 @@
                 if (hasReacted) { reactions[emoji] = Math.max((reactions[emoji] || 0) - 1, 0); userReactions[storyId] = userReactions[storyId].filter(function(e) { return e !== emoji; }); }
                 else { reactions[emoji] = (reactions[emoji] || 0) + 1; userReactions[storyId].push(emoji); }
                 return storyRef.update({reactions:reactions}).then(function() { return userRef.set({emojis:userReactions[storyId],timestamp:firebase.firestore.FieldValue.serverTimestamp(),storyId:storyId},{merge:true}); });
-            }).then(function() { updateReactionUI(storyId, emoji, hasReacted, btn); }).catch(function() { if (btn) btn.disabled = false; reactionLocks[lockKey] = false; });
+            }).then(function() {
+                updateReactionUI(storyId, emoji, hasReacted, btn);
+                // ✅ Send notification when someone ❤️'s the story
+                if (!hasReacted && emoji === '❤️' && currentStory && currentStory.userId !== currentUser.uid) {
+                    addNotification(currentStory.userId, 'like', { storyId: storyId });
+                }
+            }).catch(function() { if (btn) btn.disabled = false; reactionLocks[lockKey] = false; });
         }
 
         function updateReactionUI(storyId, emoji, hasReacted, btn) { if (btn) btn.disabled = false; var cs = document.getElementById('count-' + storyId + '-' + emoji); if (cs) cs.textContent = hasReacted ? (parseInt(cs.textContent) || 0) - 1 : (parseInt(cs.textContent) || 0) + 1; if (btn) { if (hasReacted) btn.classList.remove('reacted'); else btn.classList.add('reacted'); } reactionLocks[storyId + '_' + emoji] = false; }
         function loadUserReactionsForStory(storyId) { if (!currentUser) return; db.collection('users').doc(currentUser.uid).collection('reactions').doc(storyId).get().then(function(doc) { if (doc.exists) { userReactions[storyId] = doc.data().emojis || []; ['❤️','🙏','😢','💪','🤗','🌊','🕊️','👊'].forEach(function(e) { var btn = document.getElementById('reaction-' + storyId + '-' + e); if (btn && userReactions[storyId].indexOf(e) !== -1) btn.classList.add('reacted'); }); } }).catch(function() {}); }
 
-        // ✅ FIX: Comments don't jump on like - in-place updates
         function loadCommentsRealtime(storyId) {
             var container = document.getElementById('commentsContainer'); if (!container) return; if (commentsUnsubscribe) commentsUnsubscribe();
             container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Loading...</div>';
@@ -226,7 +235,6 @@
             }, function(err) { container.innerHTML = '<div class="empty-state"><p style="color:var(--danger);">⚠️ Error</p></div>'; });
         }
 
-        // ✅ Scroll to comment from notification link
         function scrollToHashComment() {
             if (window.location.hash && window.location.hash.indexOf('#comment-') === 0) {
                 var commentId = window.location.hash.replace('#comment-', '');
