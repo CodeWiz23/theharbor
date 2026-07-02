@@ -229,6 +229,12 @@
             <textarea id="editBio" placeholder="Tell the community about yourself..." rows="3" style="width:100%;padding:10px 14px;border:2px solid var(--border-color);border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical;margin-bottom:12px;background:var(--bg-primary);color:var(--text-primary);"></textarea>
             <label for="editFavorites">❤️ Favorite things</label>
             <input type="text" id="editFavorites" placeholder="Hiking, reading, fishing..." style="margin-bottom:12px;" />
+            <label for="editLanguage">🌍 Language</label>
+            <select id="editLanguage" style="margin-bottom:12px;width:100%;padding:10px 14px;border:2px solid var(--border-color);border-radius:8px;font-size:0.95rem;font-family:inherit;background:var(--bg-primary);color:var(--text-primary);">
+                <option value="en">🇺🇸 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+            </select>
             <div style="margin:15px 0; display:flex; align-items:center; justify-content:space-between;">
                 <span style="font-weight:600;color:var(--text-secondary);">🔒 Private Profile</span>
                 <label class="toggle-switch">
@@ -319,9 +325,6 @@
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
             
-            // ✅ Already loaded class added at top of script
-            
-            // Manual toggle for elements that need it
             document.querySelectorAll('.guest-only').forEach(function(el) {
                 if (el.hasAttribute('hidden')) return;
                 el.style.display = isLoggedIn ? '' : 'none';
@@ -644,6 +647,7 @@
             document.getElementById('editName').value = currentUserData.name || '';
             document.getElementById('editBio').value = currentUserData.bio || '';
             document.getElementById('editFavorites').value = currentUserData.favorites || '';
+            document.getElementById('editLanguage').value = currentUserData.language || 'en';
             document.getElementById('editPrivacyToggle').checked = currentProfileIsPrivate;
             document.getElementById('editError').textContent = '';
             document.getElementById('editSuccess').textContent = '';
@@ -654,28 +658,29 @@
             var name = document.getElementById('editName').value.trim();
             var bio = document.getElementById('editBio').value.trim();
             var fav = document.getElementById('editFavorites').value.trim();
+            var language = document.getElementById('editLanguage').value;
             var isPrivate = document.getElementById('editPrivacyToggle').checked;
             var err = document.getElementById('editError');
             var suc = document.getElementById('editSuccess');
             err.textContent = ''; suc.textContent = '';
             if (!name || name.length < 2) { err.textContent = 'Username must be at least 2 characters.'; return; }
-            var updates = { name: name, bio: bio, favorites: fav || 'Not specified', isPublic: !isPrivate };
+            var updates = { name: name, bio: bio, favorites: fav || 'Not specified', isPublic: !isPrivate, language: language };
             db.collection('users').doc(currentUser.uid).update(updates).then(function() {
                 suc.textContent = '✅ Profile updated!';
                 currentUserData.name = name;
                 currentUserData.bio = bio;
                 currentUserData.favorites = fav;
+                currentUserData.language = language;
                 currentProfileIsPrivate = isPrivate;
                 if (currentUserData) currentUserData.isPublic = !isPrivate;
                 var ue = document.getElementById('userName'); if (ue) ue.textContent = name;
                 if (typeof updateSidebarData === 'function') updateSidebarData();
+                if (language && typeof changeLanguage === 'function') changeLanguage(language);
                 setTimeout(function() { closeEditProfileModal(); loadProfile(); }, 1000);
             }).catch(function(e) { err.textContent = '❌ ' + e.message; });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ Already loaded class added at top of script
-            
             applyGuestRestrictions();
             var check = setInterval(function() {
                 if (typeof currentUser !== 'undefined') { clearInterval(check); loadProfile(); }
@@ -685,7 +690,7 @@
             document.getElementById('editProfileModal')?.addEventListener('click', function(e) { if(e.target===this)closeEditProfileModal(); });
             document.getElementById('userListModal')?.addEventListener('click', function(e) { if(e.target===this)closeUserList(); });
             document.addEventListener('keydown', function(e) { if(e.key==='Escape'){ closeModal(); closeEditProfileModal(); closeUserList(); } });
-            console.log('✅ Profile page ready (FIX #5: no flash, FIX #13: follow button shows Following in red)');
+            console.log('✅ Profile page ready (FIX #5: no flash, FIX #11: language selector, FIX #13: follow button shows Following in red)');
         });
     </script>
 </body>
