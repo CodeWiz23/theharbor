@@ -337,29 +337,63 @@ function updateSidebarData() {
 // ============================================
 function viewGoldHistory() {
     if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
+    
+    createSettingsModal();
+    var overlay = document.getElementById('settingsModalOverlay');
+    var title = document.getElementById('settingsModalTitle');
+    var body = document.getElementById('settingsModalBody');
+    var confirmBtn = document.getElementById('settingsConfirmBtn');
+    var cancelBtn = document.querySelector('.settings-btn-cancel');
+    
+    if (!overlay || !title || !body || !confirmBtn) {
+        // Fallback
+        alert('💰 Gold Summary\n\nBalance: '+(currentUserData.goldBalance||0)+' 🪙\nReceived: '+(currentUserData.goldReceived||0)+' 🪙\nGiven: '+(currentUserData.goldGiven||0)+' 🪙');
+        return;
+    }
+    
+    title.textContent = '💰 Transaction History';
+    body.innerHTML = '<div class="loading" style="padding:20px;text-align:center;"><div class="loading-spinner"></div> Loading...</div>';
+    confirmBtn.textContent = 'Close';
+    confirmBtn.style.background = 'var(--primary)';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    
+    overlay.classList.add('active');
+    
     db.collection('goldTransactions')
         .where('fromUid', '==', currentUser.uid)
         .orderBy('createdAt', 'desc')
         .limit(10)
         .get()
         .then(function(snap) {
-            var msg = '💰 Recent Gold Activity\n\n';
-            msg += 'Balance: ' + (currentUserData.goldBalance||0) + ' 🪙 | Received: ' + (currentUserData.goldReceived||0) + ' | Given: ' + (currentUserData.goldGiven||0) + '\n\n';
-            if (snap.empty) { msg += 'No transactions yet.'; }
-            else {
+            var html = '<div style="margin-bottom:12px;padding:10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;">';
+            html += '🪙 Balance: ' + (currentUserData.goldBalance||0) + ' | 💰 Received: ' + (currentUserData.goldReceived||0) + ' | 📤 Given: ' + (currentUserData.goldGiven||0);
+            html += '</div>';
+            
+            if (snap.empty) {
+                html += '<p style="text-align:center;color:var(--text-muted);padding:20px;">No transactions yet.</p>';
+            } else {
+                html += '<div style="max-height:300px;overflow-y:auto;">';
                 snap.forEach(function(doc) {
                     var d = doc.data();
-                    var time = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : 'Recently';
-                    msg += '• ' + d.amount + '🪙 to ' + (d.toName||'Someone') + ' — ' + time + '\n  "' + (d.message||'No message') + '"\n\n';
+                    var time = d.createdAt ? d.createdAt.toDate().toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Recently';
+                    html += '<div style="padding:8px 0;border-bottom:1px solid var(--border-color);">';
+                    html += '<span style="font-weight:600;color:var(--secondary);">' + d.amount + ' 🪙</span> → <strong>' + (d.toName||'Someone') + '</strong>';
+                    html += '<div style="font-size:0.75rem;color:var(--text-muted);">' + time + '</div>';
+                    if (d.message) html += '<div style="font-size:0.8rem;color:var(--text-secondary);font-style:italic;">"' + d.message + '"</div>';
+                    html += '</div>';
                 });
+                html += '</div>';
             }
-            alert(msg);
+            body.innerHTML = html;
         })
         .catch(function() {
-            alert('💰 Gold Summary\n\nBalance: '+(currentUserData.goldBalance||0)+' 🪙\nReceived: '+(currentUserData.goldReceived||0)+' 🪙\nGiven: '+(currentUserData.goldGiven||0)+' 🪙');
+            body.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">Could not load transactions.</p>';
         });
+    
+    settingsModalCallback = function() {
+        closeSettingsModal();
+    };
 }
-
 // ============================================
 // INIT
 // ============================================
