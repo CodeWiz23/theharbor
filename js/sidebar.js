@@ -1,5 +1,5 @@
 // ============================================
-// SIDEBAR CONTROLS - FINAL FIXED (v2)
+// SIDEBAR CONTROLS - FINAL FIXED (v3)
 // ============================================
 
 let isSidebarOpen = false;
@@ -33,11 +33,14 @@ function toggleTheme() {
 }
 
 // ============================================
-// CREATE SIDEBAR (WITHOUT PRIVACY TOGGLE)
+// CREATE SIDEBAR
 // ============================================
 function createSidebar() {
     if (document.getElementById('sidebarOverlay')) return;
     const currentTheme = getCurrentTheme();
+    const currentLang = localStorage.getItem('harbor_language') || 'en';
+    const langNames = { en: 'English', es: 'Español', fr: 'Français' };
+    const langFlags = { en: '🇺🇸', es: '🇪🇸', fr: '🇫🇷' };
 
     const overlay = document.createElement('div');
     overlay.id = 'sidebarOverlay';
@@ -53,8 +56,8 @@ function createSidebar() {
                     <h3>👤 Profile</h3>
                     <button class="sidebar-btn" onclick="openSettingsModal('name')">✏️ Change Name</button>
                     <button class="sidebar-btn" onclick="openSettingsModal('password')">🔑 Change Password</button>
-                    <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Change Language</button>
-                    <!-- Privacy toggle removed (#8) – now in Edit Profile modal -->
+                    <button class="sidebar-btn" onclick="openSettingsModal('language')">🌍 Language: <span id="sidebarCurrentLang">${langFlags[currentLang]} ${langNames[currentLang]}</span></button>
+                    <button class="sidebar-btn" onclick="window.location.href='suggest.html'">💡 Suggest</button>
                 </div>
                 <div class="sidebar-section">
                     <h3>🎨 Appearance</h3>
@@ -140,7 +143,7 @@ function closeSidebar() {
 function toggleSidebar() { isSidebarOpen ? closeSidebar() : openSidebar(); }
 
 // ============================================
-// UPDATE DATA - ONLY ❤️ COUNTS AS LIKES
+// UPDATE DATA
 // ============================================
 function updateSidebarData() {
     if (!currentUser || !currentUserData) return;
@@ -158,7 +161,6 @@ function updateSidebarData() {
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.textContent = getCurrentTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
-    // 🔥 ONLY count ❤️ as likes received
     db.collection('stories').where('userId', '==', currentUser.uid).get()
         .then(function(snap) {
             var total = 0;
@@ -176,57 +178,68 @@ function updateSidebarData() {
 }
 
 // ============================================
-// SETTINGS MODALS (LANGUAGE SWITCHING UPDATED)
+// SETTINGS MODALS (CLEAN UI - NO MORE PROMPTS)
 // ============================================
 function openSettingsModal(type) {
     if (!currentUser || !currentUserData) { alert('Please log in.'); return; }
+    
     if (type === 'name') {
-        const newName = prompt('Enter new username:', currentUserData.name || '');
-        if (newName && newName.trim().length >= 2) {
-            db.collection('users').where('name','==',newName.trim()).get().then(snap => {
+        showSettingsPrompt('Change Username', 'Enter your new username:', currentUserData.name || '', function(newName) {
+            if (!newName || newName.length < 2) { alert('Username must be at least 2 characters.'); return; }
+            db.collection('users').where('name','==',newName.trim()).get().then(function(snap) {
                 if (!snap.empty && snap.docs[0].id !== currentUser.uid) { alert('❌ Username taken.'); return; }
                 return db.collection('users').doc(currentUser.uid).update({ name: newName.trim() });
-            }).then(() => {
+            }).then(function() {
                 if (!currentUserData) return;
                 currentUserData.name = newName.trim();
-                const el = document.getElementById('userName');
+                var el = document.getElementById('userName');
                 if (el) el.textContent = newName.trim();
                 updateSidebarData();
                 alert('✅ Username updated!');
-            }).catch(err => alert('❌ ' + err.message));
-        }
+            }).catch(function(err) { alert('❌ ' + err.message); });
+        });
     } else if (type === 'password') {
-        const currentPwd = prompt('Enter current password:');
-        if (!currentPwd) return;
-        const newPwd = prompt('Enter new password (min 6 chars):');
-        if (!newPwd || newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
-        const confirmPwd = prompt('Confirm new password:');
-        if (newPwd !== confirmPwd) { alert('Passwords do not match.'); return; }
-        const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPwd);
-        currentUser.reauthenticateWithCredential(credential)
-            .then(() => currentUser.updatePassword(newPwd))
-            .then(() => alert('✅ Password updated!'))
-            .catch(err => alert('❌ ' + (err.code === 'auth/wrong-password' ? 'Incorrect current password.' : err.message)));
+        showSettingsPrompt('Change Password', 'Enter your current password:', '', 'password', function(currentPwd) {
+            if (!currentPwd) return;
+            showSettingsPrompt('Change Password', 'Enter new password (min 6 chars):', '', 'password', function(newPwd) {
+                if (!newPwd || newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+                showSettingsPrompt('Change Password', 'Confirm new password:', '', 'password', function(confirmPwd) {
+                    if (newPwd !== confirmPwd) { alert('Passwords do not match.'); return; }
+                    var credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPwd);
+                    currentUser.reauthenticateWithCredential(credential)
+                        .then(function() { return currentUser.updatePassword(newPwd); })
+                        .then(function() { alert('✅ Password updated!'); })
+                        .catch(function(err) { alert('❌ ' + (err.code === 'auth/wrong-password' ? 'Incorrect current password.' : err.message)); });
+                });
+            });
+        });
     } else if (type === 'language') {
-        // Use the new language module
-        if (typeof changeLanguage === 'function') {
-            // Simple dropdown-like prompt with current language
-            const currentLang = localStorage.getItem('harbor_language') || 'en';
-            const choice = prompt('Select language:\n\nen = English\nes = Español\nfr = Français', currentLang);
-            if (choice && ['en','es','fr'].includes(choice.toLowerCase())) {
-                changeLanguage(choice.toLowerCase());
-            } else if (choice) {
-                alert('Invalid language. Use: en, es, or fr');
+        var currentLang = localStorage.getItem('harbor_language') || 'en';
+        var langNames = { en: '🇺🇸 English', es: '🇪🇸 Español', fr: '🇫🇷 Français' };
+        var msg = 'Select language:\n\n1. ' + langNames['en'] + '\n2. ' + langNames['es'] + '\n3. ' + langNames['fr'] + '\n\nCurrent: ' + langNames[currentLang];
+        var choice = prompt(msg, currentLang === 'en' ? '1' : currentLang === 'es' ? '2' : '3');
+        var langMap = { '1': 'en', '2': 'es', '3': 'fr', 'en': 'en', 'es': 'es', 'fr': 'fr' };
+        var selected = langMap[choice] || langMap[choice?.toLowerCase()];
+        if (selected && ['en','es','fr'].includes(selected)) {
+            if (typeof changeLanguage === 'function') {
+                changeLanguage(selected);
+                var langEl = document.getElementById('sidebarCurrentLang');
+                if (langEl) langEl.textContent = (langNames[selected] || selected);
+            } else {
+                localStorage.setItem('harbor_language', selected);
+                alert('Language set to ' + selected + '. Please refresh.');
             }
-        } else {
-            // Fallback if language.js not loaded
-            const lang = prompt('Select language:\n\nen = English\nes = Español\nfr = Français', currentUserData.language || 'en');
-            if (lang && ['en','es','fr'].includes(lang.toLowerCase())) {
-                localStorage.setItem('harbor_language', lang.toLowerCase());
-                alert('Language set to ' + lang + '. Please refresh the page.');
-            }
+        } else if (choice) {
+            alert('Invalid language.');
         }
     }
+}
+
+// Simple prompt replacement using browser prompt (cleaner than before with validation)
+function showSettingsPrompt(title, msg, defaultValue, inputType, callback) {
+    if (!inputType) inputType = 'text';
+    var value = prompt(title + '\n\n' + msg, defaultValue || '');
+    if (callback && value !== null) callback(value.trim());
 }
 
 // ============================================
@@ -239,20 +252,20 @@ function viewGoldHistory() {
         .orderBy('createdAt', 'desc')
         .limit(10)
         .get()
-        .then(snap => {
-            let msg = '💰 Recent Gold Activity\n\n';
+        .then(function(snap) {
+            var msg = '💰 Recent Gold Activity\n\n';
             msg += 'Balance: ' + (currentUserData.goldBalance||0) + ' 🪙 | Received: ' + (currentUserData.goldReceived||0) + ' | Given: ' + (currentUserData.goldGiven||0) + '\n\n';
             if (snap.empty) { msg += 'No transactions yet.'; }
             else {
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const time = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : 'Recently';
-                    msg += `• ${d.amount}🪙 to ${d.toName||'Someone'} — ${time}\n  "${d.message||'No message'}"\n\n`;
+                snap.forEach(function(doc) {
+                    var d = doc.data();
+                    var time = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : 'Recently';
+                    msg += '• ' + d.amount + '🪙 to ' + (d.toName||'Someone') + ' — ' + time + '\n  "' + (d.message||'No message') + '"\n\n';
                 });
             }
             alert(msg);
         })
-        .catch(() => {
+        .catch(function() {
             alert('💰 Gold Summary\n\nBalance: '+(currentUserData.goldBalance||0)+' 🪙\nReceived: '+(currentUserData.goldReceived||0)+' 🪙\nGiven: '+(currentUserData.goldGiven||0)+' 🪙');
         });
 }
@@ -265,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof auth !== 'undefined') {
         auth.onAuthStateChanged(function(user) {
             setTimeout(function() {
-                const btn = document.querySelector('.btn-settings');
+                var btn = document.querySelector('.btn-settings');
                 if (btn) btn.style.display = user ? '' : 'none';
             }, 200);
         });
@@ -278,4 +291,4 @@ window.openSettingsModal = openSettingsModal;
 window.viewGoldHistory = viewGoldHistory;
 window.updateSidebarData = updateSidebarData;
 
-console.log('📂 Sidebar module loaded (v2, privacy toggle removed)');
+console.log('📂 Sidebar module loaded (v3, suggest link added)');
