@@ -1,12 +1,14 @@
 // ============================================
-// HARBOR LANGUAGE MODULE (Instant Switching)
+// HARBOR LANGUAGE MODULE (v4 - Working Translation)
 // ============================================
 
 const supportedLangs = ['en', 'es', 'fr'];
+const langNames = { en: 'English', es: 'Español', fr: 'Français' };
+const langFlags = { en: '🇺🇸', es: '🇪🇸', fr: '🇫🇷' };
+
 let currentLang = localStorage.getItem('harbor_language') || 'en';
 let translations = {};
 
-// Load translation file for a given language
 async function loadTranslations(lang) {
     try {
         const response = await fetch(`locales/${lang}.json`);
@@ -18,67 +20,94 @@ async function loadTranslations(lang) {
         return translations;
     } catch (err) {
         console.warn(`Could not load ${lang} translations, falling back to en`);
-        if (lang !== 'en') {
-            return loadTranslations('en');
-        }
+        if (lang !== 'en') return loadTranslations('en');
         translations = {};
         return {};
     }
 }
 
-// Apply translations to all elements with data-i18n attribute
 function applyTranslations() {
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
+    if (!translations || Object.keys(translations).length === 0) return;
+
+    // 1. Elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
         if (translations[key]) {
-            // If the element has a placeholder attribute, update it
             if (el.hasAttribute('placeholder')) {
                 el.setAttribute('placeholder', translations[key]);
-            } else if (el.tagName === 'INPUT' && el.type === 'submit' || el.tagName === 'BUTTON') {
-                // For buttons, set textContent
-                el.textContent = translations[key];
             } else {
                 el.textContent = translations[key];
             }
         }
     });
+
+    // 2. Translate common UI elements by known patterns
+    // Header buttons
+    var loginBtns = document.querySelectorAll('.btn-login, [onclick*="login"]');
+    loginBtns.forEach(function(btn) {
+        if (btn.textContent.includes('Log In') || btn.textContent.includes('Iniciar') || btn.textContent.includes('Connecter')) {
+            btn.textContent = '🔐 ' + (translations.login || 'Log In');
+        }
+    });
     
-    // Update document title if it has a translation
-    if (translations.app_name) {
-        // Optionally update title based on page, but for simplicity, we can leave the existing title.
+    var signupBtns = document.querySelectorAll('.btn-signup, [onclick*="signup"]');
+    signupBtns.forEach(function(btn) {
+        if (btn.textContent.includes('Join') || btn.textContent.includes('Unirse') || btn.textContent.includes('Rejoindre')) {
+            btn.textContent = '📝 ' + (translations.signup || 'Join');
+        }
+    });
+
+    // Footer
+    var footers = document.querySelectorAll('.footer');
+    footers.forEach(function(f) {
+        if (translations.app_name) {
+            var firstDiv = f.querySelector('div:first-child');
+            if (firstDiv && firstDiv.textContent.includes('Harbor')) {
+                firstDiv.textContent = '⚓ ' + translations.app_name + ' — A community for sharing, healing, and growing.';
+            }
+        }
+    });
+
+    // Sidebar language indicator
+    var langEl = document.getElementById('sidebarCurrentLang');
+    if (langEl) {
+        langEl.textContent = (langFlags[currentLang] || '') + ' ' + (langNames[currentLang] || currentLang);
+    }
+
+    // Update document title if app_name available
+    if (translations.app_name && document.title.includes('Harbor')) {
+        var pageTitle = document.title.split('—')[1] || '';
+        document.title = translations.app_name + (pageTitle ? ' —' + pageTitle : '');
     }
 }
 
-// Change language and apply immediately
 async function changeLanguage(lang) {
     if (!supportedLangs.includes(lang)) {
-        console.warn(`Language ${lang} not supported`);
+        console.warn('Language ' + lang + ' not supported');
         return;
     }
     await loadTranslations(lang);
     applyTranslations();
-    // Update sidebar data (if open) to reflect new language
+    
     if (typeof updateSidebarData === 'function') {
         updateSidebarData();
     }
-    // Update user preference in Firestore if logged in
+    
     if (typeof currentUser !== 'undefined' && currentUser && currentUser.uid) {
-        db.collection('users').doc(currentUser.uid).update({ language: lang }).catch(() => {});
+        db.collection('users').doc(currentUser.uid).update({ language: lang }).catch(function() {});
     }
 }
 
-// Initialize: load saved language on page load
+// Initialize
 (async function initLanguage() {
     await loadTranslations(currentLang);
-    document.addEventListener('DOMContentLoaded', () => {
-        applyTranslations();
-    });
-    // Also apply immediately if DOM already loaded
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
         applyTranslations();
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        applyTranslations();
+    });
 })();
 
-// Expose globally
 window.changeLanguage = changeLanguage;
-window.getCurrentLanguage = () => currentLang;
+window.getCurrentLanguage = function() { return currentLang; };
