@@ -50,17 +50,17 @@
 </head>
 
 <body>
-    <!-- NO-FLASH CHECK -->
     <script>
     (function() {
         var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
         if (wasLoggedIn === 'true') {
-            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+            var style = document.createElement('style');
+            style.textContent = '.guest-only{display:block!important}.auth-only{display:none!important}';
+            document.head.appendChild(style);
         }
     })();
     </script>
 
-    <!-- ICON DOCK HEADER -->
     <header class="header" role="banner">
         <a href="index.html" class="logo" aria-label="Home">⚓ <span>The</span> Harbor</a>
         <div class="header-right">
@@ -155,26 +155,57 @@
             var timeStr = notif.createdAt ? notif.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : 'Recently';
             var fromName = escapeHTML(notif.fromName || 'Someone');
             switch (notif.type) {
-                case 'follow': icon = '👤'; message = '<strong>'+fromName+'</strong> started following you'; linkUrl = 'profile.html?uid='+notif.fromUid; break;
-                case 'like': icon = '❤️'; message = '<strong>'+fromName+'</strong> ❤️ your story'; linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; break;
-                case 'comment': icon = '💬'; message = '<strong>'+fromName+'</strong> commented on your story'; linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; break;
-                case 'gold': icon = '🪙'; message = '<strong>'+fromName+'</strong> sent you gold'; linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; break;
-                case 'daily': icon = '🎁'; message = 'Your daily reward is available!'; linkUrl = 'daily-rewards.html'; break;
-                default: message = notif.message || 'New notification';
+                case 'follow': 
+                    icon = '👤'; 
+                    message = '<strong>'+fromName+'</strong> started following you'; 
+                    linkUrl = 'profile.html?uid='+notif.fromUid; 
+                    break;
+                case 'like': 
+                    icon = '❤️'; 
+                    message = '<strong>'+fromName+'</strong> ❤️ your story'; 
+                    linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; 
+                    break;
+                case 'comment': 
+                    icon = '💬'; 
+                    message = '<strong>'+fromName+'</strong> commented on your story'; 
+                    linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; 
+                    break;
+                case 'comment_like': 
+                    icon = '❤️'; 
+                    message = '<strong>'+fromName+'</strong> liked your comment' + (notif.data && notif.data.commentText ? ': "' + notif.data.commentText + '"' : ''); 
+                    linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId + '#comment-' + notif.data.commentId : '#'; 
+                    break;
+                case 'comment_reply': 
+                    icon = '💬'; 
+                    message = '<strong>'+fromName+'</strong> replied to your comment'; 
+                    linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId + '#comment-' + notif.data.commentId : '#'; 
+                    break;
+                case 'gold': 
+                    icon = '🪙'; 
+                    message = '<strong>'+fromName+'</strong> sent you gold'; 
+                    linkUrl = notif.data && notif.data.storyId ? 'story.html?id='+notif.data.storyId : '#'; 
+                    break;
+                case 'daily': 
+                    icon = '🎁'; 
+                    message = 'Your daily reward is available!'; 
+                    linkUrl = 'daily-rewards.html'; 
+                    break;
+                default: 
+                    message = notif.message || 'New notification';
             }
             return '<div class="notif-item '+(notif.read?'':'unread')+'" onclick="handleNotifClick(\''+notif.id+'\',\''+linkUrl+'\')"><div class="notif-icon">'+icon+'</div><div class="notif-content"><div class="message">'+message+'</div><div class="time">'+timeStr+'</div></div><div class="notif-dot"></div></div>';
         }
 
         function handleNotifClick(notifId, linkUrl) {
-            db.collection('notifications').doc(notifId).update({ read: true }).catch(()=>{});
+            db.collection('notifications').doc(notifId).update({ read: true }).catch(function(){});
             if (linkUrl && linkUrl !== '#') window.location.href = linkUrl;
         }
 
         function markAllRead() {
             if (!currentUser) return;
             db.collection('notifications').where('toUid','==',currentUser.uid).where('read','==',false).get()
-                .then(snapshot => { var batch = db.batch(); snapshot.forEach(doc => batch.update(doc.ref,{read:true})); return batch.commit(); })
-                .catch(err => console.error('Mark all read error:', err));
+                .then(function(snapshot) { var batch = db.batch(); snapshot.forEach(function(doc) { batch.update(doc.ref,{read:true}); }); return batch.commit(); })
+                .catch(function(err) { console.error('Mark all read error:', err); });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
