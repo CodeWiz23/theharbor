@@ -176,6 +176,26 @@
         </div>
     </div>
 
+    <!-- ✅ Gold Donation Modal (matches story.html) -->
+    <div class="modal" id="goldModal" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeGoldModal()" aria-label="Close">&times;</button>
+            <h2>💰 Donate Gold</h2>
+            <div class="gold-balance-display" style="padding:12px;background:#fef3c7;border-radius:var(--radius-sm);margin-bottom:14px;text-align:center;font-weight:600;">Your Balance: <span id="goldBalanceAmount" style="font-size:1.2rem;color:var(--secondary-dark);">0</span> 🪙</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+                <button class="gold-amount-btn" onclick="selectGoldAmount(1)">1 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(5)">5 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(10)">10 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(25)">25 🪙</button>
+                <button class="gold-amount-btn" onclick="selectGoldAmount(50)">50 🪙</button>
+            </div>
+            <div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Custom Amount:</label><input type="number" id="customGoldAmount" placeholder="Enter amount..." min="1" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:inherit;"></div>
+            <div style="margin-bottom:10px;"><label style="font-weight:600;display:block;margin-bottom:4px;">Message (optional):</label><textarea id="goldMessage" placeholder="Say something nice..." rows="2" style="width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;resize:vertical;"></textarea></div>
+            <div id="goldError" class="error-msg"></div>
+            <button class="btn-modal" onclick="confirmGoldDonation()" style="background:var(--secondary);">💎 Send Gold</button>
+        </div>
+    </div>
+
     <footer class="footer" role="contentinfo">
         <div>⚓ The Harbor — A community for sharing, healing, and growing.</div>
         <div class="footer-links">
@@ -194,14 +214,11 @@
             var tooltip = document.createElement('span');
             tooltip.className = 'tab-info-tooltip show';
             tooltip.textContent = text;
-            // Position above the icon, centered
             tooltip.style.left = rect.left + (rect.width / 2) + 'px';
             tooltip.style.top = (rect.top - 12) + 'px';
             tooltip.style.transform = 'translate(-50%, -100%)';
-            // Keep tooltip within screen edges
             tooltip.style.maxWidth = Math.min(260, window.innerWidth - 20) + 'px';
             document.body.appendChild(tooltip);
-            // Adjust if goes off left/right edges
             var tooltipRect = tooltip.getBoundingClientRect();
             if (tooltipRect.left < 5) { tooltip.style.left = '5px'; tooltip.style.transform = 'translate(0, -100%)'; }
             if (tooltipRect.right > window.innerWidth - 5) { tooltip.style.left = (window.innerWidth - 5) + 'px'; tooltip.style.transform = 'translate(-100%, -100%)'; }
