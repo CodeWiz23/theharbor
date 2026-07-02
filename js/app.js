@@ -646,7 +646,22 @@ function loadAllUserReactions() {
 function openGoldModal(storyId) {
     if (!currentUser || !currentUserData) return;
     var b = currentUserData.goldBalance || 0;
-    if (b < 1) { alert('No gold!'); return; }
+    if (b < 1) { 
+    var noGoldModal = document.getElementById('goldModal');
+    if (noGoldModal) {
+        document.getElementById('goldBalanceAmount').textContent = '0';
+        document.getElementById('goldError').textContent = '⚠️ You have no gold! Visit Daily Rewards to earn some.';
+        noGoldModal.classList.add('active');
+        currentStoryId = storyId;
+        window.selectedGoldAmount = 0;
+        document.getElementById('customGoldAmount').value = '';
+        document.getElementById('goldMessage').value = '';
+        document.querySelectorAll('.gold-amount-btn').forEach(function(x) { x.classList.remove('selected'); });
+        return;
+    }
+    alert('No gold! Visit Daily Rewards to earn some.');
+    return;
+}
     var modal = document.getElementById('goldModal');
     if (!modal) {
         var amount = prompt('Enter amount (Balance: ' + b + ' 🪙):');
