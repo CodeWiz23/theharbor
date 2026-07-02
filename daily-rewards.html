@@ -30,26 +30,47 @@
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
-        .daily-container { max-width: 520px; margin: 0 auto; padding: 1.5rem 0; text-align: center; }
-        .daily-card { background: var(--bg-card); padding: 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
-        .daily-card .big-icon { font-size: 4rem; display: block; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
+        .daily-container { max-width: 560px; margin: 0 auto; padding: 1.5rem 0; text-align: center; }
+        .daily-card { background: var(--bg-card); padding: 2.5rem 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .daily-card.claimable { border-color: #f1c40f; box-shadow: 0 0 40px rgba(241,196,15,0.2), var(--shadow-md); }
+        .daily-card.claimed { border-color: #16a34a; }
+        .daily-card .big-icon { font-size: 4.5rem; display: block; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
+        .daily-card.claimable .big-icon { animation: floatBounce 0.6s ease-in-out infinite; }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        .daily-card h1 { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+        @keyframes floatBounce { 0%,100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-20px) scale(1.1); } 60% { transform: translateY(-5px) scale(1.05); } }
+        .daily-card h1 { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin: 0; }
         .daily-card h1 span { color: var(--secondary); }
         .daily-card .subtitle { color: var(--text-muted); margin: 8px 0 16px; font-size: 0.95rem; }
-        .reward-amount { font-size: 3rem; font-weight: 700; color: var(--secondary); margin: 12px 0; background: linear-gradient(135deg, #f1c40f, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .countdown { background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-md); margin: 16px 0; font-weight: 600; font-size: 1.1rem; color: var(--text-primary); }
-        .countdown .time { font-size: 1.4rem; color: var(--primary); }
-        .claim-btn { display: inline-block; padding: 14px 48px; background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; border: none; border-radius: 9999px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin: 16px 0; box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4); font-family: inherit; }
-        .claim-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 6px 28px rgba(243, 156, 18, 0.5); }
-        .claim-btn:active:not(:disabled) { transform: scale(0.96); }
+        .reward-amount { font-size: 3.5rem; font-weight: 800; margin: 12px 0; background: linear-gradient(135deg, #f1c40f, #f39c12, #e74c3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 2s ease-in-out infinite; background-size: 200% 200%; }
+        @keyframes shimmer { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .countdown { background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-md); margin: 16px 0; font-weight: 600; font-size: 1rem; color: var(--text-secondary); }
+        .countdown .time { font-size: 1.6rem; color: var(--primary); font-weight: 700; display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .countdown.ready { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; animation: pulseGlow 2s ease-in-out infinite; }
+        .countdown.ready .time { color: #d97706; font-size: 1.8rem; }
+        @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 10px rgba(241,196,15,0.3); } 50% { box-shadow: 0 0 30px rgba(241,196,15,0.6); } }
+        .claim-btn { display: inline-block; padding: 16px 52px; background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; border: none; border-radius: 9999px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin: 16px 0; box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4); font-family: inherit; position: relative; overflow: hidden; }
+        .claim-btn:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 8px 35px rgba(243, 156, 18, 0.6); }
+        .claim-btn:active:not(:disabled) { transform: scale(0.95); }
         .claim-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .last-claimed { font-size: 0.85rem; color: var(--text-muted); }
+        .claim-btn.ready { animation: btnPulse 1.5s ease-in-out infinite; }
+        @keyframes btnPulse { 0%,100% { box-shadow: 0 4px 20px rgba(243,156,18,0.4); } 50% { box-shadow: 0 8px 40px rgba(243,156,18,0.8); } }
+        .claim-btn .sparkle { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; animation: sparklePop 1s ease-out forwards; }
+        @keyframes sparklePop { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0) translateY(-20px); } }
+        .streak-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+        .streak-dot { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-secondary); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); transition: all 0.3s; }
+        .streak-dot.claimed { background: #f1c40f; border-color: #f39c12; color: white; animation: popIn 0.5s ease; }
+        .streak-dot.today { border-color: #f1c40f; border-width: 3px; animation: todayGlow 1.5s ease-in-out infinite; }
+        @keyframes popIn { 0% { transform: scale(0); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        @keyframes todayGlow { 0%,100% { box-shadow: 0 0 5px rgba(241,196,15,0.3); } 50% { box-shadow: 0 0 20px rgba(241,196,15,0.7); } }
+        .last-claimed { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; }
         .last-claimed strong { color: var(--text-primary); }
         .gold-shower { position: fixed; pointer-events: none; z-index: 9999; }
-        .gold-particle { position: fixed; font-size: 2rem; animation: goldFall 2s ease-out forwards; pointer-events: none; }
-        @keyframes goldFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); } }
-        @media (max-width: 480px) { .daily-card { padding: 1.5rem 1rem; } .daily-card h1 { font-size: 1.5rem; } .reward-amount { font-size: 2.5rem; } .claim-btn { padding: 12px 36px; font-size: 1rem; } }
+        .gold-particle { position: fixed; font-size: 2rem; animation: goldFall 2.5s ease-out forwards; pointer-events: none; }
+        @keyframes goldFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); } 80% { opacity: 0.6; } 100% { opacity: 0; transform: translateY(105vh) rotate(720deg) scale(0.2); } }
+        .confetti { position: fixed; width: 10px; height: 10px; z-index: 9998; pointer-events: none; animation: confettiFall 3s ease-out forwards; }
+        @keyframes confettiFall { 0% { opacity: 1; transform: translateY(-100px) rotate(0deg); } 100% { opacity: 0; transform: translateY(110vh) rotate(720deg); } }
+        .claimed-badge { display: inline-block; background: #16a34a; color: white; padding: 8px 24px; border-radius: 9999px; font-weight: 700; font-size: 1rem; animation: popIn 0.5s ease; }
+        @media (max-width: 480px) { .daily-card { padding: 1.5rem 1rem; } .daily-card h1 { font-size: 1.5rem; } .reward-amount { font-size: 2.5rem; } .claim-btn { padding: 12px 36px; font-size: 1rem; } .streak-dot { width: 28px; height: 28px; font-size: 0.7rem; } }
     </style>
 </head>
 
@@ -58,7 +79,9 @@
     (function() {
         var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
         if (wasLoggedIn === 'true') {
-            document.write('<style>.guest-only{display:block!important}.auth-only{display:none!important}</style>');
+            var style = document.createElement('style');
+            style.textContent = '.guest-only{display:block!important}.auth-only{display:none!important}';
+            document.head.appendChild(style);
         }
     })();
     </script>
@@ -89,14 +112,19 @@
 
     <div class="container">
         <div class="daily-container">
-            <div class="daily-card">
-                <span class="big-icon">🎁</span>
+            <div class="daily-card" id="dailyCard">
+                <span class="big-icon" id="dailyIcon">🎁</span>
                 <h1>Daily <span>Reward</span></h1>
-                <p class="subtitle">Claim your free gold every day!</p>
+                <p class="subtitle" id="dailySubtitle">Claim your free gold every day!</p>
                 <div class="reward-amount">+10 🪙</div>
+                <!-- Streak -->
+                <div class="streak-row" id="streakRow">
+                    <div class="streak-dot">1</div><div class="streak-dot">2</div><div class="streak-dot">3</div><div class="streak-dot">4</div><div class="streak-dot">5</div><div class="streak-dot">6</div><div class="streak-dot">7</div>
+                </div>
                 <div id="claimStatus">
                     <div class="countdown" id="countdownContainer">
-                        Next reward in: <span class="time" id="countdownTimer">--:--:--</span>
+                        <span id="countdownLabel">Next reward in</span>
+                        <span class="time" id="countdownTimer">--:--:--</span>
                     </div>
                     <button class="claim-btn" id="claimBtn" onclick="claimDailyReward()" disabled>🎁 Claim 10 Gold</button>
                 </div>
@@ -129,11 +157,13 @@
         var canClaim = false;
         var nextClaimTime = null;
         var timerInterval = null;
+        var streakDays = 0;
+        var todayClaimed = false;
 
         function applyGuestRestrictions() {
             var isLoggedIn = (typeof currentUser !== 'undefined' && currentUser !== null && currentUser !== false);
-            document.querySelectorAll('.guest-only').forEach(el => el.style.display = isLoggedIn ? '' : 'none');
-            document.querySelectorAll('.auth-only').forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+            document.querySelectorAll('.guest-only').forEach(function(el) { el.style.display = isLoggedIn ? '' : 'none'; });
+            document.querySelectorAll('.auth-only').forEach(function(el) { el.style.display = isLoggedIn ? 'none' : ''; });
             var ui = document.getElementById('userInfo'); if (ui) ui.style.display = isLoggedIn ? 'flex' : 'none';
         }
 
@@ -152,18 +182,38 @@
             if (!nextClaimTime) { document.getElementById('countdownTimer').textContent = '--:--:--'; return; }
             var now = new Date();
             var diff = nextClaimTime.getTime() - now.getTime();
+            var countdownContainer = document.getElementById('countdownContainer');
+            var claimBtn = document.getElementById('claimBtn');
+            var dailyCard = document.getElementById('dailyCard');
+            
             if (diff <= 0) {
-                canClaim = true;
-                document.getElementById('claimBtn').disabled = false;
-                document.getElementById('countdownContainer').style.display = 'none';
-                document.getElementById('claimBtn').textContent = '🎁 Claim 10 Gold';
+                // ✅ Claimable — show ready state
+                if (!todayClaimed) {
+                    canClaim = true;
+                    claimBtn.disabled = false;
+                    claimBtn.textContent = '🎁 Claim 10 Gold Now!';
+                    claimBtn.classList.add('ready');
+                    countdownContainer.classList.add('ready');
+                    document.getElementById('countdownLabel').textContent = '🎉 Ready to claim!';
+                    document.getElementById('countdownTimer').textContent = 'Claim Now';
+                    dailyCard.classList.add('claimable');
+                    document.getElementById('dailyIcon').textContent = '🎉';
+                    document.getElementById('dailySubtitle').textContent = 'Your daily reward is ready! Claim before midnight.';
+                }
                 clearInterval(timerInterval);
-                document.getElementById('countdownTimer').textContent = '00:00:00';
                 return;
             }
+            
+            // Countdown state
             canClaim = false;
-            document.getElementById('claimBtn').disabled = true;
-            document.getElementById('countdownContainer').style.display = 'block';
+            claimBtn.disabled = true;
+            claimBtn.classList.remove('ready');
+            countdownContainer.classList.remove('ready');
+            dailyCard.classList.remove('claimable');
+            document.getElementById('countdownLabel').textContent = 'Next reward in';
+            document.getElementById('dailyIcon').textContent = '🎁';
+            document.getElementById('dailySubtitle').textContent = 'Claim your free gold every day!';
+            
             var hours = Math.floor(diff / 3600000);
             var minutes = Math.floor((diff % 3600000) / 60000);
             var seconds = Math.floor((diff % 60000) / 1000);
@@ -177,24 +227,72 @@
             var localOffset = today.getTimezoneOffset();
             var bdNow = new Date(today.getTime() + (bdOffset + localOffset) * 60000);
             var bdTodayStr = bdNow.toISOString().split('T')[0];
-            db.collection('dailyClaims').doc(currentUser.uid).get().then(doc => {
+            
+            db.collection('dailyClaims').doc(currentUser.uid).get().then(function(doc) {
                 var lastClaimed = null;
-                if (doc.exists) { var data = doc.data(); lastClaimed = data.lastClaimedDate; document.getElementById('lastClaimedDate').textContent = data.lastClaimedDate || 'Unknown'; }
-                else { document.getElementById('lastClaimedDate').textContent = 'Never'; }
-                if (lastClaimed === bdTodayStr) { canClaim = false; document.getElementById('claimBtn').disabled = true; document.getElementById('claimBtn').textContent = '✅ Claimed Today'; }
-                else { canClaim = true; document.getElementById('claimBtn').disabled = false; document.getElementById('claimBtn').textContent = '🎁 Claim 10 Gold'; document.getElementById('countdownContainer').style.display = 'none'; }
+                if (doc.exists) { 
+                    var data = doc.data(); 
+                    lastClaimed = data.lastClaimedDate; 
+                    streakDays = data.streakDays || 0;
+                    document.getElementById('lastClaimedDate').textContent = data.lastClaimedDate || 'Unknown'; 
+                } else { 
+                    document.getElementById('lastClaimedDate').textContent = 'Never'; 
+                    streakDays = 0;
+                }
+                
+                todayClaimed = (lastClaimed === bdTodayStr);
+                
+                if (todayClaimed) { 
+                    canClaim = false; 
+                    document.getElementById('claimBtn').disabled = true; 
+                    document.getElementById('claimBtn').textContent = '✅ Claimed Today'; 
+                    document.getElementById('claimBtn').classList.remove('ready');
+                    document.getElementById('countdownContainer').style.display = 'block';
+                    document.getElementById('countdownContainer').classList.remove('ready');
+                    document.getElementById('countdownLabel').textContent = 'Come back tomorrow!';
+                    document.getElementById('countdownTimer').textContent = '✅ Done';
+                    document.getElementById('dailyCard').classList.add('claimed');
+                    document.getElementById('dailyCard').classList.remove('claimable');
+                    document.getElementById('dailyIcon').textContent = '✅';
+                    document.getElementById('dailySubtitle').textContent = 'You\'ve claimed today\'s reward. See you tomorrow!';
+                } else { 
+                    canClaim = true; 
+                    document.getElementById('claimBtn').disabled = false; 
+                    document.getElementById('claimBtn').textContent = '🎁 Claim 10 Gold Now!'; 
+                    document.getElementById('claimBtn').classList.add('ready');
+                    document.getElementById('countdownContainer').style.display = 'block';
+                    document.getElementById('countdownContainer').classList.add('ready');
+                    document.getElementById('countdownLabel').textContent = '🎉 Ready to claim!';
+                    document.getElementById('countdownTimer').textContent = 'Claim Now';
+                    document.getElementById('dailyCard').classList.add('claimable');
+                    document.getElementById('dailyCard').classList.remove('claimed');
+                    document.getElementById('dailyIcon').textContent = '🎉';
+                    document.getElementById('dailySubtitle').textContent = 'Your daily reward is ready! Claim before midnight.';
+                }
+                
+                updateStreakDots();
                 nextClaimTime = getNextResetTime();
                 updateTimerDisplay();
                 if (timerInterval) clearInterval(timerInterval);
                 timerInterval = setInterval(updateTimerDisplay, 1000);
-            }).catch(err => { console.error('Error:', err); document.getElementById('lastClaimedDate').textContent = 'Error'; });
+            }).catch(function(err) { console.error('Error:', err); document.getElementById('lastClaimedDate').textContent = 'Error'; });
+        }
+
+        function updateStreakDots() {
+            var dots = document.querySelectorAll('.streak-dot');
+            dots.forEach(function(dot, i) {
+                dot.classList.remove('claimed', 'today');
+                if (i < streakDays) dot.classList.add('claimed');
+                if (todayClaimed && i === streakDays - 1 && streakDays > 0) dot.classList.add('today');
+                if (!todayClaimed && i === streakDays) dot.classList.add('today');
+            });
         }
 
         function claimDailyReward() {
             if (!currentUser) { alert('Please log in.'); return; }
-            if (!canClaim) return;
+            if (!canClaim || todayClaimed) return;
             var btn = document.getElementById('claimBtn');
-            btn.disabled = true; btn.textContent = '⏳ Claiming...';
+            btn.disabled = true; btn.textContent = '⏳ Claiming...'; btn.classList.remove('ready');
             var today = new Date();
             var bdOffset = 6 * 60;
             var localOffset = today.getTimezoneOffset();
@@ -202,39 +300,85 @@
             var bdTodayStr = bdNow.toISOString().split('T')[0];
             var userRef = db.collection('users').doc(currentUser.uid);
             var claimRef = db.collection('dailyClaims').doc(currentUser.uid);
-            db.runTransaction(transaction => {
-                return transaction.get(userRef).then(userDoc => {
+            
+            db.runTransaction(function(transaction) {
+                return transaction.get(userRef).then(function(userDoc) {
                     if (!userDoc.exists) throw new Error('User not found');
                     var currentGold = userDoc.data().goldBalance || 0;
+                    var newStreak = streakDays + 1;
+                    if (newStreak > 7) newStreak = 1;
                     transaction.update(userRef, { goldBalance: currentGold + 10 });
-                    transaction.set(claimRef, { lastClaimedDate: bdTodayStr, claimedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-                    return currentGold + 10;
+                    transaction.set(claimRef, { 
+                        lastClaimedDate: bdTodayStr, 
+                        streakDays: newStreak,
+                        claimedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                    }, { merge: true });
+                    return { newBalance: currentGold + 10, newStreak: newStreak };
                 });
-            }).then(newBalance => {
-                if (currentUserData) currentUserData.goldBalance = newBalance;
+            }).then(function(result) {
+                if (currentUserData) currentUserData.goldBalance = result.newBalance;
                 if (typeof updateSidebarData === 'function') updateSidebarData();
                 document.getElementById('lastClaimedDate').textContent = bdTodayStr;
-                btn.textContent = '✅ Claimed Today'; btn.disabled = true; canClaim = false;
-                document.getElementById('claimSuccess').textContent = '✅ +10 Gold added! New balance: ' + newBalance + ' 🪙';
+                streakDays = result.newStreak;
+                todayClaimed = true;
+                canClaim = false;
+                btn.textContent = '✅ Claimed Today'; btn.disabled = true; btn.classList.remove('ready');
+                document.getElementById('claimSuccess').textContent = '✅ +10 Gold added! Balance: ' + result.newBalance + ' 🪙';
+                document.getElementById('dailyCard').classList.remove('claimable');
+                document.getElementById('dailyCard').classList.add('claimed');
+                document.getElementById('dailyIcon').textContent = '✅';
+                document.getElementById('dailySubtitle').textContent = 'You\'ve claimed today\'s reward. See you tomorrow!';
+                document.getElementById('countdownContainer').classList.remove('ready');
+                document.getElementById('countdownLabel').textContent = 'Come back tomorrow!';
+                document.getElementById('countdownTimer').textContent = '✅ Done';
+                updateStreakDots();
                 createGoldShower();
+                createConfetti();
                 loadDailyRewardState();
-            }).catch(err => { console.error('Claim error:', err); document.getElementById('claimError').textContent = '❌ ' + err.message; btn.disabled = false; btn.textContent = '🎁 Claim 10 Gold'; });
+            }).catch(function(err) { 
+                console.error('Claim error:', err); 
+                document.getElementById('claimError').textContent = '❌ ' + err.message; 
+                btn.disabled = false; 
+                btn.textContent = '🎁 Claim 10 Gold Now!'; 
+                btn.classList.add('ready');
+            });
         }
 
         function createGoldShower() {
-            var emojis = ['🪙', '💰', '✨', '⭐', '💛'];
-            for (var i = 0; i < 40; i++) {
+            var emojis = ['🪙', '💰', '✨', '⭐', '💛', '💎'];
+            for (var i = 0; i < 60; i++) {
                 setTimeout(function() {
                     var particle = document.createElement('div');
                     particle.className = 'gold-particle';
                     particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
                     particle.style.left = Math.random() * 100 + '%';
-                    particle.style.top = -(Math.random() * 40) + 'px';
-                    particle.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-                    particle.style.fontSize = (1.5 + Math.random() * 2.5) + 'rem';
+                    particle.style.top = -(Math.random() * 60) + 'px';
+                    particle.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+                    particle.style.fontSize = (1.5 + Math.random() * 3) + 'rem';
+                    particle.style.animationDelay = Math.random() * 0.5 + 's';
                     document.body.appendChild(particle);
-                    setTimeout(function() { particle.remove(); }, 3500);
-                }, i * 50);
+                    setTimeout(function() { particle.remove(); }, 4000);
+                }, i * 40);
+            }
+        }
+
+        function createConfetti() {
+            var colors = ['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#2ecc71','#f39c12','#e74c3c'];
+            for (var i = 0; i < 80; i++) {
+                setTimeout(function() {
+                    var confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = -(Math.random() * 40) + 'px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = (6 + Math.random() * 10) + 'px';
+                    confetti.style.height = (6 + Math.random() * 10) + 'px';
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                    confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+                    confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(function() { confetti.remove(); }, 4000);
+                }, i * 30);
             }
         }
 
