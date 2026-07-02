@@ -235,14 +235,12 @@ function reportStory(storyId) {
 // ✅ FIX #7 & #8: FLOATING EMOJI & FIREWORK CLEANUP
 // ============================================
 
-// ✅ FIX #7: Floating emoji animation (now usable from any page)
 function createFloatingEmoji(emoji, x, y) {
     var el = document.createElement('div');
     el.className = 'floating-emoji';
     el.textContent = emoji;
     el.style.cssText = 'left:' + (x + (Math.random() - 0.5) * 180) + 'px;top:' + (y + (Math.random() - 0.5) * 80) + 'px;font-size:' + (2 + Math.random() * 2) + 'rem;position:fixed;pointer-events:none;z-index:9999;animation:floatUpAnim 1.5s ease-out forwards;';
     
-    // Add keyframes if not already present
     if (!document.getElementById('floatingEmojiStyles')) {
         var style = document.createElement('style');
         style.id = 'floatingEmojiStyles';
@@ -258,15 +256,12 @@ function createFloatingEmoji(emoji, x, y) {
     
     document.body.appendChild(el);
     
-    // ✅ FIX #8: Proper cleanup with timeout
     var cleanupTimeout = setTimeout(function() {
         if (el.parentNode) el.remove();
     }, 1600);
     
-    // Store timeout ID for potential early cleanup
     el.dataset.cleanupTimeout = cleanupTimeout;
     
-    // ✅ FIX #8: Firework particles with proper cleanup
     var colors = ['#ff6b6b','#feca57','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#ff9f43'];
     var particles = [];
     var particleCount = 8 + Math.floor(Math.random() * 8);
@@ -282,7 +277,6 @@ function createFloatingEmoji(emoji, x, y) {
         document.body.appendChild(p);
         particles.push(p);
         
-        // Trigger animation
         requestAnimationFrame(function(p, a, d) {
             return function() {
                 p.style.transform = 'translate(' + Math.cos(a) * d + 'px,' + Math.sin(a) * d + 'px) scale(0)';
@@ -291,17 +285,14 @@ function createFloatingEmoji(emoji, x, y) {
         }(p, a, d));
     }
     
-    // ✅ FIX #8: Clean up particles after animation
     var particleCleanup = setTimeout(function() {
         particles.forEach(function(p) {
             if (p.parentNode) p.remove();
         });
     }, 1000);
     
-    // Store cleanup IDs
     el.dataset.particleCleanup = particleCleanup;
     
-    // Return cleanup function for manual cleanup if needed
     return function() {
         clearTimeout(cleanupTimeout);
         clearTimeout(particleCleanup);
@@ -312,10 +303,8 @@ function createFloatingEmoji(emoji, x, y) {
     };
 }
 
-// Clean up any orphaned floating elements (safety net)
 function cleanupOrphanedFloatingElements() {
     document.querySelectorAll('.floating-emoji, .firework-particle').forEach(function(el) {
-        // Check if element is orphaned (not in animation or stuck)
         if (el.classList.contains('floating-emoji')) {
             var style = window.getComputedStyle(el);
             var opacity = parseFloat(style.opacity);
@@ -326,10 +315,8 @@ function cleanupOrphanedFloatingElements() {
     });
 }
 
-// Run orphan cleanup periodically
 setInterval(cleanupOrphanedFloatingElements, 5000);
 
-// Expose createFloatingEmoji globally for use in story.html and other pages
 window.createFloatingEmoji = createFloatingEmoji;
 
 // ============================================
@@ -352,7 +339,6 @@ function loadStories() {
         return;
     }
 
-    // Restore saved state from sessionStorage
     const savedScroll = sessionStorage.getItem('feedScrollPos');
     const savedCat = sessionStorage.getItem('feedCategory');
     const savedPg = sessionStorage.getItem('feedPage');
@@ -605,13 +591,11 @@ function addReaction(storyId, emoji, event) {
     const btn = document.getElementById('reaction-'+storyId+'-'+emoji);
     if (btn) btn.disabled = true;
     
-    // ✅ FIX #7: Create floating emoji animation on reaction
     var card = document.getElementById('storyCard') || event?.target?.closest('.story-card') || document.querySelector('.story-card');
     var rect = card ? card.getBoundingClientRect() : null;
     var x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
     var y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
     
-    // Use the shared createFloatingEmoji function
     if (typeof createFloatingEmoji === 'function') {
         createFloatingEmoji(emoji, x, y);
     }
@@ -654,6 +638,83 @@ function loadAllUserReactions() {
     return db.collection('users').doc(currentUser.uid).collection('reactions').get()
         .then(snapshot => { userReactions = {}; snapshot.forEach(doc => { userReactions[doc.id] = doc.data().emojis || []; }); return userReactions; })
         .catch(() => { userReactions = {}; return userReactions; });
+}
+
+// ============================================
+// ✅ GOLD DONATION MODAL (for feed cards)
+// ============================================
+function openGoldModal(storyId) {
+    if (!currentUser || !currentUserData) return;
+    var b = currentUserData.goldBalance || 0;
+    if (b < 1) { alert('No gold!'); return; }
+    var modal = document.getElementById('goldModal');
+    if (!modal) {
+        var amount = prompt('Enter amount (Balance: ' + b + ' 🪙):');
+        if (amount && parseInt(amount) > 0 && parseInt(amount) <= b) {
+            var msg = prompt('Message (optional):') || '';
+            donateGoldFeed(storyId, parseInt(amount), msg);
+        }
+        return;
+    }
+    document.getElementById('goldBalanceAmount').textContent = b;
+    modal.classList.add('active');
+    currentStoryId = storyId;
+    window.selectedGoldAmount = 0;
+    document.getElementById('customGoldAmount').value = '';
+    document.getElementById('goldMessage').value = '';
+    document.getElementById('goldError').textContent = '';
+    document.querySelectorAll('.gold-amount-btn').forEach(function(x) { x.classList.remove('selected'); });
+}
+
+function closeGoldModal() {
+    var m = document.getElementById('goldModal');
+    if (m) m.classList.remove('active');
+}
+
+function selectGoldAmount(a) {
+    window.selectedGoldAmount = a;
+    document.getElementById('customGoldAmount').value = a;
+    document.querySelectorAll('.gold-amount-btn').forEach(function(x) { x.classList.remove('selected'); });
+    if (event && event.target) event.target.classList.add('selected');
+}
+
+function confirmGoldDonation() {
+    var ci = document.getElementById('customGoldAmount');
+    var mi = document.getElementById('goldMessage');
+    var ed = document.getElementById('goldError');
+    var a = window.selectedGoldAmount;
+    if (ci && ci.value) { var c = parseInt(ci.value); if (c > 0) a = c; }
+    var b = currentUserData ? currentUserData.goldBalance || 0 : 0;
+    if (!a || a < 1) { ed.textContent = 'Enter amount.'; return; }
+    if (a > b) { ed.textContent = 'Not enough! Balance: ' + b; return; }
+    var msg = mi ? mi.value.trim() : '';
+    closeGoldModal();
+    donateGoldFeed(currentStoryId, a, msg);
+}
+
+function donateGoldFeed(storyId, amount, message) {
+    var userRef = db.collection('users').doc(currentUser.uid);
+    var storyRef = db.collection('stories').doc(storyId);
+    storyRef.get().then(function(storyDoc) {
+        if (!storyDoc.exists) { alert('Story not found'); return; }
+        var authorId = storyDoc.data().userId;
+        if (authorId === currentUser.uid) { alert('Cannot donate to yourself'); return; }
+        return db.runTransaction(function(transaction) {
+            return transaction.get(userRef).then(function(userDoc) {
+                if (!userDoc.exists) throw new Error('User not found');
+                var balance = userDoc.data().goldBalance || 0;
+                if (balance < amount) throw new Error('Insufficient gold');
+                transaction.update(userRef, {goldBalance: firebase.firestore.FieldValue.increment(-amount), goldGiven: firebase.firestore.FieldValue.increment(amount)});
+                transaction.update(db.collection('users').doc(authorId), {goldBalance: firebase.firestore.FieldValue.increment(amount), goldReceived: firebase.firestore.FieldValue.increment(amount)});
+                transaction.update(storyRef, {goldReceived: firebase.firestore.FieldValue.increment(amount)});
+                transaction.set(db.collection('goldTransactions').doc(), {fromUid: currentUser.uid, toUid: authorId, storyId: storyId, amount: amount, message: message || '', fromName: currentUserData.name || 'Anonymous', toName: 'Someone', createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+            });
+        });
+    }).then(function() {
+        if (currentUserData) currentUserData.goldBalance = (currentUserData.goldBalance || 0) - amount;
+        alert('✅ Donated ' + amount + ' 🪙!');
+        loadStories();
+    }).catch(function(e) { alert('❌ ' + e.message); });
 }
 
 // ============================================
@@ -895,6 +956,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('authModal')?.addEventListener('click', function(e) { if(e.target===this) closeModal(); });
     document.getElementById('editModal')?.addEventListener('click', function(e) { if(e.target===this) closeEditModal(); });
+    document.getElementById('goldModal')?.addEventListener('click', function(e) { if(e.target===this) closeGoldModal(); });
 
     document.getElementById('authPassword')?.addEventListener('input', function() {
         const sd = document.getElementById('passwordStrength');
@@ -914,7 +976,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { const m = document.getElementById('authModal'); if(m&&m.classList.contains('active')) handleAuth(); }
-        if (e.key === 'Escape') { closeModal(); closeEditModal(); }
+        if (e.key === 'Escape') { closeModal(); closeEditModal(); closeGoldModal(); }
     });
 
     document.getElementById('storyTitle')?.addEventListener('input', function() { document.getElementById('titleCount').textContent = this.value.length; });
@@ -963,5 +1025,9 @@ window.populateCountryDatalist = populateCountryDatalist;
 window.addNotification = addNotification;
 window.createFloatingEmoji = createFloatingEmoji;
 window.cleanupOrphanedFloatingElements = cleanupOrphanedFloatingElements;
+window.openGoldModal = openGoldModal;
+window.closeGoldModal = closeGoldModal;
+window.selectGoldAmount = selectGoldAmount;
+window.confirmGoldDonation = confirmGoldDonation;
 
-console.log('✅ The Harbor app loaded (FIX #7: reaction animation on feed, FIX #8: firework cleanup)');
+console.log('✅ The Harbor app loaded (FIX #7: reaction animation on feed, FIX #8: firework cleanup, FIX #9: gold donation modal)');
