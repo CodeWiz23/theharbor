@@ -270,22 +270,56 @@
             .catch(function(err) { error.textContent = err.message; if (btn) { btn.disabled = false; btn.textContent = '💬 Post Comment'; } });
         }
 
+        // ✅ FIX #3: likeComment with TRANSACTION — no double increment
         function likeComment(cid) {
-            if (!currentUser) return; if (commentLikeLocks[cid]) return; commentLikeLocks[cid] = true;
-            var btn = document.getElementById('like-btn-' + cid); if (btn) btn.disabled = true;
+            if (!currentUser) return;
+            if (commentLikeLocks[cid]) return;
+            commentLikeLocks[cid] = true;
+            var btn = document.getElementById('like-btn-' + cid);
+            if (btn) btn.disabled = true;
             var userLikeRef = db.collection('users').doc(currentUser.uid).collection('commentLikes').doc(cid);
-            userLikeRef.get().then(function(likeDoc) {
-                if (likeDoc.exists) {
-                    return db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(-1)}).then(function() { return userLikeRef.delete(); }).then(function() { var countSpan = document.getElementById('like-count-' + cid); if (countSpan) countSpan.textContent = Math.max((parseInt(countSpan.textContent) || 0) - 1, 0); if (btn) { btn.classList.remove('liked'); btn.style.opacity = '1'; } commentLikeLocks[cid] = false; if (btn) btn.disabled = false; });
-                } else {
-                    return db.collection('comments').doc(cid).get().then(function(doc) { if (!doc.exists) throw new Error('Comment not found'); var data = doc.data();
-                        return db.collection('comments').doc(cid).update({likes:firebase.firestore.FieldValue.increment(1)}).then(function() { return userLikeRef.set({commentId:cid,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); }).then(function() { var countSpan = document.getElementById('like-count-' + cid); if (countSpan) countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1; if (btn) { btn.classList.add('liked'); btn.style.opacity = '1'; }
-                            if (data.userId && data.userId !== currentUser.uid) { addNotification(data.userId, 'like', {commentId:cid, storyId:currentStoryId, commentText:data.text ? data.text.substring(0, 60) : ''}); }
-                            commentLikeLocks[cid] = false; if (btn) btn.disabled = false;
-                        });
+            var commentRef = db.collection('comments').doc(cid);
+            db.runTransaction(function(transaction) {
+                return transaction.get(userLikeRef).then(function(likeDoc) {
+                    return transaction.get(commentRef).then(function(commentDoc) {
+                        if (!commentDoc.exists) return;
+                        var data = commentDoc.data();
+                        var currentLikes = data.likes || 0;
+                        if (likeDoc.exists) {
+                            transaction.update(commentRef, {likes: currentLikes - 1});
+                            transaction.delete(userLikeRef);
+                            return {action: 'unliked', likes: currentLikes - 1, data: data};
+                        } else {
+                            transaction.update(commentRef, {likes: currentLikes + 1});
+                            transaction.set(userLikeRef, {commentId: cid, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
+                            return {action: 'liked', likes: currentLikes + 1, data: data};
+                        }
+                    });
+                });
+            }).then(function(result) {
+                if (!result) { commentLikeLocks[cid] = false; if (btn) btn.disabled = false; return; }
+                var countSpan = document.getElementById('like-count-' + cid);
+                if (countSpan) countSpan.textContent = result.likes;
+                if (btn) {
+                    if (result.action === 'liked') { btn.classList.add('liked'); btn.style.opacity = '1'; }
+                    else { btn.classList.remove('liked'); btn.style.opacity = '1'; }
+                }
+                // ✅ FIX #4: Notification with proper type
+                if (result.action === 'liked' && result.data.userId && result.data.userId !== currentUser.uid) {
+                    addNotification(result.data.userId, 'comment_like', {
+                        commentId: cid,
+                        storyId: currentStoryId,
+                        commentText: result.data.text ? result.data.text.substring(0, 60) : '',
+                        fromName: currentUserData ? currentUserData.name : 'Someone'
                     });
                 }
-            }).catch(function(err) { console.error('Like error:', err); commentLikeLocks[cid] = false; if (btn) btn.disabled = false; });
+                commentLikeLocks[cid] = false;
+                if (btn) btn.disabled = false;
+            }).catch(function(err) {
+                console.error('Like error:', err);
+                commentLikeLocks[cid] = false;
+                if (btn) btn.disabled = false;
+            });
         }
 
         function deleteComment(cid) { if (!currentUser || !confirm('Delete this comment?')) return; db.collection('comments').doc(cid).get().then(function(doc) { if (!doc.exists) return; var data = doc.data(); var isCommentOwner = currentUser && data.userId === currentUser.uid; var isStoryAuthor = currentUser && currentStory && currentStory.userId === currentUser.uid; var isAdmin = currentUserData && currentUserData.isAdmin === true; if (!isCommentOwner && !isStoryAuthor && !isAdmin) { alert('You cannot delete this comment.'); return; } db.collection('comments').doc(cid).delete().catch(function() {}); }); }
@@ -298,7 +332,6 @@
         function deleteCurrentStory() { if (!currentUser || !currentStory || !confirm('⚠️ Delete?')) return; db.collection('stories').doc(currentStory.id).delete().then(function() { alert('✅ Deleted'); window.location.href = 'index.html'; }).catch(function(e) { alert('❌ ' + e.message); }); }
         function toggleStoryVisibility() { if (!currentStory || currentStory.userId !== currentUser.uid) return; var newVis = currentStory.visibility === 'public' ? 'private' : 'public'; db.collection('stories').doc(currentStory.id).update({visibility:newVis}).then(function() { currentStory.visibility = newVis; loadStory(); }).catch(function(e) { alert('❌ ' + e.message); }); }
 
-        // Gold donation inline
         function openGoldDonation(storyId) { if (!currentUser || !currentUserData) return; var b = currentUserData.goldBalance || 0; if (b < 1) { alert('No gold!'); return; } document.getElementById('goldBalanceAmount').textContent = b; document.getElementById('goldModal').classList.add('active'); currentStoryId = storyId; window.selectedGoldAmount = 0; document.getElementById('customGoldAmount').value = ''; document.getElementById('goldMessage').value = ''; document.getElementById('goldError').textContent = ''; document.querySelectorAll('.gold-amount-btn').forEach(function(x) { x.classList.remove('selected'); }); }
         function closeGoldModal() { document.getElementById('goldModal').classList.remove('active'); }
         function selectGoldAmount(a) { window.selectedGoldAmount = a; document.getElementById('customGoldAmount').value = a; document.querySelectorAll('.gold-amount-btn').forEach(function(x) { x.classList.remove('selected'); }); if (event && event.target) event.target.classList.add('selected'); }
@@ -342,6 +375,19 @@
             document.getElementById('editModal') && document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
             document.getElementById('goldModal') && document.getElementById('goldModal').addEventListener('click', function(e) { if (e.target === this) closeGoldModal(); });
             document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeEditModal(); closeGoldModal(); } });
+            // ✅ FIX: Scroll to comment if URL has #comment-XXX
+            if (window.location.hash && window.location.hash.indexOf('#comment-') === 0) {
+                var commentId = window.location.hash.replace('#comment-', '');
+                var scrollToComment = setInterval(function() {
+                    var el = document.getElementById('comment-' + commentId);
+                    if (el) {
+                        clearInterval(scrollToComment);
+                        el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                        el.style.background = '#fef3c7';
+                        setTimeout(function() { el.style.background = ''; }, 2000);
+                    }
+                }, 300);
+            }
             console.log('✅ Story page ready');
         });
     </script>
