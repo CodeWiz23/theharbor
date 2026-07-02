@@ -851,6 +851,28 @@ function handleAuth() {
 }
 
 function logout() {
+    if (typeof createSettingsModal === 'function') {
+        createSettingsModal();
+        var overlay = document.getElementById('settingsModalOverlay');
+        var title = document.getElementById('settingsModalTitle');
+        var body = document.getElementById('settingsModalBody');
+        var confirmBtn = document.getElementById('settingsConfirmBtn');
+        var cancelBtn = document.querySelector('.settings-btn-cancel');
+        if (overlay && title && body && confirmBtn) {
+            title.textContent = '🚪 Logout';
+            body.innerHTML = '<p style="text-align:center;color:var(--text-secondary);font-size:1rem;padding:10px 0;">Are you sure you want to logout?</p>';
+            confirmBtn.textContent = 'Logout';
+            confirmBtn.style.background = '#dc2626';
+            if (cancelBtn) cancelBtn.style.display = '';
+            settingsModalCallback = function() {
+                sessionStorage.removeItem('harbor_was_logged_in');
+                auth.signOut();
+                window.location.href = 'index.html';
+            };
+            overlay.classList.add('active');
+            return;
+        }
+    }
     if (confirm('Are you sure you want to logout?')) {
         sessionStorage.removeItem('harbor_was_logged_in');
         auth.signOut();
