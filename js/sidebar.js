@@ -365,22 +365,28 @@ function viewGoldHistory() {
         .limit(10)
         .get()
         .then(function(snap) {
-            // FIXED: Added color and background to make text visible
-            var html = '<div style="margin-bottom:12px;padding:10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;color:#92400e;">';
-            html += '🪙 Balance: ' + (currentUserData.goldBalance||0) + ' | 💰 Received: ' + (currentUserData.goldReceived||0) + ' | 📤 Given: ' + (currentUserData.goldGiven||0);
+            // MOBILE-FRIENDLY: Better wrapping and smaller font
+            var html = '<div style="margin-bottom:12px;padding:12px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;color:#92400e;font-size:clamp(13px, 3vw, 16px);word-wrap:break-word;overflow-wrap:break-word;">';
+            html += '🪙 Balance: ' + (currentUserData.goldBalance||0);
+            html += '<br>💰 Received: ' + (currentUserData.goldReceived||0);
+            html += ' | 📤 Given: ' + (currentUserData.goldGiven||0);
             html += '</div>';
             
             if (snap.empty) {
                 html += '<p style="text-align:center;color:var(--text-muted);padding:20px;">No transactions yet.</p>';
             } else {
-                html += '<div style="max-height:300px;overflow-y:auto;">';
+                html += '<div style="max-height:300px;overflow-y:auto;padding:0 4px;">';
                 snap.forEach(function(doc) {
                     var d = doc.data();
                     var time = d.createdAt ? d.createdAt.toDate().toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Recently';
-                    html += '<div style="padding:8px 0;border-bottom:1px solid var(--border-color);">';
-                    html += '<span style="font-weight:600;color:var(--secondary);">' + d.amount + ' 🪙</span> → <strong>' + (d.toName||'Someone') + '</strong>';
-                    html += '<div style="font-size:0.75rem;color:var(--text-muted);">' + time + '</div>';
-                    if (d.message) html += '<div style="font-size:0.8rem;color:var(--text-secondary);font-style:italic;">"' + d.message + '"</div>';
+                    html += '<div style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#1f2937;font-size:clamp(13px, 2.8vw, 15px);">';
+                    html += '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;">';
+                    html += '<span style="font-weight:700;color:#4f46e5;font-size:clamp(14px, 3vw, 17px);">' + d.amount + ' 🪙</span>';
+                    html += '<span style="color:#6b7280;">→</span>';
+                    html += '<strong style="color:#1f2937;word-break:break-word;">' + (d.toName||'Someone') + '</strong>';
+                    html += '</div>';
+                    html += '<div style="font-size:clamp(10px, 2.2vw, 12px);color:#6b7280;margin-top:3px;">' + time + '</div>';
+                    if (d.message) html += '<div style="font-size:clamp(11px, 2.4vw, 13px);color:#4b5563;font-style:italic;margin-top:2px;word-break:break-word;">"' + d.message + '"</div>';
                     html += '</div>';
                 });
                 html += '</div>';
