@@ -91,9 +91,9 @@
         .follow-btn.following { background: #dc2626; color: white; }
         .follow-btn.following:hover { background: #b91c1c; transform: translateY(-1px); }
         .follow-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
-        .stories-section { margin-top: 1.5rem; }
+        .stories-section { margin-top: 1.5rem; overflow: visible !important; }
         .stories-section h3 { color: var(--text-primary); margin-bottom: 10px; font-size: 1.05rem; font-weight: 600; }
-        .story-item { background: var(--bg-card); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 6px; transition: all 0.15s; position: relative; overflow: visible; }
+        .story-item { background: var(--bg-card); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 6px; transition: all 0.15s; position: relative; overflow: visible !important; }
         .story-item:hover { border-color: var(--secondary); transform: translateX(2px); }
         .story-item .stitle { font-weight: 700; color: var(--text-primary); font-size: 0.9rem; padding-right: 30px; }
         .story-item .smeta { font-size: 0.68rem; color: var(--text-muted); display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 4px; }
@@ -254,12 +254,14 @@
         var currentProfileIsPrivate = false;
         var profileUserId = null;
         var followInProgress = false;
+        var _myFollowing = [];
 
+        // ✅ FIX #2: Anti-flash only for auth buttons, NOT nav-icons
         (function() {
             var wasLoggedIn = sessionStorage.getItem('harbor_was_logged_in');
             if (wasLoggedIn === 'true') {
                 var style = document.createElement('style');
-                style.textContent = '.guest-only{display:block!important}.auth-only{display:none!important}#userInfo{display:flex!important}';
+                style.textContent = '.btn-login.auth-only,.btn-signup.auth-only{display:none!important}.guest-only{display:inline-flex!important}#userInfo{display:flex!important}';
                 document.head.appendChild(style);
             }
             var tc = document.getElementById('termsCheckbox');
@@ -286,23 +288,23 @@
             if (adminLink) adminLink.style.display = (isLoggedIn && currentUserData && currentUserData.isAdmin === true) ? '' : 'none';
         }
 
+        // ✅ FIX #3: Following sticky — checks against saved _myFollowing
         function profileFollowUser(targetUid) {
             if (!currentUser) return;
             if (targetUid === currentUser.uid) return;
             if (followInProgress) return;
             var btn = document.getElementById('followBtn');
-            var isCurrentlyFollowing = isFollowingUser(targetUid);
+            var isCurrentlyFollowing = _myFollowing.indexOf(targetUid) !== -1;
             followInProgress = true;
             if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
-            if (currentUserData) {
-                if (isCurrentlyFollowing) {
-                    currentUserData.following = (currentUserData.following || []).filter(function(uid) { return uid !== targetUid; });
-                    profileFollowers = profileFollowers.filter(function(uid) { return uid !== currentUser.uid; });
-                } else {
-                    if (!currentUserData.following) currentUserData.following = [];
-                    currentUserData.following.push(targetUid);
-                    if (profileFollowers.indexOf(currentUser.uid) === -1) profileFollowers.push(currentUser.uid);
-                }
+            
+            // Instant UI update
+            if (isCurrentlyFollowing) {
+                _myFollowing = _myFollowing.filter(function(uid) { return uid !== targetUid; });
+                profileFollowers = profileFollowers.filter(function(uid) { return uid !== currentUser.uid; });
+            } else {
+                _myFollowing.push(targetUid);
+                if (profileFollowers.indexOf(currentUser.uid) === -1) profileFollowers.push(currentUser.uid);
             }
             if (btn) {
                 btn.className = 'follow-btn ' + (isCurrentlyFollowing ? 'follow' : 'following');
@@ -312,6 +314,7 @@
             var followerCountEl = document.querySelector('.stat-item.clickable .num');
             if (followerCountEl) followerCountEl.textContent = profileFollowers.length;
             if (typeof updateSidebarData === 'function') updateSidebarData();
+            
             var userRef = db.collection('users').doc(currentUser.uid);
             var targetRef = db.collection('users').doc(targetUid);
             db.runTransaction(function(transaction) {
@@ -326,16 +329,14 @@
                         if (typeof addNotification === 'function') addNotification(targetUid, 'follow', {});
                     }
                 });
-            }).catch(function(err) {
-                console.error('Follow error:', err);
-                if (btn) { btn.className = 'follow-btn ' + (isCurrentlyFollowing ? 'following' : 'follow'); btn.textContent = isCurrentlyFollowing ? '✅ Following' : '➕ Follow'; }
-            });
+            }).catch(function(err) { console.error('Follow error:', err); });
             followInProgress = false;
         }
 
-        function isFollowingUser(targetUid) { return currentUserData && currentUserData.following && currentUserData.following.includes(targetUid); }
+        function isFollowingUser(targetUid) { return _myFollowing.indexOf(targetUid) !== -1; }
 
         function profileReportUser(userId){if(!currentUser||userId===currentUser.uid)return;if(typeof openConfirmModal==='function'){openConfirmModal('Report User','Why are you reporting this user?',true,function(reason){if(!reason||reason.length<3)return;db.collection('reports').add({reportedUser:userId,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:reason.trim(),status:'pending',type:'user',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){alert('✅ Reported');}).catch(function(){});});}else{var reason=prompt('Why?');if(!reason||reason.length<3)return;db.collection('reports').add({reportedUser:userId,reportedBy:currentUser.uid,reporterName:currentUserData?currentUserData.name:'Anonymous',reason:reason.trim(),status:'pending',type:'user',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){alert('✅ Reported');}).catch(function(){});}}
+        
         function showUserList(type) {
             var modal=document.getElementById('userListModal'),title=document.getElementById('userListTitle'),container=document.getElementById('userListContainer');
             if(!modal||!container)return;
@@ -355,7 +356,9 @@
             var urlParams=new URLSearchParams(window.location.search),uid=urlParams.get('uid');
             if(uid&&uid!==(auth.currentUser?auth.currentUser.uid:null)){profileUserId=uid;}else{if(!auth.currentUser){container.innerHTML='<div class="empty-state" style="padding:40px;"><div class="big-emoji">🔒</div><h3>Login Required</h3><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-primary" onclick="openModal(\'login\')">🔐 Log In</button><button class="btn btn-secondary" onclick="openModal(\'signup\')">📝 Join</button></div></div>';return;}profileUserId=auth.currentUser.uid;}
             container.innerHTML='<div class="loading"><div class="loading-spinner"></div> Loading profile...</div>';
-            db.collection('users').doc(profileUserId).get().then(function(doc){if(!doc.exists){container.innerHTML='<div class="empty-state"><div class="big-emoji">👤</div><h3>Profile not found</h3></div>';return null;}var userData=doc.data();if(!userData.uid)userData.uid=doc.id;currentUserData=userData;selectedAvatar=userData.avatar||'👤';selectedBorder=userData.border||'default';currentProfileIsPrivate=userData.isPublic===false;profileFollowers=userData.followers||[];profileFollowing=userData.following||[];var isSelf=auth.currentUser&&auth.currentUser.uid===userData.uid;var viewerFollowsProfileOwner=currentUserData&&currentUserData.following&&currentUserData.following.includes(userData.uid);var canViewFullProfile=isSelf||!currentProfileIsPrivate||viewerFollowsProfileOwner;return db.collection('stories').where('userId','==',profileUserId).get().then(function(snap){var stories=[],totalLikes=0;snap.forEach(function(s){var sd=s.data();sd.id=s.id;var reactions=sd.reactions||{};totalLikes+=(reactions['❤️']||0);if(sd.visibility==='private'&&!isSelf)return;stories.push(sd);});stories.sort(function(a,b){return(b.createdAt?.toDate().getTime()||0)-(a.createdAt?.toDate().getTime()||0);});return{userData:userData,stories:stories,totalLikes:totalLikes,isSelf:isSelf,canViewFullProfile:canViewFullProfile};});}).then(function(result){if(result)renderProfile(result.userData,result.stories,result.totalLikes,result.isSelf,result.canViewFullProfile);}).catch(function(err){container.innerHTML='<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><button class="btn btn-primary" onclick="loadProfile()">🔄 Retry</button></div>';});
+            // ✅ Load logged-in user's following list for sticky follow state
+            if(auth.currentUser){db.collection('users').doc(auth.currentUser.uid).get().then(function(myDoc){if(myDoc.exists){_myFollowing=myDoc.data().following||[];}}).catch(function(){_myFollowing=[];});}
+            db.collection('users').doc(profileUserId).get().then(function(doc){if(!doc.exists){container.innerHTML='<div class="empty-state"><div class="big-emoji">👤</div><h3>Profile not found</h3></div>';return null;}var userData=doc.data();if(!userData.uid)userData.uid=doc.id;currentUserData=userData;selectedAvatar=userData.avatar||'👤';selectedBorder=userData.border||'default';currentProfileIsPrivate=userData.isPublic===false;profileFollowers=userData.followers||[];profileFollowing=userData.following||[];var isSelf=auth.currentUser&&auth.currentUser.uid===userData.uid;var viewerFollowsProfileOwner=_myFollowing.indexOf(userData.uid)!==-1;var canViewFullProfile=isSelf||!currentProfileIsPrivate||viewerFollowsProfileOwner;return db.collection('stories').where('userId','==',profileUserId).get().then(function(snap){var stories=[],totalLikes=0;snap.forEach(function(s){var sd=s.data();sd.id=s.id;var reactions=sd.reactions||{};totalLikes+=(reactions['❤️']||0);if(sd.visibility==='private'&&!isSelf)return;stories.push(sd);});stories.sort(function(a,b){return(b.createdAt?.toDate().getTime()||0)-(a.createdAt?.toDate().getTime()||0);});return{userData:userData,stories:stories,totalLikes:totalLikes,isSelf:isSelf,canViewFullProfile:canViewFullProfile};});}).then(function(result){if(result)renderProfile(result.userData,result.stories,result.totalLikes,result.isSelf,result.canViewFullProfile);}).catch(function(err){container.innerHTML='<div class="empty-state"><div class="big-emoji">⚠️</div><h3>Error</h3><button class="btn btn-primary" onclick="loadProfile()">🔄 Retry</button></div>';});
         }
 
         function renderProfile(userData,stories,totalLikes,isSelf,canViewFullProfile){
